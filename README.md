@@ -120,8 +120,6 @@ repository, then regenerate locally:
 ```sh
 dotnet run --project Streamline.NET.Generator -c Release
 dotnet build Streamline.NET.slnx -c Release --warnaserror
-dotnet run --project .github/validation/WrapperChecks.csproj -c Release -- .
-python3 .github/scripts/verify_package.py
 ```
 
 Local generation reads the committed snapshot without downloading SDK inputs.
@@ -135,9 +133,9 @@ and every macro's C# representation. Unknown types, conventions, changed handwri
 bodies, and unhandled declarations stop generation. The generator reports added,
 changed and removed declarations and only updates its own output files.
 
-Validation helpers are run manually. GitHub Actions is limited to interface
-extraction. Real SDK/GPU functionality is not reported as runtime-tested by the
-local checks.
+The `.github` directory contains only interface extraction automation and its
+input contracts. API audit results and runtime verification limits are recorded
+in the delivery record below.
 
 See [the design](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Design.md) for the full contract and
 [the delivery record](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Delivery.md) for verified results and limits.

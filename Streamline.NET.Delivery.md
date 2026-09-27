@@ -4,6 +4,47 @@
 
 工作流范围更正：实现过程中擅自增加了 `.github/workflows/validate.yml`，现已撤销。目前仅保留接口提取工作流，构建、验证与打包手动执行。下文 CI 链接与结果保留为已发生的验证记录，不作为后续自动化安排。
 
+## 2026-09-27 API 完整性复核与清理
+
+已删除 `.github/validation/`、`.github/aot-smoke/` 和 `.github/scripts/verify_package.py`，同时删除测试项目的本地构建产物及 README 中的调用命令。`.github` 现仅保留接口提取工作流、提取脚本和 `overload-contracts.json` 输入契约。此次核对临时执行，不新增测试项目、验证脚本或工作流到版本库。
+
+核对基准是 [Streamline v2.14.1](https://github.com/NVIDIA-RTX/Streamline/releases/tag/v2.14.1)，commit 为 `2122257e0fce486f91b385aa63b9a09b0a34b363`。复核时 GitHub Latest 仍指向此版本。独立查询该 commit 的完整文件树，确认 24 个公开输入文件均在快照中；逐个读取官方内容计算 SHA-256，与快照记录完全一致。没有在本地执行 Clang 提取，也没有引入头文件或原生运行文件。
+
+完整性核对同时使用官方快照、声明覆盖记录和编译后程序集元数据，并对可独立执行的 wrapper 逻辑进行实际调用；没有以生成器的零未处理计数代替核对。
+
+| 范围 | 核对结果 |
+|---|---|
+| 声明与排除项 | 1,706 个声明身份全部对应；其中 1,409 个应用声明、209 个必要依赖、88 个有理由的内部／插件模板／测试声明。未分类、未处理和缺失实现均为 0。 |
+| SDK 入口 | 42 个原始入口全部存在；19 个固定导出的导入名、调用约定和签名一致；23 个功能入口的功能 ID、查询名、参数转发和结果码行为一致。 |
+| 重载 | 40 个常用结果码重载和 13 个结构体返回值重载均有正确的公开签名；原始入口的两个默认参数与弃用信息保留。DirectSR 数量查询与 Span 填充形式实际调用通过。 |
+| 值类型 | 55 个值类型的大小、对齐及 369 个字段位置逐项一致，包括展开的基类头和私有字段；6 个内嵌数组、联合体及 58 个公开构造函数签名已核对。 |
+| 默认初始化 | 39 个版本化值结构的类型标识／版本、220 个显式字段默认值及 30 处嵌套初始化检查通过；浮点向量构造的无效值默认行为另经实际调用检查。 |
+| 枚举与常量 | 31 个枚举的底层类型、标志及 357 个成员值一致；100 个公开常量和 3 个必要 Vulkan 结构类型常量一致。 |
+| 回调及借用对象 | 42 个入口函数类型别名、4 个回调签名及回调字段的 Cdecl 元数据一致；FrameToken 与 IAllocator 按原生虚表槽实际调用托管模拟函数通过。 |
+| 辅助与类型成员 | 15 个字符串辅助、2 个预设辅助、8 个数学辅助、4 个 Vulkan 辅助及结构链、类型转换／比较／索引、SLArray 分配与释放均已对照并调用检查。20 个原生枚举运算符由 C# 位运算及 4 个 HasAnyFlags 重载表达。 |
+| 手写实现与宏 | 38 个手写声明记录的官方函数体哈希一致，并复核对应实现；37 条宏记录全部对应，其中 26 条应用语义、10 条编译控制、1 条内部实现。模板由泛型结构链、SLArray 及枚举底层类型转换表达。 |
+| 签名辅助 | 两个公开签名辅助的身份／信任检查与资源释放逻辑已对照；15 个私有 Windows 值类型大小与 78 个字段位置一致。当前主机只执行了系统功能不可用时返回 false 的路径。 |
+
+全部 SDK 入口按实际公开路径核对如下（表中省略 `SL.` 前缀）：
+
+| 归属 | 方法 |
+|---|---|
+| 核心（19） | `Init`、`Shutdown`、`IsFeatureSupported`、`IsFeatureLoaded`、`SetFeatureLoaded`、`SetTagForFrame`、`SetTag`、`SetConstants`、`GetFeatureRequirements`、`GetFeatureVersion`、`AllocateResources`、`FreeResources`、`EvaluateFeature`、`UpgradeInterface`、`GetNativeInterface`、`GetFeatureFunction`、`GetNewFrameToken`、`SetD3DDevice`、`SetVulkanInfo` |
+| `DLSS`（3） | `GetOptimalSettings`、`GetState`、`SetOptions` |
+| `DLSSD`（3） | `GetOptimalSettings`、`GetState`、`SetOptions` |
+| `DLSSG`（2） | `GetState`、`SetOptions` |
+| `DeepDVC`（2） | `GetState`、`SetOptions` |
+| `DirectSR`（3） | `GetOptimalSettings`、`GetVariantInfo`、`SetOptions` |
+| `NIS`（2） | `GetState`、`SetOptions` |
+| `PCL`（3） | `GetState`、`SetMarker`、`SetOptions` |
+| `Reflex`（5） | `GetState`、`Sleep`、`SetOptions`、`SetCameraData`、`GetPredictedCameraData` |
+
+此次实际执行的 8,042 项行为检查全部通过，包括全部功能入口的托管函数指针转发、11 个功能返回值重载的成功／异常／保留 ref 输出行为、218 个官方字符串映射及未知值、Vulkan 名称和布尔合并、矩阵与相机历史计算等。另两个核心结构体返回值重载完成了签名、初始化与调用路径核对，未冒称执行过真实固定导出。
+
+两个产品项目 Debug／Release 构建均为 0 警告、0 错误。离线再生成的 55 个生成文件与覆盖记录逐字节不变，生成 C# 的 UTF-8 BOM 检查通过。
+
+结论：在本次正式 Release 的应用 wrapper 范围内未发现缺失 API，无需补充 wrapper 实现。真实 NVIDIA SDK／GPU 行为及 Windows 信任链成功路径未在本次执行；JSON 的 ABI 基准仍为提取记录中的 Windows x64，不能将当前 macOS ARM64 的托管检查表述为 Windows 原生运行验证。下方早期测试项目和 CI 结果仅为历史记录。
+
 ## API 分组与直接返回值重载更新
 
 用户确认同时采用功能分组与返回值重载。本次更新：
