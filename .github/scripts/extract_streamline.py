@@ -146,6 +146,7 @@ def main():
         return "::".join(reversed(names))
 
     dependencies = {}
+    security_types = {}
     function_kinds = {cx.TypeKind.FUNCTIONPROTO, cx.TypeKind.FUNCTIONNOPROTO}
 
     def describe_type(t, depth=0):
@@ -298,6 +299,15 @@ def main():
                             dependency = referenced.type.get_canonical().get_declaration()
                             if dependency and dependency.is_definition():
                                 dependencies[dependency.get_usr()] = dependency
+                    if file == "include/sl_security.h" and child.kind in {cx.CursorKind.TYPE_REF, cx.CursorKind.MEMBER_REF_EXPR} and child.referenced:
+                        referenced = child.referenced
+                        native_type = referenced.type if child.kind == cx.CursorKind.TYPE_REF else referenced.semantic_parent.type
+                        native_type = native_type.get_canonical()
+                        while native_type.kind in {cx.TypeKind.POINTER, cx.TypeKind.LVALUEREFERENCE}:
+                            native_type = native_type.get_pointee().get_canonical()
+                        dependency = native_type.get_declaration()
+                        if native_type.kind == cx.TypeKind.RECORD and dependency and dependency.is_definition():
+                            security_types[dependency.get_usr()] = dependency
                     helper_dependencies(child)
 
         helper_dependencies(tu.cursor)
@@ -308,6 +318,38 @@ def main():
             item = serialize(dependency)
             item["configurations"] = [config_name]
             declarations[item["id"]] = item
+
+    security_records = {}
+    while security_types:
+        identity, cursor = security_types.popitem()
+        if identity in security_records:
+            continue
+        item = serialize(cursor)
+        item["classification"] = "implementation"
+        item["reason"] = "Private Windows data layout required by the signature helpers."
+        security_records[identity] = item
+        for field in cursor.get_children():
+            if field.kind == cx.CursorKind.FIELD_DECL:
+                field_type = field.type.get_canonical()
+                if field_type.kind == cx.TypeKind.RECORD:
+                    nested = field_type.get_declaration()
+                    if nested and nested.is_definition():
+                        security_types[nested.get_usr()] = nested
+    security_source = (sdk / "include/sl_security.h").read_text(encoding="utf-8-sig")
+    required_macros = set(re.findall(r"\b(?:CERT_|CMSG_|WTD_|WSS_|CRYPT_|PKCS_|X509_|CNG_|szOID_|WINTRUST_ACTION_)\w+\b", security_source))
+    macro_cursors = {c.spelling: c for c in tu.cursor.get_children() if c.kind == cx.CursorKind.MACRO_DEFINITION}
+    security_macros = {}
+    def include_macro(name):
+        if name in security_macros or name not in macro_cursors:
+            return
+        cursor = macro_cursors[name]
+        tokens = [token.spelling for token in cursor.get_tokens()][1:]
+        security_macros[name] = " ".join(tokens)
+        for token in tokens:
+            if token in macro_cursors:
+                include_macro(token)
+    for name in sorted(required_macros):
+        include_macro(name)
 
     macros = []
     for path in public_headers:
@@ -384,6 +426,8 @@ extern "C" __declspec(dllexport) void destroyAllocator(sl::IAllocator* allocator
                               "clang": subprocess.check_output([compiler, "--version"], text=True).splitlines()[0]},
                 "abi": {"virtualSlots": slots, "resourceAllocateCallback": callback_ir[0],
                         "allocatorDestructor": destructor_ir[0], "arrayLayout": array_data},
+                "security": {"types": sorted(security_records.values(), key=lambda item: item["qualifiedName"]),
+                             "constants": dict(sorted(security_macros.items()))},
                 "configurations": configurations, "inputs": sorted(inputs, key=lambda i: (i["path"], i["classification"])),
                 "declarations": sorted(declarations.values(), key=lambda i: (i["file"], i["line"], i["id"])),
                 "macros": macros,
