@@ -31,14 +31,23 @@ internal unsafe ref struct Utf8StringArray
             bytes = checked(bytes + (nuint)Encoding.UTF8.GetByteCount(value) + 1);
         }
         allocation = values.IsEmpty ? null : (byte*)NativeMemory.Alloc(bytes);
-        byte* cursor = allocation + pointerBytes;
-        for (int index = 0; index < values.Length; index++)
+        try
         {
-            Pointer[index] = (sbyte*)cursor;
-            int length = Encoding.UTF8.GetByteCount(values[index]);
-            Encoding.UTF8.GetBytes(values[index], new Span<byte>(cursor, length));
-            cursor[length] = 0;
-            cursor += length + 1;
+            byte* cursor = allocation + pointerBytes;
+            for (int index = 0; index < values.Length; index++)
+            {
+                Pointer[index] = (sbyte*)cursor;
+                int length = Encoding.UTF8.GetByteCount(values[index]);
+                Encoding.UTF8.GetBytes(values[index], new Span<byte>(cursor, length));
+                cursor[length] = 0;
+                cursor += length + 1;
+            }
+        }
+        catch
+        {
+            NativeMemory.Free(allocation);
+            allocation = null;
+            throw;
         }
     }
 

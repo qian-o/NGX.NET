@@ -39,7 +39,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python .github/scripts/extract_streamline.py --scratch "${{ runner.temp }}/streamline-extraction" --output Streamline.NET.Generator/streamline-ast.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         with:
           name: streamline-ast
           path: Streamline.NET.Generator/streamline-ast.json

@@ -220,11 +220,37 @@ internal static unsafe class Program
         Float4x4 singular = default;
         SL.MatrixFullInvert(ref result, in singular);
         Assert(result[0].X == 0 && result[3].W == 0, "Native singular-matrix behavior");
+        singular = new(new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 0));
+        SL.MatrixFullInvert(ref result, in singular);
+        Assert(result[3].W == 1 && result[0].X == 0, "Singular rank-three input preserves the native unscaled cofactor result");
+        Float4x4 affine = new(new(2, 1, 0, 0), new(0, 3, 1, 0), new(1, 0, 4, 0), new(5, 6, 7, 1));
+        System.Numerics.Matrix4x4 oracleInput = new(2, 1, 0, 0, 0, 3, 1, 0, 1, 0, 4, 0, 5, 6, 7, 1);
+        Assert(System.Numerics.Matrix4x4.Invert(oracleInput, out System.Numerics.Matrix4x4 oracle), "Independent matrix oracle is invertible");
+        SL.MatrixFullInvert(ref result, in affine);
+        float* actualValues = (float*)(&result);
+        float* oracleValues = (float*)(&oracle);
+        for (int index = 0; index < 16; index++)
+        {
+            Assert(MathF.Abs(actualValues[index] - oracleValues[index]) < 0.00001f, "Nondiagonal inverse component " + index);
+        }
         Float3 zero = new(0, 0, 0);
         SL.VectorNormalize(ref zero);
         Assert(float.IsNaN(zero.X) && float.IsNaN(zero.Y), "Native zero-vector boundary");
         Float4x4 transposed = SL.Transpose(in input);
         Assert(transposed[1].Y == input[1].Y, "Transpose");
+        Constants camera = new()
+        {
+            CameraRight = new(2, 0, 0),
+            CameraFwd = new(0, 0, 3),
+            CameraPos = new(0, 0, 0),
+            CameraViewToClip = identity
+        };
+        SL.RecalculateCameraMatrices(ref camera);
+        Assert(camera.CameraRight.X == 1 && camera.CameraFwd.Z == 1 && camera.CameraUp.Y == 1, "Explicit camera helper performs the original normalization and cross product");
+        Assert(camera.ClipToPrevClip[3].X == 0, "Initial shared camera history");
+        camera.CameraPos.X = 1;
+        SL.RecalculateCameraMatrices(ref camera);
+        Assert(camera.ClipToPrevClip[3].X == 1 && camera.PrevClipToClip[3].X == -1, "Shared previous-camera history and inverse updates");
     }
 
     private static void CheckVulkan()
@@ -256,6 +282,17 @@ internal static unsafe class Program
         SL.SetLibraryPath(Path.Combine(root, ".work", "nonexistent-streamline-library"));
         Assert(SL.GetResultAsStr(SLResult.Ok) == "Result::eOk", "Pure helper after path configuration does not load the SDK");
         Throws<DllNotFoundException>(() => SL.Shutdown());
+        string? systemLibrary = OperatingSystem.IsWindows()
+            ? Path.Combine(Environment.SystemDirectory, "kernel32.dll")
+            : OperatingSystem.IsMacOS() ? "/usr/lib/libSystem.B.dylib" : null;
+        if (systemLibrary is not null)
+        {
+            // Use an existing OS library with no Streamline exports. No test DLL or
+            // NVIDIA runtime asset is downloaded or distributed.
+            SL.SetLibraryPath(systemLibrary);
+            Throws<EntryPointNotFoundException>(() => SL.Shutdown());
+            Throws<InvalidOperationException>(() => SL.SetLibraryPath(systemLibrary));
+        }
         Console.WriteLine($"Passed {assertions} assertions.");
         return 0;
     }

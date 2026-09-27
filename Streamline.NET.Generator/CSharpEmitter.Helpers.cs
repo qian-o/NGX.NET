@@ -128,7 +128,9 @@ internal sealed partial class CSharpEmitter
         }, RegexOptions.Singleline);
         body = TranslateMathBody(body, declaration.Parameters.ToList());
         builder.AppendLine();
-        Comment(builder, declaration, "    ");
+        Comment(builder, declaration, "    ", declaration.Name == "recalculateCameraMatrices"
+            ? "Maintains shared previous-camera state. Not thread-safe and not isolated by viewport; preserves the upstream helper's limitations."
+            : "Preserves the upstream formula, precision and defined boundary behavior.");
         builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
         builder.AppendLine("    {");
         foreach (string line in body.Trim('\n', '\r').Split('\n'))
@@ -167,7 +169,9 @@ internal sealed partial class CSharpEmitter
     private void EmitMathReferenceOverload(StringBuilder builder, NativeDeclaration declaration)
     {
         builder.AppendLine();
-        builder.AppendLine("    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>");
+        Comment(builder, declaration, "    ", declaration.Name == "recalculateCameraMatrices"
+            ? "References are fixed for this call only. Maintains shared previous-camera state; not thread-safe or isolated by viewport."
+            : "References are fixed for the duration of the corresponding pointer helper.");
         string parameters = string.Join(", ", declaration.Parameters.Select(parameter => (parameter.Type.Element!.Const ? "in " : "ref ") + mapper.Map(parameter.Type.Element) + " " + parameter.Name));
         builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({parameters})");
         builder.AppendLine("    {");

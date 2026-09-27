@@ -11,13 +11,13 @@ public static unsafe partial class SL
 {
 
     /// <summary>Native SL_VERSION_MAJOR value.</summary>
-    public const uint VersionMajor = 2;
+    public const int VersionMajor = 2;
 
     /// <summary>Native SL_VERSION_MINOR value.</summary>
-    public const uint VersionMinor = 14;
+    public const int VersionMinor = 14;
 
     /// <summary>Native SL_VERSION_PATCH value.</summary>
-    public const uint VersionPatch = 1;
+    public const int VersionPatch = 1;
 
     /// <summary>Evaluates the native feature-specific buffer ID expression once per argument.</summary>
     public static uint FeatureSpecificBufferTypeId(uint feature, uint number) => (feature << 16) | number;

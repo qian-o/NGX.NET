@@ -93,14 +93,14 @@ internal sealed partial class CSharpEmitter
         {
             implementation = implementations[declaration.Id];
         }
-        if (implementation is null && parentImplementation is not null && declaration.Kind is "PARM_DECL" or "TEMPLATE_TYPE_PARAMETER")
-        {
-            implementation = "Parameter/generic contract in " + parentImplementation;
-            Record(declaration, implementation);
-        }
         if (implementation is null && parentImplementation?.StartsWith("Excluded:", StringComparison.Ordinal) == true)
         {
             implementation = parentImplementation;
+            Record(declaration, implementation);
+        }
+        if (implementation is null && parentImplementation is not null && declaration.Kind is "PARM_DECL" or "TEMPLATE_TYPE_PARAMETER")
+        {
+            implementation = "Parameter/generic contract in " + parentImplementation;
             Record(declaration, implementation);
         }
         if (implementation is null)
@@ -152,12 +152,12 @@ internal sealed partial class CSharpEmitter
         foreach ((string native, string managed) in new[] { ("SL_VERSION_MAJOR", "VersionMajor"), ("SL_VERSION_MINOR", "VersionMinor"), ("SL_VERSION_PATCH", "VersionPatch") })
         {
             NativeMacro macro = snapshot.Macros.Single(item => item.Name == native);
-            if (!uint.TryParse(macro.Body, out uint value))
+            if (!int.TryParse(macro.Body, out int value))
             {
                 throw new InvalidDataException("Unevaluated version macro: " + native);
             }
             builder.AppendLine($"    /// <summary>Native {native} value.</summary>");
-            builder.AppendLine($"    public const uint {managed} = {value};");
+            builder.AppendLine($"    public const int {managed} = {value};");
             builder.AppendLine();
         }
         NativeMacro bufferId = snapshot.Macros.Single(item => item.Name == "FEATURE_SPECIFIC_BUFFER_TYPE_ID");
@@ -187,6 +187,7 @@ internal sealed partial class CSharpEmitter
                 id = declaration.Id,
                 name = declaration.QualifiedName,
                 source = declaration.File + ":" + declaration.Line,
+                classification = declaration.Classification,
                 fingerprint = SourceHash(JsonSerializer.Serialize(declaration)),
                 implementation = implementations[declaration.Id]
             }).OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray();
@@ -200,7 +201,7 @@ internal sealed partial class CSharpEmitter
             unclassified = 0,
             unhandled = 0,
             declarations = entries,
-            macros = snapshot.Macros.Select(macro => new { id = macro.Id, name = macro.Name, implementation = implementations[macro.Id] })
+            macros = snapshot.Macros.Select(macro => new { id = macro.Id, name = macro.Name, classification = macro.Classification, implementation = implementations[macro.Id] })
         }, new JsonSerializerOptions { WriteIndented = true }) + "\n";
         if (!System.IO.File.Exists(path) || System.IO.File.ReadAllText(path) != content)
         {

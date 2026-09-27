@@ -13,7 +13,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::transpose
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:62. </remarks>
+    /// <remarks>Source: include/sl_helpers.h:62. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static Float4x4 Transpose(Float4x4* m)
     {
         Float4x4 r = new();
@@ -24,7 +24,10 @@ public static unsafe partial class SL
         return r;
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::transpose
+    /// </summary>
+    /// <remarks>Source: include/sl_helpers.h:62. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static Float4x4 Transpose(in Float4x4 m)
     {
         fixed (Float4x4* mPointer = &m)
@@ -36,7 +39,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::matrixMul
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:31. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:31. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void MatrixMul(Float4x4* result, Float4x4* a, Float4x4* b)
     {
         // Alias raw pointers over the input matrices
@@ -64,7 +67,10 @@ public static unsafe partial class SL
         (*result)[3].W = (float)((pA[12] * pB[3]) + (pA[13] * pB[7]) + (pA[14] * pB[11]) + (pA[15] * pB[15]));
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::matrixMul
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:31. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void MatrixMul(ref Float4x4 result, in Float4x4 a, in Float4x4 b)
     {
         fixed (Float4x4* resultPointer = &result)
@@ -78,7 +84,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::matrixFullInvert
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:58. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:58. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void MatrixFullInvert(Float4x4* result, Float4x4* mat)
     {
         // Matrix inversion code from https://stackoverflow.Com/questions/1148309/inverting-a-4x4-matrix
@@ -115,7 +121,10 @@ public static unsafe partial class SL
         }
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::matrixFullInvert
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:58. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void MatrixFullInvert(ref Float4x4 result, in Float4x4 mat)
     {
         fixed (Float4x4* resultPointer = &result)
@@ -128,7 +137,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::matrixOrthoNormalInvert
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:95. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:95. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void MatrixOrthoNormalInvert(Float4x4* result, Float4x4* mat)
     {
         // Transpose the first 3x3
@@ -154,7 +163,10 @@ public static unsafe partial class SL
         (*result)[3].W = 1.0f;
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::matrixOrthoNormalInvert
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:95. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void MatrixOrthoNormalInvert(ref Float4x4 result, in Float4x4 mat)
     {
         fixed (Float4x4* resultPointer = &result)
@@ -167,7 +179,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::vectorNormalize
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:120. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:120. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void VectorNormalize(Float3* v)
     {
         float k = 1.0f / MathF.Sqrt(((*v).X * (*v).X) + ((*v).Y * (*v).Y) + ((*v).Z * (*v).Z));
@@ -176,7 +188,10 @@ public static unsafe partial class SL
         (*v).Z *= k;
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::vectorNormalize
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:120. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void VectorNormalize(ref Float3 v)
     {
         fixed (Float3* vPointer = &v)
@@ -188,7 +203,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::vectorCrossProduct
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:128. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:128. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void VectorCrossProduct(Float3* result, Float3* a, Float3* b)
     {
         (*result).X = (*a).Y * (*b).Z - (*a).Z * (*b).Y;
@@ -196,7 +211,10 @@ public static unsafe partial class SL
         (*result).Z = (*a).X * (*b).Y - (*a).Y * (*b).X;
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::vectorCrossProduct
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:128. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void VectorCrossProduct(ref Float3 result, in Float3 a, in Float3 b)
     {
         fixed (Float3* resultPointer = &result)
@@ -210,7 +228,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::calcCameraToPrevCamera
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:154. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:154. Preserves the upstream formula, precision and defined boundary behavior.</remarks>
     public static void CalcCameraToPrevCamera(Float4x4* outCameraToPrevCamera, Float4x4* cameraToWorld, Float4x4* cameraToWorldPrev)
     {
         // Create translated versions of (*cameraToWorld) and (*cameraToWorldPrev), translated to
@@ -229,7 +247,10 @@ public static unsafe partial class SL
         MatrixMul(ref (*outCameraToPrevCamera), in cameraToCcWorld, in ccWorldToCameraPrev);
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::calcCameraToPrevCamera
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:154. References are fixed for the duration of the corresponding pointer helper.</remarks>
     public static void CalcCameraToPrevCamera(ref Float4x4 outCameraToPrevCamera, in Float4x4 cameraToWorld, in Float4x4 cameraToWorldPrev)
     {
         fixed (Float4x4* outCameraToPrevCameraPointer = &outCameraToPrevCamera)
@@ -243,7 +264,7 @@ public static unsafe partial class SL
     /// <summary>
     /// sl::recalculateCameraMatrices
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:178. </remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:178. Maintains shared previous-camera state. Not thread-safe and not isolated by viewport; preserves the upstream helper&apos;s limitations.</remarks>
     public static void RecalculateCameraMatrices(Constants* values)
     {
         // Form a camera-to-world matrix from the camera fields
@@ -277,7 +298,10 @@ public static unsafe partial class SL
         cameraViewToClipPrev = (*values).CameraViewToClip;
     }
 
-    /// <summary>Fixes references for the duration of the corresponding pointer helper.</summary>
+    /// <summary>
+    /// sl::recalculateCameraMatrices
+    /// </summary>
+    /// <remarks>Source: include/sl_matrix_helpers.h:178. References are fixed for this call only. Maintains shared previous-camera state; not thread-safe or isolated by viewport.</remarks>
     public static void RecalculateCameraMatrices(ref Constants values)
     {
         fixed (Constants* valuesPointer = &values)

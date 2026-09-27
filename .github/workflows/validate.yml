@@ -44,24 +44,10 @@ jobs:
       - name: Run the AOT consumer without an SDK runtime
         run: ./artifacts/aot/AotSmoke.exe
 
-      - name: Inspect the package
-        shell: pwsh
-        run: |
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $package = Get-ChildItem Streamline.NET/bin/Release/*.nupkg | Select-Object -First 1
-          $archive = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
-          try {
-              $names = @($archive.Entries.FullName)
-              if ('lib/net10.0/Streamline.NET.dll' -notin $names -or 'LICENSE' -notin $names) { throw 'Missing managed library or license.' }
-              if ($names -match '^runtimes/|[.](h|hpp)$|sl[.].*[.]dll$') { throw 'Unexpected native assets.' }
-              $entry = $archive.Entries | Where-Object FullName -like '*.nuspec'
-              $reader = [System.IO.StreamReader]::new($entry.Open())
-              try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
-              if ($manifest.package.metadata.license.InnerText -ne 'MIT') { throw 'Incorrect package license.' }
-              if ($manifest.SelectNodes("//*[local-name()='dependency']").Count -ne 0) { throw 'Unexpected runtime NuGet dependency.' }
-          } finally { $archive.Dispose() }
+      - name: Build an isolated NuGet consumer
+        run: python .github/scripts/verify_package.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         with:
           name: Streamline.NET-managed-package
           path: Streamline.NET/bin/Release/*.nupkg

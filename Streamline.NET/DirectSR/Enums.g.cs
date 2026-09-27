@@ -67,6 +67,7 @@ public enum DirectSROptimizationType : uint
 /// sl::DirectSRVariantFlags
 /// </summary>
 /// <remarks>Source: include/sl_directsr.h:45. </remarks>
+[Flags]
 public enum DirectSRVariantFlags : uint
 {
     /// <summary>

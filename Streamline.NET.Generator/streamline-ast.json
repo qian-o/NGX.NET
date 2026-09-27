@@ -37878,7 +37878,7 @@
         "alignment": 4,
         "const": false
       },
-      "flags": false,
+      "flags": true,
       "children": [
         {
           "id": "c:@N@sl@E@DirectSRVariantFlags@eNone",
@@ -68537,7 +68537,8 @@
           "source": "HCRYPTMSG hCryptMsg",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -68770,7 +68771,8 @@
           "source": "HCERTSTORE hCertStore",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertCloseStore/PARM_DECL:c:sl_security.h@dwFlags",
@@ -68794,7 +68796,8 @@
           "source": "DWORD dwFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -69115,7 +69118,8 @@
           "source": "LPCSTR lpszStoreProvider",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertOpenStore/PARM_DECL:c:sl_security.h@dwEncodingType",
@@ -69139,7 +69143,8 @@
           "source": "DWORD dwEncodingType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertOpenStore/PARM_DECL:c:sl_security.h@hCryptProv",
@@ -69163,7 +69168,8 @@
           "source": "HCRYPTPROV_LEGACY hCryptProv",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertOpenStore/PARM_DECL:c:sl_security.h@dwFlags",
@@ -69187,7 +69193,8 @@
           "source": "DWORD dwFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertOpenStore/PARM_DECL:c:sl_security.h@pvPara",
@@ -69219,7 +69226,8 @@
           "source": "const void* pvPara",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -69487,7 +69495,8 @@
           "source": "PCCERT_CONTEXT pCertContext",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -69837,7 +69846,8 @@
           "source": "HCERTSTORE hCertStore",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertFindCertificateInStore/PARM_DECL:c:sl_security.h@dwCertEncodingType",
@@ -69861,7 +69871,8 @@
           "source": "DWORD dwCertEncodingType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertFindCertificateInStore/PARM_DECL:c:sl_security.h@dwFindFlags",
@@ -69885,7 +69896,8 @@
           "source": "DWORD dwFindFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertFindCertificateInStore/PARM_DECL:c:sl_security.h@dwFindType",
@@ -69909,7 +69921,8 @@
           "source": "DWORD dwFindType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertFindCertificateInStore/PARM_DECL:c:sl_security.h@pvFindPara",
@@ -69941,7 +69954,8 @@
           "source": "const void* pvFindPara",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCertFindCertificateInStore/PARM_DECL:c:sl_security.h@pPrevCertContext",
@@ -69974,7 +69988,8 @@
           "source": "PCCERT_CONTEXT pPrevCertContext",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -70353,7 +70368,8 @@
           "source": "HCRYPTMSG hCryptMsg",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgGetParam/PARM_DECL:c:sl_security.h@dwParamType",
@@ -70377,7 +70393,8 @@
           "source": "DWORD dwParamType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgGetParam/PARM_DECL:c:sl_security.h@dwIndex",
@@ -70401,7 +70418,8 @@
           "source": "DWORD dwIndex",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgGetParam/PARM_DECL:c:sl_security.h@pvData",
@@ -70433,7 +70451,8 @@
           "source": "void* pvData",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgGetParam/PARM_DECL:c:sl_security.h@pcbData",
@@ -70465,7 +70484,8 @@
           "source": "DWORD* pcbData",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -70838,7 +70858,8 @@
           "source": "DWORD dwMsgEncodingType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgOpenToDecode/PARM_DECL:c:sl_security.h@dwFlags",
@@ -70862,7 +70883,8 @@
           "source": "DWORD dwFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgOpenToDecode/PARM_DECL:c:sl_security.h@dwMsgType",
@@ -70886,7 +70908,8 @@
           "source": "DWORD dwMsgType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgOpenToDecode/PARM_DECL:c:sl_security.h@hCryptProv",
@@ -70910,7 +70933,8 @@
           "source": "HCRYPTPROV_LEGACY hCryptProv",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgOpenToDecode/PARM_DECL:c:sl_security.h@pRecipientInfo",
@@ -70943,7 +70967,8 @@
           "source": "PCERT_INFO pRecipientInfo",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgOpenToDecode/PARM_DECL:c:sl_security.h@pStreamInfo",
@@ -70976,7 +71001,8 @@
           "source": "PCMSG_STREAM_INFO pStreamInfo",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -71307,7 +71333,8 @@
           "source": "HCRYPTMSG hCryptMsg",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgUpdate/PARM_DECL:c:sl_security.h@pbData",
@@ -71339,7 +71366,8 @@
           "source": "const BYTE* pbData",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgUpdate/PARM_DECL:c:sl_security.h@cbData",
@@ -71363,7 +71391,8 @@
           "source": "DWORD cbData",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptMsgUpdate/PARM_DECL:c:sl_security.h@fFinal",
@@ -71387,7 +71416,8 @@
           "source": "BOOL fFinal",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -71924,7 +71954,8 @@
           "source": "DWORD            dwObjectType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@pvObject",
@@ -71956,7 +71987,8 @@
           "source": "const void* pvObject",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@dwExpectedContentTypeFlags",
@@ -71980,7 +72012,8 @@
           "source": "DWORD            dwExpectedContentTypeFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@dwExpectedFormatTypeFlags",
@@ -72004,7 +72037,8 @@
           "source": "DWORD            dwExpectedFormatTypeFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@dwFlags",
@@ -72028,7 +72062,8 @@
           "source": "DWORD            dwFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@pdwMsgAndCertEncodingType",
@@ -72060,7 +72095,8 @@
           "source": "DWORD* pdwMsgAndCertEncodingType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@pdwContentType",
@@ -72092,7 +72128,8 @@
           "source": "DWORD* pdwContentType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@pdwFormatType",
@@ -72124,7 +72161,8 @@
           "source": "DWORD* pdwFormatType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@phCertStore",
@@ -72164,7 +72202,8 @@
           "source": "HCERTSTORE* phCertStore",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@phMsg",
@@ -72204,7 +72243,8 @@
           "source": "HCRYPTMSG* phMsg",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptQueryObject/PARM_DECL:c:sl_security.h@ppvContext",
@@ -72244,7 +72284,8 @@
           "source": "const void** ppvContext",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -72783,7 +72824,8 @@
           "source": "DWORD              dwCertEncodingType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@lpszStructType",
@@ -72815,7 +72857,8 @@
           "source": "LPCSTR             lpszStructType",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@pbEncoded",
@@ -72847,7 +72890,8 @@
           "source": "const BYTE* pbEncoded",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@cbEncoded",
@@ -72871,7 +72915,8 @@
           "source": "DWORD              cbEncoded",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@dwFlags",
@@ -72895,7 +72940,8 @@
           "source": "DWORD              dwFlags",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@pDecodePara",
@@ -72928,7 +72974,8 @@
           "source": "PCRYPT_DECODE_PARA pDecodePara",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@pvStructInfo",
@@ -72960,7 +73007,8 @@
           "source": "void* pvStructInfo",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnCryptDecodeObjectEx/PARM_DECL:c:sl_security.h@pcbStructInfo",
@@ -72992,7 +73040,8 @@
           "source": "DWORD* pcbStructInfo",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
@@ -73367,7 +73416,8 @@
           "source": "HWND   hwnd",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnWinVerifyTrust/PARM_DECL:c:sl_security.h@pgActionID",
@@ -73400,7 +73450,8 @@
           "source": "GUID* pgActionID",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         },
         {
           "id": "c:sl_security.h@T@PfnWinVerifyTrust/PARM_DECL:c:sl_security.h@pWVTData",
@@ -73432,7 +73483,8 @@
           "source": "LPVOID pWVTData",
           "expressions": [],
           "children": [],
-          "classification": "application"
+          "classification": "implementation",
+          "reason": "Private Windows function-loader implementation of the public signature helpers."
         }
       ],
       "classification": "implementation",
