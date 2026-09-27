@@ -202,7 +202,7 @@ def main():
     callable_kinds = {cx.CursorKind.FUNCTION_DECL, cx.CursorKind.CXX_METHOD, cx.CursorKind.CONSTRUCTOR,
                       cx.CursorKind.DESTRUCTOR, cx.CursorKind.CONVERSION_FUNCTION, cx.CursorKind.FUNCTION_TEMPLATE}
 
-    def serialize(cursor):
+    def serialize(cursor, parent_id=None):
         file = relative(cursor.location.file.name if cursor.location.file else None)
         result = {"id": cursor.get_usr() or f"{file}:{cursor.location.line}:{cursor.location.column}:{cursor.kind.name}",
                   "kind": cursor.kind.name, "name": cursor.spelling, "qualifiedName": qualified(cursor),
@@ -210,6 +210,8 @@ def main():
                   "access": cursor.access_specifier.name, "comment": cursor.raw_comment or "",
                   "definition": cursor.is_definition(),
                   "deprecated": cursor.availability == cx.AvailabilityKind.DEPRECATED}
+        if parent_id and cursor.kind in {cx.CursorKind.PARM_DECL, cx.CursorKind.TEMPLATE_TYPE_PARAMETER, cx.CursorKind.CXX_BASE_SPECIFIER}:
+            result["id"] = parent_id + "/" + result["kind"] + ":" + result["id"]
         if cursor.kind in record_kinds:
             result["source"] = source(cursor)
         if cursor.kind in callable_kinds:
@@ -235,7 +237,7 @@ def main():
         if cursor.kind in {cx.CursorKind.FIELD_DECL, cx.CursorKind.VAR_DECL, cx.CursorKind.PARM_DECL}:
             result["source"] = source(cursor)
             result["expressions"] = [expression(c) for c in cursor.get_children() if c.kind.is_expression()]
-        result["children"] = [serialize(c) for c in cursor.get_children() if c.kind in declaration_kinds]
+        result["children"] = [serialize(c, result["id"]) for c in cursor.get_children() if c.kind in declaration_kinds]
         if file == "include/sl_template.h":
             result["classification"] = "plugin-template"
             result["reason"] = "Example plugin declarations, not an SDK application feature."
@@ -382,14 +384,18 @@ def main():
                 parameter["contract"] = contract["parameters"][parameter["name"]]
 
     macros = []
+    compilation_macros = {"SL_API", "SL_DISABLE_DEPRECATED_WARNINGS", "SL_RESTORE_DEPRECATED_WARNINGS", "UNICODE", "_UNICODE"}
+    application_macros = {"SL_FUN_DECL", "SL_FEATURE_FUN_IMPORT", "SL_FEATURE_FUN_IMPORT_STATIC", "SL_ENUM_OPERATORS_32", "SL_ENUM_OPERATORS_64", "SR_DEPRECATED_SHARPENING", "FEATURE_SPECIFIC_BUFFER_TYPE_ID", "SL_CASE_STR", "SL_FALLTHROUGH", "SL_VK_FEATURE", "SL_VK_FEATURE_SUPPORT", "SL_VK_FEATURE_MERGE_SUPPORT", "SL_CHECK", "SL_FAILED", "SL_SUCCEEDED", "SL_STRUCT_BEGIN", "SL_STRUCT_END", "SL_STRUCT_PROTECTED_BEGIN", "SL_STRUCT", "SL_STRUCT_PROTECTED", "SL_VERSION_MAJOR", "SL_VERSION_MINOR", "SL_VERSION_PATCH"}
     for path in public_headers:
         text = (sdk / path).read_text(encoding="utf-8-sig")
         logical_text = text.replace("\\\n", " ")
         for match in re.finditer(r"^\s*#\s*define\s+(\w+)([^\n]*)", logical_text, re.MULTILINE):
             name, body = match[1], match[2]
+            classification = "compilation" if name in compilation_macros else "application" if name in application_macros else "implementation" if name == "GetProc" else "unclassified"
             macros.append({"id": f"macro:{path}:{name}:" + hashlib.sha256(body.encode()).hexdigest()[:12], "name": name, "file": path,
                            "body": body.strip(),
-                           "classification": "unclassified"})
+                           "classification": classification,
+                           "reason": "Compiler configuration/diagnostics" if classification == "compilation" else "Private signature-helper loader" if classification == "implementation" else "Application declaration, expression or control-flow semantics"})
 
     # Keep only the Vulkan constants actually used by the application helper bodies.
     helper_text = "\n".join((sdk / path).read_text(encoding="utf-8-sig") for path in public_headers)
