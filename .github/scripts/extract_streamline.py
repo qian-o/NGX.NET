@@ -258,6 +258,13 @@ def main():
         if file == "include/sl_security.h" and cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.VAR_DECL}:
             result["classification"] = "implementation"
             result["reason"] = "Private Windows function-loader implementation of the public signature helpers."
+        if result["classification"] in {"implementation", "test", "plugin-template"}:
+            def inherit_purpose(children):
+                for child in children:
+                    child["classification"] = result["classification"]
+                    child["reason"] = result["reason"]
+                    inherit_purpose(child["children"])
+            inherit_purpose(result["children"])
         return result
 
     declarations = {}
