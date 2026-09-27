@@ -28,10 +28,10 @@
 
 接口提取始终在 GitHub Actions 执行。本地只消费提交的 JSON；未搭建或执行本地提取环境。
 
-- [已导入快照的提取运行](https://github.com/qian-o/Streamline.NET/actions/runs/36306423703)
-- [Windows 完整验证基线](https://github.com/qian-o/Streamline.NET/actions/runs/36306772991)
+- [最终提取复核，快照逐字节一致](https://github.com/qian-o/Streamline.NET/actions/runs/36307088534)
+- [最终 Windows 构建、492 项检查、AOT 与包验证](https://github.com/qian-o/Streamline.NET/actions/runs/36307087960)
 
-最终收尾提交的 CI 结果将在本记录末尾补充。
+两次最终运行均成功，对应实现提交 `7b59300e69de7f65dd0387b107dcf75b3f26cb7d`。最终提取产物与提交的快照逐字节一致。
 
 ## 覆盖结果
 
@@ -62,6 +62,8 @@
 - Windows CI 实际发布并运行 NativeAOT/裁剪消费者；包含托管 unmanaged-callable 结构返回回调和无 SDK 加载路径的检查。
 - 本地和 CI 检查包内容，并以独立配置、独立缓存、仅本地包源构建新消费者，确认便利 API 可以直接引用。
 - 已还原依赖的条件下运行 Generator `--no-restore`，结果稳定；再次生成报告新增、变更、删除均为零。
+- 49 个生成文件逐一确认 UTF-8 BOM；生成文件与覆盖记录的逐字节重建一致。
+- 调用约定缺失、手写实现来源函数体变更两种负向用例均在写入生成文件前被拒绝。
 - `git diff --check` 通过。
 
 ## 官方行为与具体处理
