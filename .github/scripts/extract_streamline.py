@@ -1,0 +1,316 @@
+"""Extract the application-facing Streamline contract. Run only in GitHub Actions.
+
+libclang supplies declaration identities, canonical types, values and native layouts.
+Source ranges retain inline bodies and macro expressions that libclang does not lower.
+Only the normalized JSON is a deliverable; SDK inputs stay in the runner scratch space.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import urllib.request
+
+
+def request_json(url):
+    headers = {"User-Agent": "Streamline.NET-Extractor"}
+    if os.environ.get("GH_TOKEN"):
+        headers["Authorization"] = "Bearer " + os.environ["GH_TOKEN"]
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers)) as response:
+        return json.load(response)
+
+
+def download(url, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with urllib.request.urlopen(url) as response:
+        path.write_bytes(response.read())
+
+
+def main():
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        raise SystemExit("Interface extraction runs exclusively in GitHub Actions.")
+
+    from clang import cindex as cx
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--scratch", required=True, type=Path)
+    args = parser.parse_args()
+    root = args.scratch.resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    sdk = root / "streamline"
+    vk = root / "vulkan"
+    api = "https://api.github.com/repos/NVIDIA-RTX/Streamline"
+    release = request_json(api + "/releases/latest")
+    commit = request_json(api + "/commits/" + release["tag_name"])["sha"]
+    tree = request_json(api + "/git/trees/" + commit + "?recursive=1")
+    if tree.get("truncated"):
+        raise RuntimeError("Upstream input inventory was truncated.")
+
+    public_headers = sorted(item["path"] for item in tree["tree"]
+                            if item["path"].startswith("include/")
+                            and item["path"].endswith((".h", ".hpp")))
+    if not public_headers:
+        raise RuntimeError("No public SDK headers discovered.")
+    inputs = []
+    for path in public_headers + ["project.xml", "source/core/sl.interposer/exports.def"]:
+        download(f"https://raw.githubusercontent.com/NVIDIA-RTX/Streamline/{commit}/{path}", sdk / path)
+        inputs.append({"path": path, "sha256": hashlib.sha256((sdk / path).read_bytes()).hexdigest(),
+                       "classification": "application" if path in public_headers else "extraction-dependency"})
+    for item in tree["tree"]:
+        path = item["path"]
+        if path.startswith(("source/", "tests/")) and path.endswith((".h", ".hpp", ".cpp")):
+            inputs.append({"path": path, "classification": "implementation",
+                           "reason": "SDK implementation or plugin implementation; referenced application declarations are taken from public headers."})
+
+    manifest = (sdk / "project.xml").read_text(encoding="utf-8-sig")
+    version_match = re.search(r'name="VulkanSDK"\s+version="([0-9]+\.[0-9]+\.[0-9]+)', manifest)
+    if not version_match:
+        raise RuntimeError("Vulkan header dependency version is absent from the SDK manifest.")
+    vk_tag = "v" + version_match[1]
+    vk_api = "https://api.github.com/repos/KhronosGroup/Vulkan-Headers"
+    vk_commit = request_json(vk_api + "/commits/" + vk_tag)["sha"]
+    vk_tree = request_json(vk_api + "/git/trees/" + vk_commit + "?recursive=1")
+    if vk_tree.get("truncated"):
+        raise RuntimeError("Vulkan dependency inventory was truncated.")
+    for item in vk_tree["tree"]:
+        path = item["path"]
+        if path.startswith("include/") and path.endswith(".h"):
+            download(f"https://raw.githubusercontent.com/KhronosGroup/Vulkan-Headers/{vk_commit}/{path}", vk / path)
+
+    # Inputs are ordered by their role, not used as an allow-list for discovery.
+    includes = ["#include <windows.h>", "#include <vector>", "#include <type_traits>",
+                "#include <cmath>", "#include <algorithm>", "#include <vulkan/vulkan.h>", '#include "sl.h"']
+    ordered = sorted(public_headers, key=lambda p: ("helper" in p or "security" in p, p))
+    includes.extend('#include "' + p.removeprefix("include/") + '"' for p in ordered if p != "include/sl.h")
+    unit = root / "application.cpp"
+    unit.write_text("\n".join(includes) + "\n", encoding="utf-8")
+    system_includes = [p for p in os.environ.get("INCLUDE", "").split(";") if p]
+    common_args = ["-x", "c++", "-std=c++20", "--target=x86_64-pc-windows-msvc",
+                   "-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40",
+                   "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", "-DNOMINMAX", "-DWIN32", "-DWIN64",
+                   "-I" + str(sdk / "include"), "-I" + str(vk / "include")]
+    for path in system_includes:
+        common_args.extend(["-isystem", path])
+
+    lib = cx.conf.lib
+    lib.clang_getFunctionTypeCallingConv.argtypes = [cx.Type]
+    lib.clang_getFunctionTypeCallingConv.restype = ctypes.c_uint
+    lib.clang_Cursor_Evaluate.argtypes = [cx.Cursor]
+    lib.clang_Cursor_Evaluate.restype = ctypes.c_void_p
+    lib.clang_EvalResult_getKind.argtypes = [ctypes.c_void_p]
+    lib.clang_EvalResult_getKind.restype = ctypes.c_int
+    lib.clang_EvalResult_getAsLongLong.argtypes = [ctypes.c_void_p]
+    lib.clang_EvalResult_getAsLongLong.restype = ctypes.c_longlong
+    lib.clang_EvalResult_getAsDouble.argtypes = [ctypes.c_void_p]
+    lib.clang_EvalResult_getAsDouble.restype = ctypes.c_double
+    lib.clang_EvalResult_dispose.argtypes = [ctypes.c_void_p]
+    source_cache = {}
+
+    def relative(path):
+        if not path:
+            return ""
+        path = Path(path)
+        for base, prefix in [(sdk, ""), (vk, "Vulkan-Headers/")]:
+            try:
+                return prefix + path.relative_to(base).as_posix()
+            except ValueError:
+                pass
+        return "system/" + path.name
+
+    def source(cursor):
+        start, end = cursor.extent.start, cursor.extent.end
+        if not start.file or not end.file or start.file.name != end.file.name:
+            return " ".join(token.spelling for token in cursor.get_tokens())
+        path = start.file.name
+        if path not in source_cache:
+            source_cache[path] = Path(path).read_bytes()
+        return source_cache[path][start.offset:end.offset].decode("utf-8", errors="replace").replace("\r\n", "\n")
+
+    def qualified(cursor):
+        names = [cursor.spelling]
+        parent = cursor.semantic_parent
+        while parent and parent.kind != cx.CursorKind.TRANSLATION_UNIT:
+            if parent.spelling:
+                names.append(parent.spelling)
+            parent = parent.semantic_parent
+        return "::".join(reversed(names))
+
+    dependencies = {}
+    function_kinds = {cx.TypeKind.FUNCTIONPROTO, cx.TypeKind.FUNCTIONNOPROTO}
+
+    def describe_type(t, depth=0):
+        canonical = t.get_canonical()
+        result = {"spelling": t.spelling, "canonical": canonical.spelling,
+                  "kind": canonical.kind.name, "size": t.get_size(), "alignment": t.get_align(),
+                  "const": t.is_const_qualified()}
+        declaration = canonical.get_declaration()
+        if declaration and declaration.spelling:
+            result["declaration"] = qualified(declaration)
+            file = relative(declaration.location.file.name if declaration.location.file else None)
+            if file and not file.startswith("include/") and (declaration.spelling.startswith("Vk")
+                    or canonical.kind == cx.TypeKind.ENUM or declaration.spelling in {"tagRECT", "_LUID"}):
+                if canonical.kind in {cx.TypeKind.RECORD, cx.TypeKind.ENUM} and declaration.is_definition():
+                    dependencies[declaration.get_usr()] = declaration
+        if depth < 6:
+            if canonical.kind in {cx.TypeKind.POINTER, cx.TypeKind.LVALUEREFERENCE, cx.TypeKind.RVALUEREFERENCE}:
+                result["element"] = describe_type(t.get_pointee(), depth + 1)
+            elif canonical.kind in {cx.TypeKind.CONSTANTARRAY, cx.TypeKind.INCOMPLETEARRAY}:
+                result["element"] = describe_type(canonical.element_type, depth + 1)
+                result["count"] = canonical.element_count
+            elif canonical.kind in function_kinds:
+                result["callingConvention"] = lib.clang_getFunctionTypeCallingConv(canonical)
+                result["result"] = describe_type(canonical.get_result(), depth + 1)
+                result["parameters"] = [describe_type(a, depth + 1) for a in canonical.argument_types()]
+        return result
+
+    def expression(cursor):
+        result = {"kind": cursor.kind.name, "text": source(cursor), "type": cursor.type.spelling}
+        evaluated = lib.clang_Cursor_Evaluate(cursor)
+        if evaluated:
+            kind = lib.clang_EvalResult_getKind(evaluated)
+            if kind == 1:
+                result["value"] = str(lib.clang_EvalResult_getAsLongLong(evaluated))
+            elif kind == 2:
+                result["value"] = repr(lib.clang_EvalResult_getAsDouble(evaluated))
+            lib.clang_EvalResult_dispose(evaluated)
+        result["children"] = [expression(child) for child in cursor.get_children()
+                              if child.kind.is_expression()]
+        return result
+
+    declaration_kinds = {cx.CursorKind.STRUCT_DECL, cx.CursorKind.CLASS_DECL, cx.CursorKind.UNION_DECL,
+                         cx.CursorKind.ENUM_DECL, cx.CursorKind.ENUM_CONSTANT_DECL, cx.CursorKind.FIELD_DECL,
+                         cx.CursorKind.FUNCTION_DECL, cx.CursorKind.CXX_METHOD, cx.CursorKind.CONSTRUCTOR,
+                         cx.CursorKind.DESTRUCTOR, cx.CursorKind.CONVERSION_FUNCTION,
+                         cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.TYPE_ALIAS_DECL, cx.CursorKind.VAR_DECL,
+                         cx.CursorKind.CLASS_TEMPLATE, cx.CursorKind.FUNCTION_TEMPLATE, cx.CursorKind.PARM_DECL,
+                         cx.CursorKind.CXX_BASE_SPECIFIER, cx.CursorKind.TEMPLATE_TYPE_PARAMETER}
+    record_kinds = {cx.CursorKind.STRUCT_DECL, cx.CursorKind.CLASS_DECL, cx.CursorKind.UNION_DECL, cx.CursorKind.CLASS_TEMPLATE}
+    callable_kinds = {cx.CursorKind.FUNCTION_DECL, cx.CursorKind.CXX_METHOD, cx.CursorKind.CONSTRUCTOR,
+                      cx.CursorKind.DESTRUCTOR, cx.CursorKind.CONVERSION_FUNCTION, cx.CursorKind.FUNCTION_TEMPLATE}
+
+    def serialize(cursor):
+        file = relative(cursor.location.file.name if cursor.location.file else None)
+        result = {"id": cursor.get_usr() or f"{file}:{cursor.location.line}:{cursor.location.column}:{cursor.kind.name}",
+                  "kind": cursor.kind.name, "name": cursor.spelling, "qualifiedName": qualified(cursor),
+                  "file": file, "line": cursor.location.line, "type": describe_type(cursor.type),
+                  "access": cursor.access_specifier.name, "comment": cursor.raw_comment or "",
+                  "definition": cursor.is_definition()}
+        if cursor.kind in record_kinds:
+            result["source"] = source(cursor)
+        if cursor.kind in callable_kinds:
+            result["source"] = source(cursor)
+            result["resultType"] = describe_type(cursor.result_type)
+            result["callingConvention"] = lib.clang_getFunctionTypeCallingConv(cursor.type)
+            result["mangledName"] = cursor.mangled_name
+            result["virtual"] = cursor.is_virtual_method()
+            result["static"] = cursor.is_static_method()
+            result["constMethod"] = cursor.is_const_method()
+        if cursor.kind == cx.CursorKind.FIELD_DECL:
+            result["offsetBits"] = cursor.get_field_offsetof()
+            result["bitWidth"] = cursor.get_bitfield_width() if cursor.is_bitfield() else None
+        if cursor.kind == cx.CursorKind.ENUM_DECL:
+            result["underlyingType"] = describe_type(cursor.enum_type)
+        if cursor.kind == cx.CursorKind.ENUM_CONSTANT_DECL:
+            result["value"] = str(cursor.enum_value)
+        if cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.TYPE_ALIAS_DECL}:
+            result["underlyingType"] = describe_type(cursor.underlying_typedef_type)
+        if cursor.kind in {cx.CursorKind.FIELD_DECL, cx.CursorKind.VAR_DECL, cx.CursorKind.PARM_DECL}:
+            result["source"] = source(cursor)
+            result["expressions"] = [expression(c) for c in cursor.get_children() if c.kind.is_expression()]
+        result["children"] = [serialize(c) for c in cursor.get_children() if c.kind in declaration_kinds]
+        if file == "include/sl_template.h":
+            result["classification"] = "plugin-template"
+            result["reason"] = "Example plugin declarations, not an SDK application feature."
+        elif result["qualifiedName"].startswith("sl::test::"):
+            result["classification"] = "test"
+            result["reason"] = "Friend declaration for upstream ABI tests."
+        else:
+            result["classification"] = "application" if file.startswith("include/") else "dependency"
+        return result
+
+    declarations = {}
+    configurations = []
+    index = cx.Index.create()
+    # Both Windows character configurations are legal application include contexts.
+    for config_name, defines in [("windows-x64", []), ("windows-x64-unicode", ["-DUNICODE", "-D_UNICODE"])]:
+        print("Parsing", config_name, flush=True)
+        tu = index.parse(str(unit), args=common_args + defines,
+                         options=cx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+        diagnostics = [str(d) for d in tu.diagnostics]
+        failures = [str(d) for d in tu.diagnostics if d.severity >= cx.Diagnostic.Error]
+        if failures:
+            raise RuntimeError("\n".join(failures))
+        configurations.append({"name": config_name, "target": "x86_64-pc-windows-msvc", "language": "c++20",
+                               "defines": ["WIN32", "WIN64", "NOMINMAX"] + [d[2:] for d in defines],
+                               "diagnostics": diagnostics})
+
+        def discover(cursor):
+            for child in cursor.get_children():
+                file = relative(child.location.file.name if child.location.file else None)
+                if child.kind in {cx.CursorKind.NAMESPACE, cx.CursorKind.LINKAGE_SPEC}:
+                    discover(child)
+                elif file.startswith("include/") and child.kind in declaration_kinds:
+                    item = serialize(child)
+                    key = item["id"]
+                    if key in declarations:
+                        previous = declarations[key]
+                        comparable = {k: v for k, v in previous.items() if k != "configurations"}
+                        if comparable != item:
+                            raise RuntimeError(f"Unmerged conditional declaration: {key} in {config_name}")
+                        previous["configurations"].append(config_name)
+                    else:
+                        item["configurations"] = [config_name]
+                        declarations[key] = item
+
+        discover(tu.cursor)
+        # Helper bodies name Vulkan records not present in function signatures.
+        def helper_dependencies(cursor):
+            for child in cursor.get_children():
+                file = relative(child.location.file.name if child.location.file else None)
+                if file.startswith("include/") or child.kind in {cx.CursorKind.NAMESPACE, cx.CursorKind.LINKAGE_SPEC}:
+                    if child.type.kind != cx.TypeKind.INVALID:
+                        describe_type(child.type)
+                    helper_dependencies(child)
+
+        helper_dependencies(tu.cursor)
+        while dependencies:
+            _, dependency = dependencies.popitem()
+            if dependency.get_usr() in declarations:
+                continue
+            item = serialize(dependency)
+            item["configurations"] = [config_name]
+            declarations[item["id"]] = item
+
+    macros = []
+    for path in public_headers:
+        text = (sdk / path).read_text(encoding="utf-8-sig")
+        for match in re.finditer(r"^\s*#\s*define\s+(\w+)([^\n]*(?:\\\n[^\n]*)*)", text, re.MULTILINE):
+            name, body = match[1], match[2]
+            macros.append({"id": f"macro:{path}:{name}", "name": name, "file": path,
+                           "line": text.count("\n", 0, match.start()) + 1, "body": body.strip(),
+                           "classification": "unclassified"})
+    snapshot = {"schemaVersion": 1,
+                "source": {"repository": "NVIDIA-RTX/Streamline", "release": release["tag_name"],
+                           "commit": commit, "releaseUrl": release["html_url"]},
+                "dependencies": [{"repository": "KhronosGroup/Vulkan-Headers", "tag": vk_tag,
+                                  "commit": vk_commit, "requestedBy": "project.xml"}],
+                "toolchain": {"libclang": "18.1.1", "windowsSdk": os.environ.get("WindowsSDKVersion", "").strip("\\"),
+                              "msvc": os.environ.get("VCToolsVersion", "")},
+                "configurations": configurations, "inputs": sorted(inputs, key=lambda i: (i["path"], i["classification"])),
+                "declarations": sorted(declarations.values(), key=lambda i: (i["file"], i["line"], i["id"])),
+                "macros": macros,
+                "exports": (sdk / "source/core/sl.interposer/exports.def").read_text(encoding="utf-8-sig")}
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+    print(f"Wrote {len(declarations)} declarations, {len(macros)} macros from {len(public_headers)} public inputs.")
+
+
+if __name__ == "__main__":
+    main()

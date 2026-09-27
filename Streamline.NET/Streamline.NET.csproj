@@ -1,9 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+        <IsAotCompatible>true</IsAotCompatible>
+        <IsTrimmable>true</IsTrimmable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Streamline.NET</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>qian-o</Authors>
+        <Description>Independent C# wrapper for NVIDIA Streamline.</Description>
+        <PackageTags>streamline;nvidia;dlss;graphics</PackageTags>
+        <RepositoryUrl>https://github.com/qian-o/Streamline.NET</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../LICENSE" Pack="true" PackagePath="/" />
+        <None Include="../README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
 
 </Project>
