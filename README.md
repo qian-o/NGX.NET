@@ -119,10 +119,9 @@ and every macro's C# representation. Unknown types, conventions, changed handwri
 bodies, and unhandled declarations stop generation. The generator reports added,
 changed and removed declarations and only updates its own output files.
 
-The validation workflow checks reproducible generation, Debug/Release builds,
-native-layout metadata, managed behavior, an AOT/trimmed consumer, and the package.
-It does not download or run an NVIDIA runtime. Real SDK/GPU functionality is not
-reported as runtime-tested by these checks.
+Validation helpers are run manually. GitHub Actions is limited to interface
+extraction. Real SDK/GPU functionality is not reported as runtime-tested by the
+local checks.
 
 See [the design](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Design.md) for the full contract and
 [the delivery record](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Delivery.md) for verified results and limits.

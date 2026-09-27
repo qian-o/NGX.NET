@@ -2,6 +2,8 @@
 
 日期：2026-09-27。范围以 `Streamline.NET.Design.md` 和本次用户澄清为准：只交付 wrapper、Generator、接口 JSON 与纯托管包；直接在当前仓库 `master` 工作。
 
+工作流范围更正：实现过程中擅自增加了 `.github/workflows/validate.yml`，现已撤销。目前仅保留接口提取工作流，构建、验证与打包手动执行。下文 CI 链接与结果保留为已发生的验证记录，不作为后续自动化安排。
+
 ## 交付内容
 
 - .NET 10 库与独立 C# Generator，工程设置及开发期包版本集中管理。
@@ -29,7 +31,7 @@
 接口提取始终在 GitHub Actions 执行。本地只消费提交的 JSON；未搭建或执行本地提取环境。
 
 - [最终提取复核，快照逐字节一致](https://github.com/qian-o/Streamline.NET/actions/runs/36307088534)
-- [最终 Windows 构建、492 项检查、AOT 与包验证](https://github.com/qian-o/Streamline.NET/actions/runs/36307087960)
+- [已执行的 Windows 验证记录，工作流已撤销](https://github.com/qian-o/Streamline.NET/actions/runs/36307087960)
 
 两次最终运行均成功，对应实现提交 `7b59300e69de7f65dd0387b107dcf75b3f26cb7d`。最终提取产物与提交的快照逐字节一致。
 
