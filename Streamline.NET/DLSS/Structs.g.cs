@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DLSSOptions
 /// </summary>
-/// <remarks>Source: include/sl_dlss.h:71.</remarks>
+/// <remarks>Source: include/sl_dlss.h:71. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 88)]
 public unsafe partial struct DLSSOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,105 +38,105 @@ public unsafe partial struct DLSSOptions : ISLStructure
     /// <summary>
     /// Specifies which mode should be used
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:73.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:73. </remarks>
     public DLSSMode Mode;
 
     /// <summary>
     /// Specifies output (final) target width
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:75.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:75. </remarks>
     public uint OutputWidth;
 
     /// <summary>
     /// Specifies output (final) target height
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:77.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:77. </remarks>
     public uint OutputHeight;
 
     /// <summary>
     /// Specifies sharpening level in range [0,1] this is a deprecated field
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:79.</remarks>
-    [Obsolete("Deprecated by Streamline; see the source documentation.")]
+    /// <remarks>Source: include/sl_dlss.h:79. </remarks>
+    [Obsolete("Sharpness is not supported")]
     public float Sharpness;
 
     /// <summary>
     /// Specifies pre-exposure value
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:81.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:81. </remarks>
     public float PreExposure;
 
     /// <summary>
     /// Specifies exposure scale value
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:83.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:83. </remarks>
     public float ExposureScale;
 
     /// <summary>
     /// Specifies if tagged color buffers are full HDR or not (DLSS in HDR pipeline or not)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:85.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:85. </remarks>
     public SLBoolean ColorBuffersHDR;
 
     /// <summary>
     /// Specifies if indicator on screen should invert axis
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:87.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:87. </remarks>
     public SLBoolean IndicatorInvertAxisX;
 
     /// <summary>
     /// Specifies if indicator on screen should invert axis
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:89.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:89. </remarks>
     public SLBoolean IndicatorInvertAxisY;
 
     /// <summary>
     /// Presets
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:91.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:91. </remarks>
     public DLSSPreset DlaaPreset;
 
     /// <summary>
     /// sl::DLSSOptions::qualityPreset
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:92.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:92. </remarks>
     public DLSSPreset QualityPreset;
 
     /// <summary>
     /// sl::DLSSOptions::balancedPreset
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:93.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:93. </remarks>
     public DLSSPreset BalancedPreset;
 
     /// <summary>
     /// sl::DLSSOptions::performancePreset
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:94.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:94. </remarks>
     public DLSSPreset PerformancePreset;
 
     /// <summary>
     /// sl::DLSSOptions::ultraPerformancePreset
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:95.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:95. </remarks>
     public DLSSPreset UltraPerformancePreset;
 
     /// <summary>
     /// sl::DLSSOptions::ultraQualityPreset
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:96.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:96. </remarks>
     public DLSSPreset UltraQualityPreset;
 
     /// <summary>
     /// Specifies if the setting for AutoExposure is used
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:99.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:99. </remarks>
     public SLBoolean UseAutoExposure;
 
     /// <summary>
     /// Whether or not the alpha channel should be upscaled (if false, only RGB is upscaled)
     /// Enabling alpha upscaling may impact performance
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:103.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:103. </remarks>
     public SLBoolean AlphaUpscalingEnabled;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -156,29 +156,29 @@ public unsafe partial struct DLSSOptions : ISLStructure
 
 /// <summary>
 /// Returned by DLSS plugin
-/// 
+///
 /// {EF1D0957-FD58-4DF7-B504-8B69D8AA6B76}
 /// </summary>
-/// <remarks>Source: include/sl_dlss.h:111.</remarks>
+/// <remarks>Source: include/sl_dlss.h:111. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 64)]
 public unsafe partial struct DLSSOptimalSettings : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -187,43 +187,43 @@ public unsafe partial struct DLSSOptimalSettings : ISLStructure
     /// <summary>
     /// Specifies render area width
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:113.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:113. </remarks>
     public uint OptimalRenderWidth;
 
     /// <summary>
     /// Specifies render area height
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:115.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:115. </remarks>
     public uint OptimalRenderHeight;
 
     /// <summary>
     /// Specifies the optimal sharpness value
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:117.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:117. </remarks>
     public float OptimalSharpness;
 
     /// <summary>
     /// Specifies minimal render area width
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:119.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:119. </remarks>
     public uint RenderWidthMin;
 
     /// <summary>
     /// Specifies minimal render area height
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:121.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:121. </remarks>
     public uint RenderHeightMin;
 
     /// <summary>
     /// Specifies maximal render area width
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:123.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:123. </remarks>
     public uint RenderWidthMax;
 
     /// <summary>
     /// Specifies maximal render area height
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:125.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:125. </remarks>
     public uint RenderHeightMax;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -238,29 +238,29 @@ public unsafe partial struct DLSSOptimalSettings : ISLStructure
 
 /// <summary>
 /// Returned by DLSS plugin
-/// 
+///
 /// {9366B056-8C01-463C-BB91-E68782636CE9}
 /// </summary>
-/// <remarks>Source: include/sl_dlss.h:133.</remarks>
+/// <remarks>Source: include/sl_dlss.h:133. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct DLSSState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -269,7 +269,7 @@ public unsafe partial struct DLSSState : ISLStructure
     /// <summary>
     /// Specified the amount of memory expected to be used
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:135.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:135. </remarks>
     public ulong EstimatedVRAMUsageInBytes;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>

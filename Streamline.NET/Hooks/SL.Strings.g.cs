@@ -9,35 +9,36 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// sl::getFunctionHookIDAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:85.</remarks>
+    /// <remarks>Source: include/sl_hooks.h:85. </remarks>
     public static string GetFunctionHookIDAsStr(FunctionHookID v)
     {
         return v switch
         {
-            FunctionHookID.IDXGIFactory_CreateSwapChain => "FunctionHookID::eIDXGIFactory_CreateSwapChain",
-            FunctionHookID.IDXGIFactory_CreateSwapChainForHwnd => "FunctionHookID::eIDXGIFactory_CreateSwapChainForHwnd",
-            FunctionHookID.IDXGIFactory_CreateSwapChainForCoreWindow => "FunctionHookID::eIDXGIFactory_CreateSwapChainForCoreWindow",
-            FunctionHookID.IDXGISwapChain_Present => "FunctionHookID::eIDXGISwapChain_Present",
-            FunctionHookID.IDXGISwapChain_Present1 => "FunctionHookID::eIDXGISwapChain_Present1",
-            FunctionHookID.IDXGISwapChain_GetBuffer => "FunctionHookID::eIDXGISwapChain_GetBuffer",
-            FunctionHookID.IDXGISwapChain_GetDesc => "FunctionHookID::eIDXGISwapChain_GetDesc",
-            FunctionHookID.IDXGISwapChain_ResizeBuffers => "FunctionHookID::eIDXGISwapChain_ResizeBuffers",
-            FunctionHookID.IDXGISwapChain_ResizeBuffers1 => "FunctionHookID::eIDXGISwapChain_ResizeBuffers1",
-            FunctionHookID.IDXGISwapChain_GetCurrentBackBufferIndex => "FunctionHookID::eIDXGISwapChain_GetCurrentBackBufferIndex",
-            FunctionHookID.IDXGISwapChain_SetFullscreenState => "FunctionHookID::eIDXGISwapChain_SetFullscreenState",
-            FunctionHookID.IDXGISwapChain_Destroyed => "FunctionHookID::eIDXGISwapChain_Destroyed",
-            FunctionHookID.ID3D12Device_CreateCommandQueue => "FunctionHookID::eID3D12Device_CreateCommandQueue",
-            FunctionHookID.Vulkan_Present => "FunctionHookID::eVulkan_Present",
-            FunctionHookID.Vulkan_CreateSwapchainKHR => "FunctionHookID::eVulkan_CreateSwapchainKHR",
-            FunctionHookID.Vulkan_DestroySwapchainKHR => "FunctionHookID::eVulkan_DestroySwapchainKHR",
-            FunctionHookID.Vulkan_GetSwapchainImagesKHR => "FunctionHookID::eVulkan_GetSwapchainImagesKHR",
-            FunctionHookID.Vulkan_AcquireNextImageKHR => "FunctionHookID::eVulkan_AcquireNextImageKHR",
-            FunctionHookID.Vulkan_DeviceWaitIdle => "FunctionHookID::eVulkan_DeviceWaitIdle",
-            FunctionHookID.Vulkan_CreateWin32SurfaceKHR => "FunctionHookID::eVulkan_CreateWin32SurfaceKHR",
-            FunctionHookID.Vulkan_DestroySurfaceKHR => "FunctionHookID::eVulkan_DestroySurfaceKHR",
+            FunctionHookID.IDXGIFactoryCreateSwapChain => "FunctionHookID::eIDXGIFactory_CreateSwapChain",
+            FunctionHookID.IDXGIFactoryCreateSwapChainForHwnd => "FunctionHookID::eIDXGIFactory_CreateSwapChainForHwnd",
+            FunctionHookID.IDXGIFactoryCreateSwapChainForCoreWindow => "FunctionHookID::eIDXGIFactory_CreateSwapChainForCoreWindow",
+            FunctionHookID.IDXGISwapChainPresent => "FunctionHookID::eIDXGISwapChain_Present",
+            FunctionHookID.IDXGISwapChainPresent1 => "FunctionHookID::eIDXGISwapChain_Present1",
+            FunctionHookID.IDXGISwapChainGetBuffer => "FunctionHookID::eIDXGISwapChain_GetBuffer",
+            FunctionHookID.IDXGISwapChainGetDesc => "FunctionHookID::eIDXGISwapChain_GetDesc",
+            FunctionHookID.IDXGISwapChainResizeBuffers => "FunctionHookID::eIDXGISwapChain_ResizeBuffers",
+            FunctionHookID.IDXGISwapChainResizeBuffers1 => "FunctionHookID::eIDXGISwapChain_ResizeBuffers1",
+            FunctionHookID.IDXGISwapChainGetCurrentBackBufferIndex => "FunctionHookID::eIDXGISwapChain_GetCurrentBackBufferIndex",
+            FunctionHookID.IDXGISwapChainSetFullscreenState => "FunctionHookID::eIDXGISwapChain_SetFullscreenState",
+            FunctionHookID.IDXGISwapChainDestroyed => "FunctionHookID::eIDXGISwapChain_Destroyed",
+            FunctionHookID.ID3D12DeviceCreateCommandQueue => "FunctionHookID::eID3D12Device_CreateCommandQueue",
+            FunctionHookID.VulkanPresent => "FunctionHookID::eVulkan_Present",
+            FunctionHookID.VulkanCreateSwapchainKHR => "FunctionHookID::eVulkan_CreateSwapchainKHR",
+            FunctionHookID.VulkanDestroySwapchainKHR => "FunctionHookID::eVulkan_DestroySwapchainKHR",
+            FunctionHookID.VulkanGetSwapchainImagesKHR => "FunctionHookID::eVulkan_GetSwapchainImagesKHR",
+            FunctionHookID.VulkanAcquireNextImageKHR => "FunctionHookID::eVulkan_AcquireNextImageKHR",
+            FunctionHookID.VulkanDeviceWaitIdle => "FunctionHookID::eVulkan_DeviceWaitIdle",
+            FunctionHookID.VulkanCreateWin32SurfaceKHR => "FunctionHookID::eVulkan_CreateWin32SurfaceKHR",
+            FunctionHookID.VulkanDestroySurfaceKHR => "FunctionHookID::eVulkan_DestroySurfaceKHR",
             _ => "Unknown"
         };
     }

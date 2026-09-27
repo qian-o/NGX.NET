@@ -9,9 +9,10 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// IMPORTANT: This struct cannot have new members because it is arrayed by ReflexState.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:94.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:94. </remarks>
     public const int ReflexFrameReportCount = 64;
 }

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Streamline.NET.Generator;
@@ -17,8 +17,6 @@ internal sealed partial class CSharpEmitter
         NativeDeclaration? alias = snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name);
         NativeDeclaration documented = alias is not null && declaration.Comment.Length == 0 ? alias : declaration;
         builder.AppendLine();
-        builder.AppendLine("public static unsafe partial class SL");
-        builder.AppendLine("{");
         Comment(builder, documented, "    ");
         builder.AppendLine($"    public static {result} {name}({signature})");
         builder.AppendLine("    {");
@@ -41,12 +39,9 @@ internal sealed partial class CSharpEmitter
 
             StringBuilder imports = File("Interop", "SLNative");
             imports.AppendLine();
-            imports.AppendLine("internal static unsafe partial class SLNative");
-            imports.AppendLine("{");
             imports.AppendLine($"    [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = \"{declaration.Name}\")]");
             imports.AppendLine("    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
             imports.AppendLine($"    internal static partial {result} {name}({string.Join(", ", parameters.Select(parameter => mapper.Map(parameter.Type) + " " + TypeMapper.Identifier(parameter.Name)))});");
-            imports.AppendLine("}");
         }
         else
         {
@@ -56,7 +51,7 @@ internal sealed partial class CSharpEmitter
                 throw new InvalidDataException($"Unresolved feature entry: {declaration.Name}");
             }
 
-            builder.AppendLine($"        SLResult result = FeatureFunctions.Get({feature.Groups[1].Value[1..]}, \"{declaration.Name}\"u8, out nint address);");
+            builder.AppendLine($"        SLResult result = FeatureFunctions.Get({TypeMapper.ConstantName(feature.Groups[1].Value)}, \"{declaration.Name}\", \"{declaration.Name}\"u8, out nint address);");
             builder.AppendLine("        if (result != SLResult.Ok)");
             builder.AppendLine("        {");
             builder.AppendLine("            return result;");
@@ -66,7 +61,6 @@ internal sealed partial class CSharpEmitter
 
         builder.AppendLine("    }");
         EmitReferenceOverload(builder, declaration);
-        builder.AppendLine("}");
         Record(declaration, "SL." + name);
         foreach (NativeDeclaration parameter in parameters)
         {
@@ -84,48 +78,87 @@ internal sealed partial class CSharpEmitter
 
     private void EmitReferenceOverload(StringBuilder builder, NativeDeclaration declaration)
     {
+        if (declaration.Parameters.Any(parameter => parameter.Contract.Convenience == "variant-query-or-fill"))
+        {
+            EmitVariantOverloads(builder, declaration);
+            return;
+        }
+
         List<string> signatures = [];
         List<string> arguments = [];
         List<string> pins = [];
-        List<string> initializers = [];
+        List<string> before = [];
+        List<string> after = [];
+        Dictionary<string, string> counts = declaration.Parameters
+            .Where(parameter => parameter.Contract.CountParameter is not null)
+            .ToDictionary(parameter => parameter.Contract.CountParameter!, parameter => parameter.Name, StringComparer.Ordinal);
         bool changed = false;
 
         foreach (NativeDeclaration parameter in declaration.Parameters)
         {
             string name = TypeMapper.Identifier(parameter.Name);
-            NativeType type = parameter.Type;
-            NativeType? element = type.Element;
-            if (type.Kind == "LVALUEREFERENCE" && element?.Declaration == "sl::FrameToken")
+            NativeType? element = parameter.Type.Element;
+            string convenience = parameter.Contract.Convenience;
+            if (counts.TryGetValue(parameter.Name, out string? spanName))
             {
-                signatures.Add("FrameToken " + name);
-                arguments.Add(name + ".Handle");
-                changed = true;
+                arguments.Add("(uint)" + spanName + ".Length");
+                continue;
             }
-            else if (type.Kind == "LVALUEREFERENCE" && element?.Kind == "RECORD")
-            {
-                string csType = mapper.Map(element);
-                signatures.Add((element.Const ? "in " : "ref ") + csType + " " + name);
-                pins.Add($"fixed ({csType}* {parameter.Name}Pointer = &{name})");
-                arguments.Add(parameter.Name + "Pointer");
-                changed = true;
-            }
-            else if (type.Kind == "LVALUEREFERENCE" && element is not null && element.Kind != "RECORD")
-            {
-                string csType = mapper.Map(element);
-                bool output = declaration.Name is "slIsFeatureLoaded" or "slGetFeatureFunction" or "slGetNewFrameToken";
-                signatures.Add((output ? "out " : "ref ") + csType + " " + name);
-                if (output)
-                {
-                    initializers.Add(name + " = default;");
-                }
-                pins.Add($"fixed ({csType}* {parameter.Name}Pointer = &{name})");
-                arguments.Add(parameter.Name + "Pointer");
-                changed = true;
-            }
-            else
+            if (convenience == "raw")
             {
                 signatures.Add(ParameterDeclaration(parameter));
                 arguments.Add(name);
+                continue;
+            }
+
+            changed = true;
+            switch (convenience)
+            {
+                case "frame-token":
+                    signatures.Add("FrameToken " + name);
+                    arguments.Add(name + ".Handle");
+                    break;
+                case "out-frame-token":
+                    signatures.Add("out FrameToken " + name);
+                    before.Add("nint " + parameter.Name + "Address = 0;");
+                    arguments.Add("&" + parameter.Name + "Address");
+                    after.Add(name + " = new(" + parameter.Name + "Address);");
+                    break;
+                case "in":
+                case "ref":
+                case "out":
+                    string valueType = mapper.Map(element!);
+                    signatures.Add(convenience + " " + valueType + " " + name);
+                    if (convenience == "out")
+                    {
+                        before.Add(name + " = default;");
+                    }
+                    pins.Add($"fixed ({valueType}* {parameter.Name}Pointer = &{name})");
+                    arguments.Add(parameter.Name + "Pointer");
+                    break;
+                case "out-address":
+                case "ref-address":
+                    signatures.Add((convenience == "out-address" ? "out " : "ref ") + "nint " + name);
+                    if (convenience == "out-address")
+                    {
+                        before.Add(name + " = 0;");
+                    }
+                    pins.Add($"fixed (nint* {parameter.Name}Pointer = &{name})");
+                    arguments.Add("(" + mapper.Map(parameter.Type) + ")" + parameter.Name + "Pointer");
+                    break;
+                case "utf8-string":
+                    signatures.Add("string " + name);
+                    before.Add($"using Utf8StringArray {parameter.Name}Utf8 = new([{name}]);");
+                    arguments.Add(parameter.Name + "Utf8.Pointer[0]");
+                    break;
+                case "readonly-span":
+                    string elementType = mapper.Map(element!);
+                    signatures.Add("ReadOnlySpan<" + elementType + "> " + name);
+                    pins.Add($"fixed ({elementType}* {parameter.Name}Pointer = {name})");
+                    arguments.Add(parameter.Name + "Pointer");
+                    break;
+                default:
+                    throw new InvalidDataException("Unsupported reviewed overload contract: " + convenience);
             }
         }
 
@@ -135,16 +168,15 @@ internal sealed partial class CSharpEmitter
         }
 
         builder.AppendLine();
-        builder.AppendLine("    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>");
-        if (declaration.Deprecated)
-        {
-            builder.AppendLine("    [Obsolete(\"Deprecated by Streamline; see the source documentation.\")]");
-        }
+        NativeDeclaration documentation = declaration.Comment.Length == 0
+            ? snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name) ?? declaration
+            : declaration;
+        Comment(builder, documentation, "    ", "Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.");
         builder.AppendLine($"    public static SLResult {declaration.Name[2..]}({string.Join(", ", signatures)})");
         builder.AppendLine("    {");
-        foreach (string initializer in initializers)
+        foreach (string statement in before)
         {
-            builder.AppendLine("        " + initializer);
+            builder.AppendLine("        " + statement);
         }
         foreach (string pin in pins)
         {
@@ -154,11 +186,51 @@ internal sealed partial class CSharpEmitter
         {
             builder.AppendLine("        {");
         }
-        builder.AppendLine((pins.Count > 0 ? "            " : "        ") + $"return {declaration.Name[2..]}({string.Join(", ", arguments)});");
+        string indent = pins.Count > 0 ? "            " : "        ";
+        string call = $"{declaration.Name[2..]}({string.Join(", ", arguments)})";
+        if (after.Count == 0)
+        {
+            builder.AppendLine(indent + "return " + call + ";");
+        }
+        else
+        {
+            builder.AppendLine(indent + "SLResult result = " + call + ";");
+            foreach (string statement in after)
+            {
+                builder.AppendLine(indent + statement);
+            }
+            builder.AppendLine(indent + "return result;");
+        }
         if (pins.Count > 0)
         {
             builder.AppendLine("        }");
         }
+        builder.AppendLine("    }");
+    }
+
+    private void EmitVariantOverloads(StringBuilder builder, NativeDeclaration declaration)
+    {
+        string type = mapper.Map(declaration.Parameters.Last().Type.Element!);
+        string name = declaration.Name[2..];
+        builder.AppendLine();
+        builder.AppendLine("    /// <summary>Queries the available variant count using the original null-buffer form.</summary>");
+        builder.AppendLine($"    public static SLResult {name}(out uint numVariants)");
+        builder.AppendLine("    {");
+        builder.AppendLine("        numVariants = 0;");
+        builder.AppendLine("        fixed (uint* count = &numVariants)");
+        builder.AppendLine("        {");
+        builder.AppendLine($"            return {name}(count, null);");
+        builder.AppendLine("        }");
+        builder.AppendLine("    }");
+        builder.AppendLine();
+        builder.AppendLine("    /// <summary>Requests exactly the span length of variants. Initialize each versioned element before the call. This does not query, resize, retry or truncate the request.</summary>");
+        builder.AppendLine($"    public static SLResult {name}(Span<{type}> variantInfo)");
+        builder.AppendLine("    {");
+        builder.AppendLine("        uint requested = (uint)variantInfo.Length;");
+        builder.AppendLine($"        fixed ({type}* variants = variantInfo)");
+        builder.AppendLine("        {");
+        builder.AppendLine($"            return {name}(&requested, variants);");
+        builder.AppendLine("        }");
         builder.AppendLine("    }");
     }
 }

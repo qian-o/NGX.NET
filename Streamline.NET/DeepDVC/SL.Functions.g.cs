@@ -9,14 +9,15 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// HELPERS
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:82.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:82. </remarks>
     public static SLResult DeepDVCSetOptions(ViewportHandle* viewport, DeepDVCOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCSetOptions"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCSetOptions", "slDeepDVCSetOptions"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -24,7 +25,11 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCOptions*, SLResult>)address)(viewport, options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// HELPERS
+    ///
+    /// </summary>
+    /// <remarks>Source: include/sl_deepdvc.h:82. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DeepDVCSetOptions(in ViewportHandle viewport, in DeepDVCOptions options)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -33,25 +38,22 @@ public static unsafe partial class SL
             return DeepDVCSetOptions(viewportPointer, optionsPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Provides DeepDVC state for the given viewport
-    /// 
+    ///
     /// Call this method to obtain VRAM usage and other information.
-    /// 
+    ///
     /// @param viewport Specified viewport we are working with
     /// @param state Reference to a structure where state is to be returned
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:78.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:78. </remarks>
     public static SLResult DeepDVCGetState(ViewportHandle* viewport, DeepDVCState* state)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCGetState"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCGetState", "slDeepDVCGetState"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -59,7 +61,18 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCState*, SLResult>)address)(viewport, state);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Provides DeepDVC state for the given viewport
+    ///
+    /// Call this method to obtain VRAM usage and other information.
+    ///
+    /// @param viewport Specified viewport we are working with
+    /// @param state Reference to a structure where state is to be returned
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_deepdvc.h:78. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DeepDVCGetState(in ViewportHandle viewport, ref DeepDVCState state)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)

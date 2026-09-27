@@ -9,14 +9,15 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// HELPERS
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:212.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:212. </remarks>
     public static SLResult DLSSGGetState(ViewportHandle* viewport, DLSSGState* state, DLSSGOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS_G, "slDLSSGGetState"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDLSSG, "slDLSSGGetState", "slDLSSGGetState"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -24,7 +25,11 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGState*, DLSSGOptions*, SLResult>)address)(viewport, state, options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// HELPERS
+    ///
+    /// </summary>
+    /// <remarks>Source: include/sl_dlss_g.h:212. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DLSSGGetState(in ViewportHandle viewport, ref DLSSGState state, DLSSGOptions* options)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -33,25 +38,22 @@ public static unsafe partial class SL
             return DLSSGGetState(viewportPointer, statePointer, options);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets DLSS-G options
-    /// 
+    ///
     /// Call this method to turn DLSS-G on/off, change modes etc.
-    /// 
+    ///
     /// @param viewport Specified viewport we are working with
     /// @param options Specifies DLSS-G options to use
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:208.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:208. </remarks>
     public static SLResult DLSSGSetOptions(ViewportHandle* viewport, DLSSGOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS_G, "slDLSSGSetOptions"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDLSSG, "slDLSSGSetOptions", "slDLSSGSetOptions"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -59,7 +61,18 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGOptions*, SLResult>)address)(viewport, options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Sets DLSS-G options
+    ///
+    /// Call this method to turn DLSS-G on/off, change modes etc.
+    ///
+    /// @param viewport Specified viewport we are working with
+    /// @param options Specifies DLSS-G options to use
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_dlss_g.h:208. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DLSSGSetOptions(in ViewportHandle viewport, in DLSSGOptions options)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)

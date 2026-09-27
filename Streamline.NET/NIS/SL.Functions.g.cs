@@ -9,14 +9,15 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// HELPERS
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:92.</remarks>
+    /// <remarks>Source: include/sl_nis.h:92. </remarks>
     public static SLResult NISSetOptions(ViewportHandle* viewport, NISOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISSetOptions"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISSetOptions", "slNISSetOptions"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -24,7 +25,11 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, NISOptions*, SLResult>)address)(viewport, options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// HELPERS
+    ///
+    /// </summary>
+    /// <remarks>Source: include/sl_nis.h:92. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult NISSetOptions(in ViewportHandle viewport, in NISOptions options)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -33,25 +38,22 @@ public static unsafe partial class SL
             return NISSetOptions(viewportPointer, optionsPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Provides NIS state for the given viewport
-    /// 
+    ///
     /// Call this method to obtain VRAM usage and other information.
-    /// 
+    ///
     /// @param viewport Specified viewport we are working with
     /// @param state Reference to a structure where state is to be returned
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:88.</remarks>
+    /// <remarks>Source: include/sl_nis.h:88. </remarks>
     public static SLResult NISGetState(ViewportHandle* viewport, NISState* state)
     {
-        SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISGetState"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISGetState", "slNISGetState"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -59,7 +61,18 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, NISState*, SLResult>)address)(viewport, state);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Provides NIS state for the given viewport
+    ///
+    /// Call this method to obtain VRAM usage and other information.
+    ///
+    /// @param viewport Specified viewport we are working with
+    /// @param state Reference to a structure where state is to be returned
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_nis.h:88. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult NISGetState(in ViewportHandle viewport, ref NISState state)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)

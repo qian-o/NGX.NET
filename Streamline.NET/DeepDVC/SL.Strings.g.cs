@@ -9,10 +9,11 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// getDeepDVCModeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:95.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:95. </remarks>
     public static string GetDeepDVCModeAsStr(DeepDVCMode v)
     {
         return v switch

@@ -9,14 +9,15 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// HELPERS
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:177.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:177. </remarks>
     public static SLResult DLSSGetOptimalSettings(DLSSOptions* options, DLSSOptimalSettings* settings)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetOptimalSettings"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetOptimalSettings", "slDLSSGetOptimalSettings"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -24,7 +25,11 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<DLSSOptions*, DLSSOptimalSettings*, SLResult>)address)(options, settings);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// HELPERS
+    ///
+    /// </summary>
+    /// <remarks>Source: include/sl_dlss.h:177. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DLSSGetOptimalSettings(in DLSSOptions options, ref DLSSOptimalSettings settings)
     {
         fixed (DLSSOptions* optionsPointer = &options)
@@ -33,25 +38,22 @@ public static unsafe partial class SL
             return DLSSGetOptimalSettings(optionsPointer, settingsPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Provides DLSS state for the given viewport
-    /// 
+    ///
     /// Call this method to obtain optimal render target size and other DLSS related settings.
-    /// 
+    ///
     /// @param viewport Specified viewport we are working with
     /// @param state Reference to a structure where state is to be returned
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:162.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:162. </remarks>
     public static SLResult DLSSGetState(ViewportHandle* viewport, DLSSState* state)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetState"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetState", "slDLSSGetState"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -59,7 +61,18 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSState*, SLResult>)address)(viewport, state);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Provides DLSS state for the given viewport
+    ///
+    /// Call this method to obtain optimal render target size and other DLSS related settings.
+    ///
+    /// @param viewport Specified viewport we are working with
+    /// @param state Reference to a structure where state is to be returned
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_dlss.h:162. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DLSSGetState(in ViewportHandle viewport, ref DLSSState state)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -68,25 +81,22 @@ public static unsafe partial class SL
             return DLSSGetState(viewportPointer, statePointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets DLSS options
-    /// 
+    ///
     /// Call this method to turn DLSS on/off, change mode etc.
-    /// 
+    ///
     /// @param viewport Specified viewport we are working with
     /// @param options Specifies DLSS options to use
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:173.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:173. </remarks>
     public static SLResult DLSSSetOptions(ViewportHandle* viewport, DLSSOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSSetOptions"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSSetOptions", "slDLSSSetOptions"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -94,7 +104,18 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSOptions*, SLResult>)address)(viewport, options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Sets DLSS options
+    ///
+    /// Call this method to turn DLSS on/off, change mode etc.
+    ///
+    /// @param viewport Specified viewport we are working with
+    /// @param options Specifies DLSS options to use
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_dlss.h:173. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult DLSSSetOptions(in ViewportHandle viewport, in DLSSOptions options)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)

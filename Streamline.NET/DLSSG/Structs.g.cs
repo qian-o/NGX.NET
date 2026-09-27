@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DLSSGOptions
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:72.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:72. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 120)]
 public unsafe partial struct DLSSGOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,7 +38,7 @@ public unsafe partial struct DLSSGOptions : ISLStructure
     /// <summary>
     /// Specifies which mode should be used.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:74.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:74. </remarks>
     public DLSSGMode Mode;
 
     /// <summary>
@@ -47,117 +47,117 @@ public unsafe partial struct DLSSGOptions : ISLStructure
     /// For 3x frame multiplier, numFramesToGenerate is 2.
     /// For 4x frame multiplier, numFramesToGenerate is 3.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:79.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:79. </remarks>
     public uint NumFramesToGenerate;
 
     /// <summary>
     /// Optional - Flags used to enable or disable certain functionality
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:81.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:81. </remarks>
     public DLSSGFlags Flags;
 
     /// <summary>
     /// Optional - Dynamic resolution optimal width (used only if eDynamicResolutionEnabled is set)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:83.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:83. </remarks>
     public uint DynamicResWidth;
 
     /// <summary>
     /// Optional - Dynamic resolution optimal height (used only if eDynamicResolutionEnabled is set)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:85.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:85. </remarks>
     public uint DynamicResHeight;
 
     /// <summary>
     /// Optional - Expected number of buffers in the swap-chain
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:87.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:87. </remarks>
     public uint NumBackBuffers;
 
     /// <summary>
     /// Optional - Expected width of the input render targets (depth, motion-vector buffers etc)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:89.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:89. </remarks>
     public uint MvecDepthWidth;
 
     /// <summary>
     /// Optional - Expected height of the input render targets (depth, motion-vector buffers etc)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:91.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:91. </remarks>
     public uint MvecDepthHeight;
 
     /// <summary>
     /// Optional - Expected width of the back buffers in the swap-chain
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:93.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:93. </remarks>
     public uint ColorWidth;
 
     /// <summary>
     /// Optional - Expected height of the back buffers in the swap-chain
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:95.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:95. </remarks>
     public uint ColorHeight;
 
     /// <summary>
     /// Optional - Indicates native format used for the swap-chain back buffers
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:97.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:97. </remarks>
     public uint ColorBufferFormat;
 
     /// <summary>
     /// Optional - Indicates native format used for eMotionVectors
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:99.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:99. </remarks>
     public uint MvecBufferFormat;
 
     /// <summary>
     /// Optional - Indicates native format used for eDepth
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:101.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:101. </remarks>
     public uint DepthBufferFormat;
 
     /// <summary>
     /// Optional - Indicates native format used for eHUDLessColor
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:103.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:103. </remarks>
     public uint HudLessBufferFormat;
 
     /// <summary>
     /// Optional - Indicates native format used for eUIColorAndAlpha
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:105.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:105. </remarks>
     public uint UiBufferFormat;
 
     /// <summary>
     /// Optional - if specified DLSSG will return any errors which occur when calling underlying API (DXGI or Vulkan)
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:107.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:107. Keep the callback and any referenced state alive for the native contract&apos;s full duration. Managed exceptions must not cross the callback boundary.</remarks>
     public delegate* unmanaged[Cdecl]<APIError*, void> OnErrorCallback;
 
     /// <summary>
     /// sl::DLSSGOptions::bReserved15
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:109.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:109. </remarks>
     public SLBoolean BReserved15;
 
     /// <summary>
     /// Optional - determines the level of client and DLSSG queue parallelism to use for performance gain - must be same for all viewports.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:112.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:112. </remarks>
     public DLSSGQueueParallelismMode QueueParallelismMode;
 
     /// <summary>
     /// Optional - if true, DLSSG will allocate a codepath that supports interpolating &apos;HUDless&apos; and &apos;UI Color &amp; Alpha&apos; separately than the Color Backbuffer.
     /// this property can be overridden by Nvidia App. See the programming guide for more details.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:116.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:116. </remarks>
     public SLBoolean EnableUserInterfaceRecomposition;
 
     /// <summary>
     /// Optional - Target frame rate for dynamic frame generation when enabled.
     /// If set to 0.0f (default), auto-detects the display refresh rate.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:120.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:120. </remarks>
     public float DynamicTargetFrameRate;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -175,26 +175,26 @@ public unsafe partial struct DLSSGOptions : ISLStructure
 /// <summary>
 /// sl::DLSSGState
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:149.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:149. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 88)]
 public unsafe partial struct DLSSGState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -203,25 +203,25 @@ public unsafe partial struct DLSSGState : ISLStructure
     /// <summary>
     /// Specifies the amount of memory expected to be used
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:151.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:151. </remarks>
     public ulong EstimatedVRAMUsageInBytes;
 
     /// <summary>
     /// Specifies current status of DLSS-G
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:153.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:153. </remarks>
     public DLSSGStatus Status;
 
     /// <summary>
     /// Specifies minimum supported dimension
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:155.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:155. </remarks>
     public uint MinWidthOrHeight;
 
     /// <summary>
     /// Number of frames presented since the last &apos;slDLSSGGetState&apos; call
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:157.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:157. </remarks>
     public uint NumFramesActuallyPresented;
 
     /// <summary>
@@ -231,19 +231,19 @@ public unsafe partial struct DLSSGState : ISLStructure
     /// - On devices supporting up to a 2x multiplier: numFramesToGenerateMax is 1.
     /// - On devices supporting up to a 6x multiplier: numFramesToGenerateMax is 5.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:164.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:164. </remarks>
     public uint NumFramesToGenerateMax;
 
     /// <summary>
     /// Reserved for future use, do not use
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:166.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:166. </remarks>
     public SLBoolean BReserved4;
 
     /// <summary>
     /// Hint to the application to display VSync support in the user interface
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:168.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:168. </remarks>
     public SLBoolean BIsVsyncSupportAvailable;
 
     /// <summary>
@@ -254,20 +254,20 @@ public unsafe partial struct DLSSGState : ISLStructure
     /// It must call slDLSSGGetState on the present thread to retrieve the fence value for the inputs consumed by FG, on which client would
     /// wait in the frame it would modify those inputs.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:176.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:176. </remarks>
     public void* InputsProcessingCompletionFence;
 
     /// <summary>
     /// sl::DLSSGState::lastPresentInputsProcessingCompletionFenceValue
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:177.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:177. </remarks>
     public ulong LastPresentInputsProcessingCompletionFenceValue;
 
     /// <summary>
     /// Whether or not Dynamic Multi Frame Generation (DLSSGMode::eDynamic) is
     /// supported
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:181.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:181. </remarks>
     public SLBoolean BIsDynamicMFGSupported;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>

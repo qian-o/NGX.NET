@@ -10,31 +10,31 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::ReflexMode
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:30.</remarks>
+/// <remarks>Source: include/sl_reflex.h:30. </remarks>
 public enum ReflexMode : int
 {
     /// <summary>
     /// sl::ReflexMode::eOff
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:32.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:32. </remarks>
     Off = 0,
 
     /// <summary>
     /// sl::ReflexMode::eLowLatency
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:33.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:33. </remarks>
     LowLatency = 1,
 
     /// <summary>
     /// sl::ReflexMode::eLowLatencyWithBoost
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:34.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:34. </remarks>
     LowLatencyWithBoost = 2,
 
     /// <summary>
     /// sl::ReflexMode::ReflexMode_eCount
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:38.</remarks>
-    ReflexMode_eCount = 3,
+    /// <remarks>Source: include/sl_reflex.h:38. </remarks>
+    ReflexModeeCount = 3,
 
 }

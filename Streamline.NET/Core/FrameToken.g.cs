@@ -9,12 +9,12 @@ namespace Streamline.NET;
 
 /// <summary>
 /// Frame tracking handle
-/// 
+///
 /// IMPORTANT: Use slGetNewFrameToken to obtain unique instance
-/// 
+///
 /// {830A0F35-DB84-4171-A804-59B206499B18}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:606.</remarks>
+/// <remarks>Source: include/sl_core_types.h:606. </remarks>
 public readonly unsafe partial struct FrameToken(nint handle)
 {
     /// <summary>Borrowed native object address. Copying this wrapper does not transfer ownership.</summary>

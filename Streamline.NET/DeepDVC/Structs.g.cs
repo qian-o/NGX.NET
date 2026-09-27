@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DeepDVCOptions
 /// </summary>
-/// <remarks>Source: include/sl_deepdvc.h:39.</remarks>
+/// <remarks>Source: include/sl_deepdvc.h:39. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 48)]
 public unsafe partial struct DeepDVCOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,19 +38,19 @@ public unsafe partial struct DeepDVCOptions : ISLStructure
     /// <summary>
     /// Specifies which mode should be used
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:41.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:41. </remarks>
     public DeepDVCMode Mode;
 
     /// <summary>
     /// Specifies intensity level in range [0,1]. Default 0.5
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:43.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:43. </remarks>
     public float Intensity;
 
     /// <summary>
     /// Specifies saturation boost in range [0,1]. Default 0.25
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:45.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:45. </remarks>
     public float SaturationBoost;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -68,26 +68,26 @@ public unsafe partial struct DeepDVCOptions : ISLStructure
 /// <summary>
 /// sl::DeepDVCState
 /// </summary>
-/// <remarks>Source: include/sl_deepdvc.h:51.</remarks>
+/// <remarks>Source: include/sl_deepdvc.h:51. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct DeepDVCState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -96,7 +96,7 @@ public unsafe partial struct DeepDVCState : ISLStructure
     /// <summary>
     /// Specified the amount of memory expected to be used
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:53.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:53. </remarks>
     public ulong EstimatedVRAMUsageInBytes;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>

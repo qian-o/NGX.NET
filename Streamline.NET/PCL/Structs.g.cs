@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::PCLOptions
 /// </summary>
-/// <remarks>Source: include/sl_pcl.h:42.</remarks>
+/// <remarks>Source: include/sl_pcl.h:42. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct PCLOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -39,13 +39,13 @@ public unsafe partial struct PCLOptions : ISLStructure
     /// Specifies the hot-key which should be used instead of custom message for PC latency marker
     /// Possible values: VK_F13, VK_F14, VK_F15
     /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:45.</remarks>
+    /// <remarks>Source: include/sl_pcl.h:45. </remarks>
     public PCLHotKey VirtualKey;
 
     /// <summary>
     /// ThreadID for PCL messages
     /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:47.</remarks>
+    /// <remarks>Source: include/sl_pcl.h:47. </remarks>
     public uint IdThread;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -61,26 +61,26 @@ public unsafe partial struct PCLOptions : ISLStructure
 /// <summary>
 /// sl::PCLState
 /// </summary>
-/// <remarks>Source: include/sl_pcl.h:53.</remarks>
+/// <remarks>Source: include/sl_pcl.h:53. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct PCLState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -89,7 +89,7 @@ public unsafe partial struct PCLState : ISLStructure
     /// <summary>
     /// Specifies PCL Windows message id (if PCLOptions::virtualKey is 0)
     /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:55.</remarks>
+    /// <remarks>Source: include/sl_pcl.h:55. </remarks>
     public uint StatsWindowMessage;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -105,26 +105,26 @@ public unsafe partial struct PCLState : ISLStructure
 /// <summary>
 /// sl::PCLHelper
 /// </summary>
-/// <remarks>Source: include/sl_pcl.h:104.</remarks>
+/// <remarks>Source: include/sl_pcl.h:104. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct PCLHelper : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -133,7 +133,7 @@ public unsafe partial struct PCLHelper : ISLStructure
     /// <summary>
     /// sl::PCLHelper::marker
     /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:108.</remarks>
+    /// <remarks>Source: include/sl_pcl.h:108. </remarks>
     private PCLMarker marker;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -147,7 +147,7 @@ public unsafe partial struct PCLHelper : ISLStructure
     /// <summary>
     /// sl::PCLHelper::PCLHelper
     /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:105.</remarks>
+    /// <remarks>Source: include/sl_pcl.h:105. </remarks>
     public PCLHelper(PCLMarker m) : this()
     {
         marker = m;

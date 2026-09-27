@@ -2,9 +2,25 @@ namespace Streamline.NET.Generator;
 
 internal sealed class TypeMapper(InterfaceSnapshot snapshot)
 {
-    private readonly HashSet<string> knownTypes = [.. snapshot.Declarations
+    private readonly HashSet<string> knownTypes = [.. AllDeclarations(snapshot.Declarations)
         .Where(declaration => declaration.IsRecord || declaration.Kind == "ENUM_DECL")
         .Select(declaration => declaration.QualifiedName)];
+
+    private readonly HashSet<string> opaqueTypes = [.. snapshot.Declarations
+        .Where(declaration => declaration.IsRecord && !declaration.Definition)
+        .Select(declaration => declaration.QualifiedName)];
+
+    private static IEnumerable<NativeDeclaration> AllDeclarations(IEnumerable<NativeDeclaration> declarations)
+    {
+        foreach (NativeDeclaration declaration in declarations)
+        {
+            yield return declaration;
+            foreach (NativeDeclaration child in AllDeclarations(declaration.Children))
+            {
+                yield return child;
+            }
+        }
+    }
 
     public string Map(NativeType type)
     {
@@ -54,7 +70,7 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
             return "SLArray<" + TypeName(name[10..^1].Trim()) + ">";
         }
 
-        if (!knownTypes.Contains(name) && !name.StartsWith("sl::", StringComparison.Ordinal))
+        if (!knownTypes.Contains(name))
         {
             throw new InvalidDataException($"Missing native definition: {name}");
         }
@@ -73,9 +89,7 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
 
         string name = element.Declaration ?? element.Canonical;
 
-        if (name is "sl::FrameToken" or "sl::IAllocator" || name.EndsWith("_T", StringComparison.Ordinal)
-            || name.StartsWith("ID3D", StringComparison.Ordinal) || name.StartsWith("IDXGI", StringComparison.Ordinal)
-            || name == "IUnknown")
+        if (name is "sl::FrameToken" or "sl::IAllocator" || opaqueTypes.Contains(name))
         {
             return "nint";
         }
@@ -132,13 +146,33 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
             "MAX_FRAMES_IN_FLIGHT" => "MaxFramesInFlight",
             "sType" => "SType",
             "pNext" => "PNext",
-            _ => PascalCase(name)
+            _ => PascalCase(name.Replace("_", "", StringComparison.Ordinal))
         };
     }
 
     public static string EnumMember(string name)
     {
-        return name.Length > 1 && name[0] == 'e' && char.IsUpper(name[1]) ? name[1..] : PascalCase(name);
+        if (name.StartsWith("DXGI_FORMAT_", StringComparison.Ordinal))
+        {
+            string member = string.Concat(name[12..].Split('_').Select(part => part switch
+            {
+                "TYPELESS" => "Typeless", "FLOAT" => "Float", "UINT" => "UInt", "SINT" => "SInt",
+                "UNORM" => "Unorm", "SNORM" => "Snorm", "SRGB" => "Srgb", "UNKNOWN" => "Unknown",
+                "FORCE" => "Force", "BIAS" => "Bias", "SHARED" => "Shared", "EXP" => "Exp",
+                "OPAQUE" => "Opaque", "SAMPLER" => "Sampler", "FEEDBACK" => "Feedback",
+                "MIN" => "Min", "MIP" => "Mip", "REGION" => "Region", "USED" => "Used",
+                _ => part
+            }));
+            return char.IsDigit(member[0]) ? "Format" + member : member;
+        }
+        name = name.Length > 1 && name[0] == 'e' && char.IsUpper(name[1]) ? name[1..] : PascalCase(name);
+        return name.Replace("_", "", StringComparison.Ordinal);
+    }
+
+    public static string ConstantName(string name)
+    {
+        name = name.StartsWith('k') ? name[1..] : MemberName(name);
+        return name.Replace("_INVALID", "Invalid", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
     }
 
     public static string Identifier(string name)

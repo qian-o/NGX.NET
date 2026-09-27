@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::NISOptions
 /// </summary>
-/// <remarks>Source: include/sl_nis.h:45.</remarks>
+/// <remarks>Source: include/sl_nis.h:45. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 48)]
 public unsafe partial struct NISOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,19 +38,19 @@ public unsafe partial struct NISOptions : ISLStructure
     /// <summary>
     /// Specifies which mode should be used
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:47.</remarks>
+    /// <remarks>Source: include/sl_nis.h:47. </remarks>
     public NISMode Mode;
 
     /// <summary>
     /// Specifies which hdr mode should be used
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:49.</remarks>
+    /// <remarks>Source: include/sl_nis.h:49. </remarks>
     public NISHDR HdrMode;
 
     /// <summary>
     /// Specifies sharpening level in range [0,1]
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:51.</remarks>
+    /// <remarks>Source: include/sl_nis.h:51. </remarks>
     public float Sharpness;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -67,26 +67,26 @@ public unsafe partial struct NISOptions : ISLStructure
 /// <summary>
 /// sl::NISState
 /// </summary>
-/// <remarks>Source: include/sl_nis.h:59.</remarks>
+/// <remarks>Source: include/sl_nis.h:59. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct NISState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -95,7 +95,7 @@ public unsafe partial struct NISState : ISLStructure
     /// <summary>
     /// Specified the amount of memory expected to be used
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:61.</remarks>
+    /// <remarks>Source: include/sl_nis.h:61. </remarks>
     public ulong EstimatedVRAMUsageInBytes;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>

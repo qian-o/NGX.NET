@@ -10,37 +10,37 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DLSSGMode
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:34.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:34. </remarks>
 public enum DLSSGMode : uint
 {
     /// <summary>
     /// sl::DLSSGMode::eOff
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:36.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:36. </remarks>
     Off = 0,
 
     /// <summary>
     /// sl::DLSSGMode::eOn
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:37.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:37. </remarks>
     On = 1,
 
     /// <summary>
     /// sl::DLSSGMode::eAuto
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:38.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:38. </remarks>
     Auto = 2,
 
     /// <summary>
     /// sl::DLSSGMode::eDynamic
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:39.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:39. </remarks>
     Dynamic = 3,
 
     /// <summary>
     /// sl::DLSSGMode::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:40.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:40. </remarks>
     Count = 4,
 
 }
@@ -48,44 +48,44 @@ public enum DLSSGMode : uint
 /// <summary>
 /// sl::DLSSGFlags
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:43.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:43. </remarks>
 [Flags]
 public enum DLSSGFlags : uint
 {
     /// <summary>
     /// sl::DLSSGFlags::eShowOnlyInterpolatedFrame
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:45.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:45. </remarks>
     ShowOnlyInterpolatedFrame = 1,
 
     /// <summary>
     /// sl::DLSSGFlags::eDynamicResolutionEnabled
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:46.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:46. </remarks>
     DynamicResolutionEnabled = 2,
 
     /// <summary>
     /// sl::DLSSGFlags::eRequestVRAMEstimate
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:47.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:47. </remarks>
     RequestVRAMEstimate = 4,
 
     /// <summary>
     /// sl::DLSSGFlags::eRetainResourcesWhenOff
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:48.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:48. </remarks>
     RetainResourcesWhenOff = 8,
 
     /// <summary>
     /// sl::DLSSGFlags::eEnableFullscreenMenuDetection
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:49.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:49. </remarks>
     EnableFullscreenMenuDetection = 16,
 
     /// <summary>
     /// All DLSS-FG flags.  This isn&apos;t expected to be used directly by integrations, but may be useful for e.g. writing helpers.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:52.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:52. </remarks>
     All = 31,
 
 }
@@ -93,13 +93,13 @@ public enum DLSSGFlags : uint
 /// <summary>
 /// sl::DLSSGQueueParallelismMode
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:55.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:55. </remarks>
 public enum DLSSGQueueParallelismMode : uint
 {
     /// <summary>
     /// Default mode in which client&apos;s presenting queue is blocked until DLSSG workload execution completes.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:58.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:58. </remarks>
     BlockPresentingClientQueue = 0,
 
     /// <summary>
@@ -109,7 +109,7 @@ public enum DLSSGQueueParallelismMode : uint
     /// DLSSGState::inputsProcessingCompletionFence and associated value, before it can modify or destroy the tagged
     /// resources input to DLSS-G enabled for the corresponding previously presented frame on any client queue.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:64.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:64. </remarks>
     BlockNoClientQueues = 1,
 
     /// <summary>
@@ -119,7 +119,7 @@ public enum DLSSGQueueParallelismMode : uint
     /// DLSSGState::inputsProcessingCompletionFence and associated value, before it can modify or destroy the tagged
     /// resources input to DLSS-G enabled for the corresponding previously presented frame on any client queue.
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:65.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:65. </remarks>
     Count = 2,
 
 }
@@ -127,56 +127,56 @@ public enum DLSSGQueueParallelismMode : uint
 /// <summary>
 /// IMPORTANT: New members go here or if optional can be chained in a new struct, see sl_struct.h for details
 /// </summary>
-/// <remarks>Source: include/sl_dlss_g.h:125.</remarks>
+/// <remarks>Source: include/sl_dlss_g.h:125. </remarks>
 [Flags]
 public enum DLSSGStatus : uint
 {
     /// <summary>
     /// Everything is working as expected
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:128.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:128. </remarks>
     Ok = 0,
 
     /// <summary>
     /// Output resolution (size of the back buffers in the swap-chain) is too low
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:130.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:130. </remarks>
     FailResolutionTooLow = 1,
 
     /// <summary>
     /// Reflex is not active while DLSS-G is running, Reflex must be turned on when DLSS-G is on
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:132.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:132. </remarks>
     FailReflexNotDetectedAtRuntime = 2,
 
     /// <summary>
     /// HDR format not supported, see DLSS-G programming guide for more details
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:134.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:134. </remarks>
     FailHDRFormatNotSupported = 4,
 
     /// <summary>
     /// Some constants are invalid, see programming guide for more details
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:136.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:136. </remarks>
     FailCommonConstantsInvalid = 8,
 
     /// <summary>
     /// D3D integrations must use SwapChain::GetCurrentBackBufferIndex API
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:138.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:138. </remarks>
     FailGetCurrentBackBufferIndexNotCalled = 16,
 
     /// <summary>
     /// Reserved for future use, do not use
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:140.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:140. </remarks>
     Reserved5 = 32,
 
     /// <summary>
     /// Reserved for future use, do not use
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_g.h:142.</remarks>
+    /// <remarks>Source: include/sl_dlss_g.h:142. </remarks>
     All = 63,
 
 }

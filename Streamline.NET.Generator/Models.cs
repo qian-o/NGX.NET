@@ -15,6 +15,15 @@ internal sealed class InterfaceSnapshot
     public List<string> Exports { get; set; } = [];
 
     public NativeAbi Abi { get; set; } = new();
+
+    public NativeSecurityData Security { get; set; } = new();
+}
+
+internal sealed class NativeSecurityData
+{
+    public List<NativeDeclaration> Types { get; set; } = [];
+
+    public Dictionary<string, string> Constants { get; set; } = [];
 }
 
 internal sealed class NativeAbi
@@ -22,6 +31,8 @@ internal sealed class NativeAbi
     public Dictionary<string, int> VirtualSlots { get; set; } = [];
 
     public string ResourceAllocateCallback { get; set; } = "";
+
+    public string AllocatorDestructor { get; set; } = "";
 }
 
 internal sealed class SnapshotSource
@@ -61,6 +72,8 @@ internal sealed class NativeDeclaration
 
     public bool Deprecated { get; set; }
 
+    public string? DeprecationMessage { get; set; }
+
     public bool Flags { get; set; }
 
     public string? MappedAs { get; set; }
@@ -87,7 +100,11 @@ internal sealed class NativeDeclaration
 
     public List<NativeDeclaration> Children { get; set; } = [];
 
+    public List<NativeDeclaration> LayoutFields { get; set; } = [];
+
     public List<NativeExpression> Expressions { get; set; } = [];
+
+    public ParameterContract Contract { get; set; } = new();
 
     [JsonIgnore]
     public IEnumerable<NativeDeclaration> Fields => Children.Where(child => child.Kind == "FIELD_DECL");
@@ -97,6 +114,21 @@ internal sealed class NativeDeclaration
 
     [JsonIgnore]
     public bool IsRecord => Kind is "STRUCT_DECL" or "CLASS_DECL" or "UNION_DECL";
+}
+
+internal sealed class ParameterContract
+{
+    public string Direction { get; set; } = "unspecified";
+
+    public string Lifetime { get; set; } = "native-contract";
+
+    public string Convenience { get; set; } = "raw";
+
+    public string? CountParameter { get; set; }
+
+    public string? Encoding { get; set; }
+
+    public string Evidence { get; set; } = "";
 }
 
 internal sealed class NativeType

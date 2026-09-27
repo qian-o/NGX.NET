@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Streamline.NET.Generator;
@@ -27,11 +27,8 @@ internal sealed partial class CSharpEmitter
                 string csType = mapper.Map(type);
                 StringBuilder builder = File(TypeMapper.Group(declaration), "SL.Flags");
                 builder.AppendLine();
-                builder.AppendLine("public static unsafe partial class SL");
-                builder.AppendLine("{");
                 builder.AppendLine("    /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>");
                 builder.AppendLine($"    public static bool HasAnyFlags({csType} value, {csType} mask) => (value & mask) != 0;");
-                builder.AppendLine("}");
             }
             Record(declaration, declaration.Name == "operator&" ? "SL.HasAnyFlags" : "C# enum bitwise operator " + declaration.Name);
             return true;
@@ -41,8 +38,6 @@ internal sealed partial class CSharpEmitter
         {
             StringBuilder builder = File("Helpers", "SL.Presets");
             builder.AppendLine();
-            builder.AppendLine("public static unsafe partial class SL");
-            builder.AppendLine("{");
             Comment(builder, declaration, "    ");
             builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
             builder.AppendLine("    {");
@@ -65,7 +60,6 @@ internal sealed partial class CSharpEmitter
                 builder.AppendLine("        return (DLSSDPreset)ResolveDLSSPreset((DLSSPreset)preset);");
             }
             builder.AppendLine("    }");
-            builder.AppendLine("}");
             Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
             return true;
         }
@@ -98,8 +92,6 @@ internal sealed partial class CSharpEmitter
         }
         string fallback = returns[^1].Groups[1].Value;
         builder.AppendLine();
-        builder.AppendLine("public static unsafe partial class SL");
-        builder.AppendLine("{");
         Comment(builder, declaration, "    ");
         builder.AppendLine($"    public static string {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
         builder.AppendLine("    {");
@@ -112,14 +104,13 @@ internal sealed partial class CSharpEmitter
         builder.AppendLine($"            _ => \"{fallback}\"");
         builder.AppendLine("        };");
         builder.AppendLine("    }");
-        builder.AppendLine("}");
         Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
     }
 
     private string TranslateSymbol(string symbol)
     {
         symbol = symbol.Replace("sl::", "", StringComparison.Ordinal);
-        return symbol.StartsWith('k') ? "SL." + symbol[1..] : TranslateExpression(symbol);
+        return symbol.StartsWith('k') ? "SL." + TypeMapper.ConstantName(symbol) : TranslateExpression(symbol);
     }
 
     private void EmitMathHelper(NativeDeclaration declaration)
@@ -131,27 +122,21 @@ internal sealed partial class CSharpEmitter
             string initializer = TranslateMathBody(match.Groups[2].Value, []);
             StringBuilder state = File("Helpers", "SL.MathState");
             state.AppendLine();
-            state.AppendLine("public static unsafe partial class SL");
-            state.AppendLine("{");
             state.AppendLine("    // Shared history retained from the upstream helper. Not thread-safe or per-viewport.");
             state.AppendLine($"    private static Float4x4 {match.Groups[1].Value} = new({initializer.Trim().TrimEnd(',')});");
-            state.AppendLine("}");
             return "";
         }, RegexOptions.Singleline);
         body = TranslateMathBody(body, declaration.Parameters.ToList());
         builder.AppendLine();
-        builder.AppendLine("public static unsafe partial class SL");
-        builder.AppendLine("{");
         Comment(builder, declaration, "    ");
         builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
         builder.AppendLine("    {");
         foreach (string line in body.Trim('\n', '\r').Split('\n'))
         {
-            builder.AppendLine("    " + line.TrimEnd());
+            builder.AppendLine(string.IsNullOrWhiteSpace(line) ? "" : "    " + line.TrimEnd());
         }
         builder.AppendLine("    }");
         EmitMathReferenceOverload(builder, declaration);
-        builder.AppendLine("}");
         Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
     }
 

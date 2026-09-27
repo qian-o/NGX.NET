@@ -9,132 +9,79 @@ namespace Streamline.NET;
 
 internal static unsafe partial class SLNative
 {
+
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slInit")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult Init(Preferences* pref, ulong sdkVersion);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slShutdown")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult Shutdown();
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slIsFeatureSupported")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult IsFeatureSupported(uint feature, AdapterInfo* adapterInfo);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slIsFeatureLoaded")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult IsFeatureLoaded(uint feature, Bool8* loaded);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetFeatureLoaded")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetFeatureLoaded(uint feature, Bool8 loaded);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetTagForFrame")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetTagForFrame(nint frame, ViewportHandle* viewport, ResourceTag* resources, uint numResources, void* cmdBuffer);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetTag")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetTag(ViewportHandle* viewport, ResourceTag* tags, uint numTags, void* cmdBuffer);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetConstants")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetConstants(Constants* values, nint frame, ViewportHandle* viewport);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slGetFeatureRequirements")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult GetFeatureRequirements(uint feature, FeatureRequirements* requirements);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slGetFeatureVersion")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult GetFeatureVersion(uint feature, FeatureVersion* version);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slAllocateResources")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult AllocateResources(void* cmdBuffer, uint feature, ViewportHandle* viewport);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slFreeResources")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult FreeResources(uint feature, ViewportHandle* viewport);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slEvaluateFeature")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult EvaluateFeature(uint feature, nint frame, BaseStructure** inputs, uint numInputs, void* cmdBuffer);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slUpgradeInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult UpgradeInterface(void** baseInterface);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slGetNativeInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult GetNativeInterface(void* proxyInterface, void** baseInterface);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slGetFeatureFunction")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult GetFeatureFunction(uint feature, sbyte* functionName, void** function);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slGetNewFrameToken")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult GetNewFrameToken(nint* token, uint* frameIndex);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetD3DDevice")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetD3DDevice(void* d3dDevice);
-}
 
-internal static unsafe partial class SLNative
-{
     [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = "slSetVulkanInfo")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial SLResult SetVulkanInfo(VulkanInfo* info);

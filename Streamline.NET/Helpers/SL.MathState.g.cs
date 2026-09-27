@@ -9,15 +9,13 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     // Shared history retained from the upstream helper. Not thread-safe or per-viewport.
     private static Float4x4 cameraViewToWorldPrev = new(new Float4(1, 0, 0, 0),
         new Float4(0, 1, 0, 0),
         new Float4(0, 0, 1, 0),
         new Float4(0, 0, 0, 1));
-}
 
-public static unsafe partial class SL
-{
     // Shared history retained from the upstream helper. Not thread-safe or per-viewport.
     private static Float4x4 cameraViewToClipPrev = new(new Float4(1, 0, 0, 0),
         new Float4(0, 1, 0, 0),

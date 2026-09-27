@@ -238,7 +238,7 @@ def main():
             result["source"] = source(cursor)
             result["underlyingType"] = describe_type(cursor.enum_type)
             result["flags"] = any(re.search(r"SL_ENUM_OPERATORS_(?:32|64)\s*\(\s*" + re.escape(cursor.spelling) + r"\s*\)",
-                                              (sdk / path).read_text(encoding="utf-8-sig")) for path in public_headers) or (cursor.spelling.endswith("Flags") and "<<" in source(cursor))
+                                              (sdk / path).read_text(encoding="utf-8-sig")) for path in public_headers) or (cursor.spelling.endswith("Flags") and ("<<" in source(cursor) or "|" in source(cursor)))
         if cursor.kind == cx.CursorKind.ENUM_CONSTANT_DECL:
             result["value"] = str(cursor.enum_value)
         if cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.TYPE_ALIAS_DECL}:

@@ -10,31 +10,31 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::NISMode
 /// </summary>
-/// <remarks>Source: include/sl_nis.h:28.</remarks>
+/// <remarks>Source: include/sl_nis.h:28. </remarks>
 public enum NISMode : uint
 {
     /// <summary>
     /// sl::NISMode::eOff
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:30.</remarks>
+    /// <remarks>Source: include/sl_nis.h:30. </remarks>
     Off = 0,
 
     /// <summary>
     /// sl::NISMode::eScaler
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:31.</remarks>
+    /// <remarks>Source: include/sl_nis.h:31. </remarks>
     Scaler = 1,
 
     /// <summary>
     /// sl::NISMode::eSharpen
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:32.</remarks>
+    /// <remarks>Source: include/sl_nis.h:32. </remarks>
     Sharpen = 2,
 
     /// <summary>
     /// sl::NISMode::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:33.</remarks>
+    /// <remarks>Source: include/sl_nis.h:33. </remarks>
     Count = 3,
 
 }
@@ -42,31 +42,31 @@ public enum NISMode : uint
 /// <summary>
 /// sl::NISHDR
 /// </summary>
-/// <remarks>Source: include/sl_nis.h:36.</remarks>
+/// <remarks>Source: include/sl_nis.h:36. </remarks>
 public enum NISHDR : uint
 {
     /// <summary>
     /// sl::NISHDR::eNone
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:38.</remarks>
+    /// <remarks>Source: include/sl_nis.h:38. </remarks>
     None = 0,
 
     /// <summary>
     /// sl::NISHDR::eLinear
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:39.</remarks>
+    /// <remarks>Source: include/sl_nis.h:39. </remarks>
     Linear = 1,
 
     /// <summary>
     /// sl::NISHDR::ePQ
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:40.</remarks>
+    /// <remarks>Source: include/sl_nis.h:40. </remarks>
     PQ = 2,
 
     /// <summary>
     /// sl::NISHDR::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_nis.h:41.</remarks>
+    /// <remarks>Source: include/sl_nis.h:41. </remarks>
     Count = 3,
 
 }

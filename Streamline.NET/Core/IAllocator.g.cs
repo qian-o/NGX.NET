@@ -13,7 +13,7 @@ namespace Streamline.NET;
 /// relies on an IAllocator pointer to ensure that memory is allocated
 /// and freed consistently within the same runtime.
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:724.</remarks>
+/// <remarks>Source: include/sl_core_types.h:724. </remarks>
 public readonly unsafe partial struct IAllocator(nint handle)
 {
     /// <summary>Borrowed native object address. Copying this wrapper does not transfer ownership.</summary>
@@ -24,4 +24,10 @@ public readonly unsafe partial struct IAllocator(nint handle)
 
     /// <summary>Frees memory previously allocated by this same allocator.</summary>
     public void Free(void* memory) => ((delegate* unmanaged[MemberFunction]<nint, void*, void>)(*(nint**)Handle)[2])(Handle, memory);
+
+    /// <summary>Explicitly invokes the native virtual destructor without freeing object storage. Requires the caller's ownership authority; invalidates the object.</summary>
+    public void Destroy()
+    {
+        ((delegate* unmanaged[MemberFunction]<nint, uint, nint>)(*(nint**)Handle)[0])(Handle, 0);
+    }
 }

@@ -9,22 +9,20 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// sl::resolveDLSSPreset
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:395.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:395. </remarks>
     public static DLSSPreset ResolveDLSSPreset(DLSSPreset preset)
     {
         return preset is DLSSPreset.PresetJ or DLSSPreset.PresetK ? preset : DLSSPreset.Default;
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::resolveDLSSDPreset
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:408.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:408. </remarks>
     public static DLSSDPreset ResolveDLSSDPreset(DLSSDPreset preset)
     {
         return (DLSSDPreset)ResolveDLSSPreset((DLSSPreset)preset);

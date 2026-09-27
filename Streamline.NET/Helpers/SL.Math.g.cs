@@ -9,10 +9,11 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// sl::transpose
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:62.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:62. </remarks>
     public static Float4x4 Transpose(Float4x4* m)
     {
         Float4x4 r = new();
@@ -31,35 +32,32 @@ public static unsafe partial class SL
             return Transpose(mPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::matrixMul
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:31.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:31. </remarks>
     public static void MatrixMul(Float4x4* result, Float4x4* a, Float4x4* b)
     {
         // Alias raw pointers over the input matrices
         float* pA = (float*)Unsafe.AsPointer(ref (*a)[0].X);
         float* pB = (float*)Unsafe.AsPointer(ref (*b)[0].X);
-    
+
         (*result)[0].X = (float)((pA[0] * pB[0]) + (pA[1] * pB[4]) + (pA[2] * pB[8]) + (pA[3] * pB[12]));
         (*result)[0].Y = (float)((pA[0] * pB[1]) + (pA[1] * pB[5]) + (pA[2] * pB[9]) + (pA[3] * pB[13]));
         (*result)[0].Z = (float)((pA[0] * pB[2]) + (pA[1] * pB[6]) + (pA[2] * pB[10]) + (pA[3] * pB[14]));
         (*result)[0].W = (float)((pA[0] * pB[3]) + (pA[1] * pB[7]) + (pA[2] * pB[11]) + (pA[3] * pB[15]));
-    
+
         (*result)[1].X = (float)((pA[4] * pB[0]) + (pA[5] * pB[4]) + (pA[6] * pB[8]) + (pA[7] * pB[12]));
         (*result)[1].Y = (float)((pA[4] * pB[1]) + (pA[5] * pB[5]) + (pA[6] * pB[9]) + (pA[7] * pB[13]));
         (*result)[1].Z = (float)((pA[4] * pB[2]) + (pA[5] * pB[6]) + (pA[6] * pB[10]) + (pA[7] * pB[14]));
         (*result)[1].W = (float)((pA[4] * pB[3]) + (pA[5] * pB[7]) + (pA[6] * pB[11]) + (pA[7] * pB[15]));
-    
+
         (*result)[2].X = (float)((pA[8] * pB[0]) + (pA[9] * pB[4]) + (pA[10] * pB[8]) + (pA[11] * pB[12]));
         (*result)[2].Y = (float)((pA[8] * pB[1]) + (pA[9] * pB[5]) + (pA[10] * pB[9]) + (pA[11] * pB[13]));
         (*result)[2].Z = (float)((pA[8] * pB[2]) + (pA[9] * pB[6]) + (pA[10] * pB[10]) + (pA[11] * pB[14]));
         (*result)[2].W = (float)((pA[8] * pB[3]) + (pA[9] * pB[7]) + (pA[10] * pB[11]) + (pA[11] * pB[15]));
-    
+
         (*result)[3].X = (float)((pA[12] * pB[0]) + (pA[13] * pB[4]) + (pA[14] * pB[8]) + (pA[15] * pB[12]));
         (*result)[3].Y = (float)((pA[12] * pB[1]) + (pA[13] * pB[5]) + (pA[14] * pB[9]) + (pA[15] * pB[13]));
         (*result)[3].Z = (float)((pA[12] * pB[2]) + (pA[13] * pB[6]) + (pA[14] * pB[10]) + (pA[15] * pB[14]));
@@ -76,21 +74,18 @@ public static unsafe partial class SL
             MatrixMul(resultPointer, aPointer, bPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::matrixFullInvert
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:58.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:58. </remarks>
     public static void MatrixFullInvert(Float4x4* result, Float4x4* mat)
     {
         // Matrix inversion code from https://stackoverflow.Com/questions/1148309/inverting-a-4x4-matrix
         // Alias raw pointers over the input matrix and the (*result)
         float* pMat = (float*)Unsafe.AsPointer(ref (*mat)[0].X);
         float* pResult = (float*)Unsafe.AsPointer(ref (*result)[0].X);
-    
+
         pResult[0] = pMat[5] * pMat[10] * pMat[15] - pMat[5] * pMat[11] * pMat[14] - pMat[9] * pMat[6] * pMat[15] + pMat[9] * pMat[7] * pMat[14] + pMat[13] * pMat[6] * pMat[11] - pMat[13] * pMat[7] * pMat[10];
         pResult[4] = -pMat[4] * pMat[10] * pMat[15] + pMat[4] * pMat[11] * pMat[14] + pMat[8] * pMat[6] * pMat[15] - pMat[8] * pMat[7] * pMat[14] - pMat[12] * pMat[6] * pMat[11] + pMat[12] * pMat[7] * pMat[10];
         pResult[8] = pMat[4] * pMat[9] * pMat[15] - pMat[4] * pMat[11] * pMat[13] - pMat[8] * pMat[5] * pMat[15] + pMat[8] * pMat[7] * pMat[13] + pMat[12] * pMat[5] * pMat[11] - pMat[12] * pMat[7] * pMat[9];
@@ -107,12 +102,12 @@ public static unsafe partial class SL
         pResult[7] = pMat[0] * pMat[6] * pMat[11] - pMat[0] * pMat[7] * pMat[10] - pMat[4] * pMat[2] * pMat[11] + pMat[4] * pMat[3] * pMat[10] + pMat[8] * pMat[2] * pMat[7] - pMat[8] * pMat[3] * pMat[6];
         pResult[11] = -pMat[0] * pMat[5] * pMat[11] + pMat[0] * pMat[7] * pMat[9] + pMat[4] * pMat[1] * pMat[11] - pMat[4] * pMat[3] * pMat[9] - pMat[8] * pMat[1] * pMat[7] + pMat[8] * pMat[3] * pMat[5];
         pResult[15] = pMat[0] * pMat[5] * pMat[10] - pMat[0] * pMat[6] * pMat[9] - pMat[4] * pMat[1] * pMat[10] + pMat[4] * pMat[2] * pMat[9] + pMat[8] * pMat[1] * pMat[6] - pMat[8] * pMat[2] * pMat[5];
-    
+
         float det = pMat[0] * pResult[0] + pMat[1] * pResult[4] + pMat[2] * pResult[8] + pMat[3] * pResult[12];
         if (det != 0.0f)
         {
             det = 1.0f / det;
-    
+
             for (int i = 0; i < 16; ++i)
             {
                 pResult[i] *= det;
@@ -129,14 +124,11 @@ public static unsafe partial class SL
             MatrixFullInvert(resultPointer, matPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::matrixOrthoNormalInvert
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:95.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:95. </remarks>
     public static void MatrixOrthoNormalInvert(Float4x4* result, Float4x4* mat)
     {
         // Transpose the first 3x3
@@ -149,12 +141,12 @@ public static unsafe partial class SL
         (*result)[2].X = (*mat)[0].Z;
         (*result)[2].Y = (*mat)[1].Z;
         (*result)[2].Z = (*mat)[2].Z;
-    
+
         // Invert the translation
         (*result)[3].X = -(((*mat)[3].X * (*mat)[0].X) + ((*mat)[3].Y * (*mat)[0].Y) + ((*mat)[3].Z * (*mat)[0].Z));
         (*result)[3].Y = -(((*mat)[3].X * (*mat)[1].X) + ((*mat)[3].Y * (*mat)[1].Y) + ((*mat)[3].Z * (*mat)[1].Z));
         (*result)[3].Z = -(((*mat)[3].X * (*mat)[2].X) + ((*mat)[3].Y * (*mat)[2].Y) + ((*mat)[3].Z * (*mat)[2].Z));
-    
+
         // Fill in the remaining constants
         (*result)[0].W = 0.0f;
         (*result)[1].W = 0.0f;
@@ -171,14 +163,11 @@ public static unsafe partial class SL
             MatrixOrthoNormalInvert(resultPointer, matPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::vectorNormalize
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:120.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:120. </remarks>
     public static void VectorNormalize(Float3* v)
     {
         float k = 1.0f / MathF.Sqrt(((*v).X * (*v).X) + ((*v).Y * (*v).Y) + ((*v).Z * (*v).Z));
@@ -195,14 +184,11 @@ public static unsafe partial class SL
             VectorNormalize(vPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::vectorCrossProduct
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:128.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:128. </remarks>
     public static void VectorCrossProduct(Float3* result, Float3* a, Float3* b)
     {
         (*result).X = (*a).Y * (*b).Z - (*a).Z * (*b).Y;
@@ -220,14 +206,11 @@ public static unsafe partial class SL
             VectorCrossProduct(resultPointer, aPointer, bPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::calcCameraToPrevCamera
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:154.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:154. </remarks>
     public static void CalcCameraToPrevCamera(Float4x4* outCameraToPrevCamera, Float4x4* cameraToWorld, Float4x4* cameraToWorldPrev)
     {
         // Create translated versions of (*cameraToWorld) and (*cameraToWorldPrev), translated to
@@ -239,7 +222,7 @@ public static unsafe partial class SL
         cameraToCcWorldPrev[3].X -= (*cameraToWorld)[3].X;
         cameraToCcWorldPrev[3].Y -= (*cameraToWorld)[3].Y;
         cameraToCcWorldPrev[3].Z -= (*cameraToWorld)[3].Z;
-    
+
         // We can use an optimised invert if we assume that the camera matrix is orthonormal
         Float4x4 ccWorldToCameraPrev = new();
         MatrixOrthoNormalInvert(ref ccWorldToCameraPrev, in cameraToCcWorldPrev);
@@ -256,14 +239,11 @@ public static unsafe partial class SL
             CalcCameraToPrevCamera(outCameraToPrevCameraPointer, cameraToWorldPointer, cameraToWorldPrevPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::recalculateCameraMatrices
     /// </summary>
-    /// <remarks>Source: include/sl_matrix_helpers.h:178.</remarks>
+    /// <remarks>Source: include/sl_matrix_helpers.h:178. </remarks>
     public static void RecalculateCameraMatrices(Constants* values)
     {
         // Form a camera-to-world matrix from the camera fields
@@ -280,18 +260,18 @@ public static unsafe partial class SL
         // ********* DO NOT USE THIS IN ANYTHING PROPER *********
         // Crap storage of cameraViewToWorldPrev and cameraViewToClipPrev
         // These should be provided by the app, or stored by association with the view index.
-    
-    
+
+
         MatrixFullInvert(ref (*values).ClipToCameraView, in (*values).CameraViewToClip);
-    
+
         Float4x4 cameraViewToPrevCameraView = new();
         CalcCameraToPrevCamera(ref cameraViewToPrevCameraView, in cameraViewToWorld, in cameraViewToWorldPrev);
-    
+
         Float4x4 clipToPrevCameraView = new();
         MatrixMul(ref clipToPrevCameraView, in (*values).ClipToCameraView, in cameraViewToPrevCameraView);
         MatrixMul(ref (*values).ClipToPrevClip, in clipToPrevCameraView, in cameraViewToClipPrev);
         MatrixFullInvert(ref (*values).PrevClipToClip, in (*values).ClipToPrevClip);
-    
+
         // ********* DO NOT USE THIS IN ANYTHING PROPER *********
         cameraViewToWorldPrev = cameraViewToWorld;
         cameraViewToClipPrev = (*values).CameraViewToClip;

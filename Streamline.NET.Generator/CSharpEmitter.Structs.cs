@@ -51,7 +51,9 @@ internal sealed partial class CSharpEmitter
                 throw new InvalidDataException($"Unhandled bitfield: {field.QualifiedName}");
             }
 
-            Comment(builder, field, "    ");
+            Comment(builder, field, "    ", field.Type.Element?.Kind == "FUNCTIONPROTO"
+                ? "Keep the callback and any referenced state alive for the native contract's full duration. Managed exceptions must not cross the callback boundary."
+                : null);
 
             if (union is not null)
             {

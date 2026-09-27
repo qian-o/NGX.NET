@@ -9,897 +9,604 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// For cases when value has to be provided and we don&apos;t have good default
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:90.</remarks>
+    /// <remarks>Source: include/sl_consts.h:90. </remarks>
     public const float InvalidFloat = float.MaxValue;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::INVALID_UINT
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:91.</remarks>
+    /// <remarks>Source: include/sl_consts.h:91. </remarks>
     public const uint InvalidUInt = 4294967295;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Normally host would work with no more than 2 frames at the same time but sl.reflex sometimes
     /// needs to send markers for previous and next frame so the total number of in-flight frames can be higher
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:95.</remarks>
+    /// <remarks>Source: include/sl_consts.h:95. </remarks>
     public const uint MaxFramesInFlight = 6;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Depth buffer - IMPORTANT - Must be suitable to use with clipToPrevClip transformation (see Constants below)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:66.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:66. </remarks>
     public const uint BufferTypeDepth = 0;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Object and optional camera motion vectors (see Constants below)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:68.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:68. </remarks>
     public const uint BufferTypeMotionVectors = 1;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Color buffer with all post-processing effects applied but without any UI/HUD elements
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:70.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:70. </remarks>
     public const uint BufferTypeHUDLessColor = 2;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Color buffer containing jittered input data for the image scaling pass
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:72.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:72. </remarks>
     public const uint BufferTypeScalingInputColor = 3;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Color buffer containing results from the image scaling pass
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:74.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:74. </remarks>
     public const uint BufferTypeScalingOutputColor = 4;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Normals
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:76.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:76. </remarks>
     public const uint BufferTypeNormals = 5;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Roughness
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:78.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:78. </remarks>
     public const uint BufferTypeRoughness = 6;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Albedo
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:80.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:80. </remarks>
     public const uint BufferTypeAlbedo = 7;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Specular Albedo
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:82.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:82. </remarks>
     public const uint BufferTypeSpecularAlbedo = 8;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Indirect Albedo
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:84.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:84. </remarks>
     public const uint BufferTypeIndirectAlbedo = 9;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Specular Motion Vectors
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:86.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:86. </remarks>
     public const uint BufferTypeSpecularMotionVectors = 10;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Disocclusion Mask
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:88.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:88. </remarks>
     public const uint BufferTypeDisocclusionMask = 11;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Emissive
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:90.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:90. </remarks>
     public const uint BufferTypeEmissive = 12;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Exposure
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:92.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:92. </remarks>
     public const uint BufferTypeExposure = 13;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Buffer with normal and roughness in alpha channel
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:94.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:94. </remarks>
     public const uint BufferTypeNormalRoughness = 14;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Diffuse and camera ray length
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:96.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:96. </remarks>
     public const uint BufferTypeDiffuseHitNoisy = 15;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Diffuse denoised
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:98.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:98. </remarks>
     public const uint BufferTypeDiffuseHitDenoised = 16;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Specular and reflected ray length
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:100.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:100. </remarks>
     public const uint BufferTypeSpecularHitNoisy = 17;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Specular denoised
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:102.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:102. </remarks>
     public const uint BufferTypeSpecularHitDenoised = 18;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Shadow noisy
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:104.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:104. </remarks>
     public const uint BufferTypeShadowNoisy = 19;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Shadow denoised
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:106.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:106. </remarks>
     public const uint BufferTypeShadowDenoised = 20;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// AO noisy
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:108.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:108. </remarks>
     public const uint BufferTypeAmbientOcclusionNoisy = 21;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// AO denoised
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:110.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:110. </remarks>
     public const uint BufferTypeAmbientOcclusionDenoised = 22;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - UI/HUD color and alpha
     /// IMPORTANT: Please make sure that alpha channel has enough precision (for example do NOT use formats like R10G10B10A2)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:113.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:113. </remarks>
     public const uint BufferTypeUIColorAndAlpha = 23;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Shadow pixels hint (set to 1 if a pixel belongs to the shadow area, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:115.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:115. </remarks>
     public const uint BufferTypeShadowHint = 24;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Reflection pixels hint (set to 1 if a pixel belongs to the reflection area, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:117.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:117. </remarks>
     public const uint BufferTypeReflectionHint = 25;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Particle pixels hint (set to 1 if a pixel represents a particle, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:119.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:119. </remarks>
     public const uint BufferTypeParticleHint = 26;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Transparency pixels hint (set to 1 if a pixel belongs to the transparent area, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:121.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:121. </remarks>
     public const uint BufferTypeTransparencyHint = 27;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Animated texture pixels hint (set to 1 if a pixel belongs to the animated texture area, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:123.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:123. </remarks>
     public const uint BufferTypeAnimatedTextureHint = 28;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Bias for current color vs history hint - lerp(history, current, bias) (set to 1 to completely reject history)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:125.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:125. </remarks>
     public const uint BufferTypeBiasCurrentColorHint = 29;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Ray-tracing distance (camera ray length)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:127.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:127. </remarks>
     public const uint BufferTypeRaytracingDistance = 30;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Motion vectors for reflections
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:129.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:129. </remarks>
     public const uint BufferTypeReflectionMotionVectors = 31;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Position, in same space as eNormals
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:131.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:131. </remarks>
     public const uint BufferTypePosition = 32;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Indicates (via non-zero value) which pixels have motion/depth values that do not match the final color content at that pixel (e.g. overlaid, opaque Picture-in-Picture)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:133.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:133. </remarks>
     public const uint BufferTypeInvalidDepthMotionHint = 33;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Alpha
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:135.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:135. </remarks>
     public const uint BufferTypeAlpha = 34;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Color buffer containing only opaque geometry
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:137.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:137. </remarks>
     public const uint BufferTypeOpaqueColor = 35;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Reduce reliance on history instead using current frame hint (0 if a pixel is not at all reactive and default composition should be used, 1 if fully reactive)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:139.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:139. </remarks>
     public const uint BufferTypeReactiveMaskHint = 36;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Pixel lock adjustment hint (set to 1 if pixel lock should be completely removed, 0 otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:141.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:141. </remarks>
     public const uint BufferTypeTransparencyAndCompositionMaskHint = 37;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Albedo of the reflection ray hit point. For multibounce reflections, this should be the albedo of the first non-specular bounce.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:143.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:143. </remarks>
     public const uint BufferTypeReflectedAlbedo = 38;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before particles are drawn.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:145.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:145. </remarks>
     public const uint BufferTypeColorBeforeParticles = 39;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before transparent objects are drawn.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:147.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:147. </remarks>
     public const uint BufferTypeColorBeforeTransparency = 40;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before fog is drawn.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:149.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:149. </remarks>
     public const uint BufferTypeColorBeforeFog = 41;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer containing the hit distance of a specular ray.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:151.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:151. </remarks>
     public const uint BufferTypeSpecularHitDistance = 42;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer that contains 3 components of a specular ray direction, and 1 component of specular hit distance.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:153.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:153. </remarks>
     public const uint BufferTypeSpecularRayDirectionHitDistance = 43;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer containing normalized direction of a specular ray.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:155.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:155. </remarks>
     public const uint BufferTypeSpecularRayDirection = 44;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kBufferTypeDiffuseHitDistance
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:157.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:157. </remarks>
     public const uint BufferTypeDiffuseHitDistance = 45;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer that contains 3 components of a diffuse ray direction, and 1 component of diffuse hit distance.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:159.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:159. </remarks>
     public const uint BufferTypeDiffuseRayDirectionHitDistance = 46;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer containing normalized direction of a diffuse ray.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:161.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:161. </remarks>
     public const uint BufferTypeDiffuseRayDirection = 47;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer containing display resolution depth.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:163.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:163. </remarks>
     public const uint BufferTypeHiResDepth = 48;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Required either this or kBufferTypeDepth - Buffer containing linear depth.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:165.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:165. </remarks>
     public const uint BufferTypeLinearDepth = 49;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Bidirectional distortion field. 4 channels in normalized [0,1] pixel space. RG = distorted pixel to undistorted pixel displacement. BA = undistorted pixel to distorted pixel displacement.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:167.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:167. </remarks>
     public const uint BufferTypeBidirectionalDistortionField = 50;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer containing particles or other similar transparent effects rendered into it instead of passing it as part of the input color
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:169.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:169. </remarks>
     public const uint BufferTypeTransparencyLayer = 51;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Buffer to be used in addition to TransparencyLayer which allows 3-channels of Opacity versus 1-channel.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:172.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:172. </remarks>
     public const uint BufferTypeTransparencyLayerOpacity = 52;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Swapchain buffer to be presented
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:174.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:174. </remarks>
     public const uint BufferTypeBackbuffer = 53;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Mask for pixels to skip warping
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:176.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:176. </remarks>
     public const uint BufferTypeNoWarpMask = 54;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after particles are drawn (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:178.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:178. </remarks>
     public const uint BufferTypeColorAfterParticles = 55;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after transparent objects are drawn (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:180.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:180. </remarks>
     public const uint BufferTypeColorAfterTransparency = 56;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after fog is drawn (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:182.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:182. </remarks>
     public const uint BufferTypeColorAfterFog = 57;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Subsurface scattering guide buffer
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:184.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:184. </remarks>
     public const uint BufferTypeScreenSpaceSubsurfaceScatteringGuide = 58;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before subsurface scattering (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:186.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:186. </remarks>
     public const uint BufferTypeColorBeforeScreenSpaceSubsurfaceScattering = 59;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after subsurface scattering (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:188.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:188. </remarks>
     public const uint BufferTypeColorAfterScreenSpaceSubsurfaceScattering = 60;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Refraction guide buffer (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:190.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:190. </remarks>
     public const uint BufferTypeScreenSpaceRefractionGuide = 61;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before refraction (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:192.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:192. </remarks>
     public const uint BufferTypeColorBeforeScreenSpaceRefraction = 62;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after refraction (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:194.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:194. </remarks>
     public const uint BufferTypeColorAfterScreenSpaceRefraction = 63;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Depth of Field Buffer (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:196.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:196. </remarks>
     public const uint BufferTypeDepthOfFieldGuide = 64;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer before Depth of Field (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:198.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:198. </remarks>
     public const uint BufferTypeColorBeforeDepthOfField = 65;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer after Depth of Field (for research purposes)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:200.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:200. </remarks>
     public const uint BufferTypeColorAfterDepthOfField = 66;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - Color buffer that overrides the alpha channel of kBufferTypeScalingOutputColor
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:202.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:202. </remarks>
     public const uint BufferTypeScalingOutputAlpha = 67;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional buffer for responsivity mask
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:204.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:204. </remarks>
     public const uint BufferTypeResponsivityMask = 68;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - UI Alpha
     /// A 1 channel resource containing the alpha value of on-screen elements, between 0.0f and 1.0f inclusive.
     /// Similar to kBufferTypeUIColorAndAlpha, but only the alpha channel for optimized run-time performance.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:208.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:208. </remarks>
     public const uint BufferTypeUIAlpha = 69;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Input color for neural-net &quot;uplift&quot; passes
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:210.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:210. </remarks>
     public const uint BufferTypeUpliftInputColor = 70;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Output color for neural-net &quot;uplift&quot; passes
     /// May alias kBufferTypeUpliftInputColor (in-place uplift); the feature transitions appropriately.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:213.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:213. </remarks>
     public const uint BufferTypeUpliftOutputColor = 71;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Optional - 4-channel control mask consumed by uplift passes
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:215.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:215. </remarks>
     public const uint BufferTypeUpliftControlMask = 72;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Deep Learning Super Sampling
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:224.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:224. </remarks>
     public const uint FeatureDLSS = 0;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Real-Time Denoiser (removed)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:227.</remarks>
-    public const uint FeatureNRD_INVALID = 1;
-}
+    /// <remarks>Source: include/sl_core_types.h:227. </remarks>
+    public const uint FeatureNRDInvalid = 1;
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// NVIDIA Image Scaling
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:230.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:230. </remarks>
     public const uint FeatureNIS = 2;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Reflex
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:233.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:233. </remarks>
     public const uint FeatureReflex = 3;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// PC Latency
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:236.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:236. </remarks>
     public const uint FeaturePCL = 4;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// DeepDVC
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:239.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:239. </remarks>
     public const uint FeatureDeepDVC = 5;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kFeatureLatewarp
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:241.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:241. </remarks>
     public const uint FeatureLatewarp = 6;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// DLSS Frame Generation
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:244.</remarks>
-    public const uint FeatureDLSS_G = 1000;
-}
+    /// <remarks>Source: include/sl_core_types.h:244. </remarks>
+    public const uint FeatureDLSSG = 1000;
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// DLSS Ray Reconstruction
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:247.</remarks>
-    public const uint FeatureDLSS_RR = 1001;
-}
+    /// <remarks>Source: include/sl_core_types.h:247. </remarks>
+    public const uint FeatureDLSSRR = 1001;
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kFeatureNvPerf
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:249.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:249. </remarks>
     public const uint FeatureNvPerf = 1002;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kFeatureDirectSR
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:251.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:251. </remarks>
     public const uint FeatureDirectSR = 1003;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kFeatureDLSS_NR
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:253.</remarks>
-    public const uint FeatureDLSS_NR = 1004;
-}
+    /// <remarks>Source: include/sl_core_types.h:253. </remarks>
+    public const uint FeatureDLSSNR = 1004;
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kFeatureImGUI
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:256.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:256. </remarks>
     public const uint FeatureImGUI = 9999;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Common feature, NOT intended to be used directly
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:264.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:264. </remarks>
     public const uint FeatureCommon = 4294967295;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// IMPORTANT: New members in the structure always go at the end!
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:100.</remarks>
+    /// <remarks>Source: include/sl_struct.h:100. </remarks>
     public const uint StructVersion1 = 1;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion2
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:101.</remarks>
+    /// <remarks>Source: include/sl_struct.h:101. </remarks>
     public const uint StructVersion2 = 2;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion3
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:102.</remarks>
+    /// <remarks>Source: include/sl_struct.h:102. </remarks>
     public const uint StructVersion3 = 3;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion4
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:103.</remarks>
+    /// <remarks>Source: include/sl_struct.h:103. </remarks>
     public const uint StructVersion4 = 4;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion5
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:104.</remarks>
+    /// <remarks>Source: include/sl_struct.h:104. </remarks>
     public const uint StructVersion5 = 5;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion6
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:105.</remarks>
+    /// <remarks>Source: include/sl_struct.h:105. </remarks>
     public const uint StructVersion6 = 6;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kStructVersion7
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:106.</remarks>
+    /// <remarks>Source: include/sl_struct.h:106. </remarks>
     public const uint StructVersion7 = 7;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kSDKVersionMagic
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:33.</remarks>
+    /// <remarks>Source: include/sl_version.h:33. </remarks>
     public const ulong SDKVersionMagic = 65244UL;
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::kSDKVersion
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:34.</remarks>
+    /// <remarks>Source: include/sl_version.h:34. </remarks>
     public const ulong SDKVersion = 563010083094236UL;
 }

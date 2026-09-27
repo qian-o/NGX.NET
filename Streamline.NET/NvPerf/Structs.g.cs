@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::NvPerfConstants
 /// </summary>
-/// <remarks>Source: include/sl_nvperf.h:56.</remarks>
+/// <remarks>Source: include/sl_nvperf.h:56. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct NvPerfConstants : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,7 +38,7 @@ public unsafe partial struct NvPerfConstants : ISLStructure
     /// <summary>
     /// sl::NvPerfConstants::mode
     /// </summary>
-    /// <remarks>Source: include/sl_nvperf.h:57.</remarks>
+    /// <remarks>Source: include/sl_nvperf.h:57. </remarks>
     public NvPerfMode Mode;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -54,26 +54,26 @@ public unsafe partial struct NvPerfConstants : ISLStructure
 /// <summary>
 /// sl::NvPerfSettings
 /// </summary>
-/// <remarks>Source: include/sl_nvperf.h:65.</remarks>
+/// <remarks>Source: include/sl_nvperf.h:65. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 32)]
 public unsafe partial struct NvPerfSettings : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>

@@ -10,20 +10,20 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::uint2
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:97.</remarks>
+/// <remarks>Source: include/sl_consts.h:97. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
 public unsafe partial struct UInt2
 {
     /// <summary>
     /// sl::uint2::x
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:99.</remarks>
+    /// <remarks>Source: include/sl_consts.h:99. </remarks>
     public uint X;
 
     /// <summary>
     /// sl::uint2::y
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:100.</remarks>
+    /// <remarks>Source: include/sl_consts.h:100. </remarks>
     public uint Y;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -37,26 +37,26 @@ public unsafe partial struct UInt2
 /// <summary>
 /// sl::uint3
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:103.</remarks>
+/// <remarks>Source: include/sl_consts.h:103. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 12)]
 public unsafe partial struct UInt3
 {
     /// <summary>
     /// sl::uint3::x
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:105.</remarks>
+    /// <remarks>Source: include/sl_consts.h:105. </remarks>
     public uint X;
 
     /// <summary>
     /// sl::uint3::y
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:106.</remarks>
+    /// <remarks>Source: include/sl_consts.h:106. </remarks>
     public uint Y;
 
     /// <summary>
     /// sl::uint3::z
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:107.</remarks>
+    /// <remarks>Source: include/sl_consts.h:107. </remarks>
     public uint Z;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -70,20 +70,20 @@ public unsafe partial struct UInt3
 /// <summary>
 /// sl::float2
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:110.</remarks>
+/// <remarks>Source: include/sl_consts.h:110. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
 public unsafe partial struct Float2
 {
     /// <summary>
     /// sl::float2::x
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:114.</remarks>
+    /// <remarks>Source: include/sl_consts.h:114. </remarks>
     public float X;
 
     /// <summary>
     /// sl::float2::y
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:114.</remarks>
+    /// <remarks>Source: include/sl_consts.h:114. </remarks>
     public float Y;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -97,7 +97,7 @@ public unsafe partial struct Float2
     /// <summary>
     /// sl::float2::float2
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:113.</remarks>
+    /// <remarks>Source: include/sl_consts.h:113. </remarks>
     public Float2(float x, float y) : this()
     {
         X = x;
@@ -109,26 +109,26 @@ public unsafe partial struct Float2
 /// <summary>
 /// sl::float3
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:117.</remarks>
+/// <remarks>Source: include/sl_consts.h:117. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 12)]
 public unsafe partial struct Float3
 {
     /// <summary>
     /// sl::float3::x
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:121.</remarks>
+    /// <remarks>Source: include/sl_consts.h:121. </remarks>
     public float X;
 
     /// <summary>
     /// sl::float3::y
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:121.</remarks>
+    /// <remarks>Source: include/sl_consts.h:121. </remarks>
     public float Y;
 
     /// <summary>
     /// sl::float3::z
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:121.</remarks>
+    /// <remarks>Source: include/sl_consts.h:121. </remarks>
     public float Z;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -143,7 +143,7 @@ public unsafe partial struct Float3
     /// <summary>
     /// sl::float3::float3
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:120.</remarks>
+    /// <remarks>Source: include/sl_consts.h:120. </remarks>
     public Float3(float x, float y, float z) : this()
     {
         X = x;
@@ -156,32 +156,32 @@ public unsafe partial struct Float3
 /// <summary>
 /// sl::float4
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:124.</remarks>
+/// <remarks>Source: include/sl_consts.h:124. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 16)]
 public unsafe partial struct Float4
 {
     /// <summary>
     /// sl::float4::x
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:128.</remarks>
+    /// <remarks>Source: include/sl_consts.h:128. </remarks>
     public float X;
 
     /// <summary>
     /// sl::float4::y
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:128.</remarks>
+    /// <remarks>Source: include/sl_consts.h:128. </remarks>
     public float Y;
 
     /// <summary>
     /// sl::float4::z
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:128.</remarks>
+    /// <remarks>Source: include/sl_consts.h:128. </remarks>
     public float Z;
 
     /// <summary>
     /// sl::float4::w
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:128.</remarks>
+    /// <remarks>Source: include/sl_consts.h:128. </remarks>
     public float W;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -197,7 +197,7 @@ public unsafe partial struct Float4
     /// <summary>
     /// sl::float4::float4
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:127.</remarks>
+    /// <remarks>Source: include/sl_consts.h:127. </remarks>
     public Float4(float x, float y, float z, float w) : this()
     {
         X = x;
@@ -211,14 +211,14 @@ public unsafe partial struct Float4
 /// <summary>
 /// sl::float4x4
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:131.</remarks>
+/// <remarks>Source: include/sl_consts.h:131. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 64)]
 public unsafe partial struct Float4x4
 {
     /// <summary>
     /// Row major matrix
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:140.</remarks>
+    /// <remarks>Source: include/sl_consts.h:140. </remarks>
     public RowBuffer Row;
 
     /// <summary>Inline storage for 4 native Float4 elements.</summary>
@@ -243,32 +243,32 @@ public unsafe partial struct Float4x4
 /// <summary>
 /// sl::Extent
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:143.</remarks>
+/// <remarks>Source: include/sl_consts.h:143. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 16)]
 public unsafe partial struct Extent
 {
     /// <summary>
     /// sl::Extent::top
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:145.</remarks>
+    /// <remarks>Source: include/sl_consts.h:145. </remarks>
     public uint Top;
 
     /// <summary>
     /// sl::Extent::left
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:146.</remarks>
+    /// <remarks>Source: include/sl_consts.h:146. </remarks>
     public uint Left;
 
     /// <summary>
     /// sl::Extent::width
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:147.</remarks>
+    /// <remarks>Source: include/sl_consts.h:147. </remarks>
     public uint Width;
 
     /// <summary>
     /// sl::Extent::height
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:148.</remarks>
+    /// <remarks>Source: include/sl_consts.h:148. </remarks>
     public uint Height;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -281,29 +281,29 @@ public unsafe partial struct Extent
 
 /// <summary>
 /// Common constants, all parameters must be provided unless they are marked as optional
-/// 
+///
 /// {DCD35AD7-4E4A-4BAD-A90C-E0C49EB23AFE}
 /// </summary>
-/// <remarks>Source: include/sl_consts.h:182.</remarks>
+/// <remarks>Source: include/sl_consts.h:182. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 456)]
 public unsafe partial struct Constants : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -312,19 +312,19 @@ public unsafe partial struct Constants : ISLStructure
     /// <summary>
     /// Specifies matrix transformation from the camera view to the clip space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:188.</remarks>
+    /// <remarks>Source: include/sl_consts.h:188. </remarks>
     public Float4x4 CameraViewToClip;
 
     /// <summary>
     /// Specifies matrix transformation from the clip space to the camera view space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:190.</remarks>
+    /// <remarks>Source: include/sl_consts.h:190. </remarks>
     public Float4x4 ClipToCameraView;
 
     /// <summary>
     /// Optional - Specifies matrix transformation describing lens distortion in clip space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:192.</remarks>
+    /// <remarks>Source: include/sl_consts.h:192. </remarks>
     public Float4x4 ClipToLensClip;
 
     /// <summary>
@@ -332,146 +332,146 @@ public unsafe partial struct Constants : ISLStructure
     /// clipToPrevClip = clipToView * viewToViewPrev * viewToClipPrev
     /// Sample code can be found in sl_matrix_helpers.h
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:196.</remarks>
+    /// <remarks>Source: include/sl_consts.h:196. </remarks>
     public Float4x4 ClipToPrevClip;
 
     /// <summary>
     /// Specifies matrix transformation from the previous clip to the current clip space.
     /// prevClipToClip = clipToPrevClip.inverse()
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:199.</remarks>
+    /// <remarks>Source: include/sl_consts.h:199. </remarks>
     public Float4x4 PrevClipToClip;
 
     /// <summary>
     /// Specifies pixel space jitter offset
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:202.</remarks>
+    /// <remarks>Source: include/sl_consts.h:202. </remarks>
     public Float2 JitterOffset;
 
     /// <summary>
     /// Specifies scale factors used to normalize motion vectors (so the values are in [-1,1] range)
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:204.</remarks>
+    /// <remarks>Source: include/sl_consts.h:204. </remarks>
     public Float2 MvecScale;
 
     /// <summary>
     /// Optional - Specifies camera pinhole offset if used.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:206.</remarks>
+    /// <remarks>Source: include/sl_consts.h:206. </remarks>
     public Float2 CameraPinholeOffset;
 
     /// <summary>
     /// Specifies camera position in world space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:208.</remarks>
+    /// <remarks>Source: include/sl_consts.h:208. </remarks>
     public Float3 CameraPos;
 
     /// <summary>
     /// Specifies camera up vector in world space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:210.</remarks>
+    /// <remarks>Source: include/sl_consts.h:210. </remarks>
     public Float3 CameraUp;
 
     /// <summary>
     /// Specifies camera right vector in world space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:212.</remarks>
+    /// <remarks>Source: include/sl_consts.h:212. </remarks>
     public Float3 CameraRight;
 
     /// <summary>
     /// Specifies camera forward vector in world space.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:214.</remarks>
+    /// <remarks>Source: include/sl_consts.h:214. </remarks>
     public Float3 CameraFwd;
 
     /// <summary>
     /// Specifies camera near view plane distance.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:217.</remarks>
+    /// <remarks>Source: include/sl_consts.h:217. </remarks>
     public float CameraNear;
 
     /// <summary>
     /// Specifies camera far view plane distance.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:219.</remarks>
+    /// <remarks>Source: include/sl_consts.h:219. </remarks>
     public float CameraFar;
 
     /// <summary>
     /// Specifies camera field of view in radians.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:221.</remarks>
+    /// <remarks>Source: include/sl_consts.h:221. </remarks>
     public float CameraFOV;
 
     /// <summary>
     /// Specifies camera aspect ratio defined as view space width divided by height.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:223.</remarks>
+    /// <remarks>Source: include/sl_consts.h:223. </remarks>
     public float CameraAspectRatio;
 
     /// <summary>
     /// Specifies which value represents an invalid (un-initialized) value in the motion vectors buffer
     /// NOTE: This is only required if `cameraMotionIncluded` is set to false and SL needs to compute it.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:226.</remarks>
+    /// <remarks>Source: include/sl_consts.h:226. </remarks>
     public float MotionVectorsInvalidValue;
 
     /// <summary>
     /// Specifies if depth values are inverted (value closer to the camera is higher) or not.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:229.</remarks>
+    /// <remarks>Source: include/sl_consts.h:229. </remarks>
     public SLBoolean DepthInverted;
 
     /// <summary>
     /// Specifies if camera motion is included in the MVec buffer.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:231.</remarks>
+    /// <remarks>Source: include/sl_consts.h:231. </remarks>
     public SLBoolean CameraMotionIncluded;
 
     /// <summary>
     /// Specifies if motion vectors are 3D or not.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:233.</remarks>
+    /// <remarks>Source: include/sl_consts.h:233. </remarks>
     public SLBoolean MotionVectors3D;
 
     /// <summary>
     /// Specifies if previous frame has no connection to the current one (i.e. motion vectors are invalid)
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:235.</remarks>
+    /// <remarks>Source: include/sl_consts.h:235. </remarks>
     public SLBoolean Reset;
 
     /// <summary>
     /// Specifies if orthographic projection is used or not.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:237.</remarks>
+    /// <remarks>Source: include/sl_consts.h:237. </remarks>
     public SLBoolean OrthographicProjection;
 
     /// <summary>
     /// Specifies if motion vectors are already dilated or not.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:239.</remarks>
+    /// <remarks>Source: include/sl_consts.h:239. </remarks>
     public SLBoolean MotionVectorsDilated;
 
     /// <summary>
     /// Specifies if motion vectors are jittered or not.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:241.</remarks>
+    /// <remarks>Source: include/sl_consts.h:241. </remarks>
     public SLBoolean MotionVectorsJittered;
 
     /// <summary>
     /// Version 2 members:
-    /// 
+    ///
     /// Optional heuristic that specifies the minimum depth difference between two objects in screen-space.
     /// The units of the value are in linear depth units.
     /// Linear depth is computed as:
     /// if depthInverted is false:  `lin_depth = 1 / (1 - depth)`
     /// if depthInverted is true:   `lin_depth = 1 / depth`
-    /// 
+    ///
     /// Although unlikely to need to be modified, smaller thresholds are useful when depth units are
     /// unusually compressed into a small dynamic range near 1.
-    /// 
+    ///
     /// If not specified, the default value is 40.0f.
     /// </summary>
-    /// <remarks>Source: include/sl_consts.h:255.</remarks>
+    /// <remarks>Source: include/sl_consts.h:255. </remarks>
     public float MinRelativeLinearDepthObjectSeparation;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -508,28 +508,28 @@ public unsafe partial struct Constants : ISLStructure
 
 /// <summary>
 /// Resource allocate information
-/// 
+///
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:297.</remarks>
+/// <remarks>Source: include/sl_core_types.h:297. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 64)]
 public unsafe partial struct ResourceAllocationDesc : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -538,25 +538,25 @@ public unsafe partial struct ResourceAllocationDesc : ISLStructure
     /// <summary>
     /// Indicates the type of resource
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:300.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:300. </remarks>
     public ResourceType Type;
 
     /// <summary>
     /// D3D12_RESOURCE_DESC/VkImageCreateInfo/VkBufferCreateInfo
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:302.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:302. </remarks>
     public void* Desc;
 
     /// <summary>
     /// Initial state as D3D12_RESOURCE_STATES or VkMemoryPropertyFlags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:304.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:304. </remarks>
     public uint State;
 
     /// <summary>
     /// CD3DX12_HEAP_PROPERTIES or nullptr
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:306.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:306. </remarks>
     public void* Heap;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -570,7 +570,7 @@ public unsafe partial struct ResourceAllocationDesc : ISLStructure
     /// <summary>
     /// sl::ResourceAllocationDesc::ResourceAllocationDesc
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:298.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:298. </remarks>
     public ResourceAllocationDesc(ResourceType type, void* desc, uint state, void* heap) : this()
     {
         Type = type;
@@ -583,29 +583,29 @@ public unsafe partial struct ResourceAllocationDesc : ISLStructure
 
 /// <summary>
 /// Subresource range information, for Vulkan resources
-/// 
+///
 /// {8D4C316C-D402-4524-89A7-14E79E638E3A}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:315.</remarks>
+/// <remarks>Source: include/sl_core_types.h:315. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 56)]
 public unsafe partial struct SubresourceRange : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -614,31 +614,31 @@ public unsafe partial struct SubresourceRange : ISLStructure
     /// <summary>
     /// Vulkan subresource aspectMask
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:317.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:317. </remarks>
     public uint AspectMask;
 
     /// <summary>
     /// Vulkan subresource baseMipLevel
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:319.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:319. </remarks>
     public uint BaseMipLevel;
 
     /// <summary>
     /// Vulkan subresource levelCount
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:321.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:321. </remarks>
     public uint LevelCount;
 
     /// <summary>
     /// Vulkan subresource baseArrayLayer
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:323.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:323. </remarks>
     public uint BaseArrayLayer;
 
     /// <summary>
     /// Vulkan subresource layerCount
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:325.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:325. </remarks>
     public uint LayerCount;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -653,29 +653,29 @@ public unsafe partial struct SubresourceRange : ISLStructure
 
 /// <summary>
 /// Native resource
-/// 
+///
 /// {3A9D70CF-2418-4B72-8391-13F8721C7261}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:331.</remarks>
+/// <remarks>Source: include/sl_core_types.h:331. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 112)]
 public unsafe partial struct Resource : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -684,114 +684,115 @@ public unsafe partial struct Resource : ISLStructure
     /// <summary>
     /// Indicates the type of resource
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:348.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:348. </remarks>
     public ResourceType Type;
 
     /// <summary>
     /// ID3D11Resource/ID3D12Resource/VkBuffer/VkImage
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:350.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:350. </remarks>
     public void* Native;
 
     /// <summary>
     /// vkDeviceMemory or nullptr
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:352.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:352. </remarks>
     public void* Memory;
 
     /// <summary>
     /// VkImageView/VkBufferView or nullptr
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:354.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:354. </remarks>
     public void* View;
 
     /// <summary>
     /// State as D3D12_RESOURCE_STATES or VkImageLayout
-    /// 
+    ///
     /// IMPORTANT: State is MANDATORY and needs to be correct when tagged resources are actually used.
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:359.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:359. </remarks>
     public uint State;
 
     /// <summary>
     /// Width in pixels
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:361.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:361. </remarks>
     public uint Width;
 
     /// <summary>
     /// Height in pixels
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:363.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:363. </remarks>
     public uint Height;
 
     /// <summary>
     /// Native format
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:365.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:365. </remarks>
     public uint NativeFormat;
 
     /// <summary>
     /// Number of mip-map levels
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:367.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:367. </remarks>
     public uint MipLevels;
 
     /// <summary>
     /// Number of arrays
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:369.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:369. </remarks>
     public uint ArrayLayers;
 
     /// <summary>
     /// Virtual address on GPU (if applicable)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:371.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:371. </remarks>
     public ulong GpuVirtualAddress;
 
     /// <summary>
     /// VkImageCreateFlags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:373.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:373. </remarks>
     public uint Flags;
 
     /// <summary>
     /// VkImageUsageFlags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:375.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:375. </remarks>
     public uint Usage;
 
     /// <summary>
     /// sl::Resource::internalFlags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:384.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:384. </remarks>
     public ushort InternalFlagsValue;
 
     /// <summary>
     /// Reserved for future use
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:386.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:386. </remarks>
     public ushort Reserved;
 
 
     /// <summary>
     /// Internal flags (bitfield) - do not modify
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:377.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:377. </remarks>
+    [Flags]
     public enum InternalFlags : ushort
     {
         /// <summary>
         /// sl::Resource::InternalFlags::eNone
         /// </summary>
-        /// <remarks>Source: include/sl_core_types.h:379.</remarks>
+        /// <remarks>Source: include/sl_core_types.h:379. </remarks>
         None = 0,
 
         /// <summary>
         /// Resource wraps a Vulkan swapchain image not allocated by SL or the host callback.
         /// The release callback must not be invoked for such resources.
         /// </summary>
-        /// <remarks>Source: include/sl_core_types.h:382.</remarks>
+        /// <remarks>Source: include/sl_core_types.h:382. </remarks>
         VulkanSwapChainImage = 1,
 
     }
@@ -806,13 +807,13 @@ public unsafe partial struct Resource : ISLStructure
 
     /// <summary>
     /// Constructors
-    /// 
+    ///
     /// Resource type, native pointer are MANDATORY always
     /// Resource state is MANDATORY unless using D3D11
     /// Resource view, description etc. are MANDATORY only when using Vulkan
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:338.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:338. </remarks>
     public Resource(ResourceType type, void* native, void* mem, void* view, uint state = 4294967295) : this()
     {
         Type = type;
@@ -825,7 +826,7 @@ public unsafe partial struct Resource : ISLStructure
     /// <summary>
     /// sl::Resource::Resource
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:339.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:339. </remarks>
     public Resource(ResourceType type, void* native, uint state = 4294967295) : this()
     {
         Type = type;
@@ -837,31 +838,31 @@ public unsafe partial struct Resource : ISLStructure
 
 /// <summary>
 /// Tagged resource
-/// 
+///
 /// {4C6A5AAD-B445-496C-87FF-1AF3845BE653}
 /// Extensions as part of the `next` ptr:
 /// PrecisionInfo
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:412.</remarks>
+/// <remarks>Source: include/sl_core_types.h:412. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 64)]
 public unsafe partial struct ResourceTag : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -870,25 +871,25 @@ public unsafe partial struct ResourceTag : ISLStructure
     /// <summary>
     /// Resource description
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:420.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:420. </remarks>
     public Resource* Resource;
 
     /// <summary>
     /// Type of the tagged buffer
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:422.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:422. </remarks>
     public uint Type;
 
     /// <summary>
     /// The life-cycle for the tag, if resource is volatile a valid command buffer must be specified
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:424.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:424. </remarks>
     public ResourceLifecycle Lifecycle;
 
     /// <summary>
     /// The area of the tagged resource to use (if using the entire resource leave as null)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:426.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:426. </remarks>
     public Extent Extent;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -903,7 +904,7 @@ public unsafe partial struct ResourceTag : ISLStructure
     /// <summary>
     /// sl::ResourceTag::ResourceTag
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:413.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:413. </remarks>
     public ResourceTag(Resource* r, uint t, ResourceLifecycle l, Extent* e = null) : this()
     {
         Resource = r;
@@ -919,31 +920,31 @@ public unsafe partial struct ResourceTag : ISLStructure
 
 /// <summary>
 /// Precision info, optional extension for ResourceTag.
-/// 
+///
 /// {98F6E9BA-8D16-4831-A802-4D3B52FF26BF}
 /// Extensions as part of the `next` ptr:
 /// ResourceTag
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:437.</remarks>
+/// <remarks>Source: include/sl_core_types.h:437. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 48)]
 public unsafe partial struct PrecisionInfo : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -952,38 +953,38 @@ public unsafe partial struct PrecisionInfo : ISLStructure
     /// <summary>
     /// sl::PrecisionInfo::conversionFormula
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:462.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:462. </remarks>
     public PrecisionInfo.PrecisionFormula ConversionFormula;
 
     /// <summary>
     /// sl::PrecisionInfo::bias
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:463.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:463. </remarks>
     public float Bias;
 
     /// <summary>
     /// sl::PrecisionInfo::scale
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:464.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:464. </remarks>
     public float Scale;
 
 
     /// <summary>
     /// sl::PrecisionInfo::PrecisionFormula
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:439.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:439. </remarks>
     public enum PrecisionFormula : uint
     {
         /// <summary>
         /// sl::PrecisionInfo::PrecisionFormula::eNoTransform
         /// </summary>
-        /// <remarks>Source: include/sl_core_types.h:441.</remarks>
+        /// <remarks>Source: include/sl_core_types.h:441. </remarks>
         NoTransform = 0,
 
         /// <summary>
         /// sl::PrecisionInfo::PrecisionFormula::eLinearTransform
         /// </summary>
-        /// <remarks>Source: include/sl_core_types.h:442.</remarks>
+        /// <remarks>Source: include/sl_core_types.h:442. </remarks>
         LinearTransform = 1,
 
     }
@@ -999,7 +1000,7 @@ public unsafe partial struct PrecisionInfo : ISLStructure
     /// <summary>
     /// sl::PrecisionInfo::PrecisionInfo
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:445.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:445. </remarks>
     public PrecisionInfo(PrecisionInfo.PrecisionFormula formula, float bias, float scale) : this()
     {
         ConversionFormula = formula;
@@ -1012,21 +1013,21 @@ public unsafe partial struct PrecisionInfo : ISLStructure
 /// <summary>
 /// sl::APIError
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:508.</remarks>
+/// <remarks>Source: include/sl_core_types.h:508. </remarks>
 [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 4)]
 public unsafe partial struct APIError
 {
     /// <summary>
     /// sl::APIError::(anonymous union at include\sl_core_types.h:510:5)::hres
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:512.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:512. </remarks>
     [FieldOffset(0)]
     public int Hres;
 
     /// <summary>
     /// sl::APIError::(anonymous union at include\sl_core_types.h:510:5)::vkRes
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:513.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:513. </remarks>
     [FieldOffset(0)]
     public int VkRes;
 
@@ -1034,29 +1035,29 @@ public unsafe partial struct APIError
 
 /// <summary>
 /// Application preferences
-/// 
+///
 /// {1CA10965-BF8E-432B-8DA1-6716D879FB14}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:560.</remarks>
+/// <remarks>Source: include/sl_core_types.h:560. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 144)]
 public unsafe partial struct Preferences : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -1065,101 +1066,101 @@ public unsafe partial struct Preferences : ISLStructure
     /// <summary>
     /// Optional - In non-production builds it is useful to enable debugging console window
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:562.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:562. </remarks>
     public Bool8 ShowConsole;
 
     /// <summary>
     /// Optional - Various logging levels
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:564.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:564. </remarks>
     public LogLevel LogLevel;
 
     /// <summary>
     /// Optional - Absolute paths to locations where to look for plugins, first path in the list has the highest priority
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:566.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:566. </remarks>
     public char** PathsToPlugins;
 
     /// <summary>
     /// Optional - Number of paths to search
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:568.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:568. </remarks>
     public uint NumPathsToPlugins;
 
     /// <summary>
     /// Optional - Absolute path to location where logs and other data should be stored
-    /// 
+    ///
     /// NOTE: Set this to nullptr in order to disable logging to a file
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:572.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:572. </remarks>
     public char* PathToLogsAndData;
 
     /// <summary>
     /// Optional - Allows resource allocation tracking on the host side
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:574.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:574. Keep the callback and any referenced state alive for the native contract&apos;s full duration. Managed exceptions must not cross the callback boundary.</remarks>
     public delegate* unmanaged[Cdecl]<ResourceAllocationDesc*, void*, Resource> AllocateCallback;
 
     /// <summary>
     /// Optional - Allows resource deallocation tracking on the host side
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:576.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:576. Keep the callback and any referenced state alive for the native contract&apos;s full duration. Managed exceptions must not cross the callback boundary.</remarks>
     public delegate* unmanaged[Cdecl]<Resource*, void*, void> ReleaseCallback;
 
     /// <summary>
     /// Optional - Allows log message tracking including critical errors if they occur
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:578.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:578. Keep the callback and any referenced state alive for the native contract&apos;s full duration. Managed exceptions must not cross the callback boundary.</remarks>
     public delegate* unmanaged[Cdecl]<LogType, sbyte*, void> LogMessageCallback;
 
     /// <summary>
     /// Optional - Flags used to enable or disable advanced options
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:580.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:580. </remarks>
     public PreferenceFlags Flags;
 
     /// <summary>
     /// Required - Features to load (assuming appropriate plugins are found), if not specified NO features will be loaded by default
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:582.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:582. </remarks>
     public uint* FeaturesToLoad;
 
     /// <summary>
     /// Required - Number of features to load, only used when list is not a null pointer
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:584.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:584. </remarks>
     public uint NumFeaturesToLoad;
 
     /// <summary>
     /// Optional - Id provided by NVIDIA, if not specified then engine type and version are required
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:586.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:586. </remarks>
     public uint ApplicationId;
 
     /// <summary>
     /// Optional - Type of the rendering engine used, if not specified then applicationId is required
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:588.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:588. </remarks>
     public EngineType Engine;
 
     /// <summary>
     /// Optional - Version of the rendering engine used
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:590.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:590. </remarks>
     public sbyte* EngineVersion;
 
     /// <summary>
     /// Optional - GUID (like for example &apos;a0f57b54-1daf-4934-90ae-c4035c19df04&apos;)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:592.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:592. </remarks>
     public sbyte* ProjectId;
 
     /// <summary>
     /// Optional - Which rendering API host is planning to use
-    /// 
+    ///
     /// NOTE: To ensure correct `slGetFeatureRequirements` behavior please specify if planning to use Vulkan.
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:596.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:596. </remarks>
     public RenderAPI RenderAPI;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1177,29 +1178,29 @@ public unsafe partial struct Preferences : ISLStructure
 
 /// <summary>
 /// Handle for the unique viewport
-/// 
+///
 /// {171B6435-9B3C-4FC8-9994-FBE52569AAA4}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:614.</remarks>
+/// <remarks>Source: include/sl_core_types.h:614. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct ViewportHandle : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -1208,7 +1209,7 @@ public unsafe partial struct ViewportHandle : ISLStructure
     /// <summary>
     /// sl::ViewportHandle::value
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:619.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:619. </remarks>
     private uint value;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1223,7 +1224,7 @@ public unsafe partial struct ViewportHandle : ISLStructure
     /// <summary>
     /// sl::ViewportHandle::ViewportHandle
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:615.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:615. </remarks>
     public ViewportHandle(uint v) : this()
     {
         value = v;
@@ -1232,7 +1233,7 @@ public unsafe partial struct ViewportHandle : ISLStructure
     /// <summary>
     /// sl::ViewportHandle::ViewportHandle
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:616.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:616. </remarks>
     public ViewportHandle(int v) : this()
     {
         value = unchecked((uint)v);
@@ -1242,29 +1243,29 @@ public unsafe partial struct ViewportHandle : ISLStructure
 
 /// <summary>
 /// Specifies feature requirements
-/// 
+///
 /// {66714097-AC6D-4BC6-8915-1E0F55A6B61F}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:645.</remarks>
+/// <remarks>Source: include/sl_core_types.h:645. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 184)]
 public unsafe partial struct FeatureRequirements : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -1273,125 +1274,125 @@ public unsafe partial struct FeatureRequirements : ISLStructure
     /// <summary>
     /// Various Flags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:647.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:647. </remarks>
     public FeatureRequirementFlags Flags;
 
     /// <summary>
     /// Feature will create this many CPU threads
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:650.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:650. </remarks>
     public uint MaxNumCPUThreads;
 
     /// <summary>
     /// Feature supports only this many viewports
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:653.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:653. </remarks>
     public uint MaxNumViewports;
 
     /// <summary>
     /// Required buffer tags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:656.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:656. </remarks>
     public uint NumRequiredTags;
 
     /// <summary>
     /// sl::FeatureRequirements::requiredTags
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:657.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:657. </remarks>
     public uint* RequiredTags;
 
     /// <summary>
     /// OS and Driver versions
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:660.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:660. </remarks>
     public SLVersion OsVersionDetected;
 
     /// <summary>
     /// sl::FeatureRequirements::osVersionRequired
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:661.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:661. </remarks>
     public SLVersion OsVersionRequired;
 
     /// <summary>
     /// sl::FeatureRequirements::driverVersionDetected
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:662.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:662. </remarks>
     public SLVersion DriverVersionDetected;
 
     /// <summary>
     /// sl::FeatureRequirements::driverVersionRequired
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:663.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:663. </remarks>
     public SLVersion DriverVersionRequired;
 
     /// <summary>
     /// Command queues
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:668.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:668. </remarks>
     public uint VkNumComputeQueuesRequired;
 
     /// <summary>
     /// sl::FeatureRequirements::vkNumGraphicsQueuesRequired
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:669.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:669. </remarks>
     public uint VkNumGraphicsQueuesRequired;
 
     /// <summary>
     /// Device extensions
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:672.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:672. </remarks>
     public uint VkNumDeviceExtensions;
 
     /// <summary>
     /// sl::FeatureRequirements::vkDeviceExtensions
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:673.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:673. </remarks>
     public sbyte** VkDeviceExtensions;
 
     /// <summary>
     /// Instance extensions
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:675.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:675. </remarks>
     public uint VkNumInstanceExtensions;
 
     /// <summary>
     /// sl::FeatureRequirements::vkInstanceExtensions
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:676.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:676. </remarks>
     public sbyte** VkInstanceExtensions;
 
     /// <summary>
     /// 1.2 features
-    /// 
+    ///
     /// NOTE: Use getVkPhysicalDeviceVulkan12Features from sl_helpers_vk.h
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:680.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:680. </remarks>
     public uint VkNumFeatures12;
 
     /// <summary>
     /// sl::FeatureRequirements::vkFeatures12
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:681.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:681. </remarks>
     public sbyte** VkFeatures12;
 
     /// <summary>
     /// 1.3 features
-    /// 
+    ///
     /// NOTE: Use getVkPhysicalDeviceVulkan13Features from sl_helpers_vk.h
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:685.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:685. </remarks>
     public uint VkNumFeatures13;
 
     /// <summary>
     /// sl::FeatureRequirements::vkFeatures13
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:686.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:686. </remarks>
     public sbyte** VkFeatures13;
 
     /// <summary>
     /// Vulkan optical flow feature
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:689.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:689. </remarks>
     public uint VkNumOpticalFlowQueuesRequired;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1410,29 +1411,29 @@ public unsafe partial struct FeatureRequirements : ISLStructure
 
 /// <summary>
 /// Specifies feature&apos;s version
-/// 
+///
 /// {6D5B51F0-076B-486D-9995-5A561043F5C1}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:697.</remarks>
+/// <remarks>Source: include/sl_core_types.h:697. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 56)]
 public unsafe partial struct FeatureVersion : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -1441,13 +1442,13 @@ public unsafe partial struct FeatureVersion : ISLStructure
     /// <summary>
     /// SL version
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:699.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:699. </remarks>
     public SLVersion VersionSL;
 
     /// <summary>
     /// NGX version (if feature is using NGX, null otherwise)
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:701.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:701. </remarks>
     public SLVersion VersionNGX;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1464,29 +1465,29 @@ public unsafe partial struct FeatureVersion : ISLStructure
 
 /// <summary>
 /// Specifies either DXGI adapter or VK physical device
-/// 
+///
 /// {0677315F-A746-4492-9F42-CB6142C9C3D4}
 /// </summary>
-/// <remarks>Source: include/sl_core_types.h:709.</remarks>
+/// <remarks>Source: include/sl_core_types.h:709. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 56)]
 public unsafe partial struct AdapterInfo : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -1495,19 +1496,19 @@ public unsafe partial struct AdapterInfo : ISLStructure
     /// <summary>
     /// Locally unique identifier
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:711.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:711. </remarks>
     public byte* DeviceLUID;
 
     /// <summary>
     /// Size in bytes
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:713.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:713. </remarks>
     public uint DeviceLUIDSizeInBytes;
 
     /// <summary>
     /// Vulkan Specific, if specified LUID will be ignored
     /// </summary>
-    /// <remarks>Source: include/sl_core_types.h:715.</remarks>
+    /// <remarks>Source: include/sl_core_types.h:715. </remarks>
     public void* VkPhysicalDevice;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1523,32 +1524,32 @@ public unsafe partial struct AdapterInfo : ISLStructure
 /// <summary>
 /// GUID
 /// </summary>
-/// <remarks>Source: include/sl_struct.h:32.</remarks>
+/// <remarks>Source: include/sl_struct.h:32. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 16)]
 public unsafe partial struct StructType
 {
     /// <summary>
     /// sl::StructType::data1
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:34.</remarks>
+    /// <remarks>Source: include/sl_struct.h:34. </remarks>
     public uint Data1;
 
     /// <summary>
     /// sl::StructType::data2
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:35.</remarks>
+    /// <remarks>Source: include/sl_struct.h:35. </remarks>
     public ushort Data2;
 
     /// <summary>
     /// sl::StructType::data3
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:36.</remarks>
+    /// <remarks>Source: include/sl_struct.h:36. </remarks>
     public ushort Data3;
 
     /// <summary>
     /// sl::StructType::data4
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:37.</remarks>
+    /// <remarks>Source: include/sl_struct.h:37. </remarks>
     public Data4Buffer Data4;
 
     /// <summary>Inline storage for 8 native byte elements.</summary>
@@ -1569,32 +1570,32 @@ public unsafe partial struct StructType
 /// <summary>
 /// sl::BaseStructure
 /// </summary>
-/// <remarks>Source: include/sl_struct.h:108.</remarks>
+/// <remarks>Source: include/sl_struct.h:108. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 32)]
 public unsafe partial struct BaseStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>
     /// sl::BaseStructure::BaseStructure
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:111.</remarks>
+    /// <remarks>Source: include/sl_struct.h:111. </remarks>
     public BaseStructure(StructType t, uint v) : this()
     {
         StructType = t;
@@ -1606,26 +1607,26 @@ public unsafe partial struct BaseStructure
 /// <summary>
 /// sl::Version
 /// </summary>
-/// <remarks>Source: include/sl_version.h:36.</remarks>
+/// <remarks>Source: include/sl_version.h:36. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 12)]
 public unsafe partial struct SLVersion
 {
     /// <summary>
     /// sl::Version::major
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:94.</remarks>
+    /// <remarks>Source: include/sl_version.h:94. </remarks>
     public uint Major;
 
     /// <summary>
     /// sl::Version::minor
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:95.</remarks>
+    /// <remarks>Source: include/sl_version.h:95. </remarks>
     public uint Minor;
 
     /// <summary>
     /// sl::Version::build
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:96.</remarks>
+    /// <remarks>Source: include/sl_version.h:96. </remarks>
     public uint Build;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -1640,7 +1641,7 @@ public unsafe partial struct SLVersion
     /// <summary>
     /// sl::Version::Version
     /// </summary>
-    /// <remarks>Source: include/sl_version.h:39.</remarks>
+    /// <remarks>Source: include/sl_version.h:39. </remarks>
     public SLVersion(uint v1, uint v2, uint v3) : this()
     {
         Major = v1;
@@ -1653,32 +1654,32 @@ public unsafe partial struct SLVersion
 /// <summary>
 /// tagRECT
 /// </summary>
-/// <remarks>Source: system/windef.h:154.</remarks>
+/// <remarks>Source: system/windef.h:154. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 16)]
 public unsafe partial struct Rect
 {
     /// <summary>
     /// tagRECT::left
     /// </summary>
-    /// <remarks>Source: system/windef.h:156.</remarks>
+    /// <remarks>Source: system/windef.h:156. </remarks>
     public int Left;
 
     /// <summary>
     /// tagRECT::top
     /// </summary>
-    /// <remarks>Source: system/windef.h:157.</remarks>
+    /// <remarks>Source: system/windef.h:157. </remarks>
     public int Top;
 
     /// <summary>
     /// tagRECT::right
     /// </summary>
-    /// <remarks>Source: system/windef.h:158.</remarks>
+    /// <remarks>Source: system/windef.h:158. </remarks>
     public int Right;
 
     /// <summary>
     /// tagRECT::bottom
     /// </summary>
-    /// <remarks>Source: system/windef.h:159.</remarks>
+    /// <remarks>Source: system/windef.h:159. </remarks>
     public int Bottom;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>

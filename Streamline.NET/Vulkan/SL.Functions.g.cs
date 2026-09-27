@@ -9,18 +9,24 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// @param info Reference to the structure providing the information
-    /// 
+    ///
     /// This method is NOT thread safe and should be called IMMEDIATELY after base interface is created.
     /// </summary>
-    /// <remarks>Source: include/sl_helpers_vk.h:256.</remarks>
+    /// <remarks>Source: include/sl_helpers_vk.h:256. </remarks>
     public static SLResult SetVulkanInfo(VulkanInfo* info)
     {
         return SLNative.SetVulkanInfo(info);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// @param info Reference to the structure providing the information
+    ///
+    /// This method is NOT thread safe and should be called IMMEDIATELY after base interface is created.
+    /// </summary>
+    /// <remarks>Source: include/sl_helpers_vk.h:256. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult SetVulkanInfo(in VulkanInfo info)
     {
         fixed (VulkanInfo* infoPointer = &info)

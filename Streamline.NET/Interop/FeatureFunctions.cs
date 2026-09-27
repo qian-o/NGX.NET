@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace Streamline.NET;
 
 internal static unsafe class FeatureFunctions
@@ -10,9 +8,9 @@ internal static unsafe class FeatureFunctions
 
     private static ulong generation;
 
-    internal static SLResult Get(uint feature, ReadOnlySpan<byte> name, out nint address)
+    internal static SLResult Get(uint feature, string name, ReadOnlySpan<byte> encodedName, out nint address)
     {
-        (uint, string) key = (feature, Encoding.UTF8.GetString(name));
+        (uint, string) key = (feature, name);
         ulong queriedGeneration;
 
         lock (sync)
@@ -28,7 +26,7 @@ internal static unsafe class FeatureFunctions
         // All callers supply compiler-emitted, null-terminated UTF-8 literals.
         nint function = 0;
         SLResult result;
-        fixed (byte* pointer = name)
+        fixed (byte* pointer = encodedName)
         {
             result = SLNative.GetFeatureFunction(feature, (sbyte*)pointer, (void**)&function);
         }

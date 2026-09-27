@@ -10,55 +10,55 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DLSSMode
 /// </summary>
-/// <remarks>Source: include/sl_dlss.h:34.</remarks>
+/// <remarks>Source: include/sl_dlss.h:34. </remarks>
 public enum DLSSMode : uint
 {
     /// <summary>
     /// sl::DLSSMode::eOff
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:36.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:36. </remarks>
     Off = 0,
 
     /// <summary>
     /// sl::DLSSMode::eMaxPerformance
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:37.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:37. </remarks>
     MaxPerformance = 1,
 
     /// <summary>
     /// sl::DLSSMode::eBalanced
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:38.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:38. </remarks>
     Balanced = 2,
 
     /// <summary>
     /// sl::DLSSMode::eMaxQuality
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:39.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:39. </remarks>
     MaxQuality = 3,
 
     /// <summary>
     /// sl::DLSSMode::eUltraPerformance
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:40.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:40. </remarks>
     UltraPerformance = 4,
 
     /// <summary>
     /// sl::DLSSMode::eUltraQuality
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:41.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:41. </remarks>
     UltraQuality = 5,
 
     /// <summary>
     /// sl::DLSSMode::eDLAA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:42.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:42. </remarks>
     DLAA = 6,
 
     /// <summary>
     /// sl::DLSSMode::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:43.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:43. </remarks>
     Count = 7,
 
 }
@@ -66,85 +66,85 @@ public enum DLSSMode : uint
 /// <summary>
 /// sl::DLSSPreset
 /// </summary>
-/// <remarks>Source: include/sl_dlss.h:46.</remarks>
+/// <remarks>Source: include/sl_dlss.h:46. </remarks>
 public enum DLSSPreset : uint
 {
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:49.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:49. </remarks>
     Default = 0,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:55.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:55. </remarks>
     PresetE = 5,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:56.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:56. </remarks>
     PresetF = 6,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:57.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:57. </remarks>
     PresetG = 7,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:58.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:58. </remarks>
     PresetH = 8,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:59.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:59. </remarks>
     PresetI = 9,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:60.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:60. </remarks>
     PresetJ = 10,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:61.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:61. </remarks>
     PresetK = 11,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:62.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:62. </remarks>
     PresetL = 12,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:63.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:63. </remarks>
     PresetM = 13,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:64.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:64. </remarks>
     PresetN = 14,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:65.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:65. </remarks>
     PresetO = 15,
 
     /// <summary>
     /// Fixed DL models
     /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:67.</remarks>
+    /// <remarks>Source: include/sl_dlss.h:67. </remarks>
     Count = 16,
 
 }

@@ -10,91 +10,91 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DLSSDPreset
 /// </summary>
-/// <remarks>Source: include/sl_dlss_d.h:30.</remarks>
+/// <remarks>Source: include/sl_dlss_d.h:30. </remarks>
 public enum DLSSDPreset : uint
 {
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:33.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:33. </remarks>
     Default = 0,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:37.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:37. </remarks>
     PresetD = 4,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:38.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:38. </remarks>
     PresetE = 5,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:39.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:39. </remarks>
     PresetF = 6,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:40.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:40. </remarks>
     PresetG = 7,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:41.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:41. </remarks>
     PresetH = 8,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:42.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:42. </remarks>
     PresetI = 9,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:43.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:43. </remarks>
     PresetJ = 10,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:44.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:44. </remarks>
     PresetK = 11,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:45.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:45. </remarks>
     PresetL = 12,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:46.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:46. </remarks>
     PresetM = 13,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:47.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:47. </remarks>
     PresetN = 14,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:48.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:48. </remarks>
     PresetO = 15,
 
     /// <summary>
     /// Default behavior, may or may not change after an OTA
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:50.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:50. </remarks>
     Count = 16,
 
 }
@@ -102,25 +102,25 @@ public enum DLSSDPreset : uint
 /// <summary>
 /// sl::DLSSDNormalRoughnessMode
 /// </summary>
-/// <remarks>Source: include/sl_dlss_d.h:53.</remarks>
+/// <remarks>Source: include/sl_dlss_d.h:53. </remarks>
 public enum DLSSDNormalRoughnessMode : uint
 {
     /// <summary>
     /// sl::DLSSDNormalRoughnessMode::eUnpacked
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:55.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:55. </remarks>
     Unpacked = 0,
 
     /// <summary>
     /// sl::DLSSDNormalRoughnessMode::ePacked
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:56.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:56. </remarks>
     Packed = 1,
 
     /// <summary>
     /// sl::DLSSDNormalRoughnessMode::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_dlss_d.h:58.</remarks>
+    /// <remarks>Source: include/sl_dlss_d.h:58. </remarks>
     Count = 2,
 
 }

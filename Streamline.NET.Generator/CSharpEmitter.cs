@@ -1,7 +1,8 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
 using System.Security;
 using System.Text;
+using System.Text.Json;
 
 namespace Streamline.NET.Generator;
 
@@ -32,6 +33,12 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
             builder.AppendLine("using System.Runtime.InteropServices;");
             builder.AppendLine();
             builder.AppendLine("namespace Streamline.NET;");
+            if (name.StartsWith("SL.", StringComparison.Ordinal) || name == "SLNative")
+            {
+                builder.AppendLine();
+                builder.AppendLine(name == "SLNative" ? "internal static unsafe partial class SLNative" : "public static unsafe partial class SL");
+                builder.AppendLine("{");
+            }
             files.Add(path, builder);
         }
 
@@ -43,7 +50,7 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
         implementations[declaration.Id] = implementation;
     }
 
-    private static void Comment(StringBuilder builder, NativeDeclaration declaration, string indent = "")
+    private static void Comment(StringBuilder builder, NativeDeclaration declaration, string indent = "", string? extraRemarks = null)
     {
         string comment = declaration.Comment;
 
@@ -57,15 +64,15 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
         foreach (string line in comment.Split('\n'))
         {
             string text = line.Trim().TrimStart('/', '*', '!').TrimEnd('*', '/').Trim();
-            builder.AppendLine(indent + "/// " + SecurityElement.Escape(text));
+            builder.AppendLine(indent + "///" + (text.Length == 0 ? "" : " " + SecurityElement.Escape(text)));
         }
 
         builder.AppendLine(indent + "/// </summary>");
-        builder.AppendLine(indent + $"/// <remarks>Source: {declaration.File}:{declaration.Line}.</remarks>");
+        builder.AppendLine(indent + $"/// <remarks>Source: {declaration.File}:{declaration.Line}. {SecurityElement.Escape(extraRemarks)}</remarks>");
 
         if (declaration.Deprecated)
         {
-            builder.AppendLine(indent + "[Obsolete(\"Deprecated by Streamline; see the source documentation.\")]");
+            builder.AppendLine(indent + "[Obsolete(" + JsonSerializer.Serialize(declaration.DeprecationMessage ?? "Deprecated by Streamline; see the source documentation.") + ")]");
         }
     }
 
@@ -155,15 +162,12 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
         }
 
         StringBuilder builder = File(TypeMapper.Group(declaration), "SL.Constants");
-        string name = declaration.Name.StartsWith('k') ? declaration.Name[1..] : TypeMapper.MemberName(declaration.Name);
+        string name = TypeMapper.ConstantName(declaration.Name);
         string type = mapper.Map(declaration.Type);
         string value = ConstantValue(declaration.Expressions[^1], declaration.Type);
         builder.AppendLine();
-        builder.AppendLine("public static unsafe partial class SL");
-        builder.AppendLine("{");
         Comment(builder, declaration, "    ");
         builder.AppendLine($"    public const {type} {name} = {value};");
-        builder.AppendLine("}");
         Record(declaration, "SL." + name);
     }
 
@@ -173,6 +177,11 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
         {
             string path = Path.Combine(outputDirectory, relativePath);
             string text = builder.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
+            string fileName = Path.GetFileName(relativePath);
+            if (fileName.StartsWith("SL.", StringComparison.Ordinal) || fileName == "SLNative.g.cs")
+            {
+                text += "}\n";
+            }
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             byte[] content = [.. utf8Bom.GetPreamble(), .. utf8Bom.GetBytes(text)];
 

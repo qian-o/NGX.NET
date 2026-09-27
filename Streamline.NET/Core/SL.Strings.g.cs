@@ -9,10 +9,11 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// sl::getResultAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:81.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:81. </remarks>
     public static string GetResultAsStr(SLResult v)
     {
         return v switch
@@ -60,14 +61,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getNISModeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:129.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:129. </remarks>
     public static string GetNISModeAsStr(NISMode v)
     {
         return v switch
@@ -78,14 +76,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getNISHDRAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:141.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:141. </remarks>
     public static string GetNISHDRAsStr(NISHDR v)
     {
         return v switch
@@ -96,14 +91,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getReflexModeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:153.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:153. </remarks>
     public static string GetReflexModeAsStr(ReflexMode mode)
     {
         return mode switch
@@ -114,14 +106,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getPCLMarkerAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:165.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:165. </remarks>
     public static string GetPCLMarkerAsStr(PCLMarker marker)
     {
         return marker switch
@@ -151,14 +140,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getDLSSModeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:196.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:196. </remarks>
     public static string GetDLSSModeAsStr(DLSSMode mode)
     {
         return mode switch
@@ -173,14 +159,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getDLSSGModeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:212.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:212. </remarks>
     public static string GetDLSSGModeAsStr(DLSSGMode mode)
     {
         return mode switch
@@ -192,14 +175,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getBufferTypeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:225.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:225. </remarks>
     public static string GetBufferTypeAsStr(uint buf)
     {
         return buf switch
@@ -280,14 +260,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getFeatureAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:306.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:306. </remarks>
     public static string GetFeatureAsStr(uint f)
     {
         return f switch
@@ -296,26 +273,23 @@ public static unsafe partial class SL
             SL.FeatureNIS => "kFeatureNIS",
             SL.FeatureReflex => "kFeatureReflex",
             SL.FeaturePCL => "kFeaturePCL",
-            SL.FeatureDLSS_G => "kFeatureDLSS_G",
+            SL.FeatureDLSSG => "kFeatureDLSS_G",
             SL.FeatureNvPerf => "kFeatureNvPerf",
             SL.FeatureImGUI => "kFeatureImGUI",
             SL.FeatureCommon => "kFeatureCommon",
-            SL.FeatureDLSS_RR => "kFeatureDLSS_RR",
+            SL.FeatureDLSSRR => "kFeatureDLSS_RR",
             SL.FeatureDeepDVC => "kFeatureDeepDVC",
             SL.FeatureDirectSR => "kFeatureDirectSR",
             SL.FeatureLatewarp => "kFeatureLatewarp",
-            SL.FeatureDLSS_NR => "kFeatureDLSS_NR",
+            SL.FeatureDLSSNR => "kFeatureDLSS_NR",
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getFeatureFilenameAsStrNoSL
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:331.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:331. </remarks>
     public static string GetFeatureFilenameAsStrNoSL(uint f)
     {
         return f switch
@@ -324,26 +298,23 @@ public static unsafe partial class SL
             SL.FeatureNIS => "nis",
             SL.FeatureReflex => "reflex",
             SL.FeaturePCL => "pcl",
-            SL.FeatureDLSS_G => "dlss_g",
+            SL.FeatureDLSSG => "dlss_g",
             SL.FeatureNvPerf => "nvperf",
             SL.FeatureDeepDVC => "deepdvc",
             SL.FeatureImGUI => "imgui",
             SL.FeatureCommon => "common",
-            SL.FeatureDLSS_RR => "dlss_d",
+            SL.FeatureDLSSRR => "dlss_d",
             SL.FeatureDirectSR => "directsr",
             SL.FeatureLatewarp => "latewarp",
-            SL.FeatureDLSS_NR => "dlss_nr",
+            SL.FeatureDLSSNR => "dlss_nr",
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getLogLevelAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:353.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:353. </remarks>
     public static string GetLogLevelAsStr(LogLevel v)
     {
         return v switch
@@ -354,14 +325,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getResourceTypeAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:365.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:365. </remarks>
     public static string GetResourceTypeAsStr(ResourceType v)
     {
         return v switch
@@ -377,14 +345,11 @@ public static unsafe partial class SL
             _ => "Unknown"
         };
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getResourceLifecycleAsStr
     /// </summary>
-    /// <remarks>Source: include/sl_helpers.h:383.</remarks>
+    /// <remarks>Source: include/sl_helpers.h:383. </remarks>
     public static string GetResourceLifecycleAsStr(ResourceLifecycle v)
     {
         return v switch

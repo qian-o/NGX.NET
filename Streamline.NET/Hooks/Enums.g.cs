@@ -9,146 +9,146 @@ namespace Streamline.NET;
 
 /// <summary>
 /// NOTE: Adding new hooks require sl.interposer to be recompiled
-/// 
+///
 /// IMPORTANT: Since SL interposer proxies supports many different versions of various D3D/DXGI interfaces
 /// we use only base interface names for our hooks.
-/// 
+///
 /// For example if API was added in IDXGISwapChain5::FUNCTION it is still named eIDXGISwapChain_FUNCTION (there is no 5 in the name)
-/// 
+///
 /// </summary>
-/// <remarks>Source: include/sl_hooks.h:46.</remarks>
+/// <remarks>Source: include/sl_hooks.h:46. </remarks>
 public enum FunctionHookID : uint
 {
     /// <summary>
     /// Mandatory - IDXGIFactory
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:49.</remarks>
-    IDXGIFactory_CreateSwapChain = 0,
+    /// <remarks>Source: include/sl_hooks.h:49. </remarks>
+    IDXGIFactoryCreateSwapChain = 0,
 
     /// <summary>
     /// Mandatory - IDXGIFactory
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:50.</remarks>
-    IDXGIFactory_CreateSwapChainForHwnd = 1,
+    /// <remarks>Source: include/sl_hooks.h:50. </remarks>
+    IDXGIFactoryCreateSwapChainForHwnd = 1,
 
     /// <summary>
     /// Mandatory - IDXGIFactory
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:51.</remarks>
-    IDXGIFactory_CreateSwapChainForCoreWindow = 2,
+    /// <remarks>Source: include/sl_hooks.h:51. </remarks>
+    IDXGIFactoryCreateSwapChainForCoreWindow = 2,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:54.</remarks>
-    IDXGISwapChain_Present = 3,
+    /// <remarks>Source: include/sl_hooks.h:54. </remarks>
+    IDXGISwapChainPresent = 3,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:55.</remarks>
-    IDXGISwapChain_Present1 = 4,
+    /// <remarks>Source: include/sl_hooks.h:55. </remarks>
+    IDXGISwapChainPresent1 = 4,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:56.</remarks>
-    IDXGISwapChain_GetBuffer = 5,
+    /// <remarks>Source: include/sl_hooks.h:56. </remarks>
+    IDXGISwapChainGetBuffer = 5,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:57.</remarks>
-    IDXGISwapChain_GetDesc = 6,
+    /// <remarks>Source: include/sl_hooks.h:57. </remarks>
+    IDXGISwapChainGetDesc = 6,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:58.</remarks>
-    IDXGISwapChain_ResizeBuffers = 7,
+    /// <remarks>Source: include/sl_hooks.h:58. </remarks>
+    IDXGISwapChainResizeBuffers = 7,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:59.</remarks>
-    IDXGISwapChain_ResizeBuffers1 = 8,
+    /// <remarks>Source: include/sl_hooks.h:59. </remarks>
+    IDXGISwapChainResizeBuffers1 = 8,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:60.</remarks>
-    IDXGISwapChain_GetCurrentBackBufferIndex = 9,
+    /// <remarks>Source: include/sl_hooks.h:60. </remarks>
+    IDXGISwapChainGetCurrentBackBufferIndex = 9,
 
     /// <summary>
     /// Mandatory - IDXGISwapChain
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:61.</remarks>
-    IDXGISwapChain_SetFullscreenState = 10,
+    /// <remarks>Source: include/sl_hooks.h:61. </remarks>
+    IDXGISwapChainSetFullscreenState = 10,
 
     /// <summary>
     /// Internal - please ignore when doing manual hooking
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:63.</remarks>
-    IDXGISwapChain_Destroyed = 11,
+    /// <remarks>Source: include/sl_hooks.h:63. </remarks>
+    IDXGISwapChainDestroyed = 11,
 
     /// <summary>
     /// Mandatory - ID3D12Device
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:66.</remarks>
-    ID3D12Device_CreateCommandQueue = 12,
+    /// <remarks>Source: include/sl_hooks.h:66. </remarks>
+    ID3D12DeviceCreateCommandQueue = 12,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:69.</remarks>
-    Vulkan_Present = 13,
+    /// <remarks>Source: include/sl_hooks.h:69. </remarks>
+    VulkanPresent = 13,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:70.</remarks>
-    Vulkan_CreateSwapchainKHR = 14,
+    /// <remarks>Source: include/sl_hooks.h:70. </remarks>
+    VulkanCreateSwapchainKHR = 14,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:71.</remarks>
-    Vulkan_DestroySwapchainKHR = 15,
+    /// <remarks>Source: include/sl_hooks.h:71. </remarks>
+    VulkanDestroySwapchainKHR = 15,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:72.</remarks>
-    Vulkan_GetSwapchainImagesKHR = 16,
+    /// <remarks>Source: include/sl_hooks.h:72. </remarks>
+    VulkanGetSwapchainImagesKHR = 16,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:73.</remarks>
-    Vulkan_AcquireNextImageKHR = 17,
+    /// <remarks>Source: include/sl_hooks.h:73. </remarks>
+    VulkanAcquireNextImageKHR = 17,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:74.</remarks>
-    Vulkan_DeviceWaitIdle = 18,
+    /// <remarks>Source: include/sl_hooks.h:74. </remarks>
+    VulkanDeviceWaitIdle = 18,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:75.</remarks>
-    Vulkan_CreateWin32SurfaceKHR = 19,
+    /// <remarks>Source: include/sl_hooks.h:75. </remarks>
+    VulkanCreateWin32SurfaceKHR = 19,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:76.</remarks>
-    Vulkan_DestroySurfaceKHR = 20,
+    /// <remarks>Source: include/sl_hooks.h:76. </remarks>
+    VulkanDestroySurfaceKHR = 20,
 
     /// <summary>
     /// Mandatory - Vulkan
     /// </summary>
-    /// <remarks>Source: include/sl_hooks.h:78.</remarks>
+    /// <remarks>Source: include/sl_hooks.h:78. </remarks>
     MaxNum = 21,
 
 }

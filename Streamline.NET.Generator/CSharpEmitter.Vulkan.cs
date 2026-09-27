@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Streamline.NET.Generator;
@@ -15,8 +15,6 @@ internal sealed partial class CSharpEmitter
         StringBuilder builder = File("Vulkan", "SL.Helpers");
         string name = TypeMapper.PascalCase(declaration.Name);
         builder.AppendLine();
-        builder.AppendLine("public static unsafe partial class SL");
-        builder.AppendLine("{");
         Comment(builder, declaration, "    ");
 
         if (declaration.Name == "getMergedSupportedVkPhysicalDeviceVulkanFeatures")
@@ -90,7 +88,6 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine($"        return {name}((uint)featureNames.Length, names.Pointer);");
             builder.AppendLine("    }");
         }
-        builder.AppendLine("}");
         Record(declaration, "SL." + name);
     }
 }

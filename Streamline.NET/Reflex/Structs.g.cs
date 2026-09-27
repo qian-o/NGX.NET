@@ -10,26 +10,26 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::ReflexOptions
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:42.</remarks>
+/// <remarks>Source: include/sl_reflex.h:42. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 48)]
 public unsafe partial struct ReflexOptions : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -38,7 +38,7 @@ public unsafe partial struct ReflexOptions : ISLStructure
     /// <summary>
     /// Specifies which mode should be used
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:44.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:44. </remarks>
     public ReflexMode Mode;
 
     /// <summary>
@@ -48,28 +48,28 @@ public unsafe partial struct ReflexOptions : ISLStructure
     /// The value is used each time you call slReflexSetOptions/slSetData, make sure to initialize when changing one of the other Reflex options during frame limiting.
     /// It is overridden (ignored) by frameLimitUs if set in sl.reflex.json in non-production builds.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:50.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:50. </remarks>
     public uint FrameLimitUs;
 
     /// <summary>
     /// This should only be enabled in specific scenarios with subtle caveats.
     /// Most integrations should leave unset unless advised otherwise by the Reflex team
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:53.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:53. </remarks>
     public Bool8 UseMarkersToOptimize;
 
     /// <summary>
     /// Specifies the hot-key which should be used instead of custom message for PC latency marker
     /// Possible values: VK_F13, VK_F14, VK_F15
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:56.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:56. </remarks>
     public ushort VirtualKey;
 
     /// <summary>
     /// ThreadID for PCL Stats messages
     /// Most integrations should leave unset unless advised otherwise by the Reflex team
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:59.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:59. </remarks>
     public uint IdThread;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -85,26 +85,26 @@ public unsafe partial struct ReflexOptions : ISLStructure
 /// <summary>
 /// sl::ReflexReport
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:65.</remarks>
+/// <remarks>Source: include/sl_reflex.h:65. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 152)]
 public unsafe partial struct ReflexReport : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -113,97 +113,97 @@ public unsafe partial struct ReflexReport : ISLStructure
     /// <summary>
     /// Various latency related stats
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:67.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:67. </remarks>
     public ulong FrameID;
 
     /// <summary>
     /// sl::ReflexReport::inputSampleTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:68.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:68. </remarks>
     public ulong InputSampleTime;
 
     /// <summary>
     /// sl::ReflexReport::simStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:69.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:69. </remarks>
     public ulong SimStartTime;
 
     /// <summary>
     /// sl::ReflexReport::simEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:70.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:70. </remarks>
     public ulong SimEndTime;
 
     /// <summary>
     /// sl::ReflexReport::renderSubmitStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:71.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:71. </remarks>
     public ulong RenderSubmitStartTime;
 
     /// <summary>
     /// sl::ReflexReport::renderSubmitEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:72.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:72. </remarks>
     public ulong RenderSubmitEndTime;
 
     /// <summary>
     /// sl::ReflexReport::presentStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:73.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:73. </remarks>
     public ulong PresentStartTime;
 
     /// <summary>
     /// sl::ReflexReport::presentEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:74.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:74. </remarks>
     public ulong PresentEndTime;
 
     /// <summary>
     /// sl::ReflexReport::driverStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:75.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:75. </remarks>
     public ulong DriverStartTime;
 
     /// <summary>
     /// sl::ReflexReport::driverEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:76.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:76. </remarks>
     public ulong DriverEndTime;
 
     /// <summary>
     /// sl::ReflexReport::osRenderQueueStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:77.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:77. </remarks>
     public ulong OsRenderQueueStartTime;
 
     /// <summary>
     /// sl::ReflexReport::osRenderQueueEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:78.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:78. </remarks>
     public ulong OsRenderQueueEndTime;
 
     /// <summary>
     /// sl::ReflexReport::gpuRenderStartTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:79.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:79. </remarks>
     public ulong GpuRenderStartTime;
 
     /// <summary>
     /// sl::ReflexReport::gpuRenderEndTime
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:80.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:80. </remarks>
     public ulong GpuRenderEndTime;
 
     /// <summary>
     /// sl::ReflexReport::gpuActiveRenderTimeUs
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:81.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:81. </remarks>
     public uint GpuActiveRenderTimeUs;
 
     /// <summary>
     /// sl::ReflexReport::gpuFrameTimeUs
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:82.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:82. </remarks>
     public uint GpuFrameTimeUs;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -219,26 +219,26 @@ public unsafe partial struct ReflexReport : ISLStructure
 /// <summary>
 /// sl::ReflexReport2
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:87.</remarks>
+/// <remarks>Source: include/sl_reflex.h:87. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 48)]
 public unsafe partial struct ReflexReport2 : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -247,13 +247,13 @@ public unsafe partial struct ReflexReport2 : ISLStructure
     /// <summary>
     /// Various latency related stats
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:89.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:89. </remarks>
     public ulong CameraConstructedTime;
 
     /// <summary>
     /// sl::ReflexReport2::crossAdapterCopyTimeUs
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:90.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:90. </remarks>
     public uint CrossAdapterCopyTimeUs;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -269,26 +269,26 @@ public unsafe partial struct ReflexReport2 : ISLStructure
 /// <summary>
 /// sl::ReflexState
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:97.</remarks>
+/// <remarks>Source: include/sl_reflex.h:97. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 12848)]
 public unsafe partial struct ReflexState : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -297,25 +297,25 @@ public unsafe partial struct ReflexState : ISLStructure
     /// <summary>
     /// Specifies if low-latency mode is available or not
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:99.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:99. </remarks>
     public Bool8 LowLatencyAvailable;
 
     /// <summary>
     /// Specifies if the frameReport below contains valid data or not
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:101.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:101. </remarks>
     public Bool8 LatencyReportAvailable;
 
     /// <summary>
     /// Specifies low latency Windows message id (if ReflexOptions::virtualKey is 0)
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:103.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:103. </remarks>
     public uint StatsWindowMessage;
 
     /// <summary>
     /// Reflex report per frame
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:105.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:105. </remarks>
     public FrameReportBuffer FrameReport;
 
     /// <summary>Inline storage for 64 native ReflexReport elements.</summary>
@@ -328,13 +328,13 @@ public unsafe partial struct ReflexState : ISLStructure
     /// <summary>
     /// Specifies ownership of flash indicator toggle (true = driver, false = application)
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:107.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:107. </remarks>
     public Bool8 FlashIndicatorDriverControlled;
 
     /// <summary>
     /// Reflex report per frame
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:110.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:110. </remarks>
     public FrameReport2Buffer FrameReport2;
 
     /// <summary>Inline storage for 64 native ReflexReport2 elements.</summary>
@@ -365,26 +365,26 @@ public unsafe partial struct ReflexState : ISLStructure
 /// <summary>
 /// sl::ReflexCameraData
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:116.</remarks>
+/// <remarks>Source: include/sl_reflex.h:116. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 288)]
 public unsafe partial struct ReflexCameraData : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -393,25 +393,25 @@ public unsafe partial struct ReflexCameraData : ISLStructure
     /// <summary>
     /// sl::ReflexCameraData::worldToViewMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:117.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:117. </remarks>
     public Float4x4 WorldToViewMatrix;
 
     /// <summary>
     /// sl::ReflexCameraData::viewToClipMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:118.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:118. </remarks>
     public Float4x4 ViewToClipMatrix;
 
     /// <summary>
     /// sl::ReflexCameraData::prevRenderedWorldToViewMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:119.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:119. </remarks>
     public Float4x4 PrevRenderedWorldToViewMatrix;
 
     /// <summary>
     /// sl::ReflexCameraData::prevRenderedViewToClipMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:120.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:120. </remarks>
     public Float4x4 PrevRenderedViewToClipMatrix;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -431,26 +431,26 @@ public unsafe partial struct ReflexCameraData : ISLStructure
 /// <summary>
 /// sl::ReflexPredictedCameraData
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:126.</remarks>
+/// <remarks>Source: include/sl_reflex.h:126. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 160)]
 public unsafe partial struct ReflexPredictedCameraData : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -459,13 +459,13 @@ public unsafe partial struct ReflexPredictedCameraData : ISLStructure
     /// <summary>
     /// sl::ReflexPredictedCameraData::predictedWorldToViewMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:127.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:127. </remarks>
     public Float4x4 PredictedWorldToViewMatrix;
 
     /// <summary>
     /// sl::ReflexPredictedCameraData::predictedViewToClipMatrix
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:128.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:128. </remarks>
     public Float4x4 PredictedViewToClipMatrix;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -483,26 +483,26 @@ public unsafe partial struct ReflexPredictedCameraData : ISLStructure
 /// <summary>
 /// sl::ReflexHelper
 /// </summary>
-/// <remarks>Source: include/sl_reflex.h:136.</remarks>
+/// <remarks>Source: include/sl_reflex.h:136. </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 40)]
 public unsafe partial struct ReflexHelper : ISLStructure
 {
     /// <summary>
     /// sl::BaseStructure::next
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:112.</remarks>
+    /// <remarks>Source: include/sl_struct.h:112. </remarks>
     public BaseStructure* Next;
 
     /// <summary>
     /// sl::BaseStructure::structType
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:113.</remarks>
+    /// <remarks>Source: include/sl_struct.h:113. </remarks>
     public StructType StructType;
 
     /// <summary>
     /// sl::BaseStructure::structVersion
     /// </summary>
-    /// <remarks>Source: include/sl_struct.h:114.</remarks>
+    /// <remarks>Source: include/sl_struct.h:114. </remarks>
     public nuint StructVersion;
 
     /// <summary>Native structure type identifier.</summary>
@@ -511,7 +511,7 @@ public unsafe partial struct ReflexHelper : ISLStructure
     /// <summary>
     /// sl::ReflexHelper::marker
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:142.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:142. </remarks>
     private uint marker;
 
     /// <summary>Initializes native defaults, including nested structures. Unspecified native values remain CLR-zeroed.</summary>
@@ -525,7 +525,7 @@ public unsafe partial struct ReflexHelper : ISLStructure
     /// <summary>
     /// sl::ReflexHelper::ReflexHelper
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:137.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:137. </remarks>
     public ReflexHelper(uint m) : this()
     {
         marker = m;
@@ -534,7 +534,7 @@ public unsafe partial struct ReflexHelper : ISLStructure
     /// <summary>
     /// sl::ReflexHelper::ReflexHelper
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:138.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:138. </remarks>
     public ReflexHelper(PCLMarker m) : this()
     {
         marker = (uint)m;

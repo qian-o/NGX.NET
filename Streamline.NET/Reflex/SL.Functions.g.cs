@@ -9,14 +9,15 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// HELPERS
-    /// 
+    ///
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:204.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:204. </remarks>
     public static SLResult ReflexGetState(ReflexState* state)
     {
-        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetState"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetState", "slReflexGetState"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -24,7 +25,11 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ReflexState*, SLResult>)address)(state);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// HELPERS
+    ///
+    /// </summary>
+    /// <remarks>Source: include/sl_reflex.h:204. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult ReflexGetState(ref ReflexState state)
     {
         fixed (ReflexState* statePointer = &state)
@@ -32,24 +37,21 @@ public static unsafe partial class SL
             return ReflexGetState(statePointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Tells reflex to sleep the app
-    /// 
+    ///
     /// Call this method to invoke Reflex sleep in your application.
-    /// 
+    ///
     /// @param frame Specifies current frame
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:166.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:166. </remarks>
     public static SLResult ReflexSleep(nint frame)
     {
-        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSleep"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSleep", "slReflexSleep"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -57,29 +59,36 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<nint, SLResult>)address)(frame);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Tells reflex to sleep the app
+    ///
+    /// Call this method to invoke Reflex sleep in your application.
+    ///
+    /// @param frame Specifies current frame
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_reflex.h:166. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult ReflexSleep(FrameToken frame)
     {
         return ReflexSleep(frame.Handle);
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets Reflex options
-    /// 
+    ///
     /// Call this method to turn Reflex on/off, change mode etc.
-    /// 
+    ///
     /// @param options Specifies options to use
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:176.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:176. </remarks>
     public static SLResult ReflexSetOptions(ReflexOptions* options)
     {
-        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetOptions"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetOptions", "slReflexSetOptions"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -87,7 +96,17 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ReflexOptions*, SLResult>)address)(options);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Sets Reflex options
+    ///
+    /// Call this method to turn Reflex on/off, change mode etc.
+    ///
+    /// @param options Specifies options to use
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_reflex.h:176. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult ReflexSetOptions(in ReflexOptions options)
     {
         fixed (ReflexOptions* optionsPointer = &options)
@@ -95,26 +114,23 @@ public static unsafe partial class SL
             return ReflexSetOptions(optionsPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets Reflex camera data
-    /// 
+    ///
     /// Call this method to inform Reflex of upcoming camera data
-    /// 
+    ///
     /// @param viewport The viewport the camera corresponds to
     /// @param frame The frame to set camera data for
     /// @param inCameraData Camera data for an upcoming render frame
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:188.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:188. </remarks>
     public static SLResult ReflexSetCameraData(ViewportHandle* viewport, nint frame, ReflexCameraData* inCameraData)
     {
-        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetCameraData"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetCameraData", "slReflexSetCameraData"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -122,7 +138,19 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexCameraData*, SLResult>)address)(viewport, frame, inCameraData);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Sets Reflex camera data
+    ///
+    /// Call this method to inform Reflex of upcoming camera data
+    ///
+    /// @param viewport The viewport the camera corresponds to
+    /// @param frame The frame to set camera data for
+    /// @param inCameraData Camera data for an upcoming render frame
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_reflex.h:188. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult ReflexSetCameraData(in ViewportHandle viewport, FrameToken frame, in ReflexCameraData inCameraData)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -131,26 +159,23 @@ public static unsafe partial class SL
             return ReflexSetCameraData(viewportPointer, frame.Handle, inCameraDataPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Gets predicted Reflex camera data
-    /// 
+    ///
     /// Call this method to get a prediction of upcoming camera data
-    /// 
+    ///
     /// @param viewport The viewport the camera corresponds to
     /// @param frame The frame to get camera data for (if available)
     /// @param outCameraData Predicted Camera data for an upcoming render frame
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_reflex.h:200.</remarks>
+    /// <remarks>Source: include/sl_reflex.h:200. </remarks>
     public static SLResult ReflexGetPredictedCameraData(ViewportHandle* viewport, nint frame, ReflexPredictedCameraData* outCameraData)
     {
-        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetPredictedCameraData"u8, out nint address);
+        SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetPredictedCameraData", "slReflexGetPredictedCameraData"u8, out nint address);
         if (result != SLResult.Ok)
         {
             return result;
@@ -158,7 +183,19 @@ public static unsafe partial class SL
         return ((delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexPredictedCameraData*, SLResult>)address)(viewport, frame, outCameraData);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Gets predicted Reflex camera data
+    ///
+    /// Call this method to get a prediction of upcoming camera data
+    ///
+    /// @param viewport The viewport the camera corresponds to
+    /// @param frame The frame to get camera data for (if available)
+    /// @param outCameraData Predicted Camera data for an upcoming render frame
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_reflex.h:200. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult ReflexGetPredictedCameraData(in ViewportHandle viewport, FrameToken frame, ref ReflexPredictedCameraData outCameraData)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)

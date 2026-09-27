@@ -10,25 +10,25 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DeepDVCMode
 /// </summary>
-/// <remarks>Source: include/sl_deepdvc.h:31.</remarks>
+/// <remarks>Source: include/sl_deepdvc.h:31. </remarks>
 public enum DeepDVCMode : uint
 {
     /// <summary>
     /// sl::DeepDVCMode::eOff
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:33.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:33. </remarks>
     Off = 0,
 
     /// <summary>
     /// sl::DeepDVCMode::eOn
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:34.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:34. </remarks>
     On = 1,
 
     /// <summary>
     /// sl::DeepDVCMode::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_deepdvc.h:35.</remarks>
+    /// <remarks>Source: include/sl_deepdvc.h:35. </remarks>
     Count = 2,
 
 }

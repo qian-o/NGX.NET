@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace Streamline.NET.Generator;
 
@@ -6,6 +6,7 @@ internal sealed partial class CSharpEmitter
 {
     public int Generate()
     {
+        LoadReviewedImplementations();
         foreach (NativeDeclaration declaration in snapshot.Declarations)
         {
             if (declaration.Classification is "test" or "plugin-template" or "implementation")
@@ -56,24 +57,46 @@ internal sealed partial class CSharpEmitter
                     Record(declaration, "Underlying native type in signatures and fields");
                 }
             }
+            else if (TryRecordManual(declaration))
+            {
+                // Source hashes require a fresh review when upstream inline bodies change.
+            }
+            else if (declaration.Name == "to_underlying" && declaration.Kind == "FUNCTION_TEMPLATE")
+            {
+                Record(declaration, "C# cast to the extracted enum underlying integer type");
+            }
             else if (TryEmitHelper(declaration))
             {
                 // The helper emitter records the exact semantic translation.
             }
             else
             {
-                unhandled.Add(declaration.QualifiedName + " (" + declaration.Kind + ")");
+                // The recursive coverage pass reports every remaining declaration.
             }
         }
 
-        WriteFiles();
-        Console.WriteLine($"Source: {snapshot.Source.Release} {snapshot.Source.Commit}");
-        Console.WriteLine($"Generated {files.Count} files; {unhandled.Count} top-level declarations still require implementation.");
-        foreach (string item in unhandled)
+        EmitSecurityData();
+        EmitPublicMacros();
+        RecordCallbackAliases();
+        foreach (NativeDeclaration declaration in snapshot.Declarations)
         {
-            Console.Error.WriteLine("Unhandled: " + item);
+            CompleteCoverage(declaration);
         }
-        return unhandled.Count == 0 ? 0 : 1;
+        CheckMacros();
+        if (unhandled.Count > 0)
+        {
+            foreach (string item in unhandled)
+            {
+                Console.Error.WriteLine("Unhandled: " + item);
+            }
+            Console.Error.WriteLine($"Generation stopped: {unhandled.Count} declarations or macros have no verified implementation.");
+            return 1;
+        }
+        WriteFiles();
+        WriteCoverage();
+        Console.WriteLine($"Source: {snapshot.Source.Release} {snapshot.Source.Commit}");
+        Console.WriteLine($"Generated {files.Count} files; 0 unclassified, 0 unhandled declarations.");
+        return 0;
     }
 
     private void EmitVulkanConstants(NativeDeclaration declaration)
@@ -84,11 +107,8 @@ internal sealed partial class CSharpEmitter
             StringBuilder builder = File("Vulkan", "SL.Constants");
             string name = VulkanConstantName(value.Name);
             builder.AppendLine();
-            builder.AppendLine("public static unsafe partial class SL");
-            builder.AppendLine("{");
             Comment(builder, value, "    ");
             builder.AppendLine($"    public const int {name} = {value.Value};");
-            builder.AppendLine("}");
             Record(value, "SL." + name);
         }
     }
@@ -114,6 +134,10 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine();
             builder.AppendLine("    /// <summary>Invokes the native frame-index conversion.</summary>");
             builder.AppendLine("    public static implicit operator uint(FrameToken value) => value.FrameIndex;");
+            foreach (NativeDeclaration child in declaration.Children.Where(child => child.Kind is "CXX_BASE_SPECIFIER" or "CONSTRUCTOR" or "CONVERSION_FUNCTION"))
+            {
+                Record(child, "FrameToken borrowed object address and virtual frame-index access; native construction belongs to the SDK");
+            }
         }
         else
         {
@@ -124,6 +148,21 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine();
             builder.AppendLine("    /// <summary>Frees memory previously allocated by this same allocator.</summary>");
             builder.AppendLine($"    public void Free(void* memory) => ((delegate* unmanaged[MemberFunction]<nint, void*, void>)(*(nint**)Handle)[{free}])(Handle, memory);");
+            int destroy = snapshot.Abi.VirtualSlots.Single(pair => pair.Key.Contains("::~", StringComparison.Ordinal)).Value;
+            if (!snapshot.Abi.AllocatorDestructor.Contains("i32 noundef 0", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException("Unrecognized allocator destructor dispatch contract.");
+            }
+            builder.AppendLine();
+            builder.AppendLine("    /// <summary>Explicitly invokes the native virtual destructor without freeing object storage. Requires the caller's ownership authority; invalidates the object.</summary>");
+            builder.AppendLine("    public void Destroy()");
+            builder.AppendLine("    {");
+            builder.AppendLine($"        ((delegate* unmanaged[MemberFunction]<nint, uint, nint>)(*(nint**)Handle)[{destroy}])(Handle, 0);");
+            builder.AppendLine("    }");
+            foreach (NativeDeclaration child in declaration.Children.Where(child => child.Kind is "CXX_METHOD" or "DESTRUCTOR"))
+            {
+                Record(child, "IAllocator." + (child.Kind == "DESTRUCTOR" ? "Destroy" : TypeMapper.PascalCase(child.Name)));
+            }
         }
 
         builder.AppendLine("}");

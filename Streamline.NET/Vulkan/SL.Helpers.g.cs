@@ -9,10 +9,11 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// sl::getVkPhysicalDeviceVulkan12Features
     /// </summary>
-    /// <remarks>Source: include/sl_helpers_vk.h:33.</remarks>
+    /// <remarks>Source: include/sl_helpers_vk.h:33. </remarks>
     public static VkPhysicalDeviceVulkan12Features GetVkPhysicalDeviceVulkan12Features(uint featureCount, sbyte** featureNames)
     {
         VkPhysicalDeviceVulkan12Features features = new() { SType = VkStructureTypePhysicalDeviceVulkan12Features };
@@ -216,14 +217,11 @@ public static unsafe partial class SL
         using Utf8StringArray names = new(featureNames);
         return GetVkPhysicalDeviceVulkan12Features((uint)featureNames.Length, names.Pointer);
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getVkPhysicalDeviceVulkan13Features
     /// </summary>
-    /// <remarks>Source: include/sl_helpers_vk.h:89.</remarks>
+    /// <remarks>Source: include/sl_helpers_vk.h:89. </remarks>
     public static VkPhysicalDeviceVulkan13Features GetVkPhysicalDeviceVulkan13Features(uint featureCount, sbyte** featureNames)
     {
         VkPhysicalDeviceVulkan13Features features = new() { SType = VkStructureTypePhysicalDeviceVulkan13Features };
@@ -275,7 +273,7 @@ public static unsafe partial class SL
             }
             if (NativeStrings.Equals(featureNames[index], "textureCompressionASTC_HDR"u8))
             {
-                features.TextureCompressionASTC_HDR = 1;
+                features.TextureCompressionASTCHDR = 1;
             }
             if (NativeStrings.Equals(featureNames[index], "shaderZeroInitializeWorkgroupMemory"u8))
             {
@@ -303,14 +301,11 @@ public static unsafe partial class SL
         using Utf8StringArray names = new(featureNames);
         return GetVkPhysicalDeviceVulkan13Features((uint)featureNames.Length, names.Pointer);
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getVkPhysicalDeviceOpticalFlowNVFeatures
     /// </summary>
-    /// <remarks>Source: include/sl_helpers_vk.h:114.</remarks>
+    /// <remarks>Source: include/sl_helpers_vk.h:114. </remarks>
     public static VkPhysicalDeviceOpticalFlowFeaturesNV GetVkPhysicalDeviceOpticalFlowNVFeatures(uint featureCount, sbyte** featureNames)
     {
         VkPhysicalDeviceOpticalFlowFeaturesNV features = new() { SType = VkStructureTypePhysicalDeviceOpticalFlowFeaturesNV };
@@ -330,14 +325,11 @@ public static unsafe partial class SL
         using Utf8StringArray names = new(featureNames);
         return GetVkPhysicalDeviceOpticalFlowNVFeatures((uint)featureNames.Length, names.Pointer);
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// sl::getMergedSupportedVkPhysicalDeviceVulkanFeatures
     /// </summary>
-    /// <remarks>Source: include/sl_helpers_vk.h:128.</remarks>
+    /// <remarks>Source: include/sl_helpers_vk.h:128. </remarks>
     public static void GetMergedSupportedVkPhysicalDeviceVulkanFeatures(VkBaseOutStructure* physicalDeviceFeatures, VkBaseOutStructure* featuresToMerge, VkBaseOutStructure* supportedFeatures)
     {
         if (physicalDeviceFeatures == null || supportedFeatures == null)
@@ -419,7 +411,7 @@ public static unsafe partial class SL
                 destination->SubgroupSizeControl = ((destination->SubgroupSizeControl != 0 || (additions != null && additions->SubgroupSizeControl != 0)) && supported->SubgroupSizeControl != 0) ? 1u : 0u;
                 destination->ComputeFullSubgroups = ((destination->ComputeFullSubgroups != 0 || (additions != null && additions->ComputeFullSubgroups != 0)) && supported->ComputeFullSubgroups != 0) ? 1u : 0u;
                 destination->Synchronization2 = ((destination->Synchronization2 != 0 || (additions != null && additions->Synchronization2 != 0)) && supported->Synchronization2 != 0) ? 1u : 0u;
-                destination->TextureCompressionASTC_HDR = ((destination->TextureCompressionASTC_HDR != 0 || (additions != null && additions->TextureCompressionASTC_HDR != 0)) && supported->TextureCompressionASTC_HDR != 0) ? 1u : 0u;
+                destination->TextureCompressionASTCHDR = ((destination->TextureCompressionASTCHDR != 0 || (additions != null && additions->TextureCompressionASTCHDR != 0)) && supported->TextureCompressionASTCHDR != 0) ? 1u : 0u;
                 destination->ShaderZeroInitializeWorkgroupMemory = ((destination->ShaderZeroInitializeWorkgroupMemory != 0 || (additions != null && additions->ShaderZeroInitializeWorkgroupMemory != 0)) && supported->ShaderZeroInitializeWorkgroupMemory != 0) ? 1u : 0u;
                 destination->DynamicRendering = ((destination->DynamicRendering != 0 || (additions != null && additions->DynamicRendering != 0)) && supported->DynamicRendering != 0) ? 1u : 0u;
                 destination->ShaderIntegerDotProduct = ((destination->ShaderIntegerDotProduct != 0 || (additions != null && additions->ShaderIntegerDotProduct != 0)) && supported->ShaderIntegerDotProduct != 0) ? 1u : 0u;

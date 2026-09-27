@@ -10,55 +10,55 @@ namespace Streamline.NET;
 /// <summary>
 /// sl::DirectSROptimizationType
 /// </summary>
-/// <remarks>Source: include/sl_directsr.h:32.</remarks>
+/// <remarks>Source: include/sl_directsr.h:32. </remarks>
 public enum DirectSROptimizationType : uint
 {
     /// <summary>
     /// sl::DirectSROptimizationType::eBalanced
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:34.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:34. </remarks>
     Balanced = 0,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eHighQuality
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:35.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:35. </remarks>
     HighQuality = 1,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eMaxQuality
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:36.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:36. </remarks>
     MaxQuality = 2,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eHighPerformance
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:37.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:37. </remarks>
     HighPerformance = 3,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eMaxPerformance
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:38.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:38. </remarks>
     MaxPerformance = 4,
 
     /// <summary>
     /// sl::DirectSROptimizationType::ePowerSaving
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:39.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:39. </remarks>
     PowerSaving = 5,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eMaxPowerSaving
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:40.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:40. </remarks>
     MaxPowerSaving = 6,
 
     /// <summary>
     /// sl::DirectSROptimizationType::eCount
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:42.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:42. </remarks>
     Count = 7,
 
 }
@@ -66,55 +66,55 @@ public enum DirectSROptimizationType : uint
 /// <summary>
 /// sl::DirectSRVariantFlags
 /// </summary>
-/// <remarks>Source: include/sl_directsr.h:45.</remarks>
+/// <remarks>Source: include/sl_directsr.h:45. </remarks>
 public enum DirectSRVariantFlags : uint
 {
     /// <summary>
     /// sl::DirectSRVariantFlags::eNone
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:47.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:47. </remarks>
     None = 0,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eSupportsExposureScaleTexture
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:48.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:48. </remarks>
     SupportsExposureScaleTexture = 1,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eSupportsIgnoreHistoryMask
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:49.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:49. </remarks>
     SupportsIgnoreHistoryMask = 2,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eNative
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:50.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:50. </remarks>
     Native = 4,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eSupportsReactiveMask
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:51.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:51. </remarks>
     SupportsReactiveMask = 8,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eSupportsSharpness
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:52.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:52. </remarks>
     SupportsSharpness = 16,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eDisallowsRegionOffsets
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:53.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:53. </remarks>
     DisallowsRegionOffsets = 32,
 
     /// <summary>
     /// sl::DirectSRVariantFlags::eAll
     /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:55.</remarks>
+    /// <remarks>Source: include/sl_directsr.h:55. </remarks>
     All = 63,
 
 }

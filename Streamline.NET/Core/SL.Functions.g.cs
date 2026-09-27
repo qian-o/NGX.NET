@@ -9,24 +9,36 @@ namespace Streamline.NET;
 
 public static unsafe partial class SL
 {
+
     /// <summary>
     /// Initializes the SL module
-    /// 
+    ///
     /// Call this method when the game is initializing.
-    /// 
+    ///
     /// @param pref Specifies preferred behavior for the SL library (SL will keep a copy)
     /// @param sdkVersion Current SDK version
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:83.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:83. </remarks>
     public static SLResult Init(Preferences* pref, ulong sdkVersion = 563010083094236UL)
     {
         return SLNative.Init(pref, sdkVersion);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Initializes the SL module
+    ///
+    /// Call this method when the game is initializing.
+    ///
+    /// @param pref Specifies preferred behavior for the SL library (SL will keep a copy)
+    /// @param sdkVersion Current SDK version
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:83. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult Init(in Preferences pref, ulong sdkVersion = 563010083094236UL)
     {
         fixed (Preferences* prefPointer = &pref)
@@ -34,20 +46,17 @@ public static unsafe partial class SL
             return Init(prefPointer, sdkVersion);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Shuts down the SL module
-    /// 
+    ///
     /// Call this method when the game is shutting down.
-    /// 
+    ///
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:92.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:92. </remarks>
     public static SLResult Shutdown()
     {
         SLResult result = SLNative.Shutdown();
@@ -57,31 +66,42 @@ public static unsafe partial class SL
         }
         return result;
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Checks if a specific feature is supported or not.
-    /// 
+    ///
     /// Call this method to check if a certain e* (see above) is available.
-    /// 
+    ///
     /// @param feature Specifies which feature to use
     /// @param adapterInfo Adapter to check (optional)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// NOTE: If adapter info is null SL will return general feature compatibility with the OS,
     /// installed drivers or any other requirements not directly related to the adapter.
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:106.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:106. </remarks>
     public static SLResult IsFeatureSupported(uint feature, AdapterInfo* adapterInfo)
     {
         return SLNative.IsFeatureSupported(feature, adapterInfo);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Checks if a specific feature is supported or not.
+    ///
+    /// Call this method to check if a certain e* (see above) is available.
+    ///
+    /// @param feature Specifies which feature to use
+    /// @param adapterInfo Adapter to check (optional)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// NOTE: If adapter info is null SL will return general feature compatibility with the OS,
+    /// installed drivers or any other requirements not directly related to the adapter.
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:106. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult IsFeatureSupported(uint feature, in AdapterInfo adapterInfo)
     {
         fixed (AdapterInfo* adapterInfoPointer = &adapterInfo)
@@ -89,29 +109,38 @@ public static unsafe partial class SL
             return IsFeatureSupported(feature, adapterInfoPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Checks if specified feature is loaded or not.
-    /// 
+    ///
     /// Call this method to check if feature is loaded.
     /// All requested features are loaded by default and have to be unloaded explicitly if needed.
-    /// 
+    ///
     /// @param feature Specifies which feature to check
     /// @param loaded Value specifying if feature is loaded or unloaded.
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:118.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:118. </remarks>
     public static SLResult IsFeatureLoaded(uint feature, Bool8* loaded)
     {
         return SLNative.IsFeatureLoaded(feature, loaded);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Checks if specified feature is loaded or not.
+    ///
+    /// Call this method to check if feature is loaded.
+    /// All requested features are loaded by default and have to be unloaded explicitly if needed.
+    ///
+    /// @param feature Specifies which feature to check
+    /// @param loaded Value specifying if feature is loaded or unloaded.
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:118. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult IsFeatureLoaded(uint feature, out Bool8 loaded)
     {
         loaded = default;
@@ -120,27 +149,24 @@ public static unsafe partial class SL
             return IsFeatureLoaded(feature, loadedPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets the specified feature to either loaded or unloaded state.
-    /// 
+    ///
     /// Call this method to load or unload certain e*.
-    /// 
+    ///
     /// NOTE: All requested features are loaded by default and have to be unloaded explicitly if needed.
-    /// 
+    ///
     /// @param feature Specifies which feature to check
     /// @param loaded Value specifying if feature should be loaded or unloaded.
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// NOTE: When this method is called no other DXGI/D3D/Vulkan APIs should be invoked in parallel so
     /// make sure to flush your pipeline before calling this method.
-    /// 
+    ///
     /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:134.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:134. </remarks>
     public static SLResult SetFeatureLoaded(uint feature, Bool8 loaded)
     {
         SLResult result = SLNative.SetFeatureLoaded(feature, loaded);
@@ -150,88 +176,114 @@ public static unsafe partial class SL
         }
         return result;
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// NOTE: sl::PreferenceFlags::eUseFrameBasedResourceTagging must be set when using this API.
     /// Tags resource globally
-    /// 
+    ///
     /// Call this method to tag the appropriate buffers in global scope.
-    /// 
+    ///
     /// @param frame Specifies the frame this tag applies to. Frame token can be obtained using slGetNewFrameToken API.
     /// @param viewport Specifies viewport this tag applies to
     /// @param tags Pointer to resources tags, set to null to remove the specified tag
     /// @param numTags Number of resource tags in the provided list
     /// @param cmdBuffer Command buffer to use (optional and can be null if ALL tags are null or have eValidUntilPresent life-cycle)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// IMPORTANT: GPU payload that generates content for the provided tag(s) MUST be either already submitted to the provided command buffer
     /// or some other command buffer which is guaranteed, by the host application, to be executed BEFORE the provided command buffer.
-    /// 
+    ///
     /// This method is thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:152.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:152. </remarks>
     public static SLResult SetTagForFrame(nint frame, ViewportHandle* viewport, ResourceTag* resources, uint numResources, void* cmdBuffer)
     {
         return SLNative.SetTagForFrame(frame, viewport, resources, numResources, cmdBuffer);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
-    public static SLResult SetTagForFrame(FrameToken frame, in ViewportHandle viewport, ResourceTag* resources, uint numResources, void* cmdBuffer)
+    /// <summary>
+    /// NOTE: sl::PreferenceFlags::eUseFrameBasedResourceTagging must be set when using this API.
+    /// Tags resource globally
+    ///
+    /// Call this method to tag the appropriate buffers in global scope.
+    ///
+    /// @param frame Specifies the frame this tag applies to. Frame token can be obtained using slGetNewFrameToken API.
+    /// @param viewport Specifies viewport this tag applies to
+    /// @param tags Pointer to resources tags, set to null to remove the specified tag
+    /// @param numTags Number of resource tags in the provided list
+    /// @param cmdBuffer Command buffer to use (optional and can be null if ALL tags are null or have eValidUntilPresent life-cycle)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// IMPORTANT: GPU payload that generates content for the provided tag(s) MUST be either already submitted to the provided command buffer
+    /// or some other command buffer which is guaranteed, by the host application, to be executed BEFORE the provided command buffer.
+    ///
+    /// This method is thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:152. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    public static SLResult SetTagForFrame(FrameToken frame, in ViewportHandle viewport, ReadOnlySpan<ResourceTag> resources, void* cmdBuffer)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
+        fixed (ResourceTag* resourcesPointer = resources)
         {
-            return SetTagForFrame(frame.Handle, viewportPointer, resources, numResources, cmdBuffer);
+            return SetTagForFrame(frame.Handle, viewportPointer, resourcesPointer, (uint)resources.Length, cmdBuffer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// PFun_slSetTag
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:58.</remarks>
-    [Obsolete("Deprecated by Streamline; see the source documentation.")]
+    /// <remarks>Source: include/sl_core_api.h:58. </remarks>
+    [Obsolete("Use the version of this function that takes a sl::FrameToken instead - slSetTagForFrame and set sl::PreferenceFlags::eUseFrameBasedResourceTagging.")]
     public static SLResult SetTag(ViewportHandle* viewport, ResourceTag* tags, uint numTags, void* cmdBuffer)
     {
         return SLNative.SetTag(viewport, tags, numTags, cmdBuffer);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
-    [Obsolete("Deprecated by Streamline; see the source documentation.")]
-    public static SLResult SetTag(in ViewportHandle viewport, ResourceTag* tags, uint numTags, void* cmdBuffer)
+    /// <summary>
+    /// PFun_slSetTag
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:58. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    [Obsolete("Use the version of this function that takes a sl::FrameToken instead - slSetTagForFrame and set sl::PreferenceFlags::eUseFrameBasedResourceTagging.")]
+    public static SLResult SetTag(in ViewportHandle viewport, ReadOnlySpan<ResourceTag> tags, void* cmdBuffer)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
+        fixed (ResourceTag* tagsPointer = tags)
         {
-            return SetTag(viewportPointer, tags, numTags, cmdBuffer);
+            return SetTag(viewportPointer, tagsPointer, (uint)tags.Length, cmdBuffer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Sets common constants.
-    /// 
+    ///
     /// Call this method to provide the required data (SL will keep a copy).
-    /// 
+    ///
     /// @param values Common constants required by SL plugins (SL will keep a copy)
     /// @param frame Index of the current frame
     /// @param viewport Unique id (can be viewport id | instance id etc.)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:185.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:185. </remarks>
     public static SLResult SetConstants(Constants* values, nint frame, ViewportHandle* viewport)
     {
         return SLNative.SetConstants(values, frame, viewport);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Sets common constants.
+    ///
+    /// Call this method to provide the required data (SL will keep a copy).
+    ///
+    /// @param values Common constants required by SL plugins (SL will keep a copy)
+    /// @param frame Index of the current frame
+    /// @param viewport Unique id (can be viewport id | instance id etc.)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:185. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult SetConstants(in Constants values, FrameToken frame, in ViewportHandle viewport)
     {
         fixed (Constants* valuesPointer = &values)
@@ -240,29 +292,38 @@ public static unsafe partial class SL
             return SetConstants(valuesPointer, frame.Handle, viewportPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Returns feature&apos;s requirements
-    /// 
+    ///
     /// Call this method to check what is required to run certain eFeature* (see above).
     /// This method must be called after init otherwise it will always return an error.
-    /// 
+    ///
     /// @param feature Specifies which feature to check
     /// @param requirements Data structure with feature&apos;s requirements
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:197.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:197. </remarks>
     public static SLResult GetFeatureRequirements(uint feature, FeatureRequirements* requirements)
     {
         return SLNative.GetFeatureRequirements(feature, requirements);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Returns feature&apos;s requirements
+    ///
+    /// Call this method to check what is required to run certain eFeature* (see above).
+    /// This method must be called after init otherwise it will always return an error.
+    ///
+    /// @param feature Specifies which feature to check
+    /// @param requirements Data structure with feature&apos;s requirements
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:197. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult GetFeatureRequirements(uint feature, ref FeatureRequirements requirements)
     {
         fixed (FeatureRequirements* requirementsPointer = &requirements)
@@ -270,29 +331,38 @@ public static unsafe partial class SL
             return GetFeatureRequirements(feature, requirementsPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Returns feature&apos;s version
-    /// 
+    ///
     /// Call this method to check version for a certain eFeature* (see above).
     /// This method must be called after init otherwise it will always return an error.
-    /// 
+    ///
     /// @param feature Specifies which feature to check
     /// @param version Data structure with feature&apos;s version
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:209.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:209. </remarks>
     public static SLResult GetFeatureVersion(uint feature, FeatureVersion* version)
     {
         return SLNative.GetFeatureVersion(feature, version);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Returns feature&apos;s version
+    ///
+    /// Call this method to check version for a certain eFeature* (see above).
+    /// This method must be called after init otherwise it will always return an error.
+    ///
+    /// @param feature Specifies which feature to check
+    /// @param version Data structure with feature&apos;s version
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:209. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult GetFeatureVersion(uint feature, ref FeatureVersion version)
     {
         fixed (FeatureVersion* versionPointer = &version)
@@ -300,30 +370,40 @@ public static unsafe partial class SL
             return GetFeatureVersion(feature, versionPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Allocates resources for the specified feature.
-    /// 
+    ///
     /// Call this method to explicitly allocate resources
     /// for an instance of the specified feature.
-    /// 
+    ///
     /// @param cmdBuffer Command buffer to use (must be created on device where feature is supported but can be null if not needed)
     /// @param feature Feature we are working with
     /// @param viewport Unique id (viewport handle)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:222.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:222. </remarks>
     public static SLResult AllocateResources(void* cmdBuffer, uint feature, ViewportHandle* viewport)
     {
         return SLNative.AllocateResources(cmdBuffer, feature, viewport);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Allocates resources for the specified feature.
+    ///
+    /// Call this method to explicitly allocate resources
+    /// for an instance of the specified feature.
+    ///
+    /// @param cmdBuffer Command buffer to use (must be created on device where feature is supported but can be null if not needed)
+    /// @param feature Feature we are working with
+    /// @param viewport Unique id (viewport handle)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:222. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult AllocateResources(void* cmdBuffer, uint feature, in ViewportHandle viewport)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -331,35 +411,50 @@ public static unsafe partial class SL
             return AllocateResources(cmdBuffer, feature, viewportPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Frees resources for the specified feature.
-    /// 
+    ///
     /// Call this method to explicitly free resources
     /// for an instance of the specified feature.
-    /// 
+    ///
     /// @param feature Feature we are working with
     /// @param viewport Unique id (viewport handle)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// IMPORTANT: If slEvaluateFeature is pending on a command list, that command list must be flushed
     /// before calling this method to prevent invalid resource access on the GPU.
-    /// 
+    ///
     /// IMPORTANT: If slEvaluateFeature is pending on a command list, that command list must be flushed
     /// before calling this method to prevent invalid resource access on the GPU.
-    /// 
+    ///
     /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:240.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:240. </remarks>
     public static SLResult FreeResources(uint feature, ViewportHandle* viewport)
     {
         return SLNative.FreeResources(feature, viewport);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// Frees resources for the specified feature.
+    ///
+    /// Call this method to explicitly free resources
+    /// for an instance of the specified feature.
+    ///
+    /// @param feature Feature we are working with
+    /// @param viewport Unique id (viewport handle)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// IMPORTANT: If slEvaluateFeature is pending on a command list, that command list must be flushed
+    /// before calling this method to prevent invalid resource access on the GPU.
+    ///
+    /// IMPORTANT: If slEvaluateFeature is pending on a command list, that command list must be flushed
+    /// before calling this method to prevent invalid resource access on the GPU.
+    ///
+    /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:240. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult FreeResources(uint feature, in ViewportHandle viewport)
     {
         fixed (ViewportHandle* viewportPointer = &viewport)
@@ -367,168 +462,245 @@ public static unsafe partial class SL
             return FreeResources(feature, viewportPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// NOTE: sl::PreferenceFlags::eUseFrameBasedResourceTagging must be set when using this API to do
     /// frame-based resource tagging for multiple frames in flight at the same time.
     /// Evaluates feature
-    /// 
+    ///
     /// Use this method to mark the section in your rendering pipeline
     /// where specific feature should be injected.
-    /// 
+    ///
     /// @param feature Feature we are working with
     /// @param frame Current frame handle obtained from SL
     /// @param inputs The chained structures providing the input data (viewport, tags, constants etc)
     /// @param numInputs Number of inputs
     /// @param cmdBuffer Command buffer to use (must be created on device where feature is supported)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// IMPORTANT: Frame and viewport must match whatever is used to set common and or feature options and constants (if any)
-    /// 
+    ///
     /// NOTE: It is allowed to pass in buffer tags as inputs, they are considered to be a &quot;local&quot; tags and do NOT interact with
     /// same tags sent in the global scope using slSetTag API.
-    /// 
+    ///
     /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:262.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:262. </remarks>
     public static SLResult EvaluateFeature(uint feature, nint frame, BaseStructure** inputs, uint numInputs, void* cmdBuffer)
     {
         return SLNative.EvaluateFeature(feature, frame, inputs, numInputs, cmdBuffer);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
+    /// <summary>
+    /// NOTE: sl::PreferenceFlags::eUseFrameBasedResourceTagging must be set when using this API to do
+    /// frame-based resource tagging for multiple frames in flight at the same time.
+    /// Evaluates feature
+    ///
+    /// Use this method to mark the section in your rendering pipeline
+    /// where specific feature should be injected.
+    ///
+    /// @param feature Feature we are working with
+    /// @param frame Current frame handle obtained from SL
+    /// @param inputs The chained structures providing the input data (viewport, tags, constants etc)
+    /// @param numInputs Number of inputs
+    /// @param cmdBuffer Command buffer to use (must be created on device where feature is supported)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// IMPORTANT: Frame and viewport must match whatever is used to set common and or feature options and constants (if any)
+    ///
+    /// NOTE: It is allowed to pass in buffer tags as inputs, they are considered to be a &quot;local&quot; tags and do NOT interact with
+    /// same tags sent in the global scope using slSetTag API.
+    ///
+    /// This method is NOT thread safe and requires DX/VK device to be created before calling it.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:262. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
     public static SLResult EvaluateFeature(uint feature, FrameToken frame, BaseStructure** inputs, uint numInputs, void* cmdBuffer)
     {
         return EvaluateFeature(feature, frame.Handle, inputs, numInputs, cmdBuffer);
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Upgrade interface
-    /// 
+    ///
     /// Use this method to upgrade basic D3D or DXGI interface to an SL proxy.
-    /// 
+    ///
     /// @param baseInterface Pointer to a pointer to the base interface (for example ID3D12Device etc.) to be replaced in place.
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// IMPORTANT: This method should ONLY be used to support 3rd party SDKs like AMD AGS
     /// which bypass SL or when using manual hooking.
-    /// 
+    ///
     /// This method is NOT thread safe and should be called IMMEDIATELY after base interface is created.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:275.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:275. </remarks>
     public static SLResult UpgradeInterface(void** baseInterface)
     {
         return SLNative.UpgradeInterface(baseInterface);
     }
-}
 
-public static unsafe partial class SL
-{
+    /// <summary>
+    /// Upgrade interface
+    ///
+    /// Use this method to upgrade basic D3D or DXGI interface to an SL proxy.
+    ///
+    /// @param baseInterface Pointer to a pointer to the base interface (for example ID3D12Device etc.) to be replaced in place.
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// IMPORTANT: This method should ONLY be used to support 3rd party SDKs like AMD AGS
+    /// which bypass SL or when using manual hooking.
+    ///
+    /// This method is NOT thread safe and should be called IMMEDIATELY after base interface is created.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:275. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    public static SLResult UpgradeInterface(ref nint baseInterface)
+    {
+        fixed (nint* baseInterfacePointer = &baseInterface)
+        {
+            return UpgradeInterface((void**)baseInterfacePointer);
+        }
+    }
+
     /// <summary>
     /// Obtain native interface
-    /// 
+    ///
     /// Use this method to obtain underlying D3D or DXGI interface from an SL proxy.
-    /// 
+    ///
     /// IMPORTANT: When calling NVAPI or other 3rd party SDKs from your application
     /// it is recommended to provide native interfaces instead of SL proxies.
-    /// 
+    ///
     /// @param proxyInterface Pointer to the SL proxy (D3D device, swap-chain etc)
     /// @param baseInterface Pointer to a pointer to the base interface be returned.
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:289.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:289. </remarks>
     public static SLResult GetNativeInterface(void* proxyInterface, void** baseInterface)
     {
         return SLNative.GetNativeInterface(proxyInterface, baseInterface);
     }
-}
 
-public static unsafe partial class SL
-{
+    /// <summary>
+    /// Obtain native interface
+    ///
+    /// Use this method to obtain underlying D3D or DXGI interface from an SL proxy.
+    ///
+    /// IMPORTANT: When calling NVAPI or other 3rd party SDKs from your application
+    /// it is recommended to provide native interfaces instead of SL proxies.
+    ///
+    /// @param proxyInterface Pointer to the SL proxy (D3D device, swap-chain etc)
+    /// @param baseInterface Pointer to a pointer to the base interface be returned.
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:289. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    public static SLResult GetNativeInterface(void* proxyInterface, out nint baseInterface)
+    {
+        baseInterface = 0;
+        fixed (nint* baseInterfacePointer = &baseInterface)
+        {
+            return GetNativeInterface(proxyInterface, (void**)baseInterfacePointer);
+        }
+    }
+
     /// <summary>
     /// Gets specific feature&apos;s function
-    /// 
+    ///
     /// Call this method to obtain various functions for the specified feature. See sl_$feature.h for details.
-    /// 
+    ///
     /// @param feature Feature we are working with
     /// @param functionName The name of the API to obtain (declared in sl_[$feature].h
     /// @param function Pointer to the function to return
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// IMPORTANT: Must be called AFTER device is set by calling either slSetD3DDevice or slSetVulkanInfo.
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:303.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:303. </remarks>
     public static SLResult GetFeatureFunction(uint feature, sbyte* functionName, void** function)
     {
         return SLNative.GetFeatureFunction(feature, functionName, function);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
-    public static SLResult GetFeatureFunction(uint feature, sbyte* functionName, out void* function)
+    /// <summary>
+    /// Gets specific feature&apos;s function
+    ///
+    /// Call this method to obtain various functions for the specified feature. See sl_$feature.h for details.
+    ///
+    /// @param feature Feature we are working with
+    /// @param functionName The name of the API to obtain (declared in sl_[$feature].h
+    /// @param function Pointer to the function to return
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// IMPORTANT: Must be called AFTER device is set by calling either slSetD3DDevice or slSetVulkanInfo.
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:303. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    public static SLResult GetFeatureFunction(uint feature, string functionName, out nint function)
     {
-        function = default;
-        fixed (void** functionPointer = &function)
+        using Utf8StringArray functionNameUtf8 = new([functionName]);
+        function = 0;
+        fixed (nint* functionPointer = &function)
         {
-            return GetFeatureFunction(feature, functionName, functionPointer);
+            return GetFeatureFunction(feature, functionNameUtf8.Pointer[0], (void**)functionPointer);
         }
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Gets unique frame token
-    /// 
+    ///
     /// Call this method to obtain token for the unique frame identification.
-    /// 
+    ///
     /// @param handle Frame token to return
     /// @param frameIndex Frame index (optional, if not provided SL internal frame counting is used)
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// NOTE: Normally SL would not expect more that 3 frames in flight due to added latency.
-    /// 
+    ///
     /// This method is thread safe.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:316.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:316. </remarks>
     public static SLResult GetNewFrameToken(nint* token, uint* frameIndex = null)
     {
         return SLNative.GetNewFrameToken(token, frameIndex);
     }
 
-    /// <summary>Convenience overload. References are fixed only until the native call returns; nested pointers retain their original lifetime requirements.</summary>
-    public static SLResult GetNewFrameToken(out nint token, uint* frameIndex = null)
+    /// <summary>
+    /// Gets unique frame token
+    ///
+    /// Call this method to obtain token for the unique frame identification.
+    ///
+    /// @param handle Frame token to return
+    /// @param frameIndex Frame index (optional, if not provided SL internal frame counting is used)
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// NOTE: Normally SL would not expect more that 3 frames in flight due to added latency.
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:316. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+    public static SLResult GetNewFrameToken(out FrameToken token, uint* frameIndex = null)
     {
-        token = default;
-        fixed (nint* tokenPointer = &token)
-        {
-            return GetNewFrameToken(tokenPointer, frameIndex);
-        }
+        nint tokenAddress = 0;
+        SLResult result = GetNewFrameToken(&tokenAddress, frameIndex);
+        token = new(tokenAddress);
+        return result;
     }
-}
 
-public static unsafe partial class SL
-{
     /// <summary>
     /// Set D3D device to use
-    /// 
+    ///
     /// Use this method to specify which D3D device should be used.
-    /// 
+    ///
     /// @param d3dDevice D3D device to use
     /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    /// 
+    ///
     /// This method is NOT thread safe and should be called IMMEDIATELY after main device is created.
     /// </summary>
-    /// <remarks>Source: include/sl_core_api.h:326.</remarks>
+    /// <remarks>Source: include/sl_core_api.h:326. </remarks>
     public static SLResult SetD3DDevice(void* d3dDevice)
     {
         return SLNative.SetD3DDevice(d3dDevice);
