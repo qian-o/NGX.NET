@@ -62,7 +62,7 @@ def main():
     if not public_headers:
         raise RuntimeError("No public SDK headers discovered.")
     inputs = []
-    for path in public_headers + ["project.xml", "source/core/sl.interposer/exports.def"]:
+    for path in public_headers + ["project.xml", "source/core/sl.interposer/exports.def", "source/plugins/sl.directsr/directsrEntry.cpp"]:
         download(f"https://raw.githubusercontent.com/NVIDIA-RTX/Streamline/{commit}/{path}", sdk / path)
         inputs.append({"path": path, "sha256": hashlib.sha256((sdk / path).read_bytes()).hexdigest(),
                        "classification": "application" if path in public_headers else "extraction-dependency"})
@@ -363,6 +363,20 @@ def main():
                 include_macro(token)
     for name in sorted(required_macros):
         include_macro(name)
+
+    overload_contracts = json.loads((Path(__file__).parent / "overload-contracts.json").read_text(encoding="utf-8"))
+    for item in declarations.values():
+        name = item["name"].removeprefix("PFun_")
+        contract = overload_contracts.get(name)
+        if not contract:
+            continue
+        if item["type"]["canonical"] != contract["canonicalSignature"]:
+            raise RuntimeError("Review overload contract for changed signature: " + name)
+        for parameter in item["children"]:
+            if parameter["kind"] == "PARM_DECL":
+                if parameter["name"] not in contract["parameters"]:
+                    raise RuntimeError("Review changed parameter contract: " + name + ":" + parameter["name"])
+                parameter["contract"] = contract["parameters"][parameter["name"]]
 
     macros = []
     for path in public_headers:

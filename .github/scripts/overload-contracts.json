@@ -1,0 +1,742 @@
+{
+  "slInit": {
+    "canonicalSignature": "sl::Result (const sl::Preferences &, unsigned long long)",
+    "parameters": {
+      "pref": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:83"
+      },
+      "sdkVersion": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:83"
+      }
+    }
+  },
+  "slShutdown": {
+    "canonicalSignature": "sl::Result ()",
+    "parameters": {}
+  },
+  "slIsFeatureSupported": {
+    "canonicalSignature": "sl::Result (unsigned int, const sl::AdapterInfo &)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:106"
+      },
+      "adapterInfo": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:106"
+      }
+    }
+  },
+  "slIsFeatureLoaded": {
+    "canonicalSignature": "sl::Result (unsigned int, bool &)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:118"
+      },
+      "loaded": {
+        "direction": "output",
+        "lifetime": "call",
+        "convenience": "out",
+        "evidence": "include/sl_core_api.h:118"
+      }
+    }
+  },
+  "slSetFeatureLoaded": {
+    "canonicalSignature": "sl::Result (unsigned int, bool)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:134"
+      },
+      "loaded": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:134"
+      }
+    }
+  },
+  "slSetTagForFrame": {
+    "canonicalSignature": "sl::Result (const sl::FrameToken &, const sl::ViewportHandle &, const sl::ResourceTag *, unsigned int, void *)",
+    "parameters": {
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_core_api.h:152"
+      },
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:152"
+      },
+      "resources": {
+        "direction": "input",
+        "lifetime": "call-outer-elements-only",
+        "convenience": "readonly-span",
+        "evidence": "include/sl_core_api.h:152",
+        "countParameter": "numResources"
+      },
+      "numResources": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:152"
+      },
+      "cmdBuffer": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:152"
+      }
+    }
+  },
+  "slSetTag": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::ResourceTag *, unsigned int, void *)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:173"
+      },
+      "tags": {
+        "direction": "input",
+        "lifetime": "call-outer-elements-only",
+        "convenience": "readonly-span",
+        "evidence": "include/sl_core_api.h:173",
+        "countParameter": "numTags"
+      },
+      "numTags": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:173"
+      },
+      "cmdBuffer": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:173"
+      }
+    }
+  },
+  "slSetConstants": {
+    "canonicalSignature": "sl::Result (const sl::Constants &, const sl::FrameToken &, const sl::ViewportHandle &)",
+    "parameters": {
+      "values": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:185"
+      },
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_core_api.h:185"
+      },
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:185"
+      }
+    }
+  },
+  "slGetFeatureRequirements": {
+    "canonicalSignature": "sl::Result (unsigned int, sl::FeatureRequirements &)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:197"
+      },
+      "requirements": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_core_api.h:197"
+      }
+    }
+  },
+  "slGetFeatureVersion": {
+    "canonicalSignature": "sl::Result (unsigned int, sl::FeatureVersion &)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:209"
+      },
+      "version": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_core_api.h:209"
+      }
+    }
+  },
+  "slAllocateResources": {
+    "canonicalSignature": "sl::Result (void *, unsigned int, const sl::ViewportHandle &)",
+    "parameters": {
+      "cmdBuffer": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:222"
+      },
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:222"
+      },
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:222"
+      }
+    }
+  },
+  "slFreeResources": {
+    "canonicalSignature": "sl::Result (unsigned int, const sl::ViewportHandle &)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:240"
+      },
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_core_api.h:240"
+      }
+    }
+  },
+  "slEvaluateFeature": {
+    "canonicalSignature": "sl::Result (unsigned int, const sl::FrameToken &, const sl::BaseStructure **, unsigned int, void *)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:262"
+      },
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_core_api.h:262"
+      },
+      "inputs": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:262"
+      },
+      "numInputs": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:262"
+      },
+      "cmdBuffer": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:262"
+      }
+    }
+  },
+  "slUpgradeInterface": {
+    "canonicalSignature": "sl::Result (void **)",
+    "parameters": {
+      "baseInterface": {
+        "direction": "input-output-address",
+        "lifetime": "native-COM-contract",
+        "convenience": "ref-address",
+        "evidence": "include/sl_core_api.h:275"
+      }
+    }
+  },
+  "slGetNativeInterface": {
+    "canonicalSignature": "sl::Result (void *, void **)",
+    "parameters": {
+      "proxyInterface": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:289"
+      },
+      "baseInterface": {
+        "direction": "output-address",
+        "lifetime": "native-COM-contract",
+        "convenience": "out-address",
+        "evidence": "include/sl_core_api.h:289"
+      }
+    }
+  },
+  "slGetFeatureFunction": {
+    "canonicalSignature": "sl::Result (unsigned int, const char *, void *&)",
+    "parameters": {
+      "feature": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:303"
+      },
+      "functionName": {
+        "direction": "input",
+        "lifetime": "call",
+        "convenience": "utf8-string",
+        "evidence": "include/sl_core_api.h:303",
+        "encoding": "UTF-8"
+      },
+      "function": {
+        "direction": "output-address",
+        "lifetime": "plugin-loaded",
+        "convenience": "out-address",
+        "evidence": "include/sl_core_api.h:303"
+      }
+    }
+  },
+  "slGetNewFrameToken": {
+    "canonicalSignature": "sl::Result (sl::FrameToken *&, const unsigned int *)",
+    "parameters": {
+      "token": {
+        "direction": "output-borrowed-address",
+        "lifetime": "sdk-owned",
+        "convenience": "out-frame-token",
+        "evidence": "include/sl_core_api.h:316"
+      },
+      "frameIndex": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:316"
+      }
+    }
+  },
+  "slSetD3DDevice": {
+    "canonicalSignature": "sl::Result (void *)",
+    "parameters": {
+      "d3dDevice": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_core_api.h:326"
+      }
+    }
+  },
+  "slDeepDVCSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::DeepDVCOptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_deepdvc.h:82"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_deepdvc.h:82"
+      }
+    }
+  },
+  "slDeepDVCGetState": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, sl::DeepDVCState &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_deepdvc.h:88"
+      },
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_deepdvc.h:88"
+      }
+    }
+  },
+  "slDirectSRGetOptimalSettings": {
+    "canonicalSignature": "sl::Result (const sl::DirectSROptions &, sl::DirectSROptimalSettings &)",
+    "parameters": {
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_directsr.h:156"
+      },
+      "settings": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_directsr.h:156"
+      }
+    }
+  },
+  "slDirectSRGetVariantInfo": {
+    "canonicalSignature": "sl::Result (unsigned int *, sl::DirectSRVariantInfo *)",
+    "parameters": {
+      "numVariants": {
+        "direction": "output-if-buffer-null-otherwise-input",
+        "lifetime": "call",
+        "convenience": "variant-query-or-fill",
+        "evidence": "source/plugins/sl.directsr/directsrEntry.cpp:426-452"
+      },
+      "variantInfo": {
+        "direction": "output",
+        "lifetime": "call",
+        "convenience": "variant-query-or-fill",
+        "evidence": "source/plugins/sl.directsr/directsrEntry.cpp:426-452"
+      }
+    }
+  },
+  "slDirectSRSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::DirectSROptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_directsr.h:168"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_directsr.h:168"
+      }
+    }
+  },
+  "slDLSSGetOptimalSettings": {
+    "canonicalSignature": "sl::Result (const sl::DLSSOptions &, sl::DLSSOptimalSettings &)",
+    "parameters": {
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss.h:177"
+      },
+      "settings": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_dlss.h:177"
+      }
+    }
+  },
+  "slDLSSGetState": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, sl::DLSSState &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss.h:183"
+      },
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_dlss.h:183"
+      }
+    }
+  },
+  "slDLSSSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::DLSSOptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss.h:189"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss.h:189"
+      }
+    }
+  },
+  "slDLSSDGetOptimalSettings": {
+    "canonicalSignature": "sl::Result (const sl::DLSSDOptions &, sl::DLSSDOptimalSettings &)",
+    "parameters": {
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_d.h:172"
+      },
+      "settings": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_dlss_d.h:172"
+      }
+    }
+  },
+  "slDLSSDGetState": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, sl::DLSSDState &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_d.h:178"
+      },
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_dlss_d.h:178"
+      }
+    }
+  },
+  "slDLSSDSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::DLSSDOptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_d.h:184"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_d.h:184"
+      }
+    }
+  },
+  "slDLSSGGetState": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, sl::DLSSGState &, const sl::DLSSGOptions *)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_g.h:212"
+      },
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_dlss_g.h:212"
+      },
+      "options": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_dlss_g.h:212"
+      }
+    }
+  },
+  "slDLSSGSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::DLSSGOptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_g.h:218"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_dlss_g.h:218"
+      }
+    }
+  },
+  "slSetVulkanInfo": {
+    "canonicalSignature": "sl::Result (const sl::VulkanInfo &)",
+    "parameters": {
+      "info": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_helpers_vk.h:256"
+      }
+    }
+  },
+  "slNISSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::NISOptions &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_nis.h:92"
+      },
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_nis.h:92"
+      }
+    }
+  },
+  "slNISGetState": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, sl::NISState &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_nis.h:98"
+      },
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_nis.h:98"
+      }
+    }
+  },
+  "slPCLGetState": {
+    "canonicalSignature": "sl::Result (sl::PCLState &)",
+    "parameters": {
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_pcl.h:147"
+      }
+    }
+  },
+  "slPCLSetMarker": {
+    "canonicalSignature": "sl::Result (sl::PCLMarker, const sl::FrameToken &)",
+    "parameters": {
+      "marker": {
+        "direction": "unspecified",
+        "lifetime": "native-contract",
+        "convenience": "raw",
+        "evidence": "include/sl_pcl.h:153"
+      },
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_pcl.h:153"
+      }
+    }
+  },
+  "slPCLSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::PCLOptions &)",
+    "parameters": {
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_pcl.h:159"
+      }
+    }
+  },
+  "slReflexGetState": {
+    "canonicalSignature": "sl::Result (sl::ReflexState &)",
+    "parameters": {
+      "state": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_reflex.h:204"
+      }
+    }
+  },
+  "slReflexSleep": {
+    "canonicalSignature": "sl::Result (const sl::FrameToken &)",
+    "parameters": {
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_reflex.h:210"
+      }
+    }
+  },
+  "slReflexSetOptions": {
+    "canonicalSignature": "sl::Result (const sl::ReflexOptions &)",
+    "parameters": {
+      "options": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_reflex.h:216"
+      }
+    }
+  },
+  "slReflexSetCameraData": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::FrameToken &, const sl::ReflexCameraData &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_reflex.h:222"
+      },
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_reflex.h:222"
+      },
+      "inCameraData": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_reflex.h:222"
+      }
+    }
+  },
+  "slReflexGetPredictedCameraData": {
+    "canonicalSignature": "sl::Result (const sl::ViewportHandle &, const sl::FrameToken &, sl::ReflexPredictedCameraData &)",
+    "parameters": {
+      "viewport": {
+        "direction": "input",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "in",
+        "evidence": "include/sl_reflex.h:228"
+      },
+      "frame": {
+        "direction": "input",
+        "lifetime": "borrowed-sdk-object",
+        "convenience": "frame-token",
+        "evidence": "include/sl_reflex.h:228"
+      },
+      "outCameraData": {
+        "direction": "input-output",
+        "lifetime": "call-outer-structure-only",
+        "convenience": "ref",
+        "evidence": "include/sl_reflex.h:228"
+      }
+    }
+  }
+}
