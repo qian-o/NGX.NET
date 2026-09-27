@@ -398,6 +398,8 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
                     device.CreateRenderTargetView(image.Texture, null, image.Rtv);
                 }
             }
+            int previousFrame = (frame + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
+            CreateSrv((DxImage)Frames[previousFrame][(int)ImageSlot.Exposure], Cpu(frame, RenderLayout.PreviousExposureSrv));
             CreateSrv(font, Cpu(frame, RenderLayout.SrvCount - 1));
             for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
             {

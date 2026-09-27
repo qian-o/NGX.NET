@@ -417,6 +417,8 @@ internal sealed unsafe partial class VulkanRHI
                 Texture(7 + (uint)slot, VkDescriptorType.SampledImage, (VkTexture)Frames[index][(int)slot], VkImageLayout.ShaderReadOnlyOptimal);
             }
 
+            int previousFrame = (index + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
+            Texture(RenderLayout.PreviousExposureSrv + 1, VkDescriptorType.SampledImage, (VkTexture)Frames[previousFrame][(int)ImageSlot.Exposure], VkImageLayout.ShaderReadOnlyOptimal);
             Texture(RenderLayout.SrvCount, VkDescriptorType.SampledImage, font, VkImageLayout.ShaderReadOnlyOptimal);
             for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
             {

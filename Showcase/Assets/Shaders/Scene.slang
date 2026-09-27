@@ -20,6 +20,7 @@ struct Globals
     float4 center;
     row_major float4x4 sunViewProjection;
     float4 lighting; // sun irradiance, sky radiance, warm fill intensity, raster AO radius
+    float4 exposure; // automatic metering enabled, delta seconds, reset history, reserved
 };
 [[vk::binding(0, 0)]] ConstantBuffer<Globals> g : register(b0);
 [[vk::binding(1, 0)]] StructuredBuffer<Vertex> vertices : register(t0);
@@ -45,7 +46,9 @@ struct Globals
 [[vk::binding(19, 0)]] Texture2D<float4> finalImage : register(t18);
 [[vk::binding(20, 0)]] Texture2D<float4> diffuseImage : register(t19);
 [[vk::binding(22, 0)]] Texture2D<float> shadowImage : register(t21);
-[[vk::binding(23, 0)]] Texture2D<float4> fontImage : register(t22);
+[[vk::binding(23, 0)]] Texture2D<float> exposureImage : register(t22);
+[[vk::binding(24, 0)]] Texture2D<float> previousExposureImage : register(t23);
+[[vk::binding(25, 0)]] Texture2D<float4> fontImage : register(t24);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
 [[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
@@ -55,6 +58,7 @@ struct Globals
 [[vk::binding(38, 0)]] RWTexture2D<float4> finalOutput : register(u6);
 [[vk::binding(39, 0)]] RWTexture2D<float2> motionOutput : register(u7);
 [[vk::binding(40, 0)]] RWTexture2D<float4> diffuseOutput : register(u8);
+[[vk::binding(41, 0)]] RWTexture2D<float> exposureOutput : register(u9);
 [[vk::binding(48, 0)]] SamplerState linearSampler : register(s0);
 
 float3 srgbToLinear(float3 c) { return select(c <= 0.04045, c / 12.92, pow((c + 0.055) / 1.055, 2.4)); }
@@ -108,7 +112,12 @@ Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
     s.normal = normalize(n);
     if (m.textures.y >= 0)
     {
-        float3 t = normalize(tangent.xyz - n * dot(n, tangent.xyz));
+        float3 t = tangent.xyz - n * dot(n, tangent.xyz);
+        // Some imported faces have a tangent parallel to their normal. Match
+        // the loader's missing-tangent fallback instead of normalizing zero and
+        // contaminating the indirect path and RR input with NaNs.
+        float tangentLengthSquared = dot(t, t);
+        t = tangentLengthSquared > 0 ? t * rsqrt(tangentLengthSquared) : tangentAxis(n);
         float3 b = cross(n, t) * tangent.w;
         float3 mapped = sampleTexture((int)m.textures.y, uv, lod.y, false).xyz * 2 - 1;
         mapped.xy *= m.parameters.y;
@@ -447,7 +456,9 @@ float3 secondaryRadiance(float3 origin, float3 direction, inout uint rng, out fl
     const uint surfaceBounces = 2;
     float3 radiance = 0, throughput = 1;
     distance = g.scene.w * 4;
-    for (uint bounce = 0; bounce < surfaceBounces; bounce++)
+    // Resolve emission/environment after the last scattering event as well.
+    // Stopping before tracing that ray would discard valid terminal skylight.
+    for (uint bounce = 0; bounce <= surfaceBounces; bounce++)
     {
         Hit hit = trace(origin, direction, g.scene.w * 4, false);
         if (bounce == 0) distance = hit.distance;
@@ -457,10 +468,11 @@ float3 secondaryRadiance(float3 origin, float3 direction, inout uint rng, out fl
             break;
         }
         Surface s = hitSurface(hit, direction);
+        radiance += throughput * s.emissive;
+        if (bounce == surfaceBounces) break;
         float3 p = origin + direction * hit.distance;
         float3 view = -direction;
-        radiance += throughput * (s.emissive + directLight(s, p, view, sampleSun(rng)));
-        if (bounce + 1 == surfaceBounces) break;
+        radiance += throughput * directLight(s, p, view, sampleSun(rng));
         float3 f0 = lerp(0.04, s.albedo, s.metallic);
         float specularProbability = clamp(max(f0.r, max(f0.g, f0.b)), 0.05, 0.95);
         float3 halfVector;
@@ -565,9 +577,58 @@ float3 sampleHdr(float2 uv)
 {
     return g.parameters.z > 0 ? reconstructedImage.SampleLevel(linearSampler, uv, 0).rgb : sceneImage.SampleLevel(linearSampler, uv, 0).rgb;
 }
+// Average scene luminance in linear light before converting to exposure stops.
+// Averaging logs of sparse RT samples would let zeros dominate the meter and
+// overexpose the lit floor and sky. Metering runs before UI composition.
+groupshared float meterLuminance[64];
+[shader("compute")]
+[numthreads(8, 8, 1)]
+void MeterExposure(uint3 id : SV_GroupThreadID, uint index : SV_GroupIndex)
+{
+    if (g.exposure.x == 0)
+    {
+        if (index == 0) exposureOutput[uint2(0, 0)] = 0;
+        return;
+    }
+    const uint samplesPerTileAxis = 16;
+    const float minimumLuminance = 1.0 / 65536.0;
+    const float middleGray = 0.18;
+    const float maximumExposureStops = 8;
+    float tileLuminance = 0;
+    for (uint y = 0; y < samplesPerTileAxis; y++)
+        for (uint x = 0; x < samplesPerTileAxis; x++)
+        {
+            float2 uv = (id.xy + (float2(x, y) + 0.5) / samplesPerTileAxis) / 8.0;
+            tileLuminance += dot(max(sampleHdr(uv), 0), float3(0.2126, 0.7152, 0.0722));
+        }
+    meterLuminance[index] = tileLuminance / (samplesPerTileAxis * samplesPerTileAxis);
+    GroupMemoryBarrierWithGroupSync();
+    for (uint stride = 32; stride > 0; stride >>= 1)
+    {
+        if (index < stride) meterLuminance[index] += meterLuminance[index + stride];
+        GroupMemoryBarrierWithGroupSync();
+    }
+    if (index == 0)
+    {
+        float averageLuminance = max(meterLuminance[0] / 64.0, minimumLuminance);
+        float target = clamp(log2(middleGray / averageLuminance), -maximumExposureStops, maximumExposureStops);
+        float adapted = target;
+        // Reset/resize never reads an uninitialized history image. Otherwise use
+        // a time-based half-life, independent of FPS and the three frame slots.
+        if (g.exposure.z == 0)
+        {
+            float previous = previousExposureImage[uint2(0, 0)];
+            const float brightenHalfLifeSeconds = 1.0;
+            const float darkenHalfLifeSeconds = 0.25;
+            float halfLife = target > previous ? brightenHalfLifeSeconds : darkenHalfLifeSeconds;
+            adapted = lerp(previous, target, 1 - exp2(-max(g.exposure.y, 0) / halfLife));
+        }
+        exposureOutput[uint2(0, 0)] = adapted;
+    }
+}
 float3 sampleDisplay(float2 uv, bool toneMap)
 {
-    return toneMap ? linearToSrgb(aces(sampleHdr(uv) * exp2(g.parameters.y))) : displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
+    return toneMap ? linearToSrgb(aces(sampleHdr(uv) * exp2(exposureImage[uint2(0, 0)] + g.parameters.y))) : displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
 }
 float luminance(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
 // FXAA edge filter, evaluated at the source resolution before spatial NIS scaling.

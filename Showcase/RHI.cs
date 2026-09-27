@@ -125,8 +125,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 bool output = slot is ImageSlot.Reconstructed or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final || slot == ImageSlot.DisplayInput && Settings.Reconstruction != Reconstruction.NIS;
-                int width = slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputWidth : InputWidth;
-                int height = slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputHeight : InputHeight;
+                int width = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputWidth : InputWidth;
+                int height = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputHeight : InputHeight;
                 Frames[frame][(int)slot] = CreateImage(width, height, RenderLayout.Format(slot));
             }
         }
@@ -230,7 +230,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Center = new(center.X, Scene.GroundHeight, center.Z, 0),
             SunViewProjection = Scene.GetSunViewProjection(sun),
             Lighting = new(Settings.SunIntensity, Settings.SkyIntensity, Settings.LocalLightIntensity,
-                Settings.ContactShadows ? Scene.Scale * 0.012f : 0)
+                Settings.ContactShadows ? Scene.Scale * 0.012f : 0),
+            Exposure = new(Settings.AutoExposure ? 1 : 0, delta, reset ? 1 : 0, 0)
         };
         Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
         Streamline.Marker(PCLMarker.SimulationEnd);
@@ -302,6 +303,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         FrameConstants post = Constants;
         post.Parameters.Z = hdrReconstruction ? 1 : 0;
+        // Meter reconstructed HDR when available, before tone mapping and UI. Each
+        // frame reads the preceding submitted frame's result, not its slot's old value.
+        int previousFrame = (FrameSlot + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
+        Transition(Frames[previousFrame][(int)ImageSlot.Exposure], ImageUse.ShaderRead);
+        Transition(Image(ImageSlot.Exposure), ImageUse.Storage);
+        Dispatch(ComputePass.MeterExposure, 1, 1, post);
+        Transition(Image(ImageSlot.Exposure), ImageUse.ShaderRead);
         Transition(Image(ImageSlot.DisplayInput), ImageUse.Storage);
         Dispatch(ComputePass.ToneMap, Image(ImageSlot.DisplayInput).Width, Image(ImageSlot.DisplayInput).Height, post);
         Transition(Image(ImageSlot.DisplayInput), ImageUse.ShaderRead);

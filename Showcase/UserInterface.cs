@@ -260,8 +260,10 @@ internal sealed unsafe partial class UserInterface : IDisposable
             }
         }
         ImGui.SeparatorText(T("Brightness"));
-        Slider("Exposure", ref settings.Exposure, -3, 3, "%.1f EV");
-        Help("0 EV is the default. +1 EV doubles brightness; -1 EV halves it.");
+        ImGui.Checkbox(T("Automatic exposure"), ref settings.AutoExposure);
+        Help("Adapts to the scene's measured brightness, keeping shaded interiors visible. Disable for fixed-exposure comparisons.");
+        Slider(settings.AutoExposure ? "Exposure compensation" : "Exposure", ref settings.Exposure, -3, 3, "%.1f EV");
+        Help("0 EV is neutral. +1 EV doubles brightness; -1 EV halves it. Automatic exposure adapts before this adjustment.");
         if (ImGui.Button(T("Reset daylight")))
         {
             QualityPresets.ResetDaylight(settings);

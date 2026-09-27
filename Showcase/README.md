@@ -31,6 +31,9 @@ and Reflex Low Latency when the current device supports them. Unsupported featur
 are omitted automatically. No Multi Frame Generation support is assumed for the
 RTX 4070 Ti SUPER.
 
+Automatic exposure is enabled by default. It meters the scene so that enabling
+geometric sky occlusion does not leave the atrium at the raster view's fixed exposure.
+
 ## Controls
 
 The panel uses Chinese on a Chinese Windows installation with a compatible system
@@ -76,11 +79,23 @@ the main window changes output resolution; animation pause keeps rendering.
   Optional warm fill lights are off by default. Sun height, direction and intensity,
   sky brightness and exposure are adjustable. glTF hierarchy transforms are evaluated
   on load; downloaded assets are unchanged.
+- Automatic exposure meters HDR color after reconstruction, before tone mapping
+  and UI composition. A stratified 128 x 128 sampling grid averages luminance in
+  linear light before conversion to exposure stops. Averaging individual sample
+  logs would overexpose the scene when many raw ray samples are zero.
+  The meter targets 18% gray, limits adaptation to +/-8 stops and follows the
+  preceding submitted frame, with one-second brightening and quarter-second
+  darkening half-lives. Reset/resize initializes from the current measurement.
+  **Brightness / Automatic exposure** disables adaptation for fixed-exposure
+  comparisons; **Exposure compensation** adjusts the metered result. **Reset
+  daylight** restores automatic exposure and neutral compensation. Lighting and
+  Streamline's unexposed HDR inputs are not scaled by the meter.
 - Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
   `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. It traces shadows
   and one stochastic diffuse and one GGX specular secondary ray per pixel. The
   secondary path evaluates up to two surface interactions with direct light and
-  actual visibility. Fixed secondary ambient fill is removed. Ray tracing with RR
+  actual visibility, including emission or visible sky reached by the final
+  scattered ray. Fixed secondary ambient fill is removed. Ray tracing with RR
   disabled exposes the noisy input. This remains a limited bounce renderer with an
   analytic daylight environment; performance needs measurement on the target GPU.
 - Direct shading, GGX visible-normal sampling and the RR specular guide use the same
@@ -104,6 +119,8 @@ the main window changes output resolution; animation pause keeps rendering.
   and emissive maps are decoded to linear color during sampling. Normals and
   metallic/roughness maps are sampled as data. Each channel uses its own texture
   dimensions for mip selection, with trilinear filtering between mip levels.
+  Degenerate authored tangents use the same orthogonal fallback as missing tangents,
+  avoiding zero-vector normalization in normal mapping and indirect paths.
 - NIS consumes antialiased SDR color at input resolution. DirectSR runs on its
   required command queue, between two submitted command lists. DeepDVC processes
   tone-mapped SDR color before UI composition.
@@ -159,8 +176,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. The current daylight and controls
-update was checked on 2026-09-28.
+Resource preparation was checked on 2026-09-27. The exposure and traced-lighting
+corrections were checked on 2026-09-28.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -173,7 +190,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   referenced data remain under `Assets/Scenes/`; all downloads remain ignored.
 - Scene preparation: passed, 264,187 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
-- All eleven SPIR-V shaders and HLSL translations, plus the raster lighting
+- All twelve SPIR-V shaders and HLSL translations, plus the raster lighting
   variant: compiled successfully. The hardware lighting binary contains SPIR-V
   ray-query instructions and its acceleration-structure binding; the raster variant
   contains neither.
@@ -182,12 +199,24 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
   masks, BLAS addresses and translated positions. Moving/paused instances preserve
   raster history. The raster shadow projection encloses the scene bounds.
-- SPIR-V member offsets and strides match the 48-byte object records and 448-byte
+- SPIR-V member offsets and strides match the 48-byte object records and 464-byte
   frame constants. The earlier software BVH coverage check is superseded by the
   hardware geometry/instance checks above.
-- The user reported that both Windows backends ran successfully before this
-  lighting/UI update. The new appearance and its GPU performance still need Windows
-  acceptance; no new Windows rendered screenshots or performance results are claimed.
+- The user reported that both Windows backends ran successfully, then reported a
+  near-black recommended ray-traced view. An isolated CPU reference using the actual
+  Sponza geometry/materials reproduced underexposure without DLSS. Increasing the
+  path limit alone did not resolve it. Selected atrium-floor probes reached the sky
+  in only 3-7% of cosine-weighted directions. The reference also identified parallel
+  normal/tangent pairs that produced non-finite indirect samples before the fix.
+- The actual metering and tone-map shaders were translated to Metal and executed
+  in an isolated Apple M4 harness. Known HDR luminances, manual bypass, reconstructed
+  input selection, black/bright bounds, reset with invalid history, zero elapsed
+  time, equal exposure for sparse/uniform samples of equal mean luminance and
+  equivalent adaptation at 30/120 FPS passed. The corrected CPU scene reference
+  produced finite HDR samples, which were also run through the shared GPU meter
+  and tone mapper for a fixed/automatic-exposure comparison. This checks the shared shader
+  math, not Windows Ray Query, DLSS RR or frame-generation execution. The corrected
+  Windows appearance and GPU performance still need acceptance.
 - Current UI checks use offscreen ImGui draw data with fixture values, not measured
   GPU results: Chinese/English text, CJK glyph coverage, small-window scrolling,
   200% DPI and F1 hide/restore were checked. All 64 preset/capability combinations
@@ -200,3 +229,5 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   for GGX/Smith reflectance and indirect-light occlusion.
 - [Heitz, Sampling the GGX Distribution of Visible Normals, JCGT 7(4), 2018](https://jcgt.org/published/0007/04/01/)
   for GGX visible-normal sampling.
+- [PBRT, A Better Path Tracer](https://pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/A_Better_Path_Tracer)
+  for resolving environment/emission before terminating the scattering path.

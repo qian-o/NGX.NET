@@ -48,6 +48,7 @@ internal static class QualityPresets
     {
         RenderSettings defaults = new();
         settings.Exposure = defaults.Exposure;
+        settings.AutoExposure = defaults.AutoExposure;
         settings.SunElevation = defaults.SunElevation;
         settings.SunAzimuth = defaults.SunAzimuth;
         settings.SunIntensity = defaults.SunIntensity;
