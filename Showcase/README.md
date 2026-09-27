@@ -28,9 +28,10 @@ capability queries to enable its controls. Unsupported controls are disabled.
 The SDK reports diagnostics through the console and log files.
 
 Default output is a resizable 1600 x 900 window. With device support, defaults are
-DLSS Quality, ray tracing with Ray Reconstruction, Frame Generation (one generated
-frame per rendered frame) and automatic exposure. Unsupported features fall back
-to native raster rendering. Multi Frame Generation is not exposed.
+DLSS Quality, Ray Reconstruction, Frame Generation (one generated frame per
+rendered frame) and automatic exposure. Hardware ray tracing remains on whenever
+the device supports it, regardless of the Ray Reconstruction setting. Only devices
+without hardware ray queries use the raster fallback. Multi Frame Generation is not exposed.
 
 ## Controls
 
@@ -50,10 +51,14 @@ visibility shortcut. The three graphics controls use the official feature names:
 |---|---|
 | DLSS Super Resolution | Off, Deep Learning Anti-Aliasing (DLAA), Quality, Balanced, Performance, Ultra Performance |
 | DLSS Frame Generation | Off / On; manages Reflex and required swap-chain changes internally |
-| DLSS Ray Reconstruction | Off / On; automatically enables Ray Reconstruction for denoising |
+| DLSS Ray Reconstruction | Off / On for reconstruction/denoising only; ray tracing keeps running |
 
-With upscaling off and ray tracing on, Ray Reconstruction operates at native
-resolution using DLAA quality. Only one reconstruction pass executes. Brightness
+With upscaling off and RR on, Ray Reconstruction operates at native resolution
+using DLAA quality. RR off retains ray-traced lighting and animated TLAS updates.
+Noise is expected; there is no replacement denoiser. With both SR and RR off, the
+native RT image goes directly through tone mapping without FXAA. With SR or DLAA
+on, that reconstruction still processes the noisy input. Only one reconstruction
+pass executes. Brightness
 is metered automatically. There are no brightness controls, reset buttons,
 advanced/details sections, status lists, tooltips or operation hints in the panel.
 
@@ -64,12 +69,19 @@ placeholder options.
 
 ## Rendering and integration
 
-- Native resolution uses FXAA. DLSS SR and DLAA receive untonemapped HDR color,
+- Native RT is unfiltered when reconstruction is off; FXAA is used only by the
+  unsupported-hardware raster fallback. DLSS SR and DLAA receive untonemapped HDR color,
   depth and camera/object motion. RR receives the same scene with real noisy
   illumination, diffuse/specular albedo, world normals, linear roughness and
-  specular hit distance. RR performs the reconstruction directly.
+  specular hit distance. RR performs the reconstruction directly. Sky and missed
+  reflection rays use the guide's FP16_MAX distance (65504), independently of the
+  finite scene traversal limit. World/view and projection matrices retain the
+  documented row-major, left-multiplication convention.
 - The scene uses metallic/roughness materials, normal maps, alpha masking, a sky,
-  a shadowed daylight sun and two moving objects with muted metal/ceramic materials.
+  a shadowed daylight sun and two moving metal/ceramic objects. The metal sphere
+  is now a polished reflection reference (roughness 0.08, formerly 0.27), and the
+  spheres use 64 segments / 32 rings for a smoother silhouette. Imported architecture
+  retains its authored materials, normals and roughness.
   Daylight and exposure metering are automatic. glTF hierarchy
   transforms are evaluated on load; downloaded materials and textures are unchanged.
 - Automatic exposure meters HDR color after reconstruction, before tone mapping
@@ -104,15 +116,20 @@ placeholder options.
 - Ray-query candidates apply the material's alpha cutoff and one-/two-sided rules
   before committing hits. The instance ID and primitive index locate the original
   shared vertices, UVs and materials. There is no software BVH rendering path.
-- With ray tracing off, lighting uses a raster sun shadow map. When ray-query
-  capabilities are unavailable, the renderer compiles its raster lighting variant and disables ray
+- When ray-query capabilities are unavailable, lighting uses a raster sun shadow
+  map. The renderer compiles its raster lighting variant and disables ray
   tracing and RR while keeping the other supported rendering/features available.
   Vulkan requests its ray-query, acceleration-structure and buffer-device-address
   features before device creation, independently of the interposer's SDK needs.
 - Textures retain their source dimensions and receive a full mip chain. Base color
   and emissive maps are decoded to linear color during sampling. Normals and
   metallic/roughness maps are sampled as data. Each channel uses its own texture
-  dimensions for mip selection, with trilinear filtering between mip levels.
+  dimensions for mip selection. The primary surface uses up to 8 anisotropic
+  samples along the principal axis of the texel footprint, with trilinear mip
+  filtering per sample. DLSS SR/DLAA/RR apply the documented mip bias
+  `log2(inputWidth / outputWidth) - 1`; native rendering keeps zero bias. Secondary
+  hit textures use the same bias. This preserves detail before reconstruction,
+  rather than sharpening a blurred final image.
   Degenerate authored tangents use the same orthogonal fallback as missing tangents,
   avoiding zero-vector normalization in normal mapping and indirect paths.
 - The UI renders separately with premultiplied alpha at output resolution. HUD-less
@@ -177,8 +194,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. The movable/collapsible Settings
-panel was checked on 2026-09-28; earlier rendering/statistics checks remain below.
+Resource preparation was checked on 2026-09-27. RR independence and the texture /
+reflection input corrections were checked on 2026-09-28; earlier checks remain below.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -193,13 +210,13 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   referenced data remain under `Assets/Scenes/`; all downloads remain ignored.
   A fresh Windows publish contains the 11 DLSS/Reflex dependency DLLs and excludes
   DeepDVC, NIS, DirectSR and nvperf binaries, even with older cached SDK files present.
-- Scene preparation: passed, 264,187 triangles including the moving objects,
+- Scene preparation: passed, 270,203 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
 - All twelve SPIR-V shaders and HLSL translations, plus the raster lighting
   variant: compiled successfully. The hardware lighting binary contains SPIR-V
   ray-query instructions and its acceleration-structure binding; the raster variant
   contains neither.
-- CPU checks for this revision: all 264,187 triangles map into three complete,
+- CPU checks for this revision: all 270,203 triangles map into three complete,
   non-overlapping BLAS ranges with correct material/object references. DXR and
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
   masks, BLAS addresses and translated positions. Moving/paused instances preserve
@@ -227,7 +244,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   scrolling and 200% DPI passed. Title dragging moved the window, collapse/expand
   worked, corner dragging could not resize it, and neither the title corner nor
   F1 closed/hid it. Changing content changed its automatic width. Capability defaults and the 12
-  DLSS mode / ray-tracing combinations select one reconstruction path, including
+  DLSS mode / RR combinations select one reconstruction path, including
   native-resolution RR with upscaling off. Fixture FPS and GPU labels are test
   data, not measured Windows performance.
 - Frame-statistics tests passed for SDK-supplied presentation counts, generated
@@ -235,6 +252,15 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   and counter resets after resize/toggle/pause. The Windows native SDK counter and
   actual FG performance require target-machine validation; no measured Windows
   FPS increase is claimed.
+- Shared shader sampling probes executed on Apple M4: 8:1 footprints in both
+  axes preserved one-texel stripe detail that the previous isotropic mip collapsed
+  to gray; constant-color and linear/sRGB sampling remained correct. Native,
+  DLAA, Quality and Performance mip-bias values passed numeric checks. GGX probes
+  confirmed that the old 0.27 material scatters reflection directions broadly
+  (about 8.3 degrees at the median, versus 0.73 degrees for the polished reference).
+  The RR sky-distance sentinel remained finite and equal to 65504. These checks
+  validate the renderer inputs, not native RR denoising on Windows. Motion/reflection
+  clarity and the performance cost of anisotropic filtering still need RTX acceptance.
 - The shared AgX/tone-map shaders ran on Apple M4 in the isolated harness. Across
   32 color/exposure cases, 8-bit GPU results matched an independent evaluation of
   the published reference. The same HDR Sponza reference was compared before/after
@@ -254,3 +280,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   for the neutral AgX view transform, adapted from Filament/Blender.
 - [NVIDIA DLSS Frame Generation guide, frame-time measurement](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/docs/ProgrammingGuideDLSS_G.md#130-how-to-obtain-the-actual-frame-times-and-number-of-frames-presented)
   for the presentation counter and its per-query lifetime.
+- [NVIDIA DLSS programming guide](https://github.com/NVIDIA/DLSS/blob/main/doc/DLSS_Programming_Guide_Release.pdf)
+  section 3.5 for the reconstruction mip bias and its aliasing/detail tradeoff.
+- [NVIDIA DLSS-RR integration guide](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/docs/DLSS-RR%20Integration%20Guide.pdf)
+  sections 3.4.3 and 3.4.9 for world-space normals and sky hit-distance values.

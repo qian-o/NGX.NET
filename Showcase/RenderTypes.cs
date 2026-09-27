@@ -30,19 +30,19 @@ internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruc
 internal sealed record RenderSettings
 {
     public DLSSMode Quality = DLSSMode.MaxQuality;
-    public bool RayTracing;
+    public bool RayReconstruction;
     public bool FrameGeneration;
 
-    // Turning upscaling off leaves RT denoising at native resolution. Users do
-    // not need to select a separate reconstruction algorithm or compatible preset.
-    public Reconstruction Reconstruction => RayTracing ? Reconstruction.RayReconstruction :
+    // RR selects reconstruction only; hardware ray tracing is a renderer capability
+    // and continues when this setting is off. RR without upscaling runs natively.
+    public Reconstruction Reconstruction => RayReconstruction ? Reconstruction.RayReconstruction :
         Quality == DLSSMode.Off ? Reconstruction.Native : Reconstruction.DLSS;
-    public DLSSMode ReconstructionQuality => Quality == DLSSMode.Off && RayTracing ? DLSSMode.DLAA : Quality;
+    public DLSSMode ReconstructionQuality => Quality == DLSSMode.Off && RayReconstruction ? DLSSMode.DLAA : Quality;
 
     public void Reset(RenderCapabilities capabilities)
     {
         Quality = capabilities.Dlss ? DLSSMode.MaxQuality : DLSSMode.Off;
-        RayTracing = capabilities.RayReconstruction;
+        RayReconstruction = capabilities.RayReconstruction;
         FrameGeneration = capabilities.FrameGeneration;
     }
 }
@@ -78,6 +78,12 @@ internal abstract class GpuImage : IDisposable
 
 internal static class RenderLayout
 {
+    // NVIDIA's DLSS integration guide, section 3.5: native bias 0, epsilon 0.
+    // Native rendering keeps its ordinary footprint; temporal reconstruction needs
+    // texture detail at the output resolution rather than the lower input resolution.
+    public static float TextureMipBias(int inputWidth, int outputWidth, bool temporal) =>
+        temporal ? MathF.Log2((float)inputWidth / outputWidth) - 1 : 0;
+
     public const int FramesInFlight = 3;
     public const int PreviousExposureSrv = 6 + (int)ImageSlot.Count;
     public const int SrvCount = PreviousExposureSrv + 2; // previous exposure and font

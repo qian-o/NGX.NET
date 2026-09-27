@@ -199,6 +199,9 @@ internal sealed class Scene
             ordered.AddRange(vertices);
         }
         AddObject(staticVertices);
+        // The moving metal object is a polished reference for inspecting reflected
+        // detail. Architecture keeps its authored glTF roughness values.
+        const float polishedMetalRoughness = 0.08f;
         for (int i = 0; i < 2; i++)
         {
             int materialIndex = materials.Count;
@@ -206,7 +209,7 @@ internal sealed class Scene
             {
                 BaseColor = i == 0 ? new(0.82f, 0.56f, 0.26f, 1) : new(0.3f, 0.38f, 0.42f, 1),
                 EmissiveMetallic = new(0, 0, 0, i == 0 ? 1 : 0),
-                Parameters = new(i == 0 ? 0.27f : 0.58f, 1, -1, 0),
+                Parameters = new(i == 0 ? polishedMetalRoughness : 0.58f, 1, -1, 0),
                 Textures = new(-1)
             });
             AddObject(CreateSphere(scene.Scale * 0.018f, i + 1, materialIndex));
@@ -298,8 +301,8 @@ internal sealed class Scene
 
     private static List<SceneVertex> CreateSphere(float radius, int objectIndex, int materialIndex)
     {
-        const int segments = 32;
-        const int rings = 16;
+        const int segments = 64;
+        const int rings = 32;
         List<SceneVertex> result = [];
         SceneVertex Vertex(int x, int y)
         {

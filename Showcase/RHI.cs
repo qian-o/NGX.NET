@@ -203,8 +203,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Size = new(InputWidth, InputHeight, outputWidth, outputHeight),
             Sun = new(sun, solarAngularRadius),
             Scene = new(Scene.Objects.Length, frameNumber, Scene.RayEpsilon, Scene.Scale),
-            Parameters = new(Settings.RayTracing ? 1 : 0, 0, 0, 0),
-            Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, 0),
+            Parameters = new(RayQuerySupported ? 1 : 0, 0, 0, 0),
+            Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0,
+                RenderLayout.TextureMipBias(InputWidth, outputWidth, temporal)),
             Center = new(center.X, Scene.GroundHeight, center.Z, 0),
             SunViewProjection = Scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
@@ -223,7 +224,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             UpdateRayTracingScene();
         }
-        if (!Settings.RayTracing)
+        if (!RayQuerySupported)
         {
             DrawShadow();
         }
@@ -276,7 +277,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Dispatch(ComputePass.ToneMap, Image(ImageSlot.DisplayInput).Width, Image(ImageSlot.DisplayInput).Height, post);
         Transition(Image(ImageSlot.DisplayInput), ImageUse.ShaderRead);
         Transition(Image(ImageSlot.Hudless), ImageUse.Storage);
-        Dispatch(Settings.Reconstruction == Reconstruction.Native ? ComputePass.NativeResolve : ComputePass.CopyDisplay, outputWidth, outputHeight, post);
+        // Keep native, un-reconstructed RT samples intact for the RR comparison.
+        Dispatch(Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay, outputWidth, outputHeight, post);
         Transition(Image(ImageSlot.Hudless), ImageUse.ShaderRead);
         DrawUI(ImGui.GetDrawData());
         Transition(Image(ImageSlot.UI), ImageUse.ShaderRead);
@@ -322,7 +324,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     }
 
     private bool ResourcesChanged() => applied is null || applied.Quality != Settings.Quality ||
-        applied.FrameGeneration != Settings.FrameGeneration || applied.RayTracing != Settings.RayTracing;
+        applied.FrameGeneration != Settings.FrameGeneration || applied.RayReconstruction != Settings.RayReconstruction;
     protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];
     private (uint, ImageSlot, GpuImage) Tag(uint type, ImageSlot slot) => (type, slot, Image(slot));
     public static uint? Feature(Reconstruction method) => method switch

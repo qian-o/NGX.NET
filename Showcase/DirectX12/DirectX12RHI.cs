@@ -467,14 +467,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             commandList.SetComputeRootDescriptorTable(2, Gpu(FrameSlot, RenderLayout.SrvCount));
         }
     }
-    protected override void UpdateRayTracingScene()
-    {
-        DxFrame frame = slots[FrameSlot];
-        if (Settings.RayTracing || !frame.TlasBuilt)
-        {
-            UpdateAccelerationStructure(frame);
-        }
-    }
+    protected override void UpdateRayTracingScene() => UpdateAccelerationStructure(slots[FrameSlot]);
 
     protected override void DrawShadow()
     {

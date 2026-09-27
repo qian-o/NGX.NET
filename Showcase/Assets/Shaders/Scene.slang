@@ -18,7 +18,7 @@ struct Globals
     float4 sun;
     float4 scene; // object count, frame number, ray epsilon, scale
     float4 parameters; // ray tracing, exposure compensation, input image, reserved
-    float4 jitter; // pixel jitter.xy; generate RR guides when z is set
+    float4 jitter; // pixel jitter.xy; RR guides enabled.z; texture mip bias.w
     float4 center;
     row_major float4x4 sunViewProjection;
     float4 lighting; // sun irradiance, sky radiance, reserved, raster AO radius
@@ -100,17 +100,43 @@ float textureLod(int index, float2 dx, float2 dy)
     float2 size = textureInfo[index].yz;
     return max(0.5 * log2(max(dot(dx * size, dx * size), dot(dy * size, dy * size))), 0);
 }
+float4 sampleTextureGrad(int index, float2 uv, float2 dx, float2 dy, float bias, bool srgb)
+{
+    if (index < 0) return 1;
+    float2 size = textureInfo[index].yz;
+    dx *= size * exp2(bias);
+    dy *= size * exp2(bias);
+    // Principal axes of the pixel footprint in texel space. Selecting only its
+    // longest dimension as an isotropic mip blurs grazing floors and walls.
+    float xx = dx.x * dx.x + dy.x * dy.x;
+    float xy = dx.x * dx.y + dy.x * dy.y;
+    float yy = dx.y * dx.y + dy.y * dy.y;
+    float difference = sqrt(max((xx - yy) * (xx - yy) + 4 * xy * xy, 0));
+    float majorSquared = max(0.5 * (xx + yy + difference), 0);
+    float minorSquared = max(0.5 * (xx + yy - difference), 0);
+    float major = sqrt(majorSquared);
+    const uint maxAnisotropy = 8;
+    float tapWidth = max(1, max(sqrt(minorSquared), major / maxAnisotropy));
+    uint taps = clamp((uint)ceil(major / tapWidth), 1u, maxAnisotropy);
+    float2 axis = float2(xy, majorSquared - xx);
+    axis = dot(axis, axis) > 0 ? normalize(axis) : float2(1, 0);
+    float2 span = axis * major / size;
+    float lod = log2(tapWidth);
+    float4 result = 0;
+    for (uint i = 0; i < taps; i++)
+        result += sampleTexture(index, uv + span * ((i + 0.5) / taps - 0.5), lod, srgb);
+    return result / taps;
+}
 struct Surface { float3 albedo; float3 normal; float3 emissive; float metallic; float roughness; float alpha; };
-Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
+Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, float4 normalMap, float4 mr, float3 emission)
 {
     Surface s;
-    float4 color = m.baseColor * sampleTexture((int)m.textures.x, uv, lod.x, true);
-    float4 mr = sampleTexture((int)m.textures.z, uv, lod.z, false);
+    float4 color = m.baseColor * baseColor;
     s.albedo = color.rgb;
     s.alpha = color.a;
     s.metallic = saturate(m.emissiveMetallic.w * mr.b);
     s.roughness = clamp(m.parameters.x * mr.g, 0.045, 1);
-    s.emissive = m.emissiveMetallic.rgb * sampleTexture((int)m.textures.w, uv, lod.w, true).rgb;
+    s.emissive = m.emissiveMetallic.rgb * emission;
     s.normal = normalize(n);
     if (m.textures.y >= 0)
     {
@@ -121,11 +147,19 @@ Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
         float tangentLengthSquared = dot(t, t);
         t = tangentLengthSquared > 0 ? t * rsqrt(tangentLengthSquared) : tangentAxis(n);
         float3 b = cross(n, t) * tangent.w;
-        float3 mapped = sampleTexture((int)m.textures.y, uv, lod.y, false).xyz * 2 - 1;
+        float3 mapped = normalMap.xyz * 2 - 1;
         mapped.xy *= m.parameters.y;
         s.normal = normalize(t * mapped.x + b * mapped.y + n * mapped.z);
     }
     return s;
+}
+Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
+{
+    return decodeSurface(m, n, tangent,
+        sampleTexture((int)m.textures.x, uv, lod.x, true),
+        sampleTexture((int)m.textures.y, uv, lod.y, false),
+        sampleTexture((int)m.textures.z, uv, lod.z, false),
+        sampleTexture((int)m.textures.w, uv, lod.w, true).rgb);
 }
 struct RasterVertex
 {
@@ -162,9 +196,11 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
     Material m = materials[input.material];
     if (!front && m.parameters.w == 0) discard;
     float2 uvDx = ddx(input.uv), uvDy = ddy(input.uv);
-    float4 lod;
-    for (uint i = 0; i < 4; i++) lod[i] = textureLod((int)m.textures[i], uvDx, uvDy);
-    Surface s = surface(m, input.uv, normalize(input.normal), input.tangent, lod);
+    Surface s = decodeSurface(m, normalize(input.normal), input.tangent,
+        sampleTextureGrad((int)m.textures.x, input.uv, uvDx, uvDy, g.jitter.w, true),
+        sampleTextureGrad((int)m.textures.y, input.uv, uvDx, uvDy, g.jitter.w, false),
+        sampleTextureGrad((int)m.textures.z, input.uv, uvDx, uvDy, g.jitter.w, false),
+        sampleTextureGrad((int)m.textures.w, input.uv, uvDx, uvDy, g.jitter.w, true).rgb);
     clip(s.alpha - m.parameters.z);
     if (dot(s.normal, g.camera.xyz - input.world) < 0) s.normal = -s.normal;
     GBuffer output;
@@ -415,6 +451,9 @@ float ambientVisibility(int2 pixel, float3 p, float3 n)
     }
     return saturate(1 - occlusion / directions);
 }
+// RR guide section 3.4.9 specifies FP16_MAX or FP32_MAX for the sky. This is
+// independent of the finite traversal limit used to trace the scene's geometry.
+static const float skyHitDistance = 65504.0;
 #if HAS_RAY_QUERY
 Surface hitSurface(Hit hit, float3 direction)
 {
@@ -431,7 +470,7 @@ Surface hitSurface(Hit hit, float3 direction)
     for (uint i = 0; i < 4; i++)
     {
         int index = (int)material.textures[i];
-        lod[i] = index < 0 ? 0 : max(log2(max(footprint * uvScale * max(textureInfo[index].y, textureInfo[index].z), 1)), 0);
+        lod[i] = index < 0 ? 0 : max(log2(max(footprint * uvScale * max(textureInfo[index].y, textureInfo[index].z), 1)) + g.jitter.w, 0);
     }
     Surface s = surface(material, uv, n, tangent, lod);
     if (dot(s.normal, direction) > 0) s.normal = -s.normal;
@@ -441,13 +480,13 @@ float3 secondaryRadiance(float3 origin, float3 direction, inout uint rng, out fl
 {
     const uint surfaceBounces = 2;
     float3 radiance = 0, throughput = 1;
-    distance = g.scene.w * 4;
+    distance = skyHitDistance;
     // Resolve emission/environment after the last scattering event as well.
     // Stopping before tracing that ray would discard valid terminal skylight.
     for (uint bounce = 0; bounce <= surfaceBounces; bounce++)
     {
         Hit hit = trace(origin, direction, g.scene.w * 4, false);
-        if (bounce == 0) distance = hit.distance;
+        if (bounce == 0 && hit.triangle != 0xffffffff) distance = hit.distance;
         if (hit.triangle == 0xffffffff)
         {
             radiance += throughput * sky(direction);
@@ -502,7 +541,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         {
             specularOutput[pixel] = float4(0, 0, 0, 1);
             diffuseOutput[pixel] = 0;
-            hitOutput[pixel] = g.scene.w * 4;
+            hitOutput[pixel] = skyHitDistance;
         }
         float4 current = mul(float4(-view, 0), g.currentViewProjection);
         float4 previous = mul(float4(-view, 0), g.previousViewProjection);
@@ -522,7 +561,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     float3 f0 = lerp(0.04, s.albedo, s.metallic);
     float nv = saturate(dot(s.normal, view));
     float3 specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
-    float specularDistance = g.scene.w * 4;
+    float specularDistance = skyHitDistance;
 #if HAS_RAY_QUERY
     if (g.parameters.x > 0)
     {

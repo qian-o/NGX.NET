@@ -120,7 +120,7 @@ internal sealed unsafe class UserInterface : IDisposable
         // window width here would feed its previous size back into auto-sizing.
         float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(PreviewLabel(mode)).X);
         ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + ImGui.GetStyle().FramePadding.X * 2);
-        ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayTracing);
+        ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayReconstruction);
         if (ImGui.BeginCombo("##DLSS", PreviewLabel(settings.Quality)))
         {
             foreach (DLSSMode mode in QualityModes)
@@ -139,7 +139,7 @@ internal sealed unsafe class UserInterface : IDisposable
         ImGui.EndDisabled();
 
         ImGui.BeginDisabled(!capabilities.RayReconstruction);
-        if (ImGui.Checkbox("DLSS Ray Reconstruction", ref settings.RayTracing) && !settings.RayTracing && !capabilities.Dlss)
+        if (ImGui.Checkbox("DLSS Ray Reconstruction", ref settings.RayReconstruction) && !settings.RayReconstruction && !capabilities.Dlss)
         {
             settings.Quality = DLSSMode.Off;
         }

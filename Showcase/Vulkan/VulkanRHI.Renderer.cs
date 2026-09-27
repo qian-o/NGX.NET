@@ -502,14 +502,7 @@ internal sealed unsafe partial class VulkanRHI
         api.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
         api.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
-    protected override void UpdateRayTracingScene()
-    {
-        VkFrame frame = slots[FrameSlot];
-        if (Settings.RayTracing || !frame.TlasBuilt)
-        {
-            UpdateAccelerationStructure(frame);
-        }
-    }
+    protected override void UpdateRayTracingScene() => UpdateAccelerationStructure(slots[FrameSlot]);
 
     protected override void DrawShadow()
     {
