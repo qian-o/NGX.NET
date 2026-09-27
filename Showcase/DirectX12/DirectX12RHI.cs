@@ -15,7 +15,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 {
     public override string BackendName => "DirectX 12";
     protected override nint Command => commandList.NativePointer;
-    protected override nint Queue => queue.NativePointer;
     private ID3D12Device device = null!;
     private IDXGIFactory4 factory = null!;
     private IDXGIAdapter1 adapter = null!;
@@ -44,7 +43,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private sealed class DxFrame : IDisposable
     {
         public required ID3D12CommandAllocator Allocator;
-        public required ID3D12CommandAllocator SecondAllocator;
         public required ID3D12Resource Constants;
         public required ID3D12Resource Objects;
         public ID3D12Resource? Vertices, Indices;
@@ -63,7 +61,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             Constants.Dispose();
             Objects.Dispose();
             Allocator.Dispose();
-            SecondAllocator.Dispose();
         }
     }
 
@@ -126,7 +123,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             DeviceLUID = (byte*)&luid,
             DeviceLUIDSizeInBytes = sizeof(long)
         };
-        Streamline.QueryFeatures(info, false);
+        Streamline.QueryFeatures(info);
         RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
         if (RayQuerySupported)
@@ -152,7 +149,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             slots[i] = new()
             {
                 Allocator = device.CreateCommandAllocator(CommandListType.Direct),
-                SecondAllocator = device.CreateCommandAllocator(CommandListType.Direct),
                 Constants = UploadBuffer(RenderLayout.UniformStride * RenderLayout.UniformSlots),
                 Objects = UploadBuffer(Scene.Objects.Length * sizeof(SceneObject))
             };
@@ -436,7 +432,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             queryReadback.Unmap(0);
         }
         frame.Allocator.Reset();
-        frame.SecondAllocator.Reset();
         commandList.Reset(frame.Allocator, null);
         recording = true;
         frame.Objects.SetData<SceneObject>(Scene.Objects);
@@ -600,32 +595,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
         texture.State = state;
         texture.Use = use;
-    }
-    protected override void StorageBarrier(GpuImage image) => commandList.ResourceBarrierUnorderedAccessView(((DxImage)image).Texture);
-    protected override void PrepareDirectSRDepth()
-    {
-        // DirectSR's engine consumes a typed R32_FLOAT resource. The depth-stencil
-        // image is typeless for DSV/SRV reinterpretation, so copy its identical bits.
-        DxImage depth = (DxImage)Image(ImageSlot.Depth);
-        DxImage copy = (DxImage)Image(ImageSlot.DepthCopy);
-        Transition(depth, ImageUse.CopySource);
-        Transition(copy, ImageUse.CopyDestination);
-        commandList.CopyResource(copy.Texture, depth.Texture);
-        Transition(depth, ImageUse.ShaderRead);
-        Transition(copy, ImageUse.ShaderRead);
-    }
-
-    protected override void SubmitBeforeDirectSR()
-    {
-        commandList.Close();
-        recording = false;
-        queue.ExecuteCommandList(commandList);
-    }
-    protected override void ResumeAfterDirectSR()
-    {
-        // A second allocator is required: the first list is still executing.
-        commandList.Reset(slots[FrameSlot].SecondAllocator, null);
-        recording = true;
     }
     protected override void SubmitFrame()
     {

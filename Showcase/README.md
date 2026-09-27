@@ -2,7 +2,10 @@
 
 A Windows x64 / .NET 10 rendering sample using the public Streamline.NET API.
 Select DirectX 12 or Vulkan in the startup console. Both backends share the scene,
-material system, shaders, camera, UI and Streamline frame sequence.
+material system, shaders, camera, UI and Streamline frame sequence. The sample
+uses DLSS Super Resolution / DLAA, Ray Reconstruction and Frame Generation.
+Reflex/PCL support low latency and frame markers internally. NIS, DirectSR and
+DeepDVC are not loaded, called or deployed; the wrapper still exposes their APIs.
 
 ## Run
 
@@ -14,59 +17,49 @@ dotnet run --project Showcase -c Release
 ```
 
 The script downloads the complete Khronos Sponza glTF asset and the latest official
-Windows x64 Streamline production runtime. It preserves attribution and licenses,
+Windows x64 Streamline production files needed by DLSS and its dependencies. It preserves attribution and licenses,
 checks referenced scene files, and records the downloaded revision/version and SDK
 archive hash. Downloads are ignored by Git. Rebuild after updating assets so the
 runtime and scene are copied to the application output directory.
 
 The .NET SDK and an up-to-date graphics driver are required. DLSS Frame Generation
 also requires Windows Hardware-accelerated GPU scheduling; the sample uses SDK
-capability queries to enable its controls. Unsupported options show the SDK reason
-in the feature availability panel. DirectSR is available only when the DirectX 12
-runtime and installed plugin support it.
+capability queries to enable its controls. Unsupported controls are disabled.
+The SDK reports diagnostics through the console and log files.
 
-Default output is a resizable 1600 x 900 window. The **Recommended** preset uses
-ray-traced lighting, DLSS Ray Reconstruction in Quality mode, 2x Frame Generation
-and Reflex Low Latency when the current device supports them. Unsupported features
-are omitted automatically. No Multi Frame Generation support is assumed for the
-RTX 4070 Ti SUPER.
-
-Automatic exposure is enabled by default. It meters the scene so that enabling
-geometric sky occlusion does not leave the atrium at the raster view's fixed exposure.
+Default output is a resizable 1600 x 900 window. With device support, defaults are
+DLSS Quality, ray tracing with Ray Reconstruction, Frame Generation (one generated
+frame per rendered frame) and automatic exposure. Unsupported features fall back
+to native raster rendering. Multi Frame Generation is not exposed.
 
 ## Controls
 
-The panel uses Chinese on a Chinese Windows installation with a compatible system
-font, and English otherwise. Fonts are loaded from the operating system; the sample
-does not redistribute them. Text and controls follow the window's DPI scaling.
+The panel is anchored to the upper-left corner with 16-pixel text and a fixed
+280-pixel logical width. It cannot be dragged, resized or collapsed. Its content
+height is constrained by the viewport, with scrolling only in very short windows.
+System DPI scaling is applied once. Chinese Windows uses a system CJK font;
+otherwise it uses English. Fonts are not redistributed.
 
-Start with a preset:
+The title shows the DLSS implementation version queried via
+`slGetFeatureVersion(...).versionNGX`, followed by the GPU name and rendered FPS.
+A missing version is shown as `--`; the Streamline/interposer version is not used
+as a substitute. The panel contains only three controls:
 
-| Preset | Intended use |
+| Control | Choices / behavior |
 |---|---|
-| Recommended | Natural ray-traced light and denoising, with DLSS Quality and supported frame generation. |
-| Quality first | Native-resolution anti-aliasing, with RR when available; higher GPU cost. |
-| Performance first | Raster lighting and DLSS Balanced, with supported frame generation. |
-| Native reference | Native resolution with FXAA; upscaling and frame generation off for comparison. |
+| Upscaling | Off, DLAA, Quality, Balanced, Performance, Ultra Performance |
+| Frame generation | Off / On; manages Reflex and required swap-chain changes internally |
+| Ray tracing | Off / On; automatically enables Ray Reconstruction for denoising |
 
-The main controls combine **ray tracing and denoising** so that enabling ray tracing
-does not accidentally expose noisy input. **Image quality** selects the balance
-between internal resolution and reconstruction. The displayed sizes show internal
-rendering resolution followed by window output resolution. **Exposure** changes
-brightness: +1 EV doubles it and -1 EV halves it. **Reset daylight** restores the
-natural lighting and exposure without changing reconstruction or frame generation.
+With upscaling off and ray tracing on, Ray Reconstruction operates at native
+resolution using DLAA quality. Only one reconstruction pass executes. Brightness
+is metered automatically. There are no brightness controls, reset buttons,
+advanced/details sections, status lists, tooltips or operation hints in the panel.
 
-Advanced options contain the separate reconstruction algorithms, noisy ray-traced
-input comparison, supported frame multipliers, Reflex Boost, DeepDVC and daylight
-controls. Raw SDK details and measurements are in a separate section. Frame
-Generation shows the requested real/generated frame relationship; it is not a
-measurement of displayed FPS.
-
-Hold the right mouse button and use WASD to move, Q/E to move vertically and Shift
-to accelerate. **F1** or the panel's close button hides the controls; F1 or the
-small Show settings button restores them. Camera reset, lock and object-animation
-pause are available for comparisons. The panel scrolls in short windows. Resizing
-the main window changes output resolution; animation pause keeps rendering.
+The close button or F1 hides the panel; the small Show button or F1 restores it.
+Camera navigation remains right mouse + WASD, Q/E for vertical motion, and Shift
+for faster movement. The FPS counter measures rendered frames and excludes
+generated frames; it is not multiplied by the frame-generation setting.
 
 ## Rendering and integration
 
@@ -76,9 +69,8 @@ the main window changes output resolution; animation pause keeps rendering.
   specular hit distance. RR performs the reconstruction directly.
 - The scene uses metallic/roughness materials, normal maps, alpha masking, a sky,
   a shadowed daylight sun and two moving objects with muted metal/ceramic materials.
-  Optional warm fill lights are off by default. Sun height, direction and intensity,
-  sky brightness and exposure are adjustable. glTF hierarchy transforms are evaluated
-  on load; downloaded assets are unchanged.
+  Daylight and exposure metering are automatic. glTF hierarchy
+  transforms are evaluated on load; downloaded materials and textures are unchanged.
 - Automatic exposure meters HDR color after reconstruction, before tone mapping
   and UI composition. A stratified 128 x 128 sampling grid averages luminance in
   linear light before conversion to exposure stops. Averaging individual sample
@@ -86,17 +78,18 @@ the main window changes output resolution; animation pause keeps rendering.
   The meter targets 18% gray, limits adaptation to +/-8 stops and follows the
   preceding submitted frame, with one-second brightening and quarter-second
   darkening half-lives. Reset/resize initializes from the current measurement.
-  **Brightness / Automatic exposure** disables adaptation for fixed-exposure
-  comparisons; **Exposure compensation** adjusts the metered result. **Reset
-  daylight** restores automatic exposure and neutral compensation. Lighting and
-  Streamline's unexposed HDR inputs are not scaled by the meter.
+  Lighting and Streamline's unexposed HDR inputs are not scaled by the meter.
+  AgX's default view transform replaces the per-channel ACES approximation,
+  with its published color-space matrices and highlight response. No saturation
+  boost or additional creative look is applied. The implementation and MIT notice
+  are in `Assets/Shaders/ToneMapping.slang` and `LICENSE-AgX.txt`.
 - Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
   `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. It traces shadows
   and one stochastic diffuse and one GGX specular secondary ray per pixel. The
   secondary path evaluates up to two surface interactions with direct light and
   actual visibility, including emission or visible sky reached by the final
-  scattered ray. Fixed secondary ambient fill is removed. Ray tracing with RR
-  disabled exposes the noisy input. This remains a limited bounce renderer with an
+  scattered ray. There is no fixed secondary ambient fill. This remains a limited
+  bounce renderer with an
   analytic daylight environment; performance needs measurement on the target GPU.
 - Direct shading, GGX visible-normal sampling and the RR specular guide use the same
   height-correlated Smith model. This improves grazing-angle behavior without
@@ -121,9 +114,6 @@ the main window changes output resolution; animation pause keeps rendering.
   dimensions for mip selection, with trilinear filtering between mip levels.
   Degenerate authored tangents use the same orthogonal fallback as missing tangents,
   avoiding zero-vector normalization in normal mapping and indirect paths.
-- NIS consumes antialiased SDR color at input resolution. DirectSR runs on its
-  required command queue, between two submitted command lists. DeepDVC processes
-  tone-mapped SDR color before UI composition.
 - The UI renders separately with premultiplied alpha at output resolution. HUD-less
   color and UI obey `final.rgb = ui.rgb + (1 - ui.a) * hudless.rgb`.
 - Frame generation uses the interposer's swap chain and presentation hooks. Its
@@ -137,10 +127,8 @@ the main window changes output resolution; animation pause keeps rendering.
   storage through their required lifetime. SDK shutdown runs while graphics objects
   and callbacks remain alive.
 
-The information panel reports rendered FPS, CPU frame time, measured GPU rendering
-time, and the available Reflex interval from simulation start to GPU completion.
-Displayed FPS is marked unavailable because this implementation has no reliable
-presentation measurement source. GPU rendering time excludes generated frames.
+The panel reports only rendered FPS. It does not show GPU/CPU timings, latency
+reports or estimated presentation statistics.
 
 ## Build and diagnostics
 
@@ -176,8 +164,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. The exposure and traced-lighting
-corrections were checked on 2026-09-28.
+Resource preparation was checked on 2026-09-27. The DLSS-only scope, compact UI
+and AgX color update were checked on 2026-09-28.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -185,9 +173,13 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   framework-dependent publishing also passed; native dependencies were inspected.
 - PowerShell asset script: executed successfully using PowerShell 7.6.0; retrieved
   Streamline v2.14.1 production files and Sponza revision
-  `7d4ba189827916452eeadc82d4b712dbc6280a6f`.
+  `7d4ba189827916452eeadc82d4b712dbc6280a6f`. The new runtime filter was checked
+  separately against production/development and unrelated plugin entries; the
+  network download was not repeated for this change.
 - Deployment inspection: interposer/plugins are at the output root; Sponza and its
   referenced data remain under `Assets/Scenes/`; all downloads remain ignored.
+  A fresh Windows publish contains the 11 DLSS/Reflex dependency DLLs and excludes
+  DeepDVC, NIS, DirectSR and nvperf binaries, even with older cached SDK files present.
 - Scene preparation: passed, 264,187 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
 - All twelve SPIR-V shaders and HLSL translations, plus the raster lighting
@@ -218,10 +210,17 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   math, not Windows Ray Query, DLSS RR or frame-generation execution. The corrected
   Windows appearance and GPU performance still need acceptance.
 - Current UI checks use offscreen ImGui draw data with fixture values, not measured
-  GPU results: Chinese/English text, CJK glyph coverage, small-window scrolling,
-  200% DPI and F1 hide/restore were checked. All 64 preset/capability combinations
-  and the independent daylight reset were checked. Validation helpers remain outside
-  the application and are not committed.
+  GPU results: Chinese/English text, CJK glyph coverage, a 360 x 160 window with
+  scrolling, 200% DPI and F1 hide/restore passed. Title/corner drag interactions
+  preserved the panel's position and size. Capability defaults and the 12
+  DLSS mode / ray-tracing combinations select one reconstruction path, including
+  native-resolution RR with upscaling off. The native DLSS version query itself
+  requires Windows acceptance; UI fixtures do not claim a measured runtime version.
+- The shared AgX/tone-map shaders ran on Apple M4 in the isolated harness. Across
+  32 color/exposure cases, 8-bit GPU results matched an independent evaluation of
+  the published reference. The same HDR Sponza reference was compared before/after
+  tone mapping with identical exposure. Windows DLSS/RR visual acceptance remains
+  with the user. Validation helpers are outside the application and are not committed.
 
 ## Rendering references
 
@@ -231,3 +230,6 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   for GGX visible-normal sampling.
 - [PBRT, A Better Path Tracer](https://pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/A_Better_Path_Tracer)
   for resolving environment/emission before terminating the scattering path.
+
+- [three.js AgX implementation](https://github.com/mrdoob/three.js/blob/9b02bfe8671c4dd8c9327c1636edc529b6462812/src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js)
+  for the neutral AgX view transform, adapted from Filament/Blender.

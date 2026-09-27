@@ -2,6 +2,8 @@
 #define HAS_RAY_QUERY 1
 #endif
 
+#include "ToneMapping.slang"
+
 struct Vertex { float4 position; float4 normal; float4 tangent; float4 uv; };
 struct Material { float4 baseColor; float4 emissiveMetallic; float4 parameters; float4 textures; };
 struct ObjectData { float4 offset; float4 previousOffset; uint4 geometry; };
@@ -15,11 +17,11 @@ struct Globals
     float4 size; // render width, height, output width, height
     float4 sun;
     float4 scene; // object count, frame number, ray epsilon, scale
-    float4 parameters; // ray tracing, exposure, input image, FXAA enabled
+    float4 parameters; // ray tracing, exposure compensation, input image, reserved
     float4 jitter; // pixel jitter.xy; generate RR guides when z is set
     float4 center;
     row_major float4x4 sunViewProjection;
-    float4 lighting; // sun irradiance, sky radiance, warm fill intensity, raster AO radius
+    float4 lighting; // sun irradiance, sky radiance, reserved, raster AO radius
     float4 exposure; // automatic metering enabled, delta seconds, reset history, reserved
 };
 [[vk::binding(0, 0)]] ConstantBuffer<Globals> g : register(b0);
@@ -45,10 +47,10 @@ struct Globals
 [[vk::binding(18, 0)]] Texture2D<float4> uiImage : register(t17);
 [[vk::binding(19, 0)]] Texture2D<float4> finalImage : register(t18);
 [[vk::binding(20, 0)]] Texture2D<float4> diffuseImage : register(t19);
-[[vk::binding(22, 0)]] Texture2D<float> shadowImage : register(t21);
-[[vk::binding(23, 0)]] Texture2D<float> exposureImage : register(t22);
-[[vk::binding(24, 0)]] Texture2D<float> previousExposureImage : register(t23);
-[[vk::binding(25, 0)]] Texture2D<float4> fontImage : register(t24);
+[[vk::binding(21, 0)]] Texture2D<float> shadowImage : register(t20);
+[[vk::binding(22, 0)]] Texture2D<float> exposureImage : register(t21);
+[[vk::binding(23, 0)]] Texture2D<float> previousExposureImage : register(t22);
+[[vk::binding(24, 0)]] Texture2D<float4> fontImage : register(t23);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
 [[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
@@ -355,22 +357,6 @@ float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 #endif
     visibility = shadowVisibility(p, s.normal);
     float3 color = brdf(s, view, sunDirection) * float3(1, 0.96, 0.88) * g.lighting.x * visibility;
-    if (g.lighting.z > 0)
-    {
-        for (uint i = 0; i < 2; i++)
-        {
-            float3 lightPosition = g.center.xyz + float3((i == 0 ? -1 : 1) * g.scene.w * 0.15, g.scene.w * 0.065, 0);
-            float3 delta = lightPosition - p;
-            float distanceSquared = dot(delta, delta);
-            if (distanceSquared <= g.scene.z * g.scene.z) continue;
-            float3 l = normalize(delta);
-            float unoccluded = 1;
-#if HAS_RAY_QUERY
-            if (g.parameters.x > 0) unoccluded = trace(p + s.normal * g.scene.z, l, sqrt(distanceSquared), true).triangle == 0xffffffff ? 1 : 0;
-#endif
-            color += brdf(s, view, l) * float3(1, 0.88, 0.72) * g.lighting.z / distanceSquared * unoccluded;
-        }
-    }
     return color;
 }
 float3 integratedSpecularAlbedo(float3 f0, float roughness, float nv)
@@ -572,7 +558,6 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         hitOutput[pixel] = specularDistance;
     }
 }
-float3 aces(float3 x) { return saturate((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14)); }
 float3 sampleHdr(float2 uv)
 {
     return g.parameters.z > 0 ? reconstructedImage.SampleLevel(linearSampler, uv, 0).rgb : sceneImage.SampleLevel(linearSampler, uv, 0).rgb;
@@ -628,10 +613,10 @@ void MeterExposure(uint3 id : SV_GroupThreadID, uint index : SV_GroupIndex)
 }
 float3 sampleDisplay(float2 uv, bool toneMap)
 {
-    return toneMap ? linearToSrgb(aces(sampleHdr(uv) * exp2(exposureImage[uint2(0, 0)] + g.parameters.y))) : displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
+    return toneMap ? linearToSrgb(agxToneMap(sampleHdr(uv) * exp2(exposureImage[uint2(0, 0)] + g.parameters.y))) : displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
 }
 float luminance(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
-// FXAA edge filter, evaluated at the source resolution before spatial NIS scaling.
+// FXAA edge filter for the native raster path.
 float3 antialias(float2 uv, float2 step, bool toneMap)
 {
     float3 center = sampleDisplay(uv, toneMap);
@@ -656,7 +641,7 @@ void ToneMap(uint3 id : SV_DispatchThreadID)
     uint width, height; displayInputOutput.GetDimensions(width, height);
     if (any(id.xy >= uint2(width, height))) return;
     float2 uv = (id.xy + 0.5) / float2(width, height);
-    float3 color = g.parameters.w == 2 ? antialias(uv, 1 / float2(width, height), true) : sampleDisplay(uv, true);
+    float3 color = sampleDisplay(uv, true);
     displayInputOutput[id.xy] = float4(color, 1);
 }
 [shader("compute")]

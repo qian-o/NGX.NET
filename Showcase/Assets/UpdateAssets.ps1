@@ -48,7 +48,11 @@ try {
     $archive = [IO.Compression.ZipFile]::OpenRead($zip)
     try {
         # The production runtime occupies bin/x64 directly; development/debug are separate subdirectories.
-        $runtime = @($archive.Entries | Where-Object { $_.FullName -match '(^|/)bin/x64/[^/]+$' })
+        $runtimeDlls = @('sl.interposer.dll', 'sl.common.dll', 'sl.dlss.dll', 'sl.dlss_d.dll', 'sl.dlss_g.dll', 'sl.reflex.dll', 'sl.pcl.dll', 'nvngx_dlss.dll', 'nvngx_dlssd.dll', 'nvngx_dlssg.dll', 'NvLowLatencyVk.dll')
+        $runtime = @($archive.Entries | Where-Object {
+            $_.FullName -match '(^|/)bin/x64/[^/]+$' -and
+            ($runtimeDlls -contains $_.Name -or $_.Name -in @('nvngx_dlss.license.txt', 'reflex.license.txt'))
+        })
         foreach ($entry in $runtime) {
             [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $sdkStage $entry.Name), $true)
         }
@@ -60,7 +64,7 @@ try {
             [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $license, $true)
         }
     } finally { $archive.Dispose() }
-    foreach ($name in 'sl.interposer.dll', 'sl.common.dll', 'sl.dlss.dll', 'sl.dlss_d.dll', 'sl.dlss_g.dll', 'sl.reflex.dll', 'sl.pcl.dll') {
+    foreach ($name in $runtimeDlls) {
         if (!(Test-Path (Join-Path $sdkStage $name))) { throw "Production runtime is incomplete: $name" }
     }
     @{ version = $release.tag_name; source = $asset[0].browser_download_url; sha256 = $archiveHash; architecture = 'x64' } | ConvertTo-Json | Set-Content (Join-Path $sdkStage 'streamline-runtime.json') -Encoding utf8

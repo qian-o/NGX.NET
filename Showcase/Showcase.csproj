@@ -19,6 +19,7 @@
     <ItemGroup>
         <None Update="Assets/Shaders/**/*;Assets/Scenes/**/*" CopyToOutputDirectory="PreserveNewest" />
         <None Remove="Assets/Streamline/**/*" />
-        <Content Include="Assets/Streamline/**/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="%(RecursiveDir)%(Filename)%(Extension)" />
+        <Content Include="Assets/Streamline/sl.interposer.*;Assets/Streamline/sl.common.*;Assets/Streamline/sl.dlss*;Assets/Streamline/sl.reflex.*;Assets/Streamline/sl.pcl.*;Assets/Streamline/nvngx_dlss*;Assets/Streamline/NvLowLatencyVk.*;Assets/Streamline/reflex.license.*;Assets/Streamline/streamline-runtime.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="%(Filename)%(Extension)" />
+        <Content Include="Assets/Streamline/Licenses/**/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="Licenses/%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>

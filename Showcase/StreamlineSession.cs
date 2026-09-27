@@ -12,8 +12,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     public static readonly (uint Id, string Name)[] Features =
     [
         (SL.FeatureDLSS, "DLSS Super Resolution / DLAA"), (SL.FeatureDLSSRR, "Ray Reconstruction"),
-        (SL.FeatureDLSSG, "Frame Generation"), (SL.FeatureReflex, "Reflex"), (SL.FeaturePCL, "Latency markers"),
-        (SL.FeatureNIS, "NIS"), (SL.FeatureDeepDVC, "DeepDVC"), (SL.FeatureDirectSR, "DirectSR")
+        (SL.FeatureDLSSG, "Frame Generation"), (SL.FeatureReflex, "Reflex"), (SL.FeaturePCL, "Latency markers")
     ];
     public Dictionary<uint, string> Unavailable { get; } = [];
     public FrameToken Frame
@@ -26,6 +25,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         get; private set;
     }
     public string RuntimeVersion { get; private set; } = "Unknown";
+    public string DlssVersion { get; private set; } = "--";
     public uint LatencyPingMessage
     {
         get; private set;
@@ -48,7 +48,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         get; private set;
     }
-    public string[] DirectSRVariants { get; private set; } = [];
     public bool FrameGenerationLoaded
     {
         get; private set;
@@ -97,7 +96,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         *plugins = Utf16(AppContext.BaseDirectory);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
         Directory.CreateDirectory(logs);
-        uint[] features = Features.Where(x => !vulkan || x.Id != SL.FeatureDirectSR).Select(x => x.Id).ToArray();
+        uint[] features = Features.Select(x => x.Id).ToArray();
         uint* requested = (uint*)Keep(Marshal.AllocCoTaskMem(features.Length * sizeof(uint)));
         features.CopyTo(new Span<uint>(requested, features.Length));
         Preferences preferences = new()
@@ -122,17 +121,20 @@ internal sealed unsafe class StreamlineSession : IDisposable
         Console.WriteLine($"Streamline runtime: {RuntimeVersion}");
     }
 
-    public void QueryFeatures(AdapterInfo adapter, bool vulkan)
+    public void QueryFeatures(AdapterInfo adapter)
     {
+        // Report the DLSS/NGX implementation version, not the Streamline wrapper
+        // or interposer version. An unavailable query remains unknown in the UI.
+        FeatureVersion dlssVersion = new();
+        if (SL.GetFeatureVersion(SL.FeatureDLSS, ref dlssVersion) == SLResult.Ok && dlssVersion.VersionNGX)
+        {
+            DlssVersion = dlssVersion.VersionNGX.ToStr();
+        }
         foreach ((uint id, string name) in Features)
         {
             SLResult support = SL.IsFeatureSupported(id, in adapter);
             SLResult loadedResult = SL.IsFeatureLoaded(id, out Bool8 loaded);
-            if (vulkan && id == SL.FeatureDirectSR)
-            {
-                Unavailable[id] = "Requires DirectX 12";
-            }
-            else if (support != SLResult.Ok)
+            if (support != SLResult.Ok)
             {
                 Unavailable[id] = support.ToString();
             }
@@ -162,65 +164,31 @@ internal sealed unsafe class StreamlineSession : IDisposable
             Check(SL.PCL.SetOptions(in options), "slPCLSetOptions");
             LatencyPingMessage = SL.PCL.GetState().StatsWindowMessage;
         }
-        if (Available(SL.FeatureDirectSR))
-        {
-            Check(SL.DirectSR.GetVariantInfo(out uint count), "slDirectSRGetVariantInfo(count)");
-            DirectSRVariantInfo[] variants = new DirectSRVariantInfo[count];
-            for (int i = 0; i < variants.Length; i++)
-            {
-                variants[i] = new();
-            }
-
-            Check(SL.DirectSR.GetVariantInfo(variants), "slDirectSRGetVariantInfo");
-            DirectSRVariants = new string[count];
-            for (int i = 0; i < variants.Length; i++)
-            {
-                fixed (DirectSRVariantInfo* variant = &variants[i])
-                {
-                    DirectSRVariants[i] = Marshal.PtrToStringUTF8((nint)(&variant->Name)) ?? $"Variant {i}";
-                }
-            }
-            if (count == 0)
-            {
-                Unavailable[SL.FeatureDirectSR] = "No DirectSR variants available";
-            }
-        }
     }
 
-    public void UpdateOptions(RenderSettings settings)
+    private void SetLowLatency()
     {
         if (Available(SL.FeatureReflex))
         {
             ReflexOptions reflex = new()
             {
-                Mode = settings.Reflex,
+                Mode = ReflexMode.LowLatency,
                 UseMarkersToOptimize = true
             };
             Check(SL.Reflex.SetOptions(in reflex), "slReflexSetOptions");
         }
-        if (Available(SL.FeatureDeepDVC))
-        {
-            DeepDVCOptions dvc = new()
-            {
-                Mode = settings.DeepDVC ? DeepDVCMode.On : DeepDVCMode.Off,
-                Intensity = settings.Intensity,
-                SaturationBoost = settings.Saturation
-            };
-            Check(SL.DeepDVC.SetOptions(in Viewport, in dvc), "slDeepDVCSetOptions");
-        }
     }
 
-    public (int Width, int Height) Configure(RenderSettings settings, int width, int height, nint queue)
+    public (int Width, int Height) Configure(RenderSettings settings, int width, int height)
     {
-        UpdateOptions(settings);
+        SetLowLatency();
         uint w = (uint)width, h = (uint)height;
         switch (settings.Reconstruction)
         {
             case Reconstruction.DLSS:
-            case Reconstruction.DLAA:
                 DLSSOptions dlss = new()
                 {
-                    Mode = settings.Reconstruction == Reconstruction.DLAA ? DLSSMode.DLAA : settings.Quality,
+                    Mode = settings.ReconstructionQuality,
                     OutputWidth = w,
                     OutputHeight = h,
                     ColorBuffersHDR = SLBoolean.True,
@@ -235,35 +203,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
                 Check(SL.DLSSD.SetOptions(in Viewport, in rr), "slDLSSDSetOptions");
                 DLSSDOptimalSettings rrOptimal = SL.DLSSD.GetOptimalSettings(in rr);
                 return ((int)rrOptimal.OptimalRenderWidth, (int)rrOptimal.OptimalRenderHeight);
-            case Reconstruction.NIS:
-                NISOptions nis = new()
-                {
-                    Mode = NISMode.Scaler,
-                    HdrMode = NISHDR.None,
-                    Sharpness = 0.5f
-                };
-                Check(SL.NIS.SetOptions(in Viewport, in nis), "slNISSetOptions");
-                return (Math.Max(1, (int)(width * settings.Scale)), Math.Max(1, (int)(height * settings.Scale)));
-            case Reconstruction.DirectSR:
-                DirectSROptions direct = new()
-                {
-                    VariantIndex = settings.DirectSRVariant,
-                    PCommandQueue = queue,
-                    OutputWidth = w,
-                    OutputHeight = h,
-                    ColorBuffersHDR = SLBoolean.True,
-                    PreExposure = 1,
-                    ExposureScale = 1
-                };
-                Check(SL.DirectSR.SetOptions(in Viewport, in direct), "slDirectSRSetOptions");
-                DirectSROptimalSettings directOptimal = SL.DirectSR.GetOptimalSettings(in direct);
-                // Match the requested variant's format instead of silently reinterpreting resources.
-                if (directOptimal.OptimalColorFormat != DXGIFormat.R16G16B16A16Float || directOptimal.OptimalDepthFormat != DXGIFormat.R32Float && directOptimal.OptimalDepthFormat != DXGIFormat.D32Float)
-                {
-                    throw new NotSupportedException($"DirectSR variant requires {directOptimal.OptimalColorFormat}/{directOptimal.OptimalDepthFormat}.");
-                }
-
-                return ((int)directOptimal.OptimalRenderWidth, (int)directOptimal.OptimalRenderHeight);
             default:
                 return (width, height);
         }
@@ -340,7 +279,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         Matrix4x4.Invert(view, out Matrix4x4 inverse);
         return new()
         {
-            Mode = settings.Quality,
+            Mode = settings.ReconstructionQuality,
             OutputWidth = (uint)width,
             OutputHeight = (uint)height,
             ColorBuffersHDR = SLBoolean.True,
@@ -453,9 +392,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         }
         foreach (uint id in evaluatedFeatures)
         {
-            // DirectSR 2.14.1 has no explicit free callback. Its engine and upscaler
-            // retain the old configuration until the plugin is reinitialized.
-            SLResult result = id == SL.FeatureDirectSR ? SLResult.ErrorMissingOrInvalidAPI : SL.FreeResources(id, in Viewport);
+            SLResult result = SL.FreeResources(id, in Viewport);
             if (result == SLResult.ErrorMissingOrInvalidAPI)
             {
                 Check(SL.SetFeatureLoaded(id, false), $"slSetFeatureLoaded({id}, false)");

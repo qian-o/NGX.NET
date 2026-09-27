@@ -12,7 +12,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 {
     public override string BackendName => "Vulkan";
     protected override nint Command => commandBuffer.Handle;
-    protected override nint Queue => queue.Handle;
     private VkInstance instance;
     private VkInstanceApi instanceApi = null!;
     private VkDevice device;
@@ -314,7 +313,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         {
             VkPhysicalDevice = (void*)physical.Handle
         };
-        Streamline.QueryFeatures(adapter, true);
+        Streamline.QueryFeatures(adapter);
     }
 
     private uint MemoryType(uint bits, VkMemoryPropertyFlags flags)

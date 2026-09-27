@@ -6,11 +6,11 @@ namespace Showcase;
 
 internal enum Reconstruction
 {
-    Native, DLSS, DLAA, RayReconstruction, NIS, DirectSR
+    Native, DLSS, RayReconstruction
 }
 internal enum ImageSlot
 {
-    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, DepthCopy, Shadow, Exposure, Count
+    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Count
 }
 internal enum ImageFormat
 {
@@ -25,28 +25,26 @@ internal enum ComputePass
     Lighting, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
 }
 
+internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruction, bool FrameGeneration);
+
 internal sealed record RenderSettings
 {
-    public Reconstruction Reconstruction = Reconstruction.DLSS;
     public DLSSMode Quality = DLSSMode.MaxQuality;
     public bool RayTracing;
-    public uint GeneratedFrames;
-    public ReflexMode Reflex = ReflexMode.LowLatency;
-    public bool DeepDVC;
-    public float Intensity = 0.5f;
-    public float Saturation = 0.5f;
-    public float Exposure;
-    public bool AutoExposure = true;
-    public float SunElevation = 50;
-    public float SunAzimuth = 65;
-    public float SunIntensity = 8;
-    public float SkyIntensity = 0.65f;
-    public float LocalLightIntensity;
-    public bool ContactShadows = true;
-    public bool PauseAnimation;
-    public bool FixedCamera;
-    public float Scale = 0.67f;
-    public uint DirectSRVariant;
+    public bool FrameGeneration;
+
+    // Turning upscaling off leaves RT denoising at native resolution. Users do
+    // not need to select a separate reconstruction algorithm or compatible preset.
+    public Reconstruction Reconstruction => RayTracing ? Reconstruction.RayReconstruction :
+        Quality == DLSSMode.Off ? Reconstruction.Native : Reconstruction.DLSS;
+    public DLSSMode ReconstructionQuality => Quality == DLSSMode.Off && RayTracing ? DLSSMode.DLAA : Quality;
+
+    public void Reset(RenderCapabilities capabilities)
+    {
+        Quality = capabilities.Dlss ? DLSSMode.MaxQuality : DLSSMode.Off;
+        RayTracing = capabilities.RayReconstruction;
+        FrameGeneration = capabilities.FrameGeneration;
+    }
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -92,7 +90,7 @@ internal static class RenderLayout
     {
         ImageSlot.Motion => ImageFormat.Rg16,
         ImageSlot.Depth or ImageSlot.Shadow => ImageFormat.Depth,
-        ImageSlot.HitDistance or ImageSlot.DepthCopy or ImageSlot.Exposure => ImageFormat.Float,
+        ImageSlot.HitDistance or ImageSlot.Exposure => ImageFormat.Float,
         ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => ImageFormat.Rgba8,
         _ => ImageFormat.Rgba16
     };

@@ -699,11 +699,6 @@ internal sealed unsafe partial class VulkanRHI
         };
         api.vkCmdPipelineBarrier2(commandBuffer, &dependency);
     }
-    protected override void StorageBarrier(GpuImage image)
-    {
-        VkTexture texture = (VkTexture)image;
-        Barrier(texture.Texture, texture.Layout, texture.Layout, Range(texture.Format));
-    }
     protected override void SubmitFrame()
     {
         VkTexture final = (VkTexture)Image(ImageSlot.Final);
