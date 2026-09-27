@@ -10,110 +10,139 @@ namespace Streamline.NET;
 public static unsafe partial class SL
 {
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:147. </remarks>
-    public static SLResult PCLGetState(PCLState* state)
+    /// <summary>Streamline PCL feature operations.</summary>
+    public static unsafe partial class PCL
     {
-        SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLGetState", "slPCLGetState"u8, out nint address);
-        if (result != SLResult.Ok)
+
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:147. </remarks>
+        public static SLResult GetState(PCLState* state)
         {
-            return result;
+            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLGetState", "slPCLGetState"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<PCLState*, SLResult>)address)(state);
         }
-        return ((delegate* unmanaged[Cdecl]<PCLState*, SLResult>)address)(state);
-    }
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:147. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult PCLGetState(ref PCLState state)
-    {
-        fixed (PCLState* statePointer = &state)
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:147. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult GetState(ref PCLState state)
         {
-            return PCLGetState(statePointer);
+            fixed (PCLState* statePointer = &state)
+            {
+                return GetState(statePointer);
+            }
         }
-    }
 
-    /// <summary>
-    /// Sets PCL marker
-    ///
-    /// Call this method to set specific PCL marker
-    ///
-    /// @param marker Specifies which marker to use
-    /// @param frame Specifies current frame
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:133. </remarks>
-    public static SLResult PCLSetMarker(PCLMarker marker, nint frame)
-    {
-        SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetMarker", "slPCLSetMarker"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>
+        /// Provides PCL settings
+        ///
+        /// Call this method to get stats etc.
+        ///
+        /// @param state Reference to a structure where states are returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:122. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+        /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+        /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+        public static PCLState GetState()
         {
-            return result;
+            PCLState state = new();
+            SLResult result = GetState(ref state);
+            if (result != SLResult.Ok)
+            {
+                throw new SLException(result, "slPCLGetState");
+            }
+            return state;
         }
-        return ((delegate* unmanaged[Cdecl]<PCLMarker, nint, SLResult>)address)(marker, frame);
-    }
 
-    /// <summary>
-    /// Sets PCL marker
-    ///
-    /// Call this method to set specific PCL marker
-    ///
-    /// @param marker Specifies which marker to use
-    /// @param frame Specifies current frame
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:133. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult PCLSetMarker(PCLMarker marker, FrameToken frame)
-    {
-        return PCLSetMarker(marker, frame.Handle);
-    }
-
-    /// <summary>
-    /// Sets PCL options
-    ///
-    /// Call this method to set PCL options.
-    ///
-    /// @param options Specifies options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:143. </remarks>
-    public static SLResult PCLSetOptions(PCLOptions* options)
-    {
-        SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetOptions", "slPCLSetOptions"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>
+        /// Sets PCL marker
+        ///
+        /// Call this method to set specific PCL marker
+        ///
+        /// @param marker Specifies which marker to use
+        /// @param frame Specifies current frame
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:133. </remarks>
+        public static SLResult SetMarker(PCLMarker marker, nint frame)
         {
-            return result;
+            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetMarker", "slPCLSetMarker"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<PCLMarker, nint, SLResult>)address)(marker, frame);
         }
-        return ((delegate* unmanaged[Cdecl]<PCLOptions*, SLResult>)address)(options);
-    }
 
-    /// <summary>
-    /// Sets PCL options
-    ///
-    /// Call this method to set PCL options.
-    ///
-    /// @param options Specifies options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_pcl.h:143. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult PCLSetOptions(in PCLOptions options)
-    {
-        fixed (PCLOptions* optionsPointer = &options)
+        /// <summary>
+        /// Sets PCL marker
+        ///
+        /// Call this method to set specific PCL marker
+        ///
+        /// @param marker Specifies which marker to use
+        /// @param frame Specifies current frame
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:133. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult SetMarker(PCLMarker marker, FrameToken frame)
         {
-            return PCLSetOptions(optionsPointer);
+            return SetMarker(marker, frame.Handle);
+        }
+
+        /// <summary>
+        /// Sets PCL options
+        ///
+        /// Call this method to set PCL options.
+        ///
+        /// @param options Specifies options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:143. </remarks>
+        public static SLResult SetOptions(PCLOptions* options)
+        {
+            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetOptions", "slPCLSetOptions"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<PCLOptions*, SLResult>)address)(options);
+        }
+
+        /// <summary>
+        /// Sets PCL options
+        ///
+        /// Call this method to set PCL options.
+        ///
+        /// @param options Specifies options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_pcl.h:143. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult SetOptions(in PCLOptions options)
+        {
+            fixed (PCLOptions* optionsPointer = &options)
+            {
+                return SetOptions(optionsPointer);
+            }
         }
     }
 }

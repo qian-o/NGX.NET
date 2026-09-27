@@ -10,118 +10,173 @@ namespace Streamline.NET;
 public static unsafe partial class SL
 {
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:177. </remarks>
-    public static SLResult DLSSGetOptimalSettings(DLSSOptions* options, DLSSOptimalSettings* settings)
+    /// <summary>Streamline DLSS feature operations.</summary>
+    public static unsafe partial class DLSS
     {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetOptimalSettings", "slDLSSGetOptimalSettings"u8, out nint address);
-        if (result != SLResult.Ok)
-        {
-            return result;
-        }
-        return ((delegate* unmanaged[Cdecl]<DLSSOptions*, DLSSOptimalSettings*, SLResult>)address)(options, settings);
-    }
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:177. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult DLSSGetOptimalSettings(in DLSSOptions options, ref DLSSOptimalSettings settings)
-    {
-        fixed (DLSSOptions* optionsPointer = &options)
-        fixed (DLSSOptimalSettings* settingsPointer = &settings)
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:177. </remarks>
+        public static SLResult GetOptimalSettings(DLSSOptions* options, DLSSOptimalSettings* settings)
         {
-            return DLSSGetOptimalSettings(optionsPointer, settingsPointer);
+            SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetOptimalSettings", "slDLSSGetOptimalSettings"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<DLSSOptions*, DLSSOptimalSettings*, SLResult>)address)(options, settings);
         }
-    }
 
-    /// <summary>
-    /// Provides DLSS state for the given viewport
-    ///
-    /// Call this method to obtain optimal render target size and other DLSS related settings.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param state Reference to a structure where state is to be returned
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:162. </remarks>
-    public static SLResult DLSSGetState(ViewportHandle* viewport, DLSSState* state)
-    {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetState", "slDLSSGetState"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:177. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult GetOptimalSettings(in DLSSOptions options, ref DLSSOptimalSettings settings)
         {
-            return result;
+            fixed (DLSSOptions* optionsPointer = &options)
+            fixed (DLSSOptimalSettings* settingsPointer = &settings)
+            {
+                return GetOptimalSettings(optionsPointer, settingsPointer);
+            }
         }
-        return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSState*, SLResult>)address)(viewport, state);
-    }
 
-    /// <summary>
-    /// Provides DLSS state for the given viewport
-    ///
-    /// Call this method to obtain optimal render target size and other DLSS related settings.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param state Reference to a structure where state is to be returned
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:162. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult DLSSGetState(in ViewportHandle viewport, ref DLSSState state)
-    {
-        fixed (ViewportHandle* viewportPointer = &viewport)
-        fixed (DLSSState* statePointer = &state)
+        /// <summary>
+        /// Provides optimal DLSS settings
+        ///
+        /// Call this method to obtain optimal render target size and other DLSS related settings.
+        ///
+        /// @param options Specifies DLSS options to use
+        /// @param settings Reference to a structure where settings are returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:151. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+        /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+        /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+        public static DLSSOptimalSettings GetOptimalSettings(in DLSSOptions options)
         {
-            return DLSSGetState(viewportPointer, statePointer);
+            DLSSOptimalSettings settings = new();
+            SLResult result = GetOptimalSettings(in options, ref settings);
+            if (result != SLResult.Ok)
+            {
+                throw new SLException(result, "slDLSSGetOptimalSettings");
+            }
+            return settings;
         }
-    }
 
-    /// <summary>
-    /// Sets DLSS options
-    ///
-    /// Call this method to turn DLSS on/off, change mode etc.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param options Specifies DLSS options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:173. </remarks>
-    public static SLResult DLSSSetOptions(ViewportHandle* viewport, DLSSOptions* options)
-    {
-        SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSSetOptions", "slDLSSSetOptions"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>
+        /// Provides DLSS state for the given viewport
+        ///
+        /// Call this method to obtain optimal render target size and other DLSS related settings.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param state Reference to a structure where state is to be returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:162. </remarks>
+        public static SLResult GetState(ViewportHandle* viewport, DLSSState* state)
         {
-            return result;
+            SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSGetState", "slDLSSGetState"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSState*, SLResult>)address)(viewport, state);
         }
-        return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSOptions*, SLResult>)address)(viewport, options);
-    }
 
-    /// <summary>
-    /// Sets DLSS options
-    ///
-    /// Call this method to turn DLSS on/off, change mode etc.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param options Specifies DLSS options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_dlss.h:173. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult DLSSSetOptions(in ViewportHandle viewport, in DLSSOptions options)
-    {
-        fixed (ViewportHandle* viewportPointer = &viewport)
-        fixed (DLSSOptions* optionsPointer = &options)
+        /// <summary>
+        /// Provides DLSS state for the given viewport
+        ///
+        /// Call this method to obtain optimal render target size and other DLSS related settings.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param state Reference to a structure where state is to be returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:162. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult GetState(in ViewportHandle viewport, ref DLSSState state)
         {
-            return DLSSSetOptions(viewportPointer, optionsPointer);
+            fixed (ViewportHandle* viewportPointer = &viewport)
+            fixed (DLSSState* statePointer = &state)
+            {
+                return GetState(viewportPointer, statePointer);
+            }
+        }
+
+        /// <summary>
+        /// Provides DLSS state for the given viewport
+        ///
+        /// Call this method to obtain optimal render target size and other DLSS related settings.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param state Reference to a structure where state is to be returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:162. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+        /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+        /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+        public static DLSSState GetState(in ViewportHandle viewport)
+        {
+            DLSSState state = new();
+            SLResult result = GetState(in viewport, ref state);
+            if (result != SLResult.Ok)
+            {
+                throw new SLException(result, "slDLSSGetState");
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Sets DLSS options
+        ///
+        /// Call this method to turn DLSS on/off, change mode etc.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param options Specifies DLSS options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:173. </remarks>
+        public static SLResult SetOptions(ViewportHandle* viewport, DLSSOptions* options)
+        {
+            SLResult result = FeatureFunctions.Get(FeatureDLSS, "slDLSSSetOptions", "slDLSSSetOptions"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSOptions*, SLResult>)address)(viewport, options);
+        }
+
+        /// <summary>
+        /// Sets DLSS options
+        ///
+        /// Call this method to turn DLSS on/off, change mode etc.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param options Specifies DLSS options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_dlss.h:173. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult SetOptions(in ViewportHandle viewport, in DLSSOptions options)
+        {
+            fixed (ViewportHandle* viewportPointer = &viewport)
+            fixed (DLSSOptions* optionsPointer = &options)
+            {
+                return SetOptions(viewportPointer, optionsPointer);
+            }
         }
     }
 }

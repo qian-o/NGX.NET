@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Streamline.NET;
 
@@ -19,7 +19,8 @@ internal static unsafe class Program
             // Keep the native-call path reachable for trimming and AOT analysis.
             // CI runs without this argument and never loads an NVIDIA runtime.
             SL.SetLibraryPath(args[0]);
-            return (int)SL.DLSSGetOptimalSettings(in options, ref settings);
+            DLSSOptimalSettings returned = SL.DLSS.GetOptimalSettings(in options);
+            return (int)returned.OptimalRenderWidth;
         }
         ResourceAllocationDesc description = new(ResourceType.Buffer, null, 7, null);
         delegate* unmanaged[Cdecl]<ResourceAllocationDesc*, void*, Resource> callback = &Allocate;

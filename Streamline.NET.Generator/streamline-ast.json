@@ -17885,7 +17885,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_core_api.h:197"
+            "evidence": "include/sl_core_api.h:197",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -18033,7 +18035,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_core_api.h:209"
+            "evidence": "include/sl_core_api.h:209",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -37345,7 +37349,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_deepdvc.h:88"
+            "evidence": "include/sl_deepdvc.h:88",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -40272,7 +40278,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_directsr.h:156"
+            "evidence": "include/sl_directsr.h:156",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -43559,7 +43567,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_dlss.h:177"
+            "evidence": "include/sl_dlss.h:177",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -43725,7 +43735,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_dlss.h:183"
+            "evidence": "include/sl_dlss.h:183",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -46805,7 +46817,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_dlss_d.h:172"
+            "evidence": "include/sl_dlss_d.h:172",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -46971,7 +46985,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_dlss_d.h:178"
+            "evidence": "include/sl_dlss_d.h:178",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -51310,7 +51326,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_dlss_g.h:212"
+            "evidence": "include/sl_dlss_g.h:212",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         },
         {
@@ -59072,7 +59090,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_nis.h:98"
+            "evidence": "include/sl_nis.h:98",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -62091,7 +62111,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_pcl.h:147"
+            "evidence": "include/sl_pcl.h:147",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -66737,7 +66759,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_reflex.h:204"
+            "evidence": "include/sl_reflex.h:204",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],
@@ -67401,7 +67425,9 @@
             "direction": "input-output",
             "lifetime": "call-outer-structure-only",
             "convenience": "ref",
-            "evidence": "include/sl_reflex.h:228"
+            "evidence": "include/sl_reflex.h:228",
+            "returnValue": true,
+            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
           }
         }
       ],

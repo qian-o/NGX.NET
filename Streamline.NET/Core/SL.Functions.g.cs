@@ -333,6 +333,32 @@ public static unsafe partial class SL
     }
 
     /// <summary>
+    /// Returns feature&apos;s requirements
+    ///
+    /// Call this method to check what is required to run certain eFeature* (see above).
+    /// This method must be called after init otherwise it will always return an error.
+    ///
+    /// @param feature Specifies which feature to check
+    /// @param requirements Data structure with feature&apos;s requirements
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is NOT thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:197. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+    /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+    /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+    public static FeatureRequirements GetFeatureRequirements(uint feature)
+    {
+        FeatureRequirements requirements = new();
+        SLResult result = GetFeatureRequirements(feature, ref requirements);
+        if (result != SLResult.Ok)
+        {
+            throw new SLException(result, "slGetFeatureRequirements");
+        }
+        return requirements;
+    }
+
+    /// <summary>
     /// Returns feature&apos;s version
     ///
     /// Call this method to check version for a certain eFeature* (see above).
@@ -369,6 +395,32 @@ public static unsafe partial class SL
         {
             return GetFeatureVersion(feature, versionPointer);
         }
+    }
+
+    /// <summary>
+    /// Returns feature&apos;s version
+    ///
+    /// Call this method to check version for a certain eFeature* (see above).
+    /// This method must be called after init otherwise it will always return an error.
+    ///
+    /// @param feature Specifies which feature to check
+    /// @param version Data structure with feature&apos;s version
+    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+    ///
+    /// This method is thread safe.
+    /// </summary>
+    /// <remarks>Source: include/sl_core_api.h:209. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+    /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+    /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+    public static FeatureVersion GetFeatureVersion(uint feature)
+    {
+        FeatureVersion version = new();
+        SLResult result = GetFeatureVersion(feature, ref version);
+        if (result != SLResult.Ok)
+        {
+            throw new SLException(result, "slGetFeatureVersion");
+        }
+        return version;
     }
 
     /// <summary>

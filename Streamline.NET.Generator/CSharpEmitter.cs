@@ -14,6 +14,8 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
 
     private readonly Dictionary<string, StringBuilder> files = new(StringComparer.Ordinal);
 
+    private readonly Dictionary<string, (int BodyStart, string Feature)> nestedFiles = new(StringComparer.Ordinal);
+
     private readonly Dictionary<string, string> implementations = new(StringComparer.Ordinal);
 
     private readonly List<string> unhandled = [];
@@ -38,6 +40,10 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
                 builder.AppendLine();
                 builder.AppendLine(name == "SLNative" ? "internal static unsafe partial class SLNative" : "public static unsafe partial class SL");
                 builder.AppendLine("{");
+                if (featureGroups.Contains(group) && name is "SL.Functions" or "SL.Strings" or "SL.Presets" or "SL.Flags")
+                {
+                    nestedFiles.Add(path, (builder.Length, group));
+                }
             }
             files.Add(path, builder);
         }
@@ -176,7 +182,19 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
         foreach ((string relativePath, StringBuilder builder) in files.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             string path = Path.Combine(outputDirectory, relativePath);
-            string text = builder.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
+            string text = builder.ToString();
+            if (nestedFiles.TryGetValue(relativePath, out (int BodyStart, string Feature) nested))
+            {
+                string body = text[nested.BodyStart..].Replace("\r\n", "\n", StringComparison.Ordinal);
+                string declaration = Path.GetFileName(relativePath) == "SL.Functions.g.cs"
+                    ? $"    /// <summary>Streamline {nested.Feature} feature operations.</summary>\n"
+                    : "";
+                text = text[..nested.BodyStart] + "\n" + declaration
+                    + $"    public static unsafe partial class {nested.Feature}\n    {{\n"
+                    + string.Join('\n', body.Split('\n').Select(line => line.Length == 0 ? "" : "    " + line))
+                    + "    }\n";
+            }
+            text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
             string fileName = Path.GetFileName(relativePath);
             if (fileName.StartsWith("SL.", StringComparison.Ordinal) || fileName == "SLNative.g.cs")
             {

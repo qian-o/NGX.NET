@@ -45,7 +45,7 @@ Streamline.NET/
 
 `Streamline.NET.Generator` 读取接口快照，由 `Program` 串联 `AstJsonParser → TypeMapper → CSharpEmitter`，模型放在 `Models.cs`。`Streamline.NET` 提供绑定、便利重载、辅助实现和加载功能。内部文件按实际体量拆分，`<功能分组>` 根据公开模块生成。
 
-库使用 `namespace Streamline.NET;`，生成器使用 `Streamline.NET.Generator`。枚举与结构体按功能合并；自由函数放在 `SL` 的 partial 文件中，原生入口与便利重载相邻，类型成员保留在所属类型中。固定导出的内部声明集中在 `SLNative`，加载实现放在 `Interop`。
+库使用 `namespace Streamline.NET;`，生成器使用 `Streamline.NET.Generator`。枚举与结构体按功能合并，保留顶层类型名；核心函数放在 `SL` 的 partial 文件中，功能函数及其专属辅助函数放在 `SL.DLSS`、`SL.Reflex` 等平级嵌套静态 partial 类中。原生入口、结果码便利重载与直接返回值重载相邻，类型成员保留在所属类型中。固定导出的内部声明集中在 `SLNative`，加载实现放在 `Interop`。
 
 生成文件与手写文件分开。生成代码的问题通过修改 Generator 解决；复杂辅助算法可按官方源码手写，不要求生成器翻译任意 C++ 程序。
 
@@ -107,7 +107,7 @@ public static unsafe partial class SL
 
 | 官方表达 | C# 表达 |
 |---|---|
-| `slInit`、`slDLSSSetOptions` | `SL.Init`、`SL.DLSSSetOptions` |
+| `slInit`、`slDLSSSetOptions` | `SL.Init`、`SL.DLSS.SetOptions` |
 | `sl::Result`、`eOk` | `SLResult`、`SLResult.Ok` |
 | `sl::Boolean`、`sl::Version` | `SLBoolean`、`SLVersion` |
 | 类型、字段、枚举成员 | PascalCase；枚举成员去除命名用的 `e` 前缀。 |
@@ -121,7 +121,7 @@ public static unsafe partial class SL
 
 插件函数按官方调用前提查询，查询失败返回原始结果，成功地址缓存；关闭 SDK 或改变插件装载状态时清理相关缓存。所有重载共用这一调用实现。
 
-官方返回 `Result` 的函数返回 `SLResult`，其他函数保持自身返回语义。SDK 错误不自动转为异常；加载失败和缺少固定导出使用 .NET 异常。绑定不增加参数纠正、重试、功能回退、自动初始化或 GPU 等待。
+官方返回 `Result` 的函数，其原生入口和显式引用／缓冲重载返回 `SLResult`，SDK 结果不自动转为异常。直接返回输出值的便利重载按第 4.2 节处理非成功结果；其他函数保持自身返回语义。加载失败和缺少固定导出使用原有 .NET 异常。绑定不增加参数纠正、重试、功能回退、自动初始化或 GPU 等待。
 
 ### 4.2 便利重载
 
@@ -138,6 +138,10 @@ public static unsafe partial class SL
 
 带类型与版本头的输出结构、原地替换的接口地址均使用 `ref`。异构结构指针数组保留 `BaseStructure**`，不当作连续结构数组。
 
+对于已确认的单一输出值结构，另提供省略输出参数、直接返回该结构的同名重载。内部使用 `new T()` 初始化结构头、版本及官方默认值，再调用现有结果码重载；仅当结果为 `SLResult.Ok` 时返回结构，否则抛出 `SLException`，保留原始 `SLResult` 与对应原生函数名。非成功警告也按此规则抛出，调用方可选择结果码重载自行处理。
+
+直接返回值重载采用默认版本和空 `Next` 链，需要预设输出结构、扩展链或检查非成功时输出内容的调用继续使用 `ref` 形式。新增重载依据 JSON 中已核实的输出契约生成，不根据 `ref` 所处位置自动推断；接口地址替换、需要调用方预填的真正输入输出参数、数组及多个输出不自动套用此规则。
+
 引用和 Span 固定到原生调用返回，字符串按原编码转换并释放临时内存。外层固定不固定嵌套指针，也不延长资源有效期。原生入口始终保留官方允许的空参数和空缓冲形式。[4]
 
 调用形态（初始化和设备关联已完成）：
@@ -150,8 +154,14 @@ DLSSOptions options = new()
     OutputHeight = 1080
 };
 
+DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
+```
+
+需要自行处理 SDK 结果或提供输出结构时，使用同名结果码重载：
+
+```csharp
 DLSSOptimalSettings settings = new();
-SLResult result = SL.DLSSGetOptimalSettings(in options, ref settings);
+SLResult result = SL.DLSS.GetOptimalSettings(in options, ref settings);
 ```
 
 直接控制地址时，在 unsafe 上下文使用同名指针入口。[3]

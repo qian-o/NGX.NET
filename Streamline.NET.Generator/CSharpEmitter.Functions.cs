@@ -7,7 +7,8 @@ internal sealed partial class CSharpEmitter
 {
     private void EmitFunction(NativeDeclaration declaration)
     {
-        string name = declaration.Name[2..];
+        string name = FunctionName(declaration);
+        string apiPath = ApiPath(TypeMapper.Group(declaration), name);
         string result = mapper.Map(declaration.ResultType ?? throw new InvalidDataException("Missing function result."));
         string pointerSignature = mapper.Map(declaration.Type);
         bool exported = snapshot.Exports.Contains(declaration.Name, StringComparer.Ordinal);
@@ -62,14 +63,15 @@ internal sealed partial class CSharpEmitter
 
         builder.AppendLine("    }");
         EmitReferenceOverload(builder, declaration);
-        Record(declaration, "SL." + name);
+        EmitValueReturnOverload(builder, declaration);
+        Record(declaration, apiPath);
         foreach (NativeDeclaration parameter in parameters)
         {
-            Record(parameter, "SL." + name + " parameter " + parameter.Name);
+            Record(parameter, apiPath + " parameter " + parameter.Name);
         }
         if (alias is not null)
         {
-            Record(alias, "Unmanaged function pointer signature for SL." + name);
+            Record(alias, "Unmanaged function pointer signature for " + apiPath);
             foreach (NativeDeclaration parameter in alias.Parameters)
             {
                 Record(parameter, "Function pointer parameter " + parameter.Name);
@@ -173,7 +175,7 @@ internal sealed partial class CSharpEmitter
             ? snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name) ?? declaration
             : declaration;
         Comment(builder, documentation, "    ", "Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.");
-        builder.AppendLine($"    public static SLResult {declaration.Name[2..]}({string.Join(", ", signatures)})");
+        builder.AppendLine($"    public static SLResult {FunctionName(declaration)}({string.Join(", ", signatures)})");
         builder.AppendLine("    {");
         foreach (string statement in before)
         {
@@ -188,7 +190,7 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine("        {");
         }
         string indent = pins.Count > 0 ? "            " : "        ";
-        string call = $"{declaration.Name[2..]}({string.Join(", ", arguments)})";
+        string call = $"{FunctionName(declaration)}({string.Join(", ", arguments)})";
         if (after.Count == 0)
         {
             builder.AppendLine(indent + "return " + call + ";");
@@ -212,7 +214,7 @@ internal sealed partial class CSharpEmitter
     private void EmitVariantOverloads(StringBuilder builder, NativeDeclaration declaration)
     {
         string type = mapper.Map(declaration.Parameters.Last().Type.Element!);
-        string name = declaration.Name[2..];
+        string name = FunctionName(declaration);
         builder.AppendLine();
         builder.AppendLine("    /// <summary>Queries the available variant count using the original null-buffer form.</summary>");
         builder.AppendLine($"    public static SLResult {name}(out uint numVariants)");

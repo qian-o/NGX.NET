@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
@@ -7,6 +7,98 @@ using Streamline.NET;
 internal static unsafe class Program
 {
     private static int assertions;
+
+    private static SLResult settingsResult;
+
+    private static bool settingsHeaderValid;
+
+    private static nint settingsNext;
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static SLResult GetSettings(DLSSOptions* options, DLSSOptimalSettings* settings)
+    {
+        settingsHeaderValid = settings->StructType == DLSSOptimalSettings.TypeId && settings->StructVersion == SL.StructVersion1;
+        settingsNext = (nint)settings->Next;
+        settings->OptimalRenderWidth = options->OutputWidth / 2;
+        settings->OptimalRenderHeight = options->OutputHeight / 2;
+        return settingsResult;
+    }
+
+    private static void CheckValueReturns(JsonObject snapshot)
+    {
+        Type featureFunctions = typeof(SL).Assembly.GetType("Streamline.NET.FeatureFunctions", throwOnError: true)!;
+        Dictionary<(uint, string), nint> addresses = (Dictionary<(uint, string), nint>)featureFunctions
+            .GetField("addresses", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        (uint, string) key = (SL.FeatureDLSS, "slDLSSGetOptimalSettings");
+        addresses.Add(key, (nint)(delegate* unmanaged[Cdecl]<DLSSOptions*, DLSSOptimalSettings*, SLResult>)&GetSettings);
+        try
+        {
+            DLSSOptions options = new() { OutputWidth = 1920, OutputHeight = 1080 };
+            settingsResult = SLResult.Ok;
+            DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
+            Assert(settingsHeaderValid && settingsNext == 0, "Value-return overload initializes the native header and an empty chain");
+            Assert(settings.OptimalRenderWidth == 960 && settings.OptimalRenderHeight == 540, "Value-return overload returns the native output");
+            foreach (SLResult failure in new[] { SLResult.ErrorInvalidParameter, SLResult.WarnOutOfVRAM, (SLResult)(-77) })
+            {
+                settingsResult = failure;
+                try
+                {
+                    SL.DLSS.GetOptimalSettings(in options);
+                    throw new InvalidOperationException("Expected an SDK exception.");
+                }
+                catch (SLException exception)
+                {
+                    Assert(exception.Result == failure, "SDK exception preserves the exact result");
+                    Assert(exception.NativeFunction == "slDLSSGetOptimalSettings", "SDK exception preserves the native function name");
+                }
+            }
+            DLSSState extension = new();
+            settings = new() { Next = (BaseStructure*)(&extension) };
+            settingsResult = SLResult.ErrorInvalidParameter;
+            SLResult result = SL.DLSS.GetOptimalSettings(in options, ref settings);
+            Assert(result == settingsResult && settingsNext == (nint)(&extension), "Reference overload retains caller storage, extension chains and non-throwing SDK results");
+            Assert(settings.OptimalRenderWidth == 960, "Reference overload preserves partial output on a non-success result");
+
+            int returnedValues = 0;
+            foreach (JsonObject function in snapshot["declarations"]!.AsArray().OfType<JsonObject>().Where(item => item["kind"]!.GetValue<string>() == "FUNCTION_DECL"))
+            {
+                JsonObject? output = function["children"]!.AsArray().OfType<JsonObject>().SingleOrDefault(parameter => parameter["contract"]?["returnValue"]?.GetValue<bool>() == true);
+                if (output is null)
+                {
+                    continue;
+                }
+                string nativeName = function["name"]!.GetValue<string>();
+                string managedName = nativeName[2..];
+                string? group = Path.GetFileName(function["file"]!.GetValue<string>()) switch
+                {
+                    "sl_dlss.h" => "DLSS",
+                    "sl_dlss_d.h" => "DLSSD",
+                    "sl_dlss_g.h" => "DLSSG",
+                    "sl_deepdvc.h" => "DeepDVC",
+                    "sl_directsr.h" => "DirectSR",
+                    "sl_reflex.h" => "Reflex",
+                    "sl_pcl.h" => "PCL",
+                    "sl_nis.h" => "NIS",
+                    _ => null
+                };
+                Type owner = group is null ? typeof(SL) : typeof(SL).GetNestedType(group)!;
+                if (group is not null)
+                {
+                    managedName = managedName[group.Length..];
+                }
+                string nativeOutputType = output["type"]!["element"]!["declaration"]!.GetValue<string>().Replace("sl::", "", StringComparison.Ordinal);
+                Type returnType = typeof(SL).Assembly.GetType("Streamline.NET." + ManagedName(nativeOutputType), throwOnError: true)!;
+                Assert(owner.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(method => method.Name == managedName && method.ReturnType == returnType), "Reviewed value-return API exists: " + nativeName);
+                returnedValues++;
+            }
+            Assert(returnedValues == 13, "Only the reviewed output structures have value-return overloads");
+            Assert(typeof(SL).GetMethod("UpgradeInterface", [typeof(nint).MakeByRefType()])!.ReturnType == typeof(SLResult), "In-place interface replacement is not converted to a value-return overload");
+        }
+        finally
+        {
+            addresses.Remove(key);
+        }
+    }
 
     private struct BorrowedObject
     {
@@ -185,9 +277,9 @@ internal static unsafe class Program
         Extent extent = new() { Left = 10, Top = 20, Width = 30, Height = 40 };
         Rect rect = extent;
         Assert(rect.Right == 40 && rect.Bottom == 60, "Native rectangle conversion");
-        Assert(SL.GetDLSSModeAsStr(DLSSMode.MaxQuality) == "DLSSMode::eMaxQuality", "Exact native enum text");
-        Assert(SL.GetDLSSModeAsStr((DLSSMode)int.MaxValue) == "Unknown", "Unknown native enum text");
-        Assert(SL.ResolveDLSSPreset(DLSSPreset.PresetJ) == DLSSPreset.PresetJ && SL.ResolveDLSSPreset((DLSSPreset)int.MaxValue) == DLSSPreset.Default, "Native preset resolution");
+        Assert(SL.DLSS.GetModeAsStr(DLSSMode.MaxQuality) == "DLSSMode::eMaxQuality", "Exact native enum text");
+        Assert(SL.DLSS.GetModeAsStr((DLSSMode)int.MaxValue) == "Unknown", "Unknown native enum text");
+        Assert(SL.DLSS.ResolvePreset(DLSSPreset.PresetJ) == DLSSPreset.PresetJ && SL.DLSS.ResolvePreset((DLSSPreset)int.MaxValue) == DLSSPreset.Default, "Native preset resolution");
         Assert(SL.HasAnyFlags(PreferenceFlags.AllowOTA, PreferenceFlags.AllowOTA | PreferenceFlags.LoadDownloadedPlugins), "Any-bit flag semantics");
     }
 
@@ -275,6 +367,7 @@ internal static unsafe class Program
         CheckMath();
         CheckVulkan();
         CheckBorrowedObjects(snapshot);
+        CheckValueReturns(snapshot);
         Assert(!SL.IsSignedByNVIDIA(Path.Combine(root, ".work", "unsigned-missing-file")), "Missing-file signature identity check");
         Assert(!SL.VerifyEmbeddedSignature(Path.Combine(root, ".work", "unsigned-missing-file")), "Missing-file signature trust check");
         Throws<InvalidOperationException>(() => SL.Shutdown());

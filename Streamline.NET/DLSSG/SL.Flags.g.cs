@@ -10,9 +10,13 @@ namespace Streamline.NET;
 public static unsafe partial class SL
 {
 
-    /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>
-    public static bool HasAnyFlags(DLSSGFlags value, DLSSGFlags mask) => (value & mask) != 0;
+    public static unsafe partial class DLSSG
+    {
 
-    /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>
-    public static bool HasAnyFlags(DLSSGStatus value, DLSSGStatus mask) => (value & mask) != 0;
+        /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>
+        public static bool HasAnyFlags(DLSSGFlags value, DLSSGFlags mask) => (value & mask) != 0;
+
+        /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>
+        public static bool HasAnyFlags(DLSSGStatus value, DLSSGStatus mask) => (value & mask) != 0;
+    }
 }

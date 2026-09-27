@@ -10,109 +10,139 @@ namespace Streamline.NET;
 public static unsafe partial class SL
 {
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:156. </remarks>
-    public static SLResult DirectSRGetOptimalSettings(DirectSROptions* options, DirectSROptimalSettings* settings)
+    /// <summary>Streamline DirectSR feature operations.</summary>
+    public static unsafe partial class DirectSR
     {
-        SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetOptimalSettings", "slDirectSRGetOptimalSettings"u8, out nint address);
-        if (result != SLResult.Ok)
-        {
-            return result;
-        }
-        return ((delegate* unmanaged[Cdecl]<DirectSROptions*, DirectSROptimalSettings*, SLResult>)address)(options, settings);
-    }
 
-    /// <summary>
-    /// HELPERS
-    ///
-    /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:156. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult DirectSRGetOptimalSettings(in DirectSROptions options, ref DirectSROptimalSettings settings)
-    {
-        fixed (DirectSROptions* optionsPointer = &options)
-        fixed (DirectSROptimalSettings* settingsPointer = &settings)
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:156. </remarks>
+        public static SLResult GetOptimalSettings(DirectSROptions* options, DirectSROptimalSettings* settings)
         {
-            return DirectSRGetOptimalSettings(optionsPointer, settingsPointer);
+            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetOptimalSettings", "slDirectSRGetOptimalSettings"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<DirectSROptions*, DirectSROptimalSettings*, SLResult>)address)(options, settings);
         }
-    }
 
-    /// <summary>
-    /// Retrive information about the available DirectSR variants.
-    /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:141. </remarks>
-    public static SLResult DirectSRGetVariantInfo(uint* numVariants, DirectSRVariantInfo* variantInfo)
-    {
-        SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetVariantInfo", "slDirectSRGetVariantInfo"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>
+        /// HELPERS
+        ///
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:156. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult GetOptimalSettings(in DirectSROptions options, ref DirectSROptimalSettings settings)
         {
-            return result;
+            fixed (DirectSROptions* optionsPointer = &options)
+            fixed (DirectSROptimalSettings* settingsPointer = &settings)
+            {
+                return GetOptimalSettings(optionsPointer, settingsPointer);
+            }
         }
-        return ((delegate* unmanaged[Cdecl]<uint*, DirectSRVariantInfo*, SLResult>)address)(numVariants, variantInfo);
-    }
 
-    /// <summary>Queries the available variant count using the original null-buffer form.</summary>
-    public static SLResult DirectSRGetVariantInfo(out uint numVariants)
-    {
-        numVariants = 0;
-        fixed (uint* count = &numVariants)
+        /// <summary>
+        /// Provides optimal DirectSR settings
+        ///
+        /// Call this method to obtain optimal render target size and other DirectSR related settings.
+        ///
+        /// @param options Specifies DirectSR options to use
+        /// @param settings Reference to a structure where settings are returned
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:138. Returns a newly initialized output structure using its default version and an empty Next chain. Use the ref overload to supply an extension chain or a different version. Nested pointers keep their native ownership and lifetime requirements.</remarks>
+        /// <returns>The output structure when the SDK returns SLResult.Ok.</returns>
+        /// <exception cref="SLException">The SDK returns any result other than SLResult.Ok, including a non-success warning.</exception>
+        public static DirectSROptimalSettings GetOptimalSettings(in DirectSROptions options)
         {
-            return DirectSRGetVariantInfo(count, null);
+            DirectSROptimalSettings settings = new();
+            SLResult result = GetOptimalSettings(in options, ref settings);
+            if (result != SLResult.Ok)
+            {
+                throw new SLException(result, "slDirectSRGetOptimalSettings");
+            }
+            return settings;
         }
-    }
 
-    /// <summary>Requests exactly the span length of variants. Initialize each versioned element before the call. This does not query, resize, retry or truncate the request.</summary>
-    public static SLResult DirectSRGetVariantInfo(Span<DirectSRVariantInfo> variantInfo)
-    {
-        uint requested = (uint)variantInfo.Length;
-        fixed (DirectSRVariantInfo* variants = variantInfo)
+        /// <summary>
+        /// Retrive information about the available DirectSR variants.
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:141. </remarks>
+        public static SLResult GetVariantInfo(uint* numVariants, DirectSRVariantInfo* variantInfo)
         {
-            return DirectSRGetVariantInfo(&requested, variants);
+            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetVariantInfo", "slDirectSRGetVariantInfo"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<uint*, DirectSRVariantInfo*, SLResult>)address)(numVariants, variantInfo);
         }
-    }
 
-    /// <summary>
-    /// Sets DirectSR options
-    ///
-    /// Call this method to turn DirectSR on/off, change mode etc.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param options Specifies DirectSR options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:152. </remarks>
-    public static SLResult DirectSRSetOptions(ViewportHandle* viewport, DirectSROptions* options)
-    {
-        SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRSetOptions", "slDirectSRSetOptions"u8, out nint address);
-        if (result != SLResult.Ok)
+        /// <summary>Queries the available variant count using the original null-buffer form.</summary>
+        public static SLResult GetVariantInfo(out uint numVariants)
         {
-            return result;
+            numVariants = 0;
+            fixed (uint* count = &numVariants)
+            {
+                return GetVariantInfo(count, null);
+            }
         }
-        return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DirectSROptions*, SLResult>)address)(viewport, options);
-    }
 
-    /// <summary>
-    /// Sets DirectSR options
-    ///
-    /// Call this method to turn DirectSR on/off, change mode etc.
-    ///
-    /// @param viewport Specified viewport we are working with
-    /// @param options Specifies DirectSR options to use
-    /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
-    ///
-    /// This method is NOT thread safe.
-    /// </summary>
-    /// <remarks>Source: include/sl_directsr.h:152. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
-    public static SLResult DirectSRSetOptions(in ViewportHandle viewport, in DirectSROptions options)
-    {
-        fixed (ViewportHandle* viewportPointer = &viewport)
-        fixed (DirectSROptions* optionsPointer = &options)
+        /// <summary>Requests exactly the span length of variants. Initialize each versioned element before the call. This does not query, resize, retry or truncate the request.</summary>
+        public static SLResult GetVariantInfo(Span<DirectSRVariantInfo> variantInfo)
         {
-            return DirectSRSetOptions(viewportPointer, optionsPointer);
+            uint requested = (uint)variantInfo.Length;
+            fixed (DirectSRVariantInfo* variants = variantInfo)
+            {
+                return GetVariantInfo(&requested, variants);
+            }
+        }
+
+        /// <summary>
+        /// Sets DirectSR options
+        ///
+        /// Call this method to turn DirectSR on/off, change mode etc.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param options Specifies DirectSR options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:152. </remarks>
+        public static SLResult SetOptions(ViewportHandle* viewport, DirectSROptions* options)
+        {
+            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRSetOptions", "slDirectSRSetOptions"u8, out nint address);
+            if (result != SLResult.Ok)
+            {
+                return result;
+            }
+            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DirectSROptions*, SLResult>)address)(viewport, options);
+        }
+
+        /// <summary>
+        /// Sets DirectSR options
+        ///
+        /// Call this method to turn DirectSR on/off, change mode etc.
+        ///
+        /// @param viewport Specified viewport we are working with
+        /// @param options Specifies DirectSR options to use
+        /// @return sl::ResultCode::eOk if successful, error code otherwise (see sl_result.h for details)
+        ///
+        /// This method is NOT thread safe.
+        /// </summary>
+        /// <remarks>Source: include/sl_directsr.h:152. Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.</remarks>
+        public static SLResult SetOptions(in ViewportHandle viewport, in DirectSROptions options)
+        {
+            fixed (ViewportHandle* viewportPointer = &viewport)
+            fixed (DirectSROptions* optionsPointer = &options)
+            {
+                return SetOptions(viewportPointer, optionsPointer);
+            }
         }
     }
 }

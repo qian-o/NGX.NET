@@ -30,16 +30,16 @@ internal sealed partial class CSharpEmitter
                 builder.AppendLine("    /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>");
                 builder.AppendLine($"    public static bool HasAnyFlags({csType} value, {csType} mask) => (value & mask) != 0;");
             }
-            Record(declaration, declaration.Name == "operator&" ? "SL.HasAnyFlags" : "C# enum bitwise operator " + declaration.Name);
+            Record(declaration, declaration.Name == "operator&" ? ApiPath(TypeMapper.Group(declaration), "HasAnyFlags") : "C# enum bitwise operator " + declaration.Name);
             return true;
         }
 
         if (declaration.Name is "resolveDLSSPreset" or "resolveDLSSDPreset")
         {
-            StringBuilder builder = File("Helpers", "SL.Presets");
+            StringBuilder builder = File(HelperGroup(declaration), "SL.Presets");
             builder.AppendLine();
             Comment(builder, declaration, "    ");
-            builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
+            builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {HelperName(declaration)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
             builder.AppendLine("    {");
             if (declaration.Name == "resolveDLSSPreset")
             {
@@ -57,10 +57,10 @@ internal sealed partial class CSharpEmitter
                 {
                     throw new InvalidDataException("Unsupported DLSSD preset resolution body.");
                 }
-                builder.AppendLine("        return (DLSSDPreset)ResolveDLSSPreset((DLSSPreset)preset);");
+                builder.AppendLine("        return (DLSSDPreset)SL.DLSS.ResolvePreset((DLSSPreset)preset);");
             }
             builder.AppendLine("    }");
-            Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
+            Record(declaration, ApiPath(HelperGroup(declaration), HelperName(declaration)));
             return true;
         }
 
@@ -75,7 +75,7 @@ internal sealed partial class CSharpEmitter
 
     private void EmitStringHelper(NativeDeclaration declaration)
     {
-        StringBuilder builder = File(TypeMapper.Group(declaration), "SL.Strings");
+        StringBuilder builder = File(HelperGroup(declaration), "SL.Strings");
         List<(string Value, string Text)> cases = [];
         foreach (Match match in Regex.Matches(declaration.Source, @"SL_CASE_STR\(([^)]+)\)"))
         {
@@ -93,7 +93,7 @@ internal sealed partial class CSharpEmitter
         string fallback = returns[^1].Groups[1].Value;
         builder.AppendLine();
         Comment(builder, declaration, "    ");
-        builder.AppendLine($"    public static string {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
+        builder.AppendLine($"    public static string {HelperName(declaration)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
         builder.AppendLine("    {");
         builder.AppendLine($"        return {declaration.Parameters.Single().Name} switch");
         builder.AppendLine("        {");
@@ -104,7 +104,7 @@ internal sealed partial class CSharpEmitter
         builder.AppendLine($"            _ => \"{fallback}\"");
         builder.AppendLine("        };");
         builder.AppendLine("    }");
-        Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
+        Record(declaration, ApiPath(HelperGroup(declaration), HelperName(declaration)));
     }
 
     private string TranslateSymbol(string symbol)

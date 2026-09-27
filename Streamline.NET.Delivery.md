@@ -4,6 +4,22 @@
 
 工作流范围更正：实现过程中擅自增加了 `.github/workflows/validate.yml`，现已撤销。目前仅保留接口提取工作流，构建、验证与打包手动执行。下文 CI 链接与结果保留为已发生的验证记录，不作为后续自动化安排。
 
+## API 分组与直接返回值重载更新
+
+用户确认同时采用功能分组与返回值重载。本次更新：
+
+- 功能操作及其专属辅助方法采用 `SL.DLSS`、`SL.DLSSD`、`SL.DLSSG`、`SL.Reflex`、`SL.PCL`、`SL.NIS`、`SL.DeepDVC`、`SL.DirectSR`。核心操作及功能 ID 常量仍属于 `SL`；结构体与枚举保持原类型名。
+- 为 13 个已核实的单一输出结构增加同名直接返回值重载，例如 `DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);`。
+- 新重载用 `new()` 初始化默认结构头、版本及空扩展链，通过现有结果码实现调用。结果为 `SLResult.Ok` 时返回结构；其他结果，包括非成功警告，抛出 `SLException`，保留原始 `Result` 和 `NativeFunction`。
+- 同组指针／`ref` 重载继续返回 `SLResult`，支持调用方扩展链与部分输出检查。接口地址替换等真正输入输出操作未转换为返回值重载。
+- 分组属于公开方法路径变更；原平铺功能方法调用需迁移到分组路径。没有增加兼容转发层或工作流。
+
+当前快照来自[输出契约提取运行](https://github.com/qian-o/Streamline.NET/actions/runs/36315215332)，SDK Release／commit 保持 v2.14.1／`2122257e0fce486f91b385aa63b9a09b0a34b363`。
+
+本次手动本地验证：两个产品项目 Debug／Release 构建通过；55 个值类型布局及 517 项断言通过；macOS ARM64 NativeAOT／裁剪消费者实际发布并运行通过；独立 NuGet 消费者可引用两种重载。生成文件现为 55 个，BOM 与逐字节再生成检查通过。新增结果码测试使用托管 unmanaged-callable 函数指针模拟 SDK 返回，未执行真实 NVIDIA SDK 调用。
+
+以下 Windows CI 记录保留为此前版本的历史验证结果，不代表本次重新运行了已撤销的工作流。
+
 ## 交付内容
 
 - .NET 10 库与独立 C# Generator，工程设置及开发期包版本集中管理。
@@ -11,7 +27,7 @@
 - 类型、默认值、成员、借用句柄、回调签名、必要 Vulkan 定义及常用引用、字符串、Span 重载。
 - 字符串、预设、结构链、数学、Vulkan 特性和 Windows 签名辅助。
 - 绝对路径延迟加载、单模块解析、插件函数缓存及其失效逻辑。
-- 49 个由 Generator 负责的生成文件，生成 C# 为 UTF-8 BOM。
+- 55 个由 Generator 负责的生成文件，生成 C# 为 UTF-8 BOM。
 - `Streamline.NET.0.1.0.nupkg`，本地输出在 `Streamline.NET/bin/Release/`；没有公开发布。
 
 包内只有托管程序集、XML 文档、README、LICENSE 和 NuGet 元数据。运行时 NuGet 依赖为零，不含 SDK 头文件、NVIDIA 运行库或其他图形 API 绑定包。项目许可标识保持 MIT。
@@ -53,7 +69,7 @@
 
 排除项保留理由。NvPerf 的公开类型与常量保留；外部 Vulkan 只生成实际需要的类型与常量。C++ 语法设施按相应 C# 成员或控制流表达，不以空函数替代。上游手写实现对应的函数体变化、未知类型或调用约定会阻止生成。
 
-## 已执行验证
+## 初始交付的验证记录
 
 - 两个产品项目 Debug、Release 构建通过，启用 warnings-as-errors，0 编译警告、0 编译错误。
 - 55 个值类型的大小和字段偏移逐项与 Clang 输出比较。

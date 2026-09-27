@@ -10,19 +10,21 @@ namespace Streamline.NET;
 public static unsafe partial class SL
 {
 
-    public static unsafe partial class DeepDVC
+    public static unsafe partial class DLSSG
     {
 
         /// <summary>
-        /// getDeepDVCModeAsStr
+        /// sl::getDLSSGModeAsStr
         /// </summary>
-        /// <remarks>Source: include/sl_deepdvc.h:95. </remarks>
-        public static string GetModeAsStr(DeepDVCMode v)
+        /// <remarks>Source: include/sl_helpers.h:212. </remarks>
+        public static string GetModeAsStr(DLSSGMode mode)
         {
-            return v switch
+            return mode switch
             {
-                DeepDVCMode.Off => "sl::DeepDVCMode::eOff",
-                DeepDVCMode.On => "sl::DeepDVCMode::eOn",
+                DLSSGMode.Off => "sl::DLSSGMode::eOff",
+                DLSSGMode.On => "sl::DLSSGMode::eOn",
+                DLSSGMode.Auto => "sl::DLSSGMode::eAuto",
+                DLSSGMode.Dynamic => "sl::DLSSGMode::eDynamic",
                 _ => "Unknown"
             };
         }

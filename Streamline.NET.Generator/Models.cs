@@ -118,6 +118,10 @@ internal sealed class NativeDeclaration
 
 internal sealed class ParameterContract
 {
+    public bool ReturnValue { get; set; }
+
+    public string? ReturnValueContract { get; set; }
+
     public string Direction { get; set; } = "unspecified";
 
     public string Lifetime { get; set; } = "native-contract";

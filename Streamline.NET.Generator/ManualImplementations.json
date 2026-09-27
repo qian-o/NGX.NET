@@ -248,12 +248,12 @@
     {
       "id": "macro:include/sl_consts.h:SL_ENUM_OPERATORS_64:869741327842",
       "nativeSourceSha256": "869741327842dd3baf54deb864f2e5b3bf71a21176a1d27375b6d251a43e9bbd",
-      "implementation": "Generated Flags enums, C# bitwise operators, and SL.HasAnyFlags for Boolean operator&."
+      "implementation": "Generated Flags enums, C# bitwise operators, and the owning SL feature group's HasAnyFlags (or SL.HasAnyFlags for core flags) for Boolean operator&."
     },
     {
       "id": "macro:include/sl_consts.h:SL_ENUM_OPERATORS_32:8d42a2a02c2e",
       "nativeSourceSha256": "8d42a2a02c2e1f876b94167fe437092d9b77412ce60221d6ff0bdf6d399617c7",
-      "implementation": "Generated Flags enums, C# bitwise operators, and SL.HasAnyFlags for Boolean operator&."
+      "implementation": "Generated Flags enums, C# bitwise operators, and the owning SL feature group's HasAnyFlags (or SL.HasAnyFlags for core flags) for Boolean operator&."
     },
     {
       "id": "macro:include/sl_core_api.h:SL_API:97d51652d0b3",

@@ -51,8 +51,9 @@ def main():
 
 DLSSOptions options = new() { Mode = DLSSMode.MaxQuality, OutputWidth = 1920, OutputHeight = 1080 };
 DLSSOptimalSettings settings = new();
-GetSettings operation = SL.DLSSGetOptimalSettings;
-if (options.StructVersion == 0 || settings.StructVersion == 0 || operation is null)
+GetSettings operation = SL.DLSS.GetOptimalSettings;
+GetSettingsValue valueOperation = SL.DLSS.GetOptimalSettings;
+if (options.StructVersion == 0 || settings.StructVersion == 0 || operation is null || valueOperation is null)
 {
     return 1;
 }
@@ -60,6 +61,7 @@ Console.WriteLine("Package consumer compiled the safe convenience API and initia
 return 0;
 
 delegate SLResult GetSettings(in DLSSOptions options, ref DLSSOptimalSettings settings);
+delegate DLSSOptimalSettings GetSettingsValue(in DLSSOptions options);
 ''', encoding="utf-8")
     subprocess.run(["dotnet", "restore", str(consumer / "Consumer.csproj"), "--configfile", str(consumer / "NuGet.Config"),
                     "--packages", str(consumer / "packages")], check=True)

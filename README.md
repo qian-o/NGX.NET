@@ -37,13 +37,29 @@ DLSSOptions options = new()
     OutputHeight = 1080
 };
 
-DLSSOptimalSettings settings = new();
-SLResult result = SL.DLSSGetOptimalSettings(in options, ref settings);
+DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
 ```
 
-Pointer entry points remain available under the same method names. SDK failures
-remain `SLResult` values; library loading and missing fixed exports use .NET
-exceptions. Plugin entry points are queried through the SDK, cached only after a
+Feature operations and their dedicated helpers are grouped under `SL.DLSS`,
+`SL.DLSSD`, `SL.DLSSG`, `SL.Reflex`, `SL.PCL`, `SL.NIS`, `SL.DeepDVC` and
+`SL.DirectSR`. Core operations remain on `SL`; data types keep their existing names.
+
+Value-returning overloads initialize the output structure with `new()` and return
+it only for `SLResult.Ok`. Other results, including non-success warnings, throw
+`SLException`; its `Result` and `NativeFunction` properties retain the SDK result
+and operation name. Library loading and missing fixed exports retain their .NET
+exception types.
+
+Pointer entry points and result-returning reference overloads remain available
+under the same grouped method names. Use the reference form for a custom structure
+version or `Next` chain, or to handle SDK results and partial outputs yourself:
+
+```csharp
+DLSSOptimalSettings settings = new();
+SLResult result = SL.DLSS.GetOptimalSettings(in options, ref settings);
+```
+
+Plugin entry points are queried through the SDK, cached only after a
 successful query, and invalidated on successful shutdown or plugin-load changes.
 
 ## Types and lifetime
