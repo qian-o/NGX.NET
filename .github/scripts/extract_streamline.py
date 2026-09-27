@@ -349,6 +349,7 @@ def main():
                         security_types[nested.get_usr()] = nested
     security_source = (sdk / "include/sl_security.h").read_text(encoding="utf-8-sig")
     required_macros = set(re.findall(r"\b(?:CERT_|CMSG_|WTD_|WSS_|CRYPT_|PKCS_|X509_|CNG_|szOID_|WINTRUST_ACTION_)\w+\b", security_source))
+    required_macros.update({"LPTR", "ERROR_SUCCESS"})
     macro_cursors = {c.spelling: c for c in tu.cursor.get_children() if c.kind == cx.CursorKind.MACRO_DEFINITION}
     security_macros = {}
     def include_macro(name):
