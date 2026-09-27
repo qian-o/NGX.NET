@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import urllib.request
 
@@ -162,7 +163,10 @@ def main():
                     dependencies[declaration.get_usr()] = declaration
         if depth < 6:
             if canonical.kind in {cx.TypeKind.POINTER, cx.TypeKind.LVALUEREFERENCE, cx.TypeKind.RVALUEREFERENCE}:
-                result["element"] = describe_type(t.get_pointee(), depth + 1)
+                pointee = t.get_pointee()
+                if pointee.kind == cx.TypeKind.INVALID:
+                    pointee = canonical.get_pointee()
+                result["element"] = describe_type(pointee, depth + 1)
             elif canonical.kind in {cx.TypeKind.CONSTANTARRAY, cx.TypeKind.INCOMPLETEARRAY}:
                 result["element"] = describe_type(canonical.element_type, depth + 1)
                 result["count"] = canonical.element_count
@@ -203,7 +207,8 @@ def main():
                   "kind": cursor.kind.name, "name": cursor.spelling, "qualifiedName": qualified(cursor),
                   "file": file, "line": cursor.location.line, "type": describe_type(cursor.type),
                   "access": cursor.access_specifier.name, "comment": cursor.raw_comment or "",
-                  "definition": cursor.is_definition()}
+                  "definition": cursor.is_definition(),
+                  "deprecated": cursor.availability == cx.AvailabilityKind.DEPRECATED}
         if cursor.kind in record_kinds:
             result["source"] = source(cursor)
         if cursor.kind in callable_kinds:
@@ -219,6 +224,8 @@ def main():
             result["bitWidth"] = cursor.get_bitfield_width() if cursor.is_bitfield() else None
         if cursor.kind == cx.CursorKind.ENUM_DECL:
             result["underlyingType"] = describe_type(cursor.enum_type)
+            result["flags"] = any(re.search(r"SL_ENUM_OPERATORS_(?:32|64)\s*\(\s*" + re.escape(cursor.spelling) + r"\s*\)",
+                                              (sdk / path).read_text(encoding="utf-8-sig")) for path in public_headers)
         if cursor.kind == cx.CursorKind.ENUM_CONSTANT_DECL:
             result["value"] = str(cursor.enum_value)
         if cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.TYPE_ALIAS_DECL}:
@@ -235,6 +242,9 @@ def main():
             result["reason"] = "Friend declaration for upstream ABI tests."
         else:
             result["classification"] = "application" if file.startswith("include/") else "dependency"
+        if file == "include/sl_security.h" and cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.VAR_DECL}:
+            result["classification"] = "implementation"
+            result["reason"] = "Private Windows function-loader implementation of the public signature helpers."
         return result
 
     declarations = {}
@@ -308,19 +318,73 @@ def main():
             macros.append({"id": f"macro:{path}:{name}", "name": name, "file": path,
                            "body": body.strip(),
                            "classification": "unclassified"})
+
+    # Keep only the Vulkan constants actually used by the application helper bodies.
+    helper_text = "\n".join((sdk / path).read_text(encoding="utf-8-sig") for path in public_headers)
+    vk_constants = set(re.findall(r"\bVK_STRUCTURE_TYPE_[A-Z0-9_]+\b", helper_text))
+    for item in declarations.values():
+        if item["qualifiedName"] in {"VkStructureType", "VkResult"}:
+            item["mappedAs"] = "int"
+            item["children"] = [child for child in item["children"] if child["name"] in vk_constants]
+
+    compiler = shutil.which("clang++")
+    if not compiler:
+        raise RuntimeError("clang++ is required to record virtual dispatch and callback ABI.")
+    probe = root / "abi.cpp"
+    probe.write_text("\n".join(includes) + '''
+struct FrameProbe final : sl::FrameToken { operator uint32_t() const override { return 0; } };
+struct AllocatorProbe final : sl::IAllocator {
+    void* allocate(uint32_t) override { return nullptr; }
+    void free(void*) override { }
+};
+FrameProbe frameProbe;
+AllocatorProbe allocatorProbe;
+using StreamlineArrayLayout = sl::Array<uint8_t>;
+extern "C" __declspec(dllexport) sl::Resource invokeAllocate(sl::PFun_ResourceAllocateCallback* callback,
+    const sl::ResourceAllocationDesc* desc, void* device) { return callback(desc, device); }
+''', encoding="utf-8")
+    result = subprocess.run([compiler, *common_args, "-Xclang", "-fdump-vtable-layouts", "-S", "-emit-llvm",
+                             str(probe), "-o", str(root / "abi.ll")], text=True, capture_output=True, check=True)
+    virtual_tables = result.stdout
+    print(virtual_tables, flush=True)
+    ir = (root / "abi.ll").read_text(encoding="utf-8")
+    callback_ir = re.search(r"^define[^\n]*@invokeAllocate\b[\s\S]*?^}", ir, re.MULTILINE)
+    if not callback_ir:
+        raise RuntimeError("Callback return ABI was not emitted.")
+    slots = {}
+    for probe_name, prefix in [("FrameProbe", "frameToken"), ("AllocatorProbe", "allocator")]:
+        table = re.search(r"VFTable indices for '" + probe_name + r"'[^\n]*\n([\s\S]*?)(?:\n\s*\n|$)", virtual_tables)
+        if not table:
+            raise RuntimeError("Missing virtual dispatch layout for " + probe_name)
+        for line in table[1].splitlines():
+            match = re.match(r"\s*(\d+)\s*\|\s*(.*)", line)
+            if match:
+                slots[prefix + ":" + match[2]] = int(match[1])
+    layout_tu = index.parse(str(probe), args=common_args)
+    array_layout = next(c for c in layout_tu.cursor.get_children() if c.spelling == "StreamlineArrayLayout")
+    array_type = array_layout.underlying_typedef_type.get_canonical()
+    array_definition = array_type.get_declaration()
+    array_data = {"size": array_type.get_size(), "alignment": array_type.get_align(),
+                  "fields": [{"name": c.spelling, "offsetBits": c.get_field_offsetof(), "type": describe_type(c.type)}
+                             for c in array_definition.get_children() if c.kind == cx.CursorKind.FIELD_DECL]}
     snapshot = {"schemaVersion": 1,
                 "source": {"repository": "NVIDIA-RTX/Streamline", "release": release["tag_name"],
                            "commit": commit, "releaseUrl": release["html_url"]},
                 "dependencies": [{"repository": "KhronosGroup/Vulkan-Headers", "tag": vk_tag,
                                   "commit": vk_commit, "requestedBy": "project.xml"}],
                 "toolchain": {"libclang": "18.1.1", "windowsSdk": os.environ.get("WindowsSDKVersion", "").strip("\\"),
-                              "msvc": os.environ.get("VCToolsVersion", "")},
+                              "msvc": os.environ.get("VCToolsVersion", ""),
+                              "clang": subprocess.check_output([compiler, "--version"], text=True).splitlines()[0]},
+                "abi": {"virtualSlots": slots, "resourceAllocateCallback": callback_ir[0], "arrayLayout": array_data},
                 "configurations": configurations, "inputs": sorted(inputs, key=lambda i: (i["path"], i["classification"])),
                 "declarations": sorted(declarations.values(), key=lambda i: (i["file"], i["line"], i["id"])),
                 "macros": macros,
                 "exports": re.findall(r"^\s*(sl\w+)\s*$", (sdk / "source/core/sl.interposer/exports.def").read_text(encoding="utf-8-sig"), re.MULTILINE)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+    text = json.dumps(snapshot, indent=2, ensure_ascii=False, allow_nan=False)
+    for path, replacement in [(sdk, ""), (vk, "Vulkan-Headers")]:
+        text = text.replace(json.dumps(str(path) + os.sep)[1:-1], replacement + ("/" if replacement else ""))
+    args.output.write_text(text + "\n", encoding="utf-8")
     print(f"Wrote {len(declarations)} declarations, {len(macros)} macros from {len(public_headers)} public inputs.")
 
 
