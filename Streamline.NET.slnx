@@ -1,4 +1,5 @@
 ﻿<Solution>
     <Project Path="Streamline.NET/Streamline.NET.csproj" />
+    <Project Path="Showcase/Showcase.csproj" />
     <Project Path="Streamline.NET.Generator/Streamline.NET.Generator.csproj" />
 </Solution>

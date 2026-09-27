@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Streamline.NET/Streamline.NET.csproj" />
+        <PackageReference Include="Vortice.Direct3D12" />
+        <PackageReference Include="Vortice.DXGI" />
+        <PackageReference Include="Vortice.Vulkan" />
+        <PackageReference Include="Slangc.NET" />
+        <PackageReference Include="Vortice.Dxc.Native" />
+        <PackageReference Include="SharpGLTF.Core" />
+        <PackageReference Include="SixLabors.ImageSharp" />
+        <PackageReference Include="ImGui.NET" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="Assets/Shaders/**/*;Assets/Scenes/**/*" CopyToOutputDirectory="PreserveNewest" />
+        <None Remove="Assets/Streamline/**/*" />
+        <Content Include="Assets/Streamline/**/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+</Project>

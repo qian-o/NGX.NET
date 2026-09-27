@@ -1,0 +1,645 @@
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using ImGuiNET;
+using Streamline.NET;
+using Vortice.Direct3D;
+using Vortice.Direct3D12;
+using Vortice.DXGI;
+using Vortice.Mathematics;
+using Format = Vortice.DXGI.Format;
+using Resource = Streamline.NET.Resource;
+
+namespace Showcase;
+
+internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
+{
+    public override string BackendName => "DirectX 12";
+    protected override nint Command => commandList.NativePointer;
+    protected override nint Queue => queue.NativePointer;
+    private ID3D12Device device = null!;
+    private IDXGIFactory4 factory = null!;
+    private IDXGIAdapter1 adapter = null!;
+    private ID3D12CommandQueue queue = null!;
+    private ID3D12GraphicsCommandList commandList = null!;
+    private ID3D12Fence fence = null!;
+    private IDXGISwapChain3? swapChain;
+    private ID3D12RootSignature root = null!;
+    private ID3D12PipelineState scenePipeline = null!, uiPipeline = null!;
+    private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
+    private ID3D12DescriptorHeap descriptors = null!, renderTargets = null!, depthViews = null!;
+    private ID3D12QueryHeap queries = null!;
+    private ID3D12Resource queryReadback = null!;
+    private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
+    private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[6];
+    private readonly List<ID3D12Resource> uploads = [];
+    private readonly List<ID3D12Resource> backBuffers = [];
+    private DxImage font = null!;
+    private uint descriptorIncrement, rtvIncrement, dsvIncrement;
+    private ulong fenceValue, timestampFrequency;
+    private int constantIndex;
+    private bool recording;
+    private readonly AutoResetEvent fenceEvent = new(false);
+    private const int DescriptorsPerFrame = RenderLayout.SrvCount + RenderLayout.UavCount;
+
+    private sealed class DxFrame : IDisposable
+    {
+        public required ID3D12CommandAllocator Allocator;
+        public required ID3D12CommandAllocator SecondAllocator;
+        public required ID3D12Resource Constants;
+        public required ID3D12Resource Objects;
+        public ID3D12Resource? Vertices, Indices;
+        public int VertexCapacity, IndexCapacity;
+        public ulong Fence;
+        public bool Timestamp;
+        public void Dispose()
+        {
+            Vertices?.Dispose();
+            Indices?.Dispose();
+            Constants.Dispose();
+            Objects.Dispose();
+            Allocator.Dispose();
+            SecondAllocator.Dispose();
+        }
+    }
+
+    private sealed class DxImage : GpuImage
+    {
+        public required ID3D12Resource Texture;
+        public ResourceStates State;
+        public CpuDescriptorHandle Rtv, Dsv;
+        public override Resource Describe() => new()
+        {
+            Type = ResourceType.Tex2d,
+            Native = (void*)Texture.NativePointer,
+            State = (uint)State,
+            Width = (uint)Width,
+            Height = (uint)Height,
+            NativeFormat = (uint)NativeFormat(Format),
+            MipLevels = 1,
+            ArrayLayers = 1
+        };
+        public override void Dispose() => Texture.Dispose();
+    }
+
+    protected override void InitializeDevice()
+    {
+        Guid iid = typeof(IDXGIFactory4).GUID;
+        nint pointer = 0;
+        delegate* unmanaged[Stdcall]<uint, Guid*, nint*, int> createFactory = (delegate* unmanaged[Stdcall]<uint, Guid*, nint*, int>)NativeLibrary.GetExport(Streamline.Module, "CreateDXGIFactory2");
+        Marshal.ThrowExceptionForHR(createFactory(0, &iid, &pointer));
+        factory = new(pointer);
+        List<IDXGIAdapter1> candidates = [];
+        for (uint i = 0; factory.EnumAdapters1(i, out IDXGIAdapter1 candidate).Success; i++)
+        {
+            if ((candidate.Description1.Flags & AdapterFlags.Software) == 0)
+            {
+                candidates.Add(candidate);
+            }
+            else
+            {
+                candidate.Dispose();
+            }
+        }
+        adapter = candidates.OrderByDescending(x => x.Description1.VendorId == 0x10DE).FirstOrDefault() ?? throw new InvalidOperationException("No hardware graphics adapter found.");
+        foreach (IDXGIAdapter1 candidate in candidates)
+        {
+            if (candidate != adapter)
+            {
+                candidate.Dispose();
+            }
+        }
+
+        AdapterName = adapter.Description1.Description;
+        delegate* unmanaged[Stdcall]<nint, FeatureLevel, Guid*, nint*, int> createDevice = (delegate* unmanaged[Stdcall]<nint, FeatureLevel, Guid*, nint*, int>)NativeLibrary.GetExport(Streamline.Module, "D3D12CreateDevice");
+        iid = typeof(ID3D12Device).GUID;
+        Marshal.ThrowExceptionForHR(createDevice(adapter.NativePointer, FeatureLevel.Level_12_0, &iid, &pointer));
+        device = new(pointer);
+        StreamlineSession.Check(SL.SetD3DDevice((void*)device.NativePointer), "slSetD3DDevice");
+        long luid = device.AdapterLuid;
+        AdapterInfo info = new()
+        {
+            DeviceLUID = (byte*)&luid,
+            DeviceLUIDSizeInBytes = sizeof(long)
+        };
+        Streamline.QueryFeatures(info, false);
+        queue = device.CreateCommandQueue(CommandListType.Direct);
+        fence = device.CreateFence();
+        queue.GetTimestampFrequency(out timestampFrequency).CheckError();
+    }
+
+    protected override void InitializeRenderer()
+    {
+        descriptors = device.CreateDescriptorHeap(new(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView, RenderLayout.FramesInFlight * DescriptorsPerFrame, DescriptorHeapFlags.ShaderVisible));
+        renderTargets = device.CreateDescriptorHeap(new(DescriptorHeapType.RenderTargetView, RenderLayout.FramesInFlight * (int)ImageSlot.Count));
+        depthViews = device.CreateDescriptorHeap(new(DescriptorHeapType.DepthStencilView, RenderLayout.FramesInFlight));
+        descriptorIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+        rtvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
+        dsvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.DepthStencilView);
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i] = new()
+            {
+                Allocator = device.CreateCommandAllocator(CommandListType.Direct),
+                SecondAllocator = device.CreateCommandAllocator(CommandListType.Direct),
+                Constants = UploadBuffer(RenderLayout.UniformStride * RenderLayout.UniformSlots),
+                Objects = UploadBuffer(Scene.Objects.Length * sizeof(SceneObject))
+            };
+        }
+
+        commandList = device.CreateCommandList<ID3D12GraphicsCommandList>(CommandListType.Direct, slots[0].Allocator);
+        recording = true;
+        sceneBuffers[0] = StaticBuffer<SceneVertex>(Scene.Vertices);
+        sceneBuffers[1] = StaticBuffer<SceneMaterial>(Scene.Materials);
+        sceneBuffers[2] = StaticBuffer<uint>(Scene.Texels);
+        sceneBuffers[3] = StaticBuffer<TextureDescription>(Scene.TextureInfo);
+        sceneBuffers[5] = StaticBuffer<BvhNode>(Scene.Nodes);
+        font = (DxImage)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
+        int rowPitch = (UI.FontWidth * 4 + 255) & ~255;
+        ID3D12Resource fontUpload = UploadBuffer(rowPitch * UI.FontHeight);
+        byte* mapped = fontUpload.Map<byte>(0);
+        for (int row = 0; row < UI.FontHeight; row++)
+        {
+            UI.FontPixels.AsSpan(row * UI.FontWidth * 4, UI.FontWidth * 4).CopyTo(new Span<byte>(mapped + row * rowPitch, UI.FontWidth * 4));
+        }
+
+        fontUpload.Unmap(0);
+        uploads.Add(fontUpload);
+        Transition(font, ImageUse.CopyDestination);
+        PlacedSubresourceFootPrint footprint = new()
+        {
+            Footprint = new()
+            {
+                Format = Format.R8G8B8A8_UNorm,
+                Width = (uint)UI.FontWidth,
+                Height = (uint)UI.FontHeight,
+                Depth = 1,
+                RowPitch = (uint)rowPitch
+            }
+        };
+        commandList.CopyTextureRegion(new(font.Texture, 0), 0, 0, 0, new(fontUpload, footprint));
+        Transition(font, ImageUse.ShaderRead);
+        commandList.Close();
+        recording = false;
+        queue.ExecuteCommandList(commandList);
+        WaitIdle();
+        foreach (ID3D12Resource upload in uploads)
+        {
+            upload.Dispose();
+        }
+
+        uploads.Clear();
+        RootParameter1[] parameters =
+        [
+            new(RootParameterType.ConstantBufferView, new RootDescriptor1(0, 0, RootDescriptorFlags.DataVolatile), ShaderVisibility.All),
+            new(new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.ShaderResourceView, RenderLayout.SrvCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)), ShaderVisibility.All),
+            new(new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.UnorderedAccessView, RenderLayout.UavCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)), ShaderVisibility.All)
+        ];
+        StaticSamplerDescription sampler = new(ShaderVisibility.All, 0, 0)
+        {
+            Filter = Filter.MinMagMipLinear,
+            AddressU = TextureAddressMode.Clamp,
+            AddressV = TextureAddressMode.Clamp,
+            AddressW = TextureAddressMode.Clamp,
+            MaxLOD = float.MaxValue
+        };
+        root = device.CreateRootSignature(new RootSignatureDescription1(RootSignatureFlags.AllowInputAssemblerInputLayout, parameters, [sampler]));
+        scenePipeline = device.CreateGraphicsPipelineState(new()
+        {
+            RootSignature = root,
+            VertexShader = Compile("SceneVS", "vertex"),
+            PixelShader = Compile("ScenePS", "fragment"),
+            BlendState = BlendDescription.Opaque,
+            RasterizerState = new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
+            DepthStencilState = DepthStencilDescription.Default,
+            PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+            RenderTargetFormats = [Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16_Float],
+            DepthStencilFormat = Format.D32_Float
+        });
+        uiPipeline = device.CreateGraphicsPipelineState(new()
+        {
+            RootSignature = root,
+            VertexShader = Compile("UiVS", "vertex"),
+            PixelShader = Compile("UiPS", "fragment"),
+            BlendState = new(Blend.One, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha),
+            RasterizerState = RasterizerDescription.CullNone,
+            DepthStencilState = DepthStencilDescription.None,
+            InputLayout = new InputLayoutDescription(new InputElementDescription("POSITION", 0, Format.R32G32_Float, 0, 0), new InputElementDescription("TEXCOORD", 0, Format.R32G32_Float, 8, 0), new InputElementDescription("COLOR", 0, Format.R8G8B8A8_UNorm, 16, 0)),
+            PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+            RenderTargetFormats = [Format.R8G8B8A8_UNorm]
+        });
+        foreach (ComputePass pass in Enum.GetValues<ComputePass>())
+        {
+            pipelines[pass] = device.CreateComputePipelineState(new()
+            {
+                RootSignature = root,
+                ComputeShader = Compile(pass.ToString(), "compute")
+            });
+        }
+
+        queries = device.CreateQueryHeap<ID3D12QueryHeap>(new()
+        {
+            Type = QueryHeapType.Timestamp,
+            Count = RenderLayout.FramesInFlight * 2
+        });
+        queryReadback = device.CreateCommittedResource(HeapType.Readback, ResourceDescription.Buffer(RenderLayout.FramesInFlight * 16), ResourceStates.CopyDest);
+    }
+
+    private static byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false);
+    private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(HeapType.Upload, ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)), ResourceStates.GenericRead);
+    private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
+    {
+        int size = data.Length * sizeof(T);
+        ID3D12Resource buffer = device.CreateCommittedResource(HeapType.Default, ResourceDescription.Buffer((ulong)size), ResourceStates.CopyDest);
+        ID3D12Resource upload = UploadBuffer(size);
+        upload.SetData(data);
+        uploads.Add(upload);
+        commandList.CopyBufferRegion(buffer, 0, upload, 0, (ulong)size);
+        commandList.ResourceBarrierTransition(buffer, ResourceStates.CopyDest, ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
+        return buffer;
+    }
+
+    protected override void CreateSwapChain()
+    {
+        SwapChainDescription1 description = new()
+        {
+            Width = (uint)Window.Width,
+            Height = (uint)Window.Height,
+            Format = Format.R8G8B8A8_UNorm,
+            BufferCount = RenderLayout.FramesInFlight,
+            BufferUsage = Usage.RenderTargetOutput,
+            SampleDescription = new(1, 0),
+            SwapEffect = SwapEffect.FlipDiscard,
+            Scaling = Scaling.Stretch,
+            AlphaMode = Vortice.DXGI.AlphaMode.Ignore
+        };
+        using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(queue, Window.Handle, description);
+        swapChain = created.QueryInterface<IDXGISwapChain3>();
+        factory.MakeWindowAssociation(Window.Handle, WindowAssociationFlags.IgnoreAltEnter).CheckError();
+        for (uint i = 0; i < RenderLayout.FramesInFlight; i++)
+        {
+            backBuffers.Add(swapChain.GetBuffer<ID3D12Resource>(i));
+        }
+    }
+    protected override void DestroySwapChain()
+    {
+        foreach (ID3D12Resource buffer in backBuffers)
+        {
+            buffer.Dispose();
+        }
+
+        backBuffers.Clear();
+        swapChain?.Dispose();
+        swapChain = null;
+    }
+    protected override GpuImage CreateImage(int width, int height, ImageFormat format)
+    {
+        ResourceFlags flags = format == ImageFormat.Depth ? ResourceFlags.AllowDepthStencil : ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess;
+        Format resourceFormat = format == ImageFormat.Depth ? Format.R32_Typeless : NativeFormat(format);
+        ResourceDescription description = ResourceDescription.Texture2D(resourceFormat, (uint)width, (uint)height, 1, 1, flags: flags);
+        return new DxImage { Width = width, Height = height, Format = format, Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common), State = ResourceStates.Common };
+    }
+    private CpuDescriptorHandle Cpu(int frame, int index) => descriptors.GetCPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+    private GpuDescriptorHandle Gpu(int frame, int index) => descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+    protected override void UpdateDescriptors()
+    {
+        uint[] strides = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject), (uint)sizeof(BvhNode)];
+        uint[] counts = [(uint)Scene.Vertices.Length, (uint)Scene.Materials.Length, (uint)Scene.Texels.Length, (uint)Scene.TextureInfo.Length, (uint)Scene.Objects.Length, (uint)Scene.Nodes.Length];
+        for (int frame = 0; frame < Frames.Length; frame++)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                device.CreateShaderResourceView(i == 4 ? slots[frame].Objects : sceneBuffers[i], new()
+                {
+                    ViewDimension = Vortice.Direct3D12.ShaderResourceViewDimension.Buffer,
+                    Shader4ComponentMapping = ShaderComponentMapping.Default,
+                    Buffer = new()
+                    {
+                        NumElements = counts[i],
+                        StructureByteStride = strides[i]
+                    }
+                }, Cpu(frame, i));
+            }
+
+            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
+            {
+                DxImage image = (DxImage)Frames[frame][(int)slot];
+                CreateSrv(image, Cpu(frame, 6 + (int)slot));
+                if (slot == ImageSlot.Depth)
+                {
+                    image.Dsv = depthViews.GetCPUDescriptorHandleForHeapStart() + (int)(frame * dsvIncrement);
+                    device.CreateDepthStencilView(image.Texture, new()
+                    {
+                        Format = Format.D32_Float,
+                        ViewDimension = DepthStencilViewDimension.Texture2D
+                    }, image.Dsv);
+                }
+                else
+                {
+                    image.Rtv = renderTargets.GetCPUDescriptorHandleForHeapStart() + (int)((frame * (int)ImageSlot.Count + (int)slot) * rtvIncrement);
+                    device.CreateRenderTargetView(image.Texture, null, image.Rtv);
+                }
+            }
+            CreateSrv(font, Cpu(frame, RenderLayout.SrvCount - 1));
+            for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
+            {
+                DxImage image = (DxImage)Frames[frame][(int)RenderLayout.StorageImages[i]];
+                device.CreateUnorderedAccessView(image.Texture, null, new()
+                {
+                    Format = NativeFormat(image.Format),
+                    ViewDimension = UnorderedAccessViewDimension.Texture2D
+                }, Cpu(frame, RenderLayout.SrvCount + i));
+            }
+        }
+    }
+    private void CreateSrv(DxImage image, CpuDescriptorHandle descriptor) => device.CreateShaderResourceView(image.Texture,
+        new()
+        {
+            Format = image.Format == ImageFormat.Depth ? Format.R32_Float : NativeFormat(image.Format),
+            ViewDimension = Vortice.Direct3D12.ShaderResourceViewDimension.Texture2D,
+            Shader4ComponentMapping = ShaderComponentMapping.Default,
+            Texture2D = new()
+            {
+                MipLevels = 1
+            }
+        }, descriptor);
+
+    protected override bool BeginCommands()
+    {
+        DxFrame frame = slots[FrameSlot];
+        WaitFence(frame.Fence);
+        if (frame.Timestamp)
+        {
+            ulong* values = queryReadback.Map<ulong>(0);
+            ulong start = values[FrameSlot * 2], end = values[FrameSlot * 2 + 1];
+            GpuMilliseconds = end >= start && timestampFrequency != 0 ? (end - start) * 1000.0 / timestampFrequency : null;
+            queryReadback.Unmap(0);
+        }
+        frame.Allocator.Reset();
+        frame.SecondAllocator.Reset();
+        commandList.Reset(frame.Allocator, null);
+        recording = true;
+        frame.Objects.SetData<SceneObject>(Scene.Objects);
+        constantIndex = 0;
+        commandList.EndQuery(queries, QueryType.Timestamp, (uint)FrameSlot * 2);
+        return true;
+    }
+    private void Bind(bool graphics, ID3D12PipelineState pipeline, FrameConstants constants)
+    {
+        int offset = constantIndex++ * RenderLayout.UniformStride;
+        if (constantIndex > RenderLayout.UniformSlots)
+        {
+            throw new InvalidOperationException("Too many uniform blocks for a frame.");
+        }
+
+        DxFrame frame = slots[FrameSlot];
+        frame.Constants.SetData(in constants, offset);
+        commandList.SetDescriptorHeaps(descriptors);
+        commandList.SetPipelineState(pipeline);
+        if (graphics)
+        {
+            commandList.SetGraphicsRootSignature(root);
+            commandList.SetGraphicsRootConstantBufferView(0, frame.Constants.GPUVirtualAddress + (ulong)offset);
+            commandList.SetGraphicsRootDescriptorTable(1, Gpu(FrameSlot, 0));
+            commandList.SetGraphicsRootDescriptorTable(2, Gpu(FrameSlot, RenderLayout.SrvCount));
+            commandList.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
+        }
+        else
+        {
+            commandList.SetComputeRootSignature(root);
+            commandList.SetComputeRootConstantBufferView(0, frame.Constants.GPUVirtualAddress + (ulong)offset);
+            commandList.SetComputeRootDescriptorTable(1, Gpu(FrameSlot, 0));
+            commandList.SetComputeRootDescriptorTable(2, Gpu(FrameSlot, RenderLayout.SrvCount));
+        }
+    }
+    protected override void DrawScene()
+    {
+        CpuDescriptorHandle[] targets = new CpuDescriptorHandle[4];
+        for (int i = 0; i < targets.Length; i++)
+        {
+            DxImage image = (DxImage)Image((ImageSlot)i);
+            Transition(image, ImageUse.ColorAttachment);
+            targets[i] = image.Rtv;
+            commandList.ClearRenderTargetView(image.Rtv, new Color4(0, 0, 0, 0));
+        }
+        DxImage depth = (DxImage)Image(ImageSlot.Depth);
+        Transition(depth, ImageUse.DepthAttachment);
+        commandList.ClearDepthStencilView(depth.Dsv, ClearFlags.Depth, 1, 0);
+        Bind(true, scenePipeline, Constants);
+        commandList.OMSetRenderTargets(targets, depth.Dsv);
+        commandList.RSSetViewport(0, 0, InputWidth, InputHeight);
+        commandList.RSSetScissorRect(InputWidth, InputHeight);
+        commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
+        commandList.UnsetRenderTargets();
+    }
+    protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants)
+    {
+        Bind(false, pipelines[pass], constants);
+        commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, 1);
+    }
+    protected override void DrawUI(ImDrawDataPtr data)
+    {
+        DxFrame frame = slots[FrameSlot];
+        EnsureUpload(ref frame.Vertices, ref frame.VertexCapacity, data.TotalVtxCount * sizeof(ImDrawVert));
+        EnsureUpload(ref frame.Indices, ref frame.IndexCapacity, data.TotalIdxCount * sizeof(ushort));
+        int vertexOffset = 0, indexOffset = 0;
+        for (int i = 0; i < data.CmdListsCount; i++)
+        {
+            ImDrawListPtr list = data.CmdLists[i];
+            frame.Vertices!.SetData(new ReadOnlySpan<ImDrawVert>((void*)list.VtxBuffer.Data, list.VtxBuffer.Size), vertexOffset * sizeof(ImDrawVert));
+            frame.Indices!.SetData(new ReadOnlySpan<ushort>((void*)list.IdxBuffer.Data, list.IdxBuffer.Size), indexOffset * sizeof(ushort));
+            vertexOffset += list.VtxBuffer.Size;
+            indexOffset += list.IdxBuffer.Size;
+        }
+        DxImage image = (DxImage)Image(ImageSlot.UI);
+        Transition(image, ImageUse.ColorAttachment);
+        commandList.ClearRenderTargetView(image.Rtv, new Color4(0, 0, 0, 0));
+        Bind(true, uiPipeline, Constants);
+        commandList.OMSetRenderTargets(image.Rtv);
+        commandList.RSSetViewport(0, 0, Window.Width, Window.Height);
+        commandList.IASetVertexBuffers(0, new VertexBufferView(frame.Vertices!.GPUVirtualAddress, (uint)(data.TotalVtxCount * sizeof(ImDrawVert)), (uint)sizeof(ImDrawVert)));
+        commandList.IASetIndexBuffer(frame.Indices!.GPUVirtualAddress, (uint)(data.TotalIdxCount * sizeof(ushort)), Format.R16_UInt);
+        vertexOffset = 0;
+        indexOffset = 0;
+        for (int i = 0; i < data.CmdListsCount; i++)
+        {
+            ImDrawListPtr list = data.CmdLists[i];
+            for (int c = 0; c < list.CmdBuffer.Size; c++)
+            {
+                ImDrawCmdPtr draw = list.CmdBuffer[c];
+                if (draw.UserCallback != 0)
+                {
+                    throw new NotSupportedException("Unexpected UI draw callback.");
+                }
+
+                Vector4 clip = draw.ClipRect;
+                int left = Math.Max(0, (int)clip.X), top = Math.Max(0, (int)clip.Y), right = Math.Min(Window.Width, (int)clip.Z), bottom = Math.Min(Window.Height, (int)clip.W);
+                if (right <= left || bottom <= top)
+                {
+                    continue;
+                }
+
+                commandList.RSSetScissorRect(new Vortice.RawRect(left, top, right, bottom));
+                commandList.DrawIndexedInstanced(draw.ElemCount, 1, (uint)indexOffset + draw.IdxOffset, vertexOffset + (int)draw.VtxOffset, 0);
+            }
+            vertexOffset += list.VtxBuffer.Size;
+            indexOffset += list.IdxBuffer.Size;
+        }
+        commandList.UnsetRenderTargets();
+    }
+    private void EnsureUpload(ref ID3D12Resource? buffer, ref int capacity, int required)
+    {
+        if (buffer is not null && capacity >= required)
+        {
+            return;
+        }
+
+        buffer?.Dispose();
+        capacity = Math.Max(4096, required * 2);
+        buffer = UploadBuffer(capacity);
+    }
+    protected override void Transition(GpuImage image, ImageUse use)
+    {
+        DxImage texture = (DxImage)image;
+        ResourceStates state = use switch
+        {
+            ImageUse.Storage => ResourceStates.UnorderedAccess,
+            ImageUse.ColorAttachment => ResourceStates.RenderTarget,
+            ImageUse.DepthAttachment => ResourceStates.DepthWrite,
+            ImageUse.CopySource => ResourceStates.CopySource,
+            ImageUse.CopyDestination => ResourceStates.CopyDest,
+            ImageUse.Present => ResourceStates.Present,
+            _ => ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource
+        };
+        if (texture.State != state)
+        {
+            commandList.ResourceBarrierTransition(texture.Texture, texture.State, state);
+        }
+
+        texture.State = state;
+        texture.Use = use;
+    }
+    protected override void StorageBarrier(GpuImage image) => commandList.ResourceBarrierUnorderedAccessView(((DxImage)image).Texture);
+    protected override void PrepareDirectSRDepth()
+    {
+        // DirectSR's engine consumes a typed R32_FLOAT resource. The depth-stencil
+        // image is typeless for DSV/SRV reinterpretation, so copy its identical bits.
+        DxImage depth = (DxImage)Image(ImageSlot.Depth);
+        DxImage copy = (DxImage)Image(ImageSlot.DepthCopy);
+        Transition(depth, ImageUse.CopySource);
+        Transition(copy, ImageUse.CopyDestination);
+        commandList.CopyResource(copy.Texture, depth.Texture);
+        Transition(depth, ImageUse.ShaderRead);
+        Transition(copy, ImageUse.ShaderRead);
+    }
+
+    protected override void SubmitBeforeDirectSR()
+    {
+        commandList.Close();
+        recording = false;
+        queue.ExecuteCommandList(commandList);
+    }
+    protected override void ResumeAfterDirectSR()
+    {
+        // A second allocator is required: the first list is still executing.
+        commandList.Reset(slots[FrameSlot].SecondAllocator, null);
+        recording = true;
+    }
+    protected override void SubmitFrame()
+    {
+        DxImage final = (DxImage)Image(ImageSlot.Final);
+        Transition(final, ImageUse.CopySource);
+        ID3D12Resource back = backBuffers[(int)swapChain!.CurrentBackBufferIndex];
+        commandList.ResourceBarrierTransition(back, ResourceStates.Present, ResourceStates.CopyDest);
+        commandList.CopyResource(back, final.Texture);
+        commandList.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
+        commandList.EndQuery(queries, QueryType.Timestamp, (uint)FrameSlot * 2 + 1);
+        commandList.ResolveQueryData(queries, QueryType.Timestamp, (uint)FrameSlot * 2, 2, queryReadback, (ulong)FrameSlot * 16);
+        commandList.Close();
+        recording = false;
+        queue.ExecuteCommandList(commandList);
+        slots[FrameSlot].Timestamp = true;
+    }
+    protected override bool Present()
+    {
+        swapChain!.Present(0, PresentFlags.None).CheckError();
+        return true;
+    }
+    protected override void FinishFrame()
+    {
+        slots[FrameSlot].Fence = ++fenceValue;
+        queue.Signal(fence, fenceValue).CheckError();
+    }
+    private void WaitFence(ulong value)
+    {
+        if (value == 0 || fence.CompletedValue >= value)
+        {
+            return;
+        }
+
+        fence.SetEventOnCompletion(value, fenceEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
+        fenceEvent.WaitOne();
+    }
+    protected override void WaitIdle()
+    {
+        if (queue is null || fence is null)
+        {
+            return;
+        }
+
+        queue.Signal(fence, ++fenceValue).CheckError();
+        WaitFence(fenceValue);
+    }
+    protected override void DisposeDevice()
+    {
+        if (recording)
+        {
+            commandList?.Close();
+        }
+
+        DestroySwapChain();
+        foreach (ID3D12PipelineState pipeline in pipelines.Values)
+        {
+            pipeline.Dispose();
+        }
+
+        scenePipeline?.Dispose();
+        uiPipeline?.Dispose();
+        root?.Dispose();
+        foreach (DxFrame? slot in slots)
+        {
+            slot?.Dispose();
+        }
+
+        foreach (ID3D12Resource? buffer in sceneBuffers)
+        {
+            buffer?.Dispose();
+        }
+
+        foreach (ID3D12Resource upload in uploads)
+        {
+            upload.Dispose();
+        }
+
+        font?.Dispose();
+        queryReadback?.Dispose();
+        queries?.Dispose();
+        descriptors?.Dispose();
+        renderTargets?.Dispose();
+        depthViews?.Dispose();
+        commandList?.Dispose();
+        fence?.Dispose();
+        queue?.Dispose();
+        device?.Dispose();
+        adapter?.Dispose();
+        factory?.Dispose();
+        fenceEvent.Dispose();
+    }
+    private static Format NativeFormat(ImageFormat format) => format switch
+    {
+        ImageFormat.Rgba16 => Format.R16G16B16A16_Float,
+        ImageFormat.Rg16 => Format.R16G16_Float,
+        ImageFormat.Float => Format.R32_Float,
+        ImageFormat.Depth => Format.D32_Float,
+        _ => Format.R8G8B8A8_UNorm
+    };
+}

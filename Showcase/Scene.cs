@@ -1,0 +1,387 @@
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using SharpGLTF.Schema2;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+
+namespace Showcase;
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct SceneVertex
+{
+    public Vector4 Position;
+    public Vector4 Normal;
+    public Vector4 Tangent;
+    public Vector4 UV;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct SceneMaterial
+{
+    public Vector4 BaseColor;
+    public Vector4 EmissiveMetallic;
+    public Vector4 Parameters;
+    public Vector4 Textures;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct BvhNode
+{
+    public Vector3 Minimum;
+    public uint First;
+    public Vector3 Maximum;
+    public uint Count;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal record struct TextureDescription(uint Offset, uint Width, uint Height, uint Mips);
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct SceneObject
+{
+    public Vector4 Offset;
+    public Vector4 PreviousOffset;
+}
+
+internal sealed class Scene
+{
+    // Retain the source graph and material/texture references; GPU geometry bakes
+    // its hierarchy transforms once because the downloaded architecture is static.
+    public ModelRoot Model { get; private init; } = null!;
+    public SceneVertex[] Vertices { get; private set; } = [];
+    public SceneMaterial[] Materials { get; private set; } = [];
+    public uint[] Texels { get; private set; } = [];
+    public TextureDescription[] TextureInfo { get; private set; } = [];
+    public BvhNode[] Nodes { get; private set; } = [];
+    public SceneObject[] Objects { get; private set; } = [];
+    public Vector3 Minimum
+    {
+        get; private set;
+    }
+    public Vector3 Maximum
+    {
+        get; private set;
+    }
+    public float GroundHeight
+    {
+        get; private set;
+    }
+    public float Scale => (Maximum - Minimum).Length();
+    public float RayEpsilon => Scale * 1e-5f;
+    private double animationTime;
+
+    public static Scene Load(string path)
+    {
+        ModelRoot model = ModelRoot.Load(path);
+        Scene scene = new() { Model = model };
+        List<uint> texels = [];
+        List<TextureDescription> textureInfo = [];
+        Dictionary<(int, bool), int> images = [];
+        int Texture(MaterialChannel? channel, bool srgb)
+        {
+            SharpGLTF.Schema2.Image? image = channel?.Texture?.PrimaryImage;
+            if (image is null)
+            {
+                return -1;
+            }
+            if (channel!.Value.TextureCoordinate != 0 || channel.Value.TextureTransform is not null)
+            {
+                throw new NotSupportedException("This scene requires transformed texture coordinates; the Sponza renderer uses TEXCOORD_0.");
+            }
+            if (images.TryGetValue((image.LogicalIndex, srgb), out int existing))
+            {
+                return existing;
+            }
+            int index = textureInfo.Count;
+            using Image<Rgba32> decoded = SixLabors.ImageSharp.Image.Load<Rgba32>(image.Content.Content.Span);
+            int offset = texels.Count;
+            int mipCount = 0;
+            using Image<Rgba32> mip = decoded.Clone();
+            while (true)
+            {
+                byte[] pixels = new byte[mip.Width * mip.Height * 4];
+                mip.CopyPixelDataTo(pixels);
+                texels.AddRange(MemoryMarshal.Cast<byte, uint>(pixels).ToArray());
+                mipCount++;
+                if (mip.Width == 1 && mip.Height == 1)
+                {
+                    break;
+                }
+                mip.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new(Math.Max(1, mip.Width / 2), Math.Max(1, mip.Height / 2)),
+                    Sampler = KnownResamplers.Box,
+                    Compand = srgb
+                }));
+            }
+            textureInfo.Add(new((uint)offset, (uint)decoded.Width, (uint)decoded.Height, (uint)mipCount));
+            images.Add((image.LogicalIndex, srgb), index);
+            return index;
+        }
+        List<SceneMaterial> materials = [];
+        foreach (Material material in model.LogicalMaterials)
+        {
+            MaterialChannel? color = material.FindChannel("BaseColor");
+            MaterialChannel? metal = material.FindChannel("MetallicRoughness");
+            MaterialChannel? normal = material.FindChannel("Normal");
+            MaterialChannel? emissive = material.FindChannel("Emissive");
+            float Scalar(MaterialChannel? channel, string name, float fallbackValue) =>
+                channel?.Parameters.FirstOrDefault(parameter => parameter.Name == name)?.Value is float value ? value : fallbackValue;
+            materials.Add(new()
+            {
+                BaseColor = color?.Color ?? Vector4.One,
+                EmissiveMetallic = new((emissive?.Color ?? Vector4.Zero).AsVector3() * Scalar(emissive, "EmissiveStrength", 1), Scalar(metal, "MetallicFactor", 1)),
+                Parameters = new(Scalar(metal, "RoughnessFactor", 1), Scalar(normal, "NormalScale", 1), material.Alpha == AlphaMode.OPAQUE ? -1 : material.AlphaCutoff, material.DoubleSided ? 1 : 0),
+                Textures = new(Texture(color, true), Texture(normal, false), Texture(metal, false), Texture(emissive, true))
+            });
+        }
+        int fallback = materials.Count;
+        materials.Add(new()
+        {
+            BaseColor = Vector4.One,
+            Parameters = new(0.8f, 1, -1, 0),
+            Textures = new(-1)
+        });
+        List<SceneVertex> staticVertices = [];
+        foreach (Node node in Node.Flatten(model.DefaultScene))
+        {
+            if (node.Mesh is null)
+            {
+                continue;
+            }
+            Matrix4x4 world = node.WorldMatrix;
+            if (!Matrix4x4.Invert(world, out Matrix4x4 inverse))
+            {
+                throw new InvalidDataException($"Non-invertible scene transform: {node.Name}");
+            }
+            Matrix4x4 normalMatrix = Matrix4x4.Transpose(inverse);
+            foreach (MeshPrimitive primitive in node.Mesh.Primitives)
+            {
+                IList<Vector3> positions = primitive.GetVertexAccessor("POSITION").AsVector3Array();
+                IList<Vector3>? normals = primitive.GetVertexAccessor("NORMAL")?.AsVector3Array();
+                IList<Vector2>? uv = primitive.GetVertexAccessor("TEXCOORD_0")?.AsVector2Array();
+                IList<Vector4>? tangents = primitive.GetVertexAccessor("TANGENT")?.AsVector4Array();
+                foreach ((int a, int b, int c) in primitive.GetTriangleIndices())
+                {
+                    int[] indices = world.GetDeterminant() < 0 ? [a, c, b] : [a, b, c];
+                    Vector3 faceNormal = Vector3.Normalize(Vector3.Cross(positions[b] - positions[a], positions[c] - positions[a]));
+                    foreach (int index in indices)
+                    {
+                        Vector3 n = Vector3.Normalize(Vector3.TransformNormal(normals?[index] ?? faceNormal, normalMatrix));
+                        Vector4 t = tangents?[index] ?? new(Vector3.Normalize(Vector3.Cross(Math.Abs(n.Y) < 0.99f ? Vector3.UnitY : Vector3.UnitX, n)), 1);
+                        if (tangents is not null)
+                        {
+                            t = new(Vector3.Normalize(Vector3.TransformNormal(t.AsVector3(), world)), t.W * MathF.Sign(world.GetDeterminant()));
+                        }
+                        staticVertices.Add(new()
+                        {
+                            Position = new(Vector3.Transform(positions[index], world), 0),
+                            Normal = new(n, primitive.Material?.LogicalIndex ?? fallback),
+                            Tangent = t,
+                            UV = new(uv?[index] ?? Vector2.Zero, 0, 0)
+                        });
+                    }
+                }
+            }
+        }
+        if (staticVertices.Count == 0)
+        {
+            throw new InvalidDataException("The scene contains no triangles.");
+        }
+        scene.Minimum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Min);
+        scene.Maximum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Max);
+        List<SceneVertex> ordered = [];
+        List<BvhNode> nodes = [];
+        List<SceneObject> objects = [];
+        void AddObject(List<SceneVertex> vertices)
+        {
+            uint root = BuildBvh(vertices, ordered, nodes);
+            objects.Add(new()
+            {
+                Offset = new(0, 0, 0, root),
+                PreviousOffset = new(0, 0, 0, root)
+            });
+        }
+        AddObject(staticVertices);
+        for (int i = 0; i < 2; i++)
+        {
+            int materialIndex = materials.Count;
+            materials.Add(new()
+            {
+                BaseColor = i == 0 ? new(0.9f, 0.55f, 0.15f, 1) : new(0.05f, 0.2f, 0.8f, 1),
+                EmissiveMetallic = new(0, 0, 0, i == 0 ? 1 : 0),
+                Parameters = new(i == 0 ? 0.15f : 0.65f, 1, -1, 0),
+                Textures = new(-1)
+            });
+            AddObject(CreateSphere(scene.Scale * 0.018f, i + 1, materialIndex));
+        }
+        scene.Vertices = [.. ordered];
+        scene.Nodes = [.. nodes];
+        scene.Objects = [.. objects];
+        scene.Materials = [.. materials];
+        scene.Texels = texels.Count == 0 ? [uint.MaxValue] : [.. texels];
+        scene.TextureInfo = textureInfo.Count == 0 ? [new(0, 1, 1, 1)] : [.. textureInfo];
+        scene.GroundHeight = scene.FindGroundHeight();
+        scene.Update(0, false);
+        scene.CommitHistory();
+        Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Count * 4L / 1048576} MiB texels.");
+        return scene;
+    }
+
+    public void Update(double delta, bool paused)
+    {
+        if (!paused)
+        {
+            animationTime += delta;
+        }
+        Vector3 center = (Minimum + Maximum) * 0.5f;
+        for (int i = 1; i < Objects.Length; i++)
+        {
+            float phase = (float)animationTime * 0.7f + (i - 1) * MathF.PI;
+            Vector3 p = new(center.X + MathF.Sin(phase) * Scale * 0.09f, GroundHeight + Scale * 0.04f, center.Z + MathF.Cos(phase) * Scale * 0.018f);
+            Objects[i].Offset = new(p, Objects[i].Offset.W);
+        }
+    }
+
+    public void CommitHistory()
+    {
+        for (int i = 0; i < Objects.Length; i++)
+        {
+            Objects[i].PreviousOffset = Objects[i].Offset;
+        }
+    }
+
+    private float FindGroundHeight()
+    {
+        // The asset's bounding box includes its foundation below the walking surface.
+        // Locate the atrium floor with a downward ray through the scene's center.
+        Vector3 center = (Minimum + Maximum) * 0.5f;
+        Vector3 origin = new(center.X, Maximum.Y + RayEpsilon, center.Z);
+        Vector3 direction = -Vector3.UnitY;
+        float nearest = float.PositiveInfinity;
+        for (int i = 0; i < Vertices.Length; i += 3)
+        {
+            if (Vertices[i].Position.W != 0)
+            {
+                continue;
+            }
+
+            Vector3 a = Vertices[i].Position.AsVector3();
+            Vector3 edge1 = Vertices[i + 1].Position.AsVector3() - a;
+            Vector3 edge2 = Vertices[i + 2].Position.AsVector3() - a;
+            Vector3 p = Vector3.Cross(direction, edge2);
+            float determinant = Vector3.Dot(edge1, p);
+            if (determinant == 0)
+            {
+                continue;
+            }
+
+            Vector3 relative = origin - a;
+            float u = Vector3.Dot(relative, p) / determinant;
+            Vector3 q = Vector3.Cross(relative, edge1);
+            float v = Vector3.Dot(direction, q) / determinant;
+            float distance = Vector3.Dot(edge2, q) / determinant;
+            if (u >= 0 && v >= 0 && u + v <= 1 && distance >= 0)
+            {
+                nearest = Math.Min(nearest, distance);
+            }
+        }
+        if (!float.IsFinite(nearest))
+        {
+            throw new InvalidDataException("Could not locate the Sponza atrium floor.");
+        }
+
+        return origin.Y - nearest;
+    }
+
+    private static uint BuildBvh(List<SceneVertex> source, List<SceneVertex> output, List<BvhNode> nodes)
+    {
+        int[] triangles = Enumerable.Range(0, source.Count / 3).ToArray();
+        uint Build(int start, int count)
+        {
+            Vector3 minimum = new(float.PositiveInfinity);
+            Vector3 maximum = new(float.NegativeInfinity);
+            for (int i = start; i < start + count; i++)
+            {
+                for (int v = 0; v < 3; v++)
+                {
+                    Vector3 p = source[triangles[i] * 3 + v].Position.AsVector3();
+                    minimum = Vector3.Min(minimum, p);
+                    maximum = Vector3.Max(maximum, p);
+                }
+            }
+            uint nodeIndex = (uint)nodes.Count;
+            nodes.Add(default);
+            if (count <= 4)
+            {
+                uint first = (uint)output.Count / 3;
+                for (int i = start; i < start + count; i++)
+                {
+                    output.AddRange(source.GetRange(triangles[i] * 3, 3));
+                }
+                nodes[(int)nodeIndex] = new()
+                {
+                    Minimum = minimum,
+                    Maximum = maximum,
+                    First = first,
+                    Count = (uint)count
+                };
+            }
+            else
+            {
+                Vector3 extent = maximum - minimum;
+                int axis = extent.X >= extent.Y && extent.X >= extent.Z ? 0 : extent.Y >= extent.Z ? 1 : 2;
+                float Center(int triangle) => (source[triangle * 3].Position[axis] + source[triangle * 3 + 1].Position[axis] + source[triangle * 3 + 2].Position[axis]) / 3;
+                Array.Sort(triangles, start, count, Comparer<int>.Create((a, b) => Center(a).CompareTo(Center(b))));
+                uint left = Build(start, count / 2);
+                uint right = Build(start + count / 2, count - count / 2);
+                // A branch stores the right child in Count with its high bit set.
+                nodes[(int)nodeIndex] = new()
+                {
+                    Minimum = minimum,
+                    Maximum = maximum,
+                    First = left,
+                    Count = right | 0x80000000
+                };
+            }
+            return nodeIndex;
+        }
+        return Build(0, triangles.Length);
+    }
+
+    private static List<SceneVertex> CreateSphere(float radius, int objectIndex, int materialIndex)
+    {
+        const int segments = 32;
+        const int rings = 16;
+        List<SceneVertex> result = [];
+        SceneVertex Vertex(int x, int y)
+        {
+            float phi = x * MathF.Tau / segments;
+            float theta = y * MathF.PI / rings;
+            Vector3 n = new(MathF.Sin(theta) * MathF.Cos(phi), MathF.Cos(theta), MathF.Sin(theta) * MathF.Sin(phi));
+            return new()
+            {
+                Position = new(n * radius, objectIndex),
+                Normal = new(n, materialIndex),
+                Tangent = new(-MathF.Sin(phi), 0, MathF.Cos(phi), 1),
+                UV = new((float)x / segments, (float)y / rings, 0, 0)
+            };
+        }
+        for (int y = 0; y < rings; y++)
+        {
+            for (int x = 0; x < segments; x++)
+            {
+                if (y > 0)
+                {
+                    result.AddRange([Vertex(x, y), Vertex(x + 1, y), Vertex(x, y + 1)]);
+                }
+                if (y + 1 < rings)
+                {
+                    result.AddRange([Vertex(x + 1, y), Vertex(x + 1, y + 1), Vertex(x, y + 1)]);
+                }
+            }
+        }
+        return result;
+    }
+}

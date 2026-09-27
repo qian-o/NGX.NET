@@ -1,0 +1,27 @@
+﻿using Slangc.NET;
+
+namespace Showcase;
+
+internal static class ShaderCompiler
+{
+    public static byte[] Compile(string file, string entry, string stage, bool vulkan)
+    {
+        string path = Path.Combine(AppContext.BaseDirectory, "Assets", "Shaders", file);
+        List<string> arguments = [path, "-entry", entry, "-stage", stage, "-target", vulkan ? "spirv" : "dxil", "-profile", "sm_6_6", "-matrix-layout-row-major", "-O3"];
+        if (vulkan)
+        {
+            arguments.AddRange(["-fvk-use-entrypoint-name", "-fvk-use-dx-position-w", "-fvk-invert-y"]);
+        }
+        else
+        {
+            string dxc = Path.Combine(AppContext.BaseDirectory, "dxcompiler.dll");
+            if (!File.Exists(dxc))
+            {
+                dxc = Path.Combine(AppContext.BaseDirectory, "runtimes", "win-x64", "native", "dxcompiler.dll");
+            }
+
+            arguments.AddRange(["-dxc-path", dxc]);
+        }
+        return SlangCompiler.Compile([.. arguments]);
+    }
+}

@@ -438,3 +438,7 @@ _site/
 
 # Interface extraction scratch inputs (never distributed)
 .work/
+
+# Showcase assets are acquired by Assets/UpdateAssets.ps1.
+Showcase/Assets/Scenes/
+Showcase/Assets/Streamline/

@@ -103,7 +103,7 @@ underlying integer type.
 
 ## Development
 
-The solution contains the wrapper and `Streamline.NET.Generator`. Project settings
+The solution contains the wrapper, `Streamline.NET.Generator` and `Showcase`. Project settings
 and development package versions are centralized, following the Metal.NET layout.
 
 Interface extraction runs **only in GitHub Actions**:
@@ -139,6 +139,22 @@ in the delivery record below.
 
 See [the design](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Design.md) for the full contract and
 [the delivery record](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Delivery.md) for verified results and limits.
+
+## Showcase
+
+The Windows x64 [Showcase](https://github.com/qian-o/Streamline.NET/blob/master/Showcase/README.md) renders Sponza with DirectX 12 or
+Vulkan and integrates DLSS Super Resolution, DLAA, Ray Reconstruction, Frame
+Generation and Reflex through this wrapper. Its dependencies and downloaded assets
+are confined to the sample.
+
+```powershell
+./Showcase/Assets/UpdateAssets.ps1
+dotnet run --project Showcase -c Release
+```
+
+See the [Showcase design](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Showcase.Design.md) and the sample's
+[verification record](https://github.com/qian-o/Streamline.NET/blob/master/Showcase/README.md#verification-record--2026-09-27) for scope
+and the outstanding Windows GPU acceptance checks.
 
 ## License
 
