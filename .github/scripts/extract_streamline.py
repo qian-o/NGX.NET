@@ -279,8 +279,15 @@ def main():
             for child in cursor.get_children():
                 file = relative(child.location.file.name if child.location.file else None)
                 if file.startswith("include/") or child.kind in {cx.CursorKind.NAMESPACE, cx.CursorKind.LINKAGE_SPEC}:
-                    if child.type.kind != cx.TypeKind.INVALID:
-                        describe_type(child.type)
+                    # Dependent C++ expressions do not have a concrete layout. Asking
+                    # libclang for sizeof on them can crash; follow named Vulkan type
+                    # references instead of measuring every expression in a template.
+                    if child.kind == cx.CursorKind.TYPE_REF and child.referenced:
+                        referenced = child.referenced
+                        if referenced.spelling.startswith("Vk"):
+                            dependency = referenced.type.get_canonical().get_declaration()
+                            if dependency and dependency.is_definition():
+                                dependencies[dependency.get_usr()] = dependency
                     helper_dependencies(child)
 
         helper_dependencies(tu.cursor)
