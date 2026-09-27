@@ -372,6 +372,9 @@ def main():
             continue
         if item["type"]["canonical"] != contract["canonicalSignature"]:
             raise RuntimeError("Review overload contract for changed signature: " + name)
+        if item["kind"] != "FUNCTION_DECL":
+            item["overloadContractSource"] = name
+            continue
         for parameter in item["children"]:
             if parameter["kind"] == "PARM_DECL":
                 if parameter["name"] not in contract["parameters"]:
