@@ -327,6 +327,17 @@ def main():
         item = serialize(cursor)
         item["classification"] = "implementation"
         item["reason"] = "Private Windows data layout required by the signature helpers."
+        layout_fields = []
+        def collect_layout_fields(record):
+            for child in record.get_children():
+                if child.kind == cx.CursorKind.FIELD_DECL:
+                    field = serialize(child)
+                    field["offsetBits"] = cursor.type.get_offset(child.spelling)
+                    layout_fields.append(field)
+                elif child.kind == cx.CursorKind.UNION_DECL and child.is_anonymous():
+                    collect_layout_fields(child)
+        collect_layout_fields(cursor)
+        item["layoutFields"] = layout_fields
         security_records[identity] = item
         for field in cursor.get_children():
             if field.kind == cx.CursorKind.FIELD_DECL:
