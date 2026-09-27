@@ -9,6 +9,7 @@ internal sealed partial class CSharpEmitter
     {
         string name = declaration.Name[2..];
         string result = mapper.Map(declaration.ResultType ?? throw new InvalidDataException("Missing function result."));
+        string pointerSignature = mapper.Map(declaration.Type);
         bool exported = snapshot.Exports.Contains(declaration.Name, StringComparer.Ordinal);
         List<NativeDeclaration> parameters = [.. declaration.Parameters];
         string arguments = string.Join(", ", parameters.Select(parameter => TypeMapper.Identifier(parameter.Name)));
@@ -56,7 +57,7 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine("        {");
             builder.AppendLine("            return result;");
             builder.AppendLine("        }");
-            builder.AppendLine($"        return (({mapper.Map(declaration.Type)})address)({arguments});");
+            builder.AppendLine($"        return (({pointerSignature})address)({arguments});");
         }
 
         builder.AppendLine("    }");

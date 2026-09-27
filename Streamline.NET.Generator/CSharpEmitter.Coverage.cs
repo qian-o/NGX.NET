@@ -117,6 +117,10 @@ internal sealed partial class CSharpEmitter
     {
         foreach (NativeMacro macro in snapshot.Macros)
         {
+            if (macro.Classification is not ("application" or "compilation" or "implementation"))
+            {
+                unhandled.Add("Unclassified macro: " + macro.Name);
+            }
             if (!reviewedMacros.TryGetValue(macro.Id, out ReviewedImplementation? reviewed) || reviewed.NativeSourceSha256 != SourceHash(macro.Body))
             {
                 unhandled.Add("Unreviewed macro: " + macro.Name + " in " + macro.File);
