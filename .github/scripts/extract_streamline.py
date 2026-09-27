@@ -340,8 +340,10 @@ struct AllocatorProbe final : sl::IAllocator {
 FrameProbe frameProbe;
 AllocatorProbe allocatorProbe;
 using StreamlineArrayLayout = sl::Array<uint8_t>;
+static_assert(sizeof(StreamlineArrayLayout) > 0);
 extern "C" __declspec(dllexport) sl::Resource invokeAllocate(sl::PFun_ResourceAllocateCallback* callback,
     const sl::ResourceAllocationDesc* desc, void* device) { return callback(desc, device); }
+extern "C" __declspec(dllexport) void destroyAllocator(sl::IAllocator* allocator) { allocator->~IAllocator(); }
 ''', encoding="utf-8")
     result = subprocess.run([compiler, *common_args, "-Xclang", "-fdump-vtable-layouts", "-S", "-emit-llvm",
                              str(probe), "-o", str(root / "abi.ll")], text=True, capture_output=True, check=True)
@@ -351,6 +353,9 @@ extern "C" __declspec(dllexport) sl::Resource invokeAllocate(sl::PFun_ResourceAl
     callback_ir = re.search(r"^define[^\n]*@invokeAllocate\b[\s\S]*?^}", ir, re.MULTILINE)
     if not callback_ir:
         raise RuntimeError("Callback return ABI was not emitted.")
+    destructor_ir = re.search(r"^define[^\n]*@destroyAllocator\b[\s\S]*?^}", ir, re.MULTILINE)
+    if not destructor_ir:
+        raise RuntimeError("Allocator destructor ABI was not emitted.")
     slots = {}
     for probe_name, prefix in [("FrameProbe", "frameToken"), ("AllocatorProbe", "allocator")]:
         table = re.search(r"VFTable indices for '" + probe_name + r"'[^\n]*\n([\s\S]*?)(?:\n\s*\n|$)", virtual_tables)
@@ -366,7 +371,9 @@ extern "C" __declspec(dllexport) sl::Resource invokeAllocate(sl::PFun_ResourceAl
     array_definition = array_type.get_declaration()
     array_data = {"size": array_type.get_size(), "alignment": array_type.get_align(),
                   "fields": [{"name": c.spelling, "offsetBits": c.get_field_offsetof(), "type": describe_type(c.type)}
-                             for c in array_definition.get_children() if c.kind == cx.CursorKind.FIELD_DECL]}
+                             for c in array_type.get_fields()]}
+    if array_data["size"] <= 0 or len(array_data["fields"]) != 3:
+        raise RuntimeError("Array specialization layout was not extracted.")
     snapshot = {"schemaVersion": 1,
                 "source": {"repository": "NVIDIA-RTX/Streamline", "release": release["tag_name"],
                            "commit": commit, "releaseUrl": release["html_url"]},
@@ -375,7 +382,8 @@ extern "C" __declspec(dllexport) sl::Resource invokeAllocate(sl::PFun_ResourceAl
                 "toolchain": {"libclang": "18.1.1", "windowsSdk": os.environ.get("WindowsSDKVersion", "").strip("\\"),
                               "msvc": os.environ.get("VCToolsVersion", ""),
                               "clang": subprocess.check_output([compiler, "--version"], text=True).splitlines()[0]},
-                "abi": {"virtualSlots": slots, "resourceAllocateCallback": callback_ir[0], "arrayLayout": array_data},
+                "abi": {"virtualSlots": slots, "resourceAllocateCallback": callback_ir[0],
+                        "allocatorDestructor": destructor_ir[0], "arrayLayout": array_data},
                 "configurations": configurations, "inputs": sorted(inputs, key=lambda i: (i["path"], i["classification"])),
                 "declarations": sorted(declarations.values(), key=lambda i: (i["file"], i["line"], i["id"])),
                 "macros": macros,
