@@ -224,9 +224,10 @@ def main():
             result["offsetBits"] = cursor.get_field_offsetof()
             result["bitWidth"] = cursor.get_bitfield_width() if cursor.is_bitfield() else None
         if cursor.kind == cx.CursorKind.ENUM_DECL:
+            result["source"] = source(cursor)
             result["underlyingType"] = describe_type(cursor.enum_type)
             result["flags"] = any(re.search(r"SL_ENUM_OPERATORS_(?:32|64)\s*\(\s*" + re.escape(cursor.spelling) + r"\s*\)",
-                                              (sdk / path).read_text(encoding="utf-8-sig")) for path in public_headers)
+                                              (sdk / path).read_text(encoding="utf-8-sig")) for path in public_headers) or (cursor.spelling.endswith("Flags") and "<<" in source(cursor))
         if cursor.kind == cx.CursorKind.ENUM_CONSTANT_DECL:
             result["value"] = str(cursor.enum_value)
         if cursor.kind in {cx.CursorKind.TYPEDEF_DECL, cx.CursorKind.TYPE_ALIAS_DECL}:
@@ -286,7 +287,7 @@ def main():
 
         discover(tu.cursor)
         # Helper bodies name Vulkan records not present in function signatures.
-        def helper_dependencies(cursor):
+        def helper_dependencies(cursor, in_security_helper=False):
             for child in cursor.get_children():
                 file = relative(child.location.file.name if child.location.file else None)
                 if file.startswith("include/") or child.kind in {cx.CursorKind.NAMESPACE, cx.CursorKind.LINKAGE_SPEC}:
@@ -299,7 +300,7 @@ def main():
                             dependency = referenced.type.get_canonical().get_declaration()
                             if dependency and dependency.is_definition():
                                 dependencies[dependency.get_usr()] = dependency
-                    if file == "include/sl_security.h" and child.kind in {cx.CursorKind.TYPE_REF, cx.CursorKind.MEMBER_REF_EXPR} and child.referenced:
+                    if in_security_helper and file == "include/sl_security.h" and child.kind in {cx.CursorKind.TYPE_REF, cx.CursorKind.MEMBER_REF_EXPR} and child.referenced:
                         referenced = child.referenced
                         native_type = referenced.type if child.kind == cx.CursorKind.TYPE_REF else referenced.semantic_parent.type
                         native_type = native_type.get_canonical()
@@ -308,7 +309,7 @@ def main():
                         dependency = native_type.get_declaration()
                         if native_type.kind == cx.TypeKind.RECORD and dependency and dependency.is_definition():
                             security_types[dependency.get_usr()] = dependency
-                    helper_dependencies(child)
+                    helper_dependencies(child, in_security_helper or (child.kind == cx.CursorKind.FUNCTION_DECL and child.spelling in {"isSignedByNVIDIA", "verifyEmbeddedSignature"}))
 
         helper_dependencies(tu.cursor)
         while dependencies:
@@ -368,7 +369,7 @@ def main():
         logical_text = text.replace("\\\n", " ")
         for match in re.finditer(r"^\s*#\s*define\s+(\w+)([^\n]*)", logical_text, re.MULTILINE):
             name, body = match[1], match[2]
-            macros.append({"id": f"macro:{path}:{name}", "name": name, "file": path,
+            macros.append({"id": f"macro:{path}:{name}:" + hashlib.sha256(body.encode()).hexdigest()[:12], "name": name, "file": path,
                            "body": body.strip(),
                            "classification": "unclassified"})
 
@@ -447,7 +448,7 @@ extern "C" __declspec(dllexport) void destroyAllocator(sl::IAllocator* allocator
     text = json.dumps(snapshot, indent=2, ensure_ascii=False, allow_nan=False)
     for path, replacement in [(sdk, ""), (vk, "Vulkan-Headers")]:
         text = text.replace(json.dumps(str(path) + os.sep)[1:-1], replacement + ("/" if replacement else ""))
-    args.output.write_text(text + "\n", encoding="utf-8")
+    args.output.write_text(text + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {len(declarations)} declarations, {len(macros)} macros from {len(public_headers)} public inputs.")
 
 
