@@ -12,6 +12,12 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         get; protected set;
     }
     public string RayQueryStatus { get; protected set; } = "Unavailable";
+    public PresetCapabilities Capabilities => new(
+        Streamline.Available(SL.FeatureDLSS),
+        RayQuerySupported && Streamline.Available(SL.FeatureDLSSRR),
+        Streamline.Available(SL.FeatureDLSSG) && Streamline.MaximumGeneratedFrames >= 1
+            && Math.Min(Window.Width, Window.Height) >= Streamline.MinimumFGDimension,
+        Streamline.Available(SL.FeatureReflex));
     public Window Window { get; } = window;
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
@@ -78,11 +84,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Window.LatencyPingMessage = Streamline.LatencyPingMessage;
         Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
         Camera.Reset(Scene);
-        if (!Streamline.Available(SL.FeatureDLSS))
-        {
-            Settings.Reconstruction = Reconstruction.Native;
-        }
-
+        QualityPresets.Apply(Settings, QualityPreset.Recommended, Capabilities);
         InitializeRenderer();
         ready = true;
         Window.BeforeWindowChange = SuspendFrameGeneration;
@@ -174,6 +176,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
         previousTick = start;
         UI.Build(this, delta);
+        if (LightingChanged())
+        {
+            reset = true;
+        }
+
         if (rebuild || outputWidth != Window.Width || outputHeight != Window.Height || ResourcesChanged())
         {
             Resize();
@@ -204,21 +211,26 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
         Vector3 center = (Scene.Minimum + Scene.Maximum) * 0.5f;
-        Vector3 sun = Vector3.Normalize(new(0.4f, 0.8f, 0.25f));
+        float elevation = Settings.SunElevation * MathF.PI / 180;
+        float azimuth = Settings.SunAzimuth * MathF.PI / 180;
+        Vector3 sun = new(MathF.Cos(elevation) * MathF.Cos(azimuth), MathF.Sin(elevation), MathF.Cos(elevation) * MathF.Sin(azimuth));
+        const float solarAngularRadius = 0.2666f * MathF.PI / 180;
         Constants = new()
         {
             ViewProjection = Camera.JitteredViewProjection,
             CurrentViewProjection = Camera.ViewProjection,
             PreviousViewProjection = Camera.PreviousViewProjection,
             InverseViewProjection = inverse,
-            Camera = new(Camera.Position, 1),
+            Camera = new(Camera.Position, MathF.Tan(Camera.FieldOfView / 2)),
             Size = new(InputWidth, InputHeight, outputWidth, outputHeight),
-            Sun = new(sun, 1),
+            Sun = new(sun, solarAngularRadius),
             Scene = new(Scene.Objects.Length, frameNumber, Scene.RayEpsilon, Scene.Scale),
             Parameters = new(Settings.RayTracing ? 1 : 0, Settings.Exposure, 0, Settings.Reconstruction == Reconstruction.Native ? 1 : Settings.Reconstruction == Reconstruction.NIS ? 2 : 0),
             Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, 0),
             Center = new(center.X, Scene.GroundHeight, center.Z, 0),
-            SunViewProjection = Scene.GetSunViewProjection(sun)
+            SunViewProjection = Scene.GetSunViewProjection(sun),
+            Lighting = new(Settings.SunIntensity, Settings.SkyIntensity, Settings.LocalLightIntensity,
+                Settings.ContactShadows ? Scene.Scale * 0.012f : 0)
         };
         Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
         Streamline.Marker(PCLMarker.SimulationEnd);
@@ -347,6 +359,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Streamline.ReadStatistics();
         }
     }
+
+    private bool LightingChanged() => applied is not null &&
+        (applied.SunElevation != Settings.SunElevation || applied.SunAzimuth != Settings.SunAzimuth ||
+         applied.SunIntensity != Settings.SunIntensity || applied.SkyIntensity != Settings.SkyIntensity ||
+         applied.LocalLightIntensity != Settings.LocalLightIntensity || applied.ContactShadows != Settings.ContactShadows);
 
     private bool ResourcesChanged() => applied is null || applied.Reconstruction != Settings.Reconstruction || applied.Quality != Settings.Quality || applied.Scale != Settings.Scale || applied.GeneratedFrames != Settings.GeneratedFrames || applied.DirectSRVariant != Settings.DirectSRVariant || applied.RayTracing != Settings.RayTracing;
     protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];

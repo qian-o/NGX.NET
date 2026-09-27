@@ -27,6 +27,7 @@ internal sealed unsafe class Window : IDisposable
     {
         get; private set;
     }
+    public float DpiScale => GetDpiForWindow(Handle) / 96f;
     public Action? BeforeWindowChange;
     public uint LatencyPingMessage;
     public bool LatencyPing;
@@ -193,6 +194,7 @@ internal sealed unsafe class Window : IDisposable
     {
         >= 'A' and <= 'Z' => ImGuiKey.A + key - 'A',
         >= '0' and <= '9' => ImGuiKey._0 + key - '0',
+        112 => ImGuiKey.F1,
         9 => ImGuiKey.Tab,
         13 => ImGuiKey.Enter,
         27 => ImGuiKey.Escape,
@@ -255,6 +257,7 @@ internal sealed unsafe class Window : IDisposable
     [DllImport("user32")] private static extern nint LoadCursorW(nint instance, nint name);
     [DllImport("user32")] private static extern bool AdjustWindowRectEx(ref Rect rect, uint style, bool menu, uint ex);
     [DllImport("user32")] private static extern bool SetProcessDpiAwarenessContext(nint context);
+    [DllImport("user32")] private static extern uint GetDpiForWindow(nint hwnd);
     [DllImport("user32")] private static extern nint SetCapture(nint hwnd);
     [DllImport("user32")] private static extern bool ReleaseCapture();
 }

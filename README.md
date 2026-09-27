@@ -153,7 +153,7 @@ dotnet run --project Showcase -c Release
 ```
 
 See the [Showcase design](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET.Showcase.Design.md) and the sample's
-[verification record](https://github.com/qian-o/Streamline.NET/blob/master/Showcase/README.md#verification-record--2026-09-27) for scope
+[verification record](https://github.com/qian-o/Streamline.NET/blob/master/Showcase/README.md#verification-record) for scope
 and the outstanding Windows GPU acceptance checks.
 
 ## License

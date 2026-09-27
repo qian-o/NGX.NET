@@ -25,15 +25,45 @@ capability queries to enable its controls. Unsupported options show the SDK reas
 in the feature availability panel. DirectSR is available only when the DirectX 12
 runtime and installed plugin support it.
 
-Default output is a resizable 1600 x 900 window with DLSS Quality and Reflex Low
-Latency when supported. Frame Generation is initially off. On the RTX 4070 Ti SUPER,
-select the frame-generation multiplier offered by the SDK; the application does
-not assume Multi Frame Generation support.
+Default output is a resizable 1600 x 900 window. The **Recommended** preset uses
+ray-traced lighting, DLSS Ray Reconstruction in Quality mode, 2x Frame Generation
+and Reflex Low Latency when the current device supports them. Unsupported features
+are omitted automatically. No Multi Frame Generation support is assumed for the
+RTX 4070 Ti SUPER.
+
+## Controls
+
+The panel uses Chinese on a Chinese Windows installation with a compatible system
+font, and English otherwise. Fonts are loaded from the operating system; the sample
+does not redistribute them. Text and controls follow the window's DPI scaling.
+
+Start with a preset:
+
+| Preset | Intended use |
+|---|---|
+| Recommended | Natural ray-traced light and denoising, with DLSS Quality and supported frame generation. |
+| Quality first | Native-resolution anti-aliasing, with RR when available; higher GPU cost. |
+| Performance first | Raster lighting and DLSS Balanced, with supported frame generation. |
+| Native reference | Native resolution with FXAA; upscaling and frame generation off for comparison. |
+
+The main controls combine **ray tracing and denoising** so that enabling ray tracing
+does not accidentally expose noisy input. **Image quality** selects the balance
+between internal resolution and reconstruction. The displayed sizes show internal
+rendering resolution followed by window output resolution. **Exposure** changes
+brightness: +1 EV doubles it and -1 EV halves it. **Reset daylight** restores the
+natural lighting and exposure without changing reconstruction or frame generation.
+
+Advanced options contain the separate reconstruction algorithms, noisy ray-traced
+input comparison, supported frame multipliers, Reflex Boost, DeepDVC and daylight
+controls. Raw SDK details and measurements are in a separate section. Frame
+Generation shows the requested real/generated frame relationship; it is not a
+measurement of displayed FPS.
 
 Hold the right mouse button and use WASD to move, Q/E to move vertically and Shift
-to accelerate. The panel provides camera reset, a fixed camera, animation pause,
-exposure, reconstruction quality, ray tracing, frame generation, Reflex and DeepDVC.
-Changing window size changes output resolution. Animation pause keeps rendering.
+to accelerate. **F1** or the panel's close button hides the controls; F1 or the
+small Show settings button restores them. Camera reset, lock and object-animation
+pause are available for comparisons. The panel scrolls in short windows. Resizing
+the main window changes output resolution; animation pause keeps rendering.
 
 ## Rendering and integration
 
@@ -42,14 +72,21 @@ Changing window size changes output resolution. Animation pause keeps rendering.
   illumination, diffuse/specular albedo, world normals, linear roughness and
   specular hit distance. RR performs the reconstruction directly.
 - The scene uses metallic/roughness materials, normal maps, alpha masking, a sky,
-  a shadowed sun, local lights and two moving objects with different materials.
-  glTF hierarchy transforms are evaluated on load; downloaded assets are unchanged.
+  a shadowed daylight sun and two moving objects with muted metal/ceramic materials.
+  Optional warm fill lights are off by default. Sun height, direction and intensity,
+  sky brightness and exposure are adjustable. glTF hierarchy transforms are evaluated
+  on load; downloaded assets are unchanged.
 - Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
   `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. It traces shadows
   and one stochastic diffuse and one GGX specular secondary ray per pixel. The
-  secondary surface receives direct lighting. Ray tracing with RR disabled exposes
-  the noisy input. This is a limited bounce renderer; performance needs measurement
-  on the target GPU.
+  secondary path evaluates up to two surface interactions with direct light and
+  actual visibility. Fixed secondary ambient fill is removed. Ray tracing with RR
+  disabled exposes the noisy input. This remains a limited bounce renderer with an
+  analytic daylight environment; performance needs measurement on the target GPU.
+- Direct shading, GGX visible-normal sampling and the RR specular guide use the same
+  height-correlated Smith model. This improves grazing-angle behavior without
+  clamping away real lighting. The raster path adds screen-space contact occlusion
+  to indirect light only; the traced path uses geometric visibility instead.
 - Each rigid object has one non-indexed BLAS built at startup. Sponza's geometry is
   static; the moving objects update TLAS instance transforms. Each frame slot owns
   its TLAS, scratch buffer and instance upload allocation. A slot is first built,
@@ -65,7 +102,8 @@ Changing window size changes output resolution. Animation pause keeps rendering.
   features before device creation, independently of the interposer's SDK needs.
 - Textures retain their source dimensions and receive a full mip chain. Base color
   and emissive maps are decoded to linear color during sampling. Normals and
-  metallic/roughness maps are sampled as data.
+  metallic/roughness maps are sampled as data. Each channel uses its own texture
+  dimensions for mip selection, with trilinear filtering between mip levels.
 - NIS consumes antialiased SDR color at input resolution. DirectSR runs on its
   required command queue, between two submitted command lists. DeepDVC processes
   tone-mapped SDR color before UI composition.
@@ -119,7 +157,10 @@ runtime files to the wrapper package.
 | SixLabors.ImageSharp | 3.1.12 | Image decoding and mip generation |
 | ImGui.NET | 1.91.6.1 | Control panel and font atlas |
 
-## Verification record — 2026-09-27
+## Verification record
+
+Resource preparation was checked on 2026-09-27. The current daylight and controls
+update was checked on 2026-09-28.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -141,9 +182,21 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
   masks, BLAS addresses and translated positions. Moving/paused instances preserve
   raster history. The raster shadow projection encloses the scene bounds.
-- SPIR-V member offsets and strides match the 48-byte object records and 432-byte
+- SPIR-V member offsets and strides match the 48-byte object records and 448-byte
   frame constants. The earlier software BVH coverage check is superseded by the
   hardware geometry/instance checks above.
-- Windows DXIL compilation, device creation, hardware AS builds/updates,
-  actual DLSS/RR/FG behavior, GPU timings, image quality, backend parity and resize/exit stability: pending Windows acceptance.
-  No GPU performance results or rendered screenshots have been claimed.
+- The user reported that both Windows backends ran successfully before this
+  lighting/UI update. The new appearance and its GPU performance still need Windows
+  acceptance; no new Windows rendered screenshots or performance results are claimed.
+- Current UI checks use offscreen ImGui draw data with fixture values, not measured
+  GPU results: Chinese/English text, CJK glyph coverage, small-window scrolling,
+  200% DPI and F1 hide/restore were checked. All 64 preset/capability combinations
+  and the independent daylight reset were checked. Validation helpers remain outside
+  the application and are not committed.
+
+## Rendering references
+
+- [Filament's material and lighting model](https://google.github.io/filament/main/filament.html)
+  for GGX/Smith reflectance and indirect-light occlusion.
+- [Heitz, Sampling the GGX Distribution of Visible Normals, JCGT 7(4), 2018](https://jcgt.org/published/0007/04/01/)
+  for GGX visible-normal sampling.

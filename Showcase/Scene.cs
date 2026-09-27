@@ -204,9 +204,9 @@ internal sealed class Scene
             int materialIndex = materials.Count;
             materials.Add(new()
             {
-                BaseColor = i == 0 ? new(0.9f, 0.55f, 0.15f, 1) : new(0.05f, 0.2f, 0.8f, 1),
+                BaseColor = i == 0 ? new(0.82f, 0.56f, 0.26f, 1) : new(0.3f, 0.38f, 0.42f, 1),
                 EmissiveMetallic = new(0, 0, 0, i == 0 ? 1 : 0),
-                Parameters = new(i == 0 ? 0.15f : 0.65f, 1, -1, 0),
+                Parameters = new(i == 0 ? 0.27f : 0.58f, 1, -1, 0),
                 Textures = new(-1)
             });
             AddObject(CreateSphere(scene.Scale * 0.018f, i + 1, materialIndex));

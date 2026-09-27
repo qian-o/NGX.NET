@@ -39,6 +39,11 @@ internal sealed unsafe class StreamlineSession : IDisposable
         get; private set;
     }
     public string FrameGenerationStatus { get; private set; } = "Off";
+    public DLSSGStatus? FrameGenerationIssue
+    {
+        get; private set;
+    }
+    private uint requestedGeneratedFrames;
     public double? LatencyMilliseconds
     {
         get; private set;
@@ -394,6 +399,8 @@ internal sealed unsafe class StreamlineSession : IDisposable
             EnableUserInterfaceRecomposition = SLBoolean.True
         };
         Check(SL.DLSSG.SetOptions(in Viewport, in options), "slDLSSGSetOptions");
+        requestedGeneratedFrames = frames;
+        FrameGenerationIssue = null;
         FrameGenerationStatus = frames == 0 ? "Off" : $"On ({frames + 1}x)";
     }
 
@@ -413,10 +420,9 @@ internal sealed unsafe class StreamlineSession : IDisposable
         if (FrameGenerationLoaded)
         {
             DLSSGState state = SL.DLSSG.GetState(in Viewport, null);
-            if (state.Status != DLSSGStatus.Ok)
-            {
-                FrameGenerationStatus = state.Status.ToString();
-            }
+            FrameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
+            FrameGenerationStatus = FrameGenerationIssue is not null ? state.Status.ToString() :
+                requestedGeneratedFrames == 0 ? "Off" : $"On ({requestedGeneratedFrames + 1}x)";
         }
         if (Available(SL.FeatureReflex))
         {

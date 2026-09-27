@@ -11,7 +11,7 @@ struct Globals
     row_major float4x4 currentViewProjection;
     row_major float4x4 previousViewProjection;
     row_major float4x4 inverseViewProjection;
-    float4 camera;
+    float4 camera; // world position.xyz, tan(vertical FOV / 2).w
     float4 size; // render width, height, output width, height
     float4 sun;
     float4 scene; // object count, frame number, ray epsilon, scale
@@ -19,6 +19,7 @@ struct Globals
     float4 jitter; // pixel jitter.xy; generate RR guides when z is set
     float4 center;
     row_major float4x4 sunViewProjection;
+    float4 lighting; // sun irradiance, sky radiance, warm fill intensity, raster AO radius
 };
 [[vk::binding(0, 0)]] ConstantBuffer<Globals> g : register(b0);
 [[vk::binding(1, 0)]] StructuredBuffer<Vertex> vertices : register(t0);
@@ -64,14 +65,8 @@ float4 fetch(uint offset, int2 p, uint2 size)
     p = (p % int2(size) + int2(size)) % int2(size);
     return unpackColor(texels[offset + p.y * size.x + p.x]);
 }
-float4 sampleTexture(int index, float2 uv, float lod, bool srgb)
+float4 sampleMip(uint offset, uint2 size, float2 uv, bool srgb)
 {
-    if (index < 0) return 1;
-    uint4 info = textureInfo[index];
-    uint level = min((uint)max(lod, 0), info.w - 1);
-    uint2 size = info.yz;
-    uint offset = info.x;
-    for (uint i = 0; i < level; i++) { offset += size.x * size.y; size = max(size / 2, 1); }
     float2 p = frac(uv) * size - 0.5;
     int2 pixel = int2(floor(p));
     float2 f = frac(p);
@@ -80,6 +75,19 @@ float4 sampleTexture(int index, float2 uv, float lod, bool srgb)
     if (srgb) { a.rgb = srgbToLinear(a.rgb); b.rgb = srgbToLinear(b.rgb); c.rgb = srgbToLinear(c.rgb); d.rgb = srgbToLinear(d.rgb); }
     return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
 }
+float4 sampleTexture(int index, float2 uv, float lod, bool srgb)
+{
+    if (index < 0) return 1;
+    uint4 info = textureInfo[index];
+    float mip = clamp(lod, 0, float(info.w - 1));
+    uint level = (uint)mip;
+    uint2 size = info.yz;
+    uint offset = info.x;
+    for (uint i = 0; i < level; i++) { offset += size.x * size.y; size = max(size / 2, 1); }
+    float4 color = sampleMip(offset, size, uv, srgb);
+    if (level + 1 >= info.w || frac(mip) == 0) return color;
+    return lerp(color, sampleMip(offset + size.x * size.y, max(size / 2, 1), uv, srgb), frac(mip));
+}
 float textureLod(int index, float2 dx, float2 dy)
 {
     if (index < 0) return 0;
@@ -87,22 +95,22 @@ float textureLod(int index, float2 dx, float2 dy)
     return max(0.5 * log2(max(dot(dx * size, dx * size), dot(dy * size, dy * size))), 0);
 }
 struct Surface { float3 albedo; float3 normal; float3 emissive; float metallic; float roughness; float alpha; };
-Surface surface(Material m, float2 uv, float3 n, float4 tangent, float lod)
+Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
 {
     Surface s;
-    float4 color = m.baseColor * sampleTexture((int)m.textures.x, uv, lod, true);
-    float4 mr = sampleTexture((int)m.textures.z, uv, lod, false);
+    float4 color = m.baseColor * sampleTexture((int)m.textures.x, uv, lod.x, true);
+    float4 mr = sampleTexture((int)m.textures.z, uv, lod.z, false);
     s.albedo = color.rgb;
     s.alpha = color.a;
     s.metallic = saturate(m.emissiveMetallic.w * mr.b);
     s.roughness = clamp(m.parameters.x * mr.g, 0.045, 1);
-    s.emissive = m.emissiveMetallic.rgb * sampleTexture((int)m.textures.w, uv, lod, true).rgb;
+    s.emissive = m.emissiveMetallic.rgb * sampleTexture((int)m.textures.w, uv, lod.w, true).rgb;
     s.normal = normalize(n);
     if (m.textures.y >= 0)
     {
         float3 t = normalize(tangent.xyz - n * dot(n, tangent.xyz));
         float3 b = cross(n, t) * tangent.w;
-        float3 mapped = sampleTexture((int)m.textures.y, uv, lod, false).xyz * 2 - 1;
+        float3 mapped = sampleTexture((int)m.textures.y, uv, lod.y, false).xyz * 2 - 1;
         mapped.xy *= m.parameters.y;
         s.normal = normalize(t * mapped.x + b * mapped.y + n * mapped.z);
     }
@@ -142,7 +150,9 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
 {
     Material m = materials[input.material];
     if (!front && m.parameters.w == 0) discard;
-    float lod = textureLod((int)m.textures.x, ddx(input.uv), ddy(input.uv));
+    float2 uvDx = ddx(input.uv), uvDy = ddy(input.uv);
+    float4 lod;
+    for (uint i = 0; i < 4; i++) lod[i] = textureLod((int)m.textures[i], uvDx, uvDy);
     Surface s = surface(m, input.uv, normalize(input.normal), input.tangent, lod);
     clip(s.alpha - m.parameters.z);
     if (dot(s.normal, g.camera.xyz - input.world) < 0) s.normal = -s.normal;
@@ -242,26 +252,90 @@ Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
     return hit;
 }
 #endif
-float3 sky(float3 direction) { return lerp(float3(0.08, 0.09, 0.12), float3(0.4, 0.6, 1.0), saturate(direction.y * 0.5 + 0.5)); }
+// Analytic daylight environment, shared by camera rays and indirect illumination.
+// The sun is sampled separately as a finite directional emitter.
+float3 sky(float3 direction)
+{
+    float elevation = saturate(direction.y);
+    float3 horizon = float3(0.78, 0.84, 0.92);
+    float3 zenith = float3(0.28, 0.48, 0.78);
+    float3 atmosphere = lerp(horizon, zenith, sqrt(elevation));
+    float towardSun = saturate(dot(direction, g.sun.xyz));
+    atmosphere += float3(0.2, 0.17, 0.12) * pow(towardSun, 16) * elevation;
+    float3 ground = float3(0.16, 0.15, 0.13);
+    return g.lighting.y * lerp(ground, atmosphere, smoothstep(-0.08, 0.04, direction.y));
+}
 uint hash(uint x) { x ^= x >> 16; x *= 0x7feb352d; x ^= x >> 15; x *= 0x846ca68b; return x ^ (x >> 16); }
 float random(inout uint state) { state = hash(state); return float(state >> 8) / 16777216.0; }
+float3 tangentAxis(float3 n) { return normalize(cross(abs(n.y) < 0.99 ? float3(0, 1, 0) : float3(1, 0, 0), n)); }
 float3 basisDirection(float3 n, float3 local)
 {
-    float3 t = normalize(cross(abs(n.y) < 0.99 ? float3(0, 1, 0) : float3(1, 0, 0), n));
+    float3 t = tangentAxis(n);
     return normalize(t * local.x + cross(n, t) * local.y + n * local.z);
 }
+float3 sampleSun(inout uint state)
+{
+    float r = sqrt(random(state)) * tan(g.sun.w), phi = random(state) * 6.2831853;
+    return basisDirection(g.sun.xyz, float3(r * cos(phi), r * sin(phi), 1));
+}
 float3 fresnel(float3 f0, float cosine) { return f0 + (1 - f0) * pow(1 - saturate(cosine), 5); }
+float ggxDistribution(float nh, float alpha)
+{
+    float alpha2 = alpha * alpha;
+    float denominator = nh * nh * (alpha2 - 1) + 1;
+    return alpha2 / max(3.14159265 * denominator * denominator, 1e-8);
+}
+// Height-correlated Smith visibility. The direct BRDF, path weights and RR
+// specular guide use this same GGX model (see Filament's standard material model).
+float smithVisibility(float nv, float nl, float alpha)
+{
+    float alpha2 = alpha * alpha;
+    float v = nl * sqrt(nv * nv * (1 - alpha2) + alpha2);
+    float l = nv * sqrt(nl * nl * (1 - alpha2) + alpha2);
+    return 0.5 / max(v + l, 1e-6);
+}
+float smithG1(float nv, float alpha)
+{
+    return 2 * nv / max(nv + sqrt(alpha * alpha + (1 - alpha * alpha) * nv * nv), 1e-6);
+}
 float3 brdf(Surface s, float3 v, float3 l)
 {
+    float nv = max(dot(s.normal, v), 1e-4), nl = max(dot(s.normal, l), 0);
+    if (nl == 0) return 0;
     float3 h = normalize(v + l);
-    float nv = max(dot(s.normal, v), 0.001), nl = max(dot(s.normal, l), 0);
-    float nh = max(dot(s.normal, h), 0), vh = max(dot(v, h), 0);
-    float a2 = pow(s.roughness, 4);
-    float d = a2 / max(3.14159265 * pow(nh * nh * (a2 - 1) + 1, 2), 1e-6);
-    float k = pow(s.roughness + 1, 2) / 8;
-    float geometry = nv / (nv * (1 - k) + k) * nl / max(nl * (1 - k) + k, 1e-5);
+    float nh = saturate(dot(s.normal, h)), vh = saturate(dot(v, h));
+    float alpha = s.roughness * s.roughness;
     float3 f = fresnel(lerp(0.04, s.albedo, s.metallic), vh);
-    return ((1 - f) * (1 - s.metallic) * s.albedo / 3.14159265 + f * d * geometry / max(4 * nv * nl, 1e-5)) * nl;
+    float3 diffuse = (1 - f) * (1 - s.metallic) * s.albedo / 3.14159265;
+    return (diffuse + f * ggxDistribution(nh, alpha) * smithVisibility(nv, nl, alpha)) * nl;
+}
+// Heitz 2018, Sampling the GGX Distribution of Visible Normals, JCGT 7(4).
+// Visible-normal sampling avoids the very large grazing-angle weights of NDF sampling.
+float3 sampleVisibleGgx(float3 view, float alpha, float2 u)
+{
+    float3 stretched = normalize(float3(alpha * view.xy, view.z));
+    float lengthSquared = dot(stretched.xy, stretched.xy);
+    float3 t1 = lengthSquared > 0 ? float3(-stretched.y, stretched.x, 0) * rsqrt(lengthSquared) : float3(1, 0, 0);
+    float3 t2 = cross(stretched, t1);
+    float radius = sqrt(u.x), phi = 6.2831853 * u.y;
+    float x = radius * cos(phi), y = radius * sin(phi);
+    float blend = 0.5 * (1 + stretched.z);
+    y = (1 - blend) * sqrt(max(1 - x * x, 0)) + blend * y;
+    float3 normal = x * t1 + y * t2 + sqrt(max(1 - x * x - y * y, 0)) * stretched;
+    return normalize(float3(alpha * normal.xy, max(normal.z, 0)));
+}
+float3 sampleSpecular(Surface s, float3 view, float2 u, out float3 halfVector)
+{
+    float3 t = tangentAxis(s.normal), b = cross(s.normal, t);
+    float3 localView = float3(dot(view, t), dot(view, b), max(dot(view, s.normal), 1e-4));
+    float3 localHalf = sampleVisibleGgx(normalize(localView), s.roughness * s.roughness, u);
+    halfVector = normalize(t * localHalf.x + b * localHalf.y + s.normal * localHalf.z);
+    return reflect(-view, halfVector);
+}
+float3 specularWeight(float3 f0, float nv, float nl, float vh, float alpha)
+{
+    float geometry = 4 * nv * nl * smithVisibility(nv, nl, alpha);
+    return fresnel(f0, vh) * geometry / max(smithG1(nv, alpha), 1e-6);
 }
 float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 {
@@ -271,62 +345,145 @@ float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
     else
 #endif
     visibility = shadowVisibility(p, s.normal);
-    float3 color = brdf(s, view, sunDirection) * float3(6, 5.6, 4.8) * visibility;
-    for (uint i = 0; i < 2; i++)
+    float3 color = brdf(s, view, sunDirection) * float3(1, 0.96, 0.88) * g.lighting.x * visibility;
+    if (g.lighting.z > 0)
     {
-        float3 lightPosition = g.center.xyz + float3((i == 0 ? -1 : 1) * g.scene.w * 0.15, g.scene.w * 0.045, 0);
-        float3 delta = lightPosition - p;
-        float distanceSquared = dot(delta, delta);
-        if (distanceSquared <= g.scene.z * g.scene.z) continue;
-        float3 l = normalize(delta);
-        float unoccluded = 1;
+        for (uint i = 0; i < 2; i++)
+        {
+            float3 lightPosition = g.center.xyz + float3((i == 0 ? -1 : 1) * g.scene.w * 0.15, g.scene.w * 0.065, 0);
+            float3 delta = lightPosition - p;
+            float distanceSquared = dot(delta, delta);
+            if (distanceSquared <= g.scene.z * g.scene.z) continue;
+            float3 l = normalize(delta);
+            float unoccluded = 1;
 #if HAS_RAY_QUERY
-        if (g.parameters.x > 0) unoccluded = trace(p + s.normal * g.scene.z, l, sqrt(distanceSquared), true).triangle == 0xffffffff ? 1 : 0;
+            if (g.parameters.x > 0) unoccluded = trace(p + s.normal * g.scene.z, l, sqrt(distanceSquared), true).triangle == 0xffffffff ? 1 : 0;
 #endif
-        color += brdf(s, view, l) * (i == 0 ? float3(1, 0.35, 0.08) : float3(0.15, 0.4, 1)) * g.scene.w * g.scene.w * 0.002 / max(distanceSquared, g.scene.z) * unoccluded;
+            color += brdf(s, view, l) * float3(1, 0.88, 0.72) * g.lighting.z / distanceSquared * unoccluded;
+        }
     }
     return color;
 }
-// Deterministically integrate the GGX specular reflectance for the RR guide buffer.
-// Sampling uses the same NDF and masking model as the secondary specular rays.
 float3 integratedSpecularAlbedo(float3 f0, float roughness, float nv)
 {
     const uint sampleCount = 32;
+    nv = max(nv, 1e-4);
     float3 view = float3(sqrt(max(1 - nv * nv, 0)), 0, nv);
     float3 result = 0;
-    float alpha2 = pow(roughness, 4), k = roughness * roughness / 2;
+    float alpha = roughness * roughness;
     for (uint i = 0; i < sampleCount; i++)
     {
-        float u = (i + 0.5) / sampleCount;
-        float phi = (reversebits(i) * 2.3283064365386963e-10) * 6.2831853;
-        float cosTheta = sqrt((1 - u) / (1 + (alpha2 - 1) * u));
-        float sinTheta = sqrt(max(1 - cosTheta * cosTheta, 0));
-        float3 h = float3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+        float2 u = float2((i + 0.5) / sampleCount, reversebits(i) * 2.3283064365386963e-10);
+        float3 h = sampleVisibleGgx(view, alpha, u);
         float3 l = reflect(-view, h);
-        if (l.z > 0)
-        {
-            float vh = max(dot(view, h), 0);
-            float geometry = nv / max(nv * (1 - k) + k, 1e-5) * l.z / (l.z * (1 - k) + k);
-            result += fresnel(f0, vh) * geometry * vh / max(nv * h.z, 1e-5);
-        }
+        if (l.z > 0) result += specularWeight(f0, nv, l.z, saturate(dot(view, h)), alpha);
     }
     return saturate(result / sampleCount);
 }
-#if HAS_RAY_QUERY
-float3 secondaryRadiance(float3 origin, float3 direction, out float distance)
+float3 worldPosition(int2 pixel, float depth)
 {
-    Hit hit = trace(origin, direction, g.scene.w * 4, false);
-    distance = hit.distance;
-    if (hit.triangle == 0xffffffff) return sky(direction);
+    float2 uv = (pixel + 0.5) / g.size.xy;
+    float4 world = mul(float4(uv * float2(2, -2) + float2(-1, 1), depth, 1), g.inverseViewProjection);
+    return world.xyz / world.w;
+}
+// Screen-space horizon occlusion affects the raster approximation's indirect light
+// only. Traced illumination already measures visibility and must not be darkened twice.
+float ambientVisibility(int2 pixel, float3 p, float3 n)
+{
+    float radius = g.lighting.w;
+    if (radius <= 0) return 1;
+    float viewDepth = mul(float4(p, 1), g.viewProjection).w;
+    float radiusPixels = radius * g.size.y / max(2 * g.camera.w * viewDepth, g.scene.z);
+    const uint directions = 8;
+    const uint steps = 3;
+    float occlusion = 0;
+    for (uint i = 0; i < directions; i++)
+    {
+        float phi = (i + 0.5) * 6.2831853 / directions;
+        float2 direction = float2(cos(phi), sin(phi));
+        float horizon = 0;
+        for (uint j = 1; j <= steps; j++)
+        {
+            int2 samplePixel = pixel + int2(round(direction * radiusPixels * (float(j) / steps)));
+            if (any(samplePixel < 0) || any(samplePixel >= int2(g.size.xy)) || all(samplePixel == pixel)) continue;
+            float depth = depthImage[samplePixel];
+            if (depth >= 1) continue;
+            float3 difference = worldPosition(samplePixel, depth) - p;
+            float distanceSquared = dot(difference, difference);
+            if (distanceSquared <= g.scene.z * g.scene.z) continue;
+            float distance = sqrt(distanceSquared);
+            float falloff = saturate(1 - distanceSquared / (radius * radius));
+            float angle = max(dot(n, difference / distance) - g.scene.z / distance, 0);
+            horizon = max(horizon, angle * falloff * falloff);
+        }
+        occlusion += horizon;
+    }
+    return saturate(1 - occlusion / directions);
+}
+#if HAS_RAY_QUERY
+Surface hitSurface(Hit hit, float3 direction)
+{
     Vertex a = vertices[hit.triangle * 3], b = vertices[hit.triangle * 3 + 1], c = vertices[hit.triangle * 3 + 2];
     float3 weights = float3(1 - hit.bary.x - hit.bary.y, hit.bary);
     float2 uv = a.uv.xy * weights.x + b.uv.xy * weights.y + c.uv.xy * weights.z;
     float3 n = normalize(a.normal.xyz * weights.x + b.normal.xyz * weights.y + c.normal.xyz * weights.z);
     float4 tangent = a.tangent * weights.x + b.tangent * weights.y + c.tangent * weights.z;
-    Surface s = surface(materials[(uint)a.normal.w], uv, n, tangent, 1);
+    float footprint = hit.distance * 2 * g.camera.w / g.size.y;
+    float uvScale = max(length(b.uv.xy - a.uv.xy) / max(length(b.position.xyz - a.position.xyz), g.scene.z),
+                        length(c.uv.xy - a.uv.xy) / max(length(c.position.xyz - a.position.xyz), g.scene.z));
+    Material material = materials[(uint)a.normal.w];
+    float4 lod;
+    for (uint i = 0; i < 4; i++)
+    {
+        int index = (int)material.textures[i];
+        lod[i] = index < 0 ? 0 : max(log2(max(footprint * uvScale * max(textureInfo[index].y, textureInfo[index].z), 1)), 0);
+    }
+    Surface s = surface(material, uv, n, tangent, lod);
     if (dot(s.normal, direction) > 0) s.normal = -s.normal;
-    float3 p = origin + direction * distance;
-    return s.emissive + directLight(s, p, -direction, g.sun.xyz) + s.albedo * (1 - s.metallic) * sky(s.normal) * 0.08;
+    return s;
+}
+float3 secondaryRadiance(float3 origin, float3 direction, inout uint rng, out float distance)
+{
+    const uint surfaceBounces = 2;
+    float3 radiance = 0, throughput = 1;
+    distance = g.scene.w * 4;
+    for (uint bounce = 0; bounce < surfaceBounces; bounce++)
+    {
+        Hit hit = trace(origin, direction, g.scene.w * 4, false);
+        if (bounce == 0) distance = hit.distance;
+        if (hit.triangle == 0xffffffff)
+        {
+            radiance += throughput * sky(direction);
+            break;
+        }
+        Surface s = hitSurface(hit, direction);
+        float3 p = origin + direction * hit.distance;
+        float3 view = -direction;
+        radiance += throughput * (s.emissive + directLight(s, p, view, sampleSun(rng)));
+        if (bounce + 1 == surfaceBounces) break;
+        float3 f0 = lerp(0.04, s.albedo, s.metallic);
+        float specularProbability = clamp(max(f0.r, max(f0.g, f0.b)), 0.05, 0.95);
+        float3 halfVector;
+        float2 u = float2(random(rng), random(rng));
+        if (random(rng) < specularProbability)
+        {
+            direction = sampleSpecular(s, view, u, halfVector);
+        }
+        else
+        {
+            float r = sqrt(u.x), phi = u.y * 6.2831853;
+            direction = basisDirection(s.normal, float3(r * cos(phi), r * sin(phi), sqrt(1 - u.x)));
+            halfVector = normalize(view + direction);
+        }
+        float nv = max(dot(s.normal, view), 1e-4), nl = dot(s.normal, direction);
+        if (nl <= 0) break;
+        float alpha = s.roughness * s.roughness;
+        float specularPdf = ggxDistribution(saturate(dot(s.normal, halfVector)), alpha) * smithG1(nv, alpha) / (4 * nv);
+        float pdf = lerp(nl / 3.14159265, specularPdf, specularProbability);
+        throughput *= brdf(s, view, direction) / max(pdf, 1e-6);
+        origin = p + s.normal * g.scene.z;
+    }
+    return radiance;
 }
 #endif
 [shader("compute")]
@@ -355,14 +512,13 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         return;
     }
     float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
-    Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normal.xyz; s.roughness = normal.w; s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
+    Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w; s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
     if (dot(s.normal, view) < 0) s.normal = -s.normal;
     uint rng = hash(pixel.x + pixel.y * (uint)g.size.x + (uint)g.scene.y * 0x9e3779b9);
     float3 sunDirection = g.sun.xyz;
     if (g.parameters.x > 0)
     {
-        float r = sqrt(random(rng)) * 0.02, phi = random(rng) * 6.2831853;
-        sunDirection = basisDirection(sunDirection, float3(r * cos(phi), r * sin(phi), 1));
+        sunDirection = sampleSun(rng);
     }
     float3 color = s.emissive + directLight(s, p, view, sunDirection);
     float3 f0 = lerp(0.04, s.albedo, s.metallic);
@@ -375,27 +531,26 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         float u = random(rng), phi = random(rng) * 6.2831853;
         float3 diffuseDirection = basisDirection(s.normal, float3(sqrt(u) * cos(phi), sqrt(u) * sin(phi), sqrt(1 - u)));
         float unused;
-        color += s.albedo * (1 - s.metallic) * (1 - fresnel(f0, nv)) * secondaryRadiance(p + s.normal * g.scene.z, diffuseDirection, unused);
-        u = random(rng); phi = random(rng) * 6.2831853;
-        float alpha2 = pow(s.roughness, 4);
-        float cosTheta = sqrt((1 - u) / (1 + (alpha2 - 1) * u));
-        float sinTheta = sqrt(max(1 - cosTheta * cosTheta, 0));
-        float3 halfVector = basisDirection(s.normal, float3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta));
-        float3 reflected = reflect(-view, halfVector);
+        float3 diffuseHalf = normalize(view + diffuseDirection);
+        color += s.albedo * (1 - s.metallic) * (1 - fresnel(f0, dot(view, diffuseHalf))) * secondaryRadiance(p + s.normal * g.scene.z, diffuseDirection, rng, unused);
+        float3 halfVector;
+        float3 reflected = sampleSpecular(s, view, float2(random(rng), random(rng)), halfVector);
         if (dot(reflected, s.normal) > 0)
         {
-            float nl = dot(s.normal, reflected), nh = max(dot(s.normal, halfVector), 1e-5), vh = max(dot(view, halfVector), 0);
-            float k = s.roughness * s.roughness / 2;
-            float masking = nv / max(nv * (1 - k) + k, 1e-5) * nl / (nl * (1 - k) + k);
-            float3 weight = fresnel(f0, vh) * masking * vh / max(nv * nh, 1e-5);
-            color += secondaryRadiance(p + s.normal * g.scene.z, reflected, specularDistance) * weight;
+            float nl = dot(s.normal, reflected), vh = saturate(dot(view, halfVector));
+            float3 weight = specularWeight(f0, max(nv, 1e-4), nl, vh, s.roughness * s.roughness);
+            color += secondaryRadiance(p + s.normal * g.scene.z, reflected, rng, specularDistance) * weight;
         }
     }
     else
 #endif
     {
-        color += s.albedo * (1 - s.metallic) * sky(s.normal) * 0.25;
-        color += sky(reflect(-view, s.normal)) * specularAlbedo;
+        float visibility = ambientVisibility(int2(pixel), p, s.normal);
+        float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
+        color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;
+        // Lagarde's specular-occlusion approximation for the raster environment.
+        float specularVisibility = saturate(pow(nv + visibility, exp2(-16 * s.roughness - 1)) - 1 + visibility);
+        color += lerp(sky(reflect(-view, s.normal)), diffuseEnvironment, s.roughness * s.roughness) * specularAlbedo * specularVisibility;
     }
     sceneOutput[pixel] = float4(max(color, 0), 1);
     if (g.jitter.z > 0)

@@ -36,6 +36,12 @@ internal sealed record RenderSettings
     public float Intensity = 0.5f;
     public float Saturation = 0.5f;
     public float Exposure;
+    public float SunElevation = 50;
+    public float SunAzimuth = 65;
+    public float SunIntensity = 8;
+    public float SkyIntensity = 0.65f;
+    public float LocalLightIntensity;
+    public bool ContactShadows = true;
     public bool PauseAnimation;
     public bool FixedCamera;
     public float Scale = 0.67f;
@@ -57,6 +63,7 @@ internal struct FrameConstants
     public Vector4 Jitter;
     public Vector4 Center;
     public Matrix4x4 SunViewProjection;
+    public Vector4 Lighting;
 }
 
 internal abstract class GpuImage : IDisposable
