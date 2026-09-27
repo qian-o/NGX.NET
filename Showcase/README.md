@@ -34,18 +34,17 @@ to native raster rendering. Multi Frame Generation is not exposed.
 
 ## Controls
 
-The panel is anchored to the upper-left corner with 16-pixel text and a fixed
-280-pixel logical width. It cannot be dragged, resized or collapsed. Its content
-height is constrained by the viewport, with scrolling only in very short windows.
-System DPI scaling is applied once. The interface is always English, independent
-of the Windows display language. Fonts are not redistributed.
+The English panel is titled **Settings** and behaves like a normal game-settings
+window. It can be dragged and collapsed using ImGui's title bar. It cannot be
+closed or manually resized; `AlwaysAutoResize` fits its contents, with only a
+viewport-size limit for very small windows. Initial placement is near the upper
+left, and subsequent frames preserve the user's position. System DPI scaling is
+applied to the 16-pixel text and layout. Fonts are not redistributed.
 
-The title shows the DLSS implementation version queried via
-`slGetFeatureVersion(...).versionNGX`, followed by the GPU name and one FPS line:
-`FPS` is the presentation rate including generated frames; `Render` is the
-application-rendered frame rate.
-A missing version is shown as `--`; the Streamline/interposer version is not used
-as a substitute. The panel contains only three controls:
+It shows the GPU name and one **FPS** value, including generated frames when FG
+is active. There is no DLSS version header, render/output resolution display,
+separate Render FPS readout, close button, hidden state, reopen button or F1
+visibility shortcut. The three graphics controls use the official feature names:
 
 | Control | Choices / behavior |
 |---|---|
@@ -58,7 +57,6 @@ resolution using DLAA quality. Only one reconstruction pass executes. Brightness
 is metered automatically. There are no brightness controls, reset buttons,
 advanced/details sections, status lists, tooltips or operation hints in the panel.
 
-The close button or F1 hides the panel; the small Show button or F1 restores it.
 Camera navigation remains right mouse + WASD, Q/E for vertical motion, and Shift
 for faster movement. Only supported, implemented DLSS features are exposed;
 Dynamic Multi Frame Generation and 3D-Guided Neural Rendering are not added as
@@ -142,8 +140,8 @@ An unavailable state query makes the presentation rate unknown (`--`) for that
 window. SDK-reported FG state/query failures are logged and turn FG off through the normal
 swap-chain recreation path. Resize, mode switches, minimization and failed
 presents reset the counters; initialization/rebuild stalls are not mixed into the
-next window. Render FPS can fall when FG adds GPU work even while total FPS rises;
-Windows testing must compare the presentation rate, not just Render FPS.
+next window. Base rendering throughput can fall when FG adds GPU work even while
+presentation FPS rises. The panel exposes only the presentation rate.
 
 ## Build and diagnostics
 
@@ -179,8 +177,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. The English UI and frame-statistics
-update was checked on 2026-09-28; the earlier DLSS-only and AgX checks remain below.
+Resource preparation was checked on 2026-09-27. The movable/collapsible Settings
+panel was checked on 2026-09-28; earlier rendering/statistics checks remain below.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -226,11 +224,12 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   Windows appearance and GPU performance still need acceptance.
 - Current UI checks use offscreen ImGui draw data with fixture values, not measured
   GPU results: English text under English/Chinese UI cultures, a 360 x 160 window with
-  scrolling, 200% DPI and F1 hide/restore passed. Title/corner drag interactions
-  preserved the panel's position and size. Capability defaults and the 12
+  scrolling and 200% DPI passed. Title dragging moved the window, collapse/expand
+  worked, corner dragging could not resize it, and neither the title corner nor
+  F1 closed/hid it. Changing content changed its automatic width. Capability defaults and the 12
   DLSS mode / ray-tracing combinations select one reconstruction path, including
-  native-resolution RR with upscaling off. The native DLSS version query itself
-  requires Windows acceptance; UI fixtures do not claim a measured runtime version.
+  native-resolution RR with upscaling off. Fixture FPS and GPU labels are test
+  data, not measured Windows performance.
 - Frame-statistics tests passed for SDK-supplied presentation counts, generated
   frame drops, zero samples, unavailable queries, recovery, irregular intervals,
   and counter resets after resize/toggle/pause. The Windows native SDK counter and

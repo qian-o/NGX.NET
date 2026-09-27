@@ -26,7 +26,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
         get; private set;
     }
     public string RuntimeVersion { get; private set; } = "Unknown";
-    public string DlssVersion { get; private set; } = "--";
     public uint LatencyPingMessage
     {
         get; private set;
@@ -126,13 +125,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     public void QueryFeatures(AdapterInfo adapter)
     {
-        // Report the DLSS/NGX implementation version, not the Streamline wrapper
-        // or interposer version. An unavailable query remains unknown in the UI.
-        FeatureVersion dlssVersion = new();
-        if (SL.GetFeatureVersion(SL.FeatureDLSS, ref dlssVersion) == SLResult.Ok && dlssVersion.VersionNGX)
-        {
-            DlssVersion = dlssVersion.VersionNGX.ToStr();
-        }
         foreach ((uint id, string name) in Features)
         {
             SLResult support = SL.IsFeatureSupported(id, in adapter);

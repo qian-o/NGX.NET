@@ -8,11 +8,11 @@ namespace Showcase;
 internal sealed unsafe class UserInterface : IDisposable
 {
     private readonly nint context;
-    private bool visible = true;
     private float uiScale = 1;
     private const float TextSize = 16;
     private const float AtlasTextSize = 32;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
+    private static readonly DLSSMode[] QualityModes = [DLSSMode.Off, DLSSMode.DLAA, DLSSMode.MaxQuality, DLSSMode.Balanced, DLSSMode.MaxPerformance, DLSSMode.UltraPerformance];
     public byte[] FontPixels
     {
         get;
@@ -96,35 +96,14 @@ internal sealed unsafe class UserInterface : IDisposable
         }
         io.FontGlobalScale = TextSize / AtlasTextSize * uiScale;
         ImGui.NewFrame();
-        if (ImGui.IsKeyPressed(ImGuiKey.F1, false))
-        {
-            visible = !visible;
-        }
-
         Vector2 margin = new Vector2(12) * uiScale;
-        ImGui.SetNextWindowPos(margin, ImGuiCond.Always);
-        if (!visible)
-        {
-            if (ImGui.Begin("##ShowControls", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
-            {
-                if (ImGui.Button("Show"))
-                {
-                    visible = true;
-                }
-            }
-            ImGui.End();
-            ImGui.Render();
-            return;
-        }
-
+        ImGui.SetNextWindowPos(margin, ImGuiCond.FirstUseEver);
         Vector2 available = Vector2.Max(new(1), io.DisplaySize - margin * 2);
-        float width = Math.Min(280 * uiScale, available.X);
-        ImGui.SetNextWindowSizeConstraints(new(width, 0), new(width, available.Y));
-        if (ImGui.Begin($"DLSS {rhi.Streamline.DlssVersion}###ShowcaseControls", ref visible,
-            ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize))
+        ImGui.SetNextWindowSizeConstraints(Vector2.Zero, available);
+        if (ImGui.Begin("Settings", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.TextWrapped(rhi.AdapterName);
-            ImGui.TextUnformatted($"FPS: {Rate(rhi.PresentedFps)} | Render: {Rate(rhi.RenderFps)}");
+            ImGui.TextUnformatted(rhi.AdapterName);
+            ImGui.TextUnformatted($"FPS: {Rate(rhi.PresentedFps)}");
             ImGui.Separator();
             Graphics(rhi);
         }
@@ -137,11 +116,14 @@ internal sealed unsafe class UserInterface : IDisposable
         RenderSettings settings = rhi.Settings;
         RenderCapabilities capabilities = rhi.Capabilities;
         ImGui.TextUnformatted("DLSS Super Resolution");
-        ImGui.SetNextItemWidth(-1);
+        // A content-sized window needs an explicit item width; using the remaining
+        // window width here would feed its previous size back into auto-sizing.
+        float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(PreviewLabel(mode)).X);
+        ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + ImGui.GetStyle().FramePadding.X * 2);
         ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayTracing);
-        if (ImGui.BeginCombo("##DLSS", settings.Quality == DLSSMode.DLAA ? "DLAA" : QualityLabel(settings.Quality)))
+        if (ImGui.BeginCombo("##DLSS", PreviewLabel(settings.Quality)))
         {
-            foreach (DLSSMode mode in new[] { DLSSMode.Off, DLSSMode.DLAA, DLSSMode.MaxQuality, DLSSMode.Balanced, DLSSMode.MaxPerformance, DLSSMode.UltraPerformance })
+            foreach (DLSSMode mode in QualityModes)
             {
                 if (ImGui.Selectable(QualityLabel(mode), settings.Quality == mode))
                 {
@@ -165,6 +147,7 @@ internal sealed unsafe class UserInterface : IDisposable
     }
 
     private static string Rate(double? fps) => fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
+    private static string PreviewLabel(DLSSMode mode) => mode == DLSSMode.DLAA ? "DLAA" : QualityLabel(mode);
 
     private static string QualityLabel(DLSSMode mode) => mode switch
     {
