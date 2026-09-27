@@ -5,10 +5,9 @@ using Streamline.NET;
 
 namespace Showcase;
 
-internal sealed unsafe partial class UserInterface : IDisposable
+internal sealed unsafe class UserInterface : IDisposable
 {
     private readonly nint context;
-    private readonly bool chinese;
     private bool visible = true;
     private float uiScale = 1;
     private const float TextSize = 16;
@@ -54,38 +53,22 @@ internal sealed unsafe partial class UserInterface : IDisposable
         style.Colors[(int)ImGuiCol.CheckMark] = Accent;
 
         string fonts = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-        string? cjk = new[] { "msyh.ttc", "msjh.ttc", "simhei.ttf", "simsun.ttc" }
-            .Select(name => Path.Combine(fonts, name)).FirstOrDefault(File.Exists);
-        chinese = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "zh" && cjk is not null;
-        string? fontPath = chinese ? cjk : new[] { "segoeui.ttf", "arial.ttf" }
+        string? fontPath = new[] { "segoeui.ttf", "arial.ttf" }
             .Select(name => Path.Combine(fonts, name)).FirstOrDefault(File.Exists);
         ImFontConfigPtr config = ImGuiNative.ImFontConfig_ImFontConfig();
-        ImFontGlyphRangesBuilderPtr builder = ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder();
-        ImVector ranges = default;
         try
         {
             config.SizePixels = AtlasTextSize;
             config.OversampleH = 2;
             config.OversampleV = 1;
-            builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
-            builder.AddText("→…—");
-            if (chinese)
-            {
-                foreach (string text in ChineseText.Values)
-                {
-                    builder.AddText(text);
-                }
-            }
-            builder.BuildRanges(out ranges);
             if (fontPath is not null)
             {
-                io.Fonts.AddFontFromFileTTF(fontPath, config.SizePixels, config, ranges.Data);
+                io.Fonts.AddFontFromFileTTF(fontPath, config.SizePixels, config, io.Fonts.GetGlyphRangesDefault());
             }
             else
             {
                 io.Fonts.AddFontDefault(config);
             }
-            // Glyph ranges are borrowed by ImGui and must live through atlas construction.
             io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int bytesPerPixel);
             FontWidth = width;
             FontHeight = height;
@@ -93,12 +76,6 @@ internal sealed unsafe partial class UserInterface : IDisposable
         }
         finally
         {
-            if (ranges.Data != 0)
-            {
-                ImGui.MemFree(ranges.Data);
-            }
-
-            builder.Destroy();
             config.Destroy();
         }
         io.Fonts.SetTexID(1);
@@ -130,7 +107,7 @@ internal sealed unsafe partial class UserInterface : IDisposable
         {
             if (ImGui.Begin("##ShowControls", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
             {
-                if (ImGui.Button(T("Show")))
+                if (ImGui.Button("Show"))
                 {
                     visible = true;
                 }
@@ -147,8 +124,7 @@ internal sealed unsafe partial class UserInterface : IDisposable
             ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize))
         {
             ImGui.TextWrapped(rhi.AdapterName);
-            string fps = rhi.RenderFps > 0 ? rhi.RenderFps.ToString("F0", CultureInfo.InvariantCulture) : "--";
-            ImGui.TextUnformatted($"{T("Render FPS")}: {fps}");
+            ImGui.TextUnformatted($"FPS: {Rate(rhi.PresentedFps)} | Render: {Rate(rhi.RenderFps)}");
             ImGui.Separator();
             Graphics(rhi);
         }
@@ -160,11 +136,10 @@ internal sealed unsafe partial class UserInterface : IDisposable
     {
         RenderSettings settings = rhi.Settings;
         RenderCapabilities capabilities = rhi.Capabilities;
-        ImGui.TextUnformatted(T("Upscaling"));
-        ImGui.SameLine();
+        ImGui.TextUnformatted("DLSS Super Resolution");
         ImGui.SetNextItemWidth(-1);
         ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayTracing);
-        if (ImGui.BeginCombo("##DLSS", QualityLabel(settings.Quality)))
+        if (ImGui.BeginCombo("##DLSS", settings.Quality == DLSSMode.DLAA ? "DLAA" : QualityLabel(settings.Quality)))
         {
             foreach (DLSSMode mode in new[] { DLSSMode.Off, DLSSMode.DLAA, DLSSMode.MaxQuality, DLSSMode.Balanced, DLSSMode.MaxPerformance, DLSSMode.UltraPerformance })
             {
@@ -178,26 +153,28 @@ internal sealed unsafe partial class UserInterface : IDisposable
         ImGui.EndDisabled();
 
         ImGui.BeginDisabled(!capabilities.FrameGeneration);
-        ImGui.Checkbox(T("Frame generation"), ref settings.FrameGeneration);
+        ImGui.Checkbox("DLSS Frame Generation", ref settings.FrameGeneration);
         ImGui.EndDisabled();
 
         ImGui.BeginDisabled(!capabilities.RayReconstruction);
-        if (ImGui.Checkbox(T("Ray tracing"), ref settings.RayTracing) && !settings.RayTracing && !capabilities.Dlss)
+        if (ImGui.Checkbox("DLSS Ray Reconstruction", ref settings.RayTracing) && !settings.RayTracing && !capabilities.Dlss)
         {
             settings.Quality = DLSSMode.Off;
         }
         ImGui.EndDisabled();
     }
 
-    private string QualityLabel(DLSSMode mode) => T(mode switch
+    private static string Rate(double? fps) => fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
+
+    private static string QualityLabel(DLSSMode mode) => mode switch
     {
         DLSSMode.Off => "Off",
-        DLSSMode.DLAA => "DLAA",
+        DLSSMode.DLAA => "Deep Learning Anti-Aliasing (DLAA)",
         DLSSMode.MaxQuality => "Quality",
         DLSSMode.Balanced => "Balanced",
         DLSSMode.MaxPerformance => "Performance",
         DLSSMode.UltraPerformance => "Ultra Performance",
         _ => "Off"
-    });
+    };
     public void Dispose() => ImGui.DestroyContext(context);
 }

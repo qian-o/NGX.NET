@@ -37,19 +37,21 @@ to native raster rendering. Multi Frame Generation is not exposed.
 The panel is anchored to the upper-left corner with 16-pixel text and a fixed
 280-pixel logical width. It cannot be dragged, resized or collapsed. Its content
 height is constrained by the viewport, with scrolling only in very short windows.
-System DPI scaling is applied once. Chinese Windows uses a system CJK font;
-otherwise it uses English. Fonts are not redistributed.
+System DPI scaling is applied once. The interface is always English, independent
+of the Windows display language. Fonts are not redistributed.
 
 The title shows the DLSS implementation version queried via
-`slGetFeatureVersion(...).versionNGX`, followed by the GPU name and rendered FPS.
+`slGetFeatureVersion(...).versionNGX`, followed by the GPU name and one FPS line:
+`FPS` is the presentation rate including generated frames; `Render` is the
+application-rendered frame rate.
 A missing version is shown as `--`; the Streamline/interposer version is not used
 as a substitute. The panel contains only three controls:
 
 | Control | Choices / behavior |
 |---|---|
-| Upscaling | Off, DLAA, Quality, Balanced, Performance, Ultra Performance |
-| Frame generation | Off / On; manages Reflex and required swap-chain changes internally |
-| Ray tracing | Off / On; automatically enables Ray Reconstruction for denoising |
+| DLSS Super Resolution | Off, Deep Learning Anti-Aliasing (DLAA), Quality, Balanced, Performance, Ultra Performance |
+| DLSS Frame Generation | Off / On; manages Reflex and required swap-chain changes internally |
+| DLSS Ray Reconstruction | Off / On; automatically enables Ray Reconstruction for denoising |
 
 With upscaling off and ray tracing on, Ray Reconstruction operates at native
 resolution using DLAA quality. Only one reconstruction pass executes. Brightness
@@ -58,8 +60,9 @@ advanced/details sections, status lists, tooltips or operation hints in the pane
 
 The close button or F1 hides the panel; the small Show button or F1 restores it.
 Camera navigation remains right mouse + WASD, Q/E for vertical motion, and Shift
-for faster movement. The FPS counter measures rendered frames and excludes
-generated frames; it is not multiplied by the frame-generation setting.
+for faster movement. Only supported, implemented DLSS features are exposed;
+Dynamic Multi Frame Generation and 3D-Guided Neural Rendering are not added as
+placeholder options.
 
 ## Rendering and integration
 
@@ -127,8 +130,20 @@ generated frames; it is not multiplied by the frame-generation setting.
   storage through their required lifetime. SDK shutdown runs while graphics objects
   and callbacks remain alive.
 
-The panel reports only rendered FPS. It does not show GPU/CPU timings, latency
-reports or estimated presentation statistics.
+Frame statistics use half-second windows. With DLSS Frame Generation loaded,
+`slDLSSGGetState` is called once after each successful Present on the presenting
+thread, with null options to avoid a VRAM-estimation request. Its
+`numFramesActuallyPresented` values are summed over the measured interval. This
+includes generated frames and accounts for skipped/zero-count samples; the
+configured multiplier is never used to manufacture a display rate. Without FG,
+each successful native Present contributes one frame.
+
+An unavailable state query makes the presentation rate unknown (`--`) for that
+window. SDK-reported FG state/query failures are logged and turn FG off through the normal
+swap-chain recreation path. Resize, mode switches, minimization and failed
+presents reset the counters; initialization/rebuild stalls are not mixed into the
+next window. Render FPS can fall when FG adds GPU work even while total FPS rises;
+Windows testing must compare the presentation rate, not just Render FPS.
 
 ## Build and diagnostics
 
@@ -164,8 +179,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. The DLSS-only scope, compact UI
-and AgX color update were checked on 2026-09-28.
+Resource preparation was checked on 2026-09-27. The English UI and frame-statistics
+update was checked on 2026-09-28; the earlier DLSS-only and AgX checks remain below.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -210,12 +225,17 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   math, not Windows Ray Query, DLSS RR or frame-generation execution. The corrected
   Windows appearance and GPU performance still need acceptance.
 - Current UI checks use offscreen ImGui draw data with fixture values, not measured
-  GPU results: Chinese/English text, CJK glyph coverage, a 360 x 160 window with
+  GPU results: English text under English/Chinese UI cultures, a 360 x 160 window with
   scrolling, 200% DPI and F1 hide/restore passed. Title/corner drag interactions
   preserved the panel's position and size. Capability defaults and the 12
   DLSS mode / ray-tracing combinations select one reconstruction path, including
   native-resolution RR with upscaling off. The native DLSS version query itself
   requires Windows acceptance; UI fixtures do not claim a measured runtime version.
+- Frame-statistics tests passed for SDK-supplied presentation counts, generated
+  frame drops, zero samples, unavailable queries, recovery, irregular intervals,
+  and counter resets after resize/toggle/pause. The Windows native SDK counter and
+  actual FG performance require target-machine validation; no measured Windows
+  FPS increase is claimed.
 - The shared AgX/tone-map shaders ran on Apple M4 in the isolated harness. Across
   32 color/exposure cases, 8-bit GPU results matched an independent evaluation of
   the published reference. The same HDR Sponza reference was compared before/after
@@ -233,3 +253,5 @@ Development host: macOS arm64, .NET SDK 10.0.401.
 
 - [three.js AgX implementation](https://github.com/mrdoob/three.js/blob/9b02bfe8671c4dd8c9327c1636edc529b6462812/src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js)
   for the neutral AgX view transform, adapted from Filament/Blender.
+- [NVIDIA DLSS Frame Generation guide, frame-time measurement](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/docs/ProgrammingGuideDLSS_G.md#130-how-to-obtain-the-actual-frame-times-and-number-of-frames-presented)
+  for the presentation counter and its per-query lifetime.

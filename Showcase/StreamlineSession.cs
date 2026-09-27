@@ -11,8 +11,9 @@ internal sealed unsafe class StreamlineSession : IDisposable
 {
     public static readonly (uint Id, string Name)[] Features =
     [
-        (SL.FeatureDLSS, "DLSS Super Resolution / DLAA"), (SL.FeatureDLSSRR, "Ray Reconstruction"),
-        (SL.FeatureDLSSG, "Frame Generation"), (SL.FeatureReflex, "Reflex"), (SL.FeaturePCL, "Latency markers")
+        (SL.FeatureDLSS, "DLSS Super Resolution / Deep Learning Anti-Aliasing (DLAA)"),
+        (SL.FeatureDLSSRR, "DLSS Ray Reconstruction"), (SL.FeatureDLSSG, "DLSS Frame Generation"),
+        (SL.FeatureReflex, "Reflex"), (SL.FeaturePCL, "Latency markers")
     ];
     public Dictionary<uint, string> Unavailable { get; } = [];
     public FrameToken Frame
@@ -44,6 +45,8 @@ internal sealed unsafe class StreamlineSession : IDisposable
         get; private set;
     }
     private uint requestedGeneratedFrames;
+    private SLResult lastStateResult = SLResult.Ok;
+    public bool FrameGenerationFailed => lastStateResult != SLResult.Ok || FrameGenerationIssue is not null;
     public double? LatencyMilliseconds
     {
         get; private set;
@@ -339,6 +342,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         };
         Check(SL.DLSSG.SetOptions(in Viewport, in options), "slDLSSGSetOptions");
         requestedGeneratedFrames = frames;
+        lastStateResult = SLResult.Ok;
         FrameGenerationIssue = null;
         FrameGenerationStatus = frames == 0 ? "Off" : $"On ({frames + 1}x)";
     }
@@ -354,15 +358,40 @@ internal sealed unsafe class StreamlineSession : IDisposable
         FrameGenerationLoaded = load;
     }
 
-    public void ReadStatistics()
+    // Call once after each successful Present on the presenting thread. The SDK
+    // counter is consumed by GetState, so periodic statistics must not query it again.
+    public uint? ReadPresentedFrameCount()
     {
-        if (FrameGenerationLoaded)
+        if (!FrameGenerationLoaded)
         {
-            DLSSGState state = SL.DLSSG.GetState(in Viewport, null);
-            FrameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
-            FrameGenerationStatus = FrameGenerationIssue is not null ? state.Status.ToString() :
-                requestedGeneratedFrames == 0 ? "Off" : $"On ({requestedGeneratedFrames + 1}x)";
+            return 1;
         }
+        DLSSGState state = new();
+        // Null options avoid the expensive optional VRAM estimate.
+        SLResult result = SL.DLSSG.GetState(in Viewport, ref state, null);
+        if (result != SLResult.Ok)
+        {
+            if (lastStateResult != result)
+            {
+                Console.Error.WriteLine($"DLSS Frame Generation state query failed: {result}");
+            }
+            lastStateResult = result;
+            return null;
+        }
+        lastStateResult = SLResult.Ok;
+        DLSSGStatus? previousIssue = FrameGenerationIssue;
+        FrameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
+        FrameGenerationStatus = FrameGenerationIssue is not null ? state.Status.ToString() :
+            requestedGeneratedFrames == 0 ? "Off" : $"On ({requestedGeneratedFrames + 1}x)";
+        if (previousIssue != FrameGenerationIssue)
+        {
+            Console.WriteLine($"DLSS Frame Generation: {FrameGenerationStatus}");
+        }
+        return state.NumFramesActuallyPresented;
+    }
+
+    public void ReadLatencyStatistics()
+    {
         if (Available(SL.FeatureReflex))
         {
             ReflexState state = SL.Reflex.GetState();

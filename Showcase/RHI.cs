@@ -37,14 +37,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     {
         get; private set;
     }
-    public double CpuMilliseconds
-    {
-        get; private set;
-    }
-    public double RenderFps
-    {
-        get; private set;
-    }
+    public double CpuMilliseconds => statistics.CpuMilliseconds;
+    public double? RenderFps => statistics.RenderFps;
+    public double? PresentedFps => statistics.PresentedFps;
     public double? GpuMilliseconds
     {
         get; protected set;
@@ -66,9 +61,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private bool ready;
     private bool disposed;
     private long previousTick = Stopwatch.GetTimestamp();
-    private long statsTick = Stopwatch.GetTimestamp();
-    private uint statsFrames;
-    private double cpuTotal;
+    private readonly FrameStatistics statistics = new();
 
     public void Initialize()
     {
@@ -130,6 +123,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         UpdateDescriptors();
         Streamline.SetFrameGeneration(Settings.FrameGeneration ? 1u : 0);
+        // Discard counts from initialization or the old swap chain. Mode changes
+        // begin a fresh measurement interval after resource recreation has finished.
+        _ = Streamline.ReadPresentedFrameCount();
         applied = Settings with
         {
         };
@@ -137,6 +133,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         rebuild = false;
         Scene.CommitHistory();
         Console.WriteLine($"{BackendName}: {InputWidth}x{InputHeight} -> {outputWidth}x{outputHeight}, {Settings.Reconstruction}, FG={(Settings.FrameGeneration ? "On" : "Off")}");
+        statistics.Reset(Stopwatch.GetTimestamp());
     }
 
     private void SuspendFrameGeneration()
@@ -144,6 +141,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         if (ready && !disposed)
         {
             Streamline.SetFrameGeneration(0);
+            statistics.Reset(Stopwatch.GetTimestamp());
             rebuild = true;
         }
     }
@@ -155,6 +153,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Window.Wait();
             Window.Pump();
             previousTick = Stopwatch.GetTimestamp();
+            statistics.Reset(previousTick);
             reset = true;
             return;
         }
@@ -167,6 +166,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         if (Window.Closed || Window.Width == 0 || Window.Height == 0)
         {
+            statistics.Reset(Stopwatch.GetTimestamp());
             Streamline.Marker(PCLMarker.SimulationEnd);
             return;
         }
@@ -180,6 +180,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             // A modal window resize or pipeline rebuild is not simulation time.
             delta = 0;
             previousTick = Stopwatch.GetTimestamp();
+            start = previousTick;
         }
         Camera.Move(Window, delta);
 
@@ -289,28 +290,34 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         SubmitFrame();
         Streamline.Marker(PCLMarker.RenderSubmitEnd);
         Streamline.Marker(PCLMarker.PresentStart);
-        if (!Present())
+        bool presented = Present();
+        if (!presented)
         {
             rebuild = true;
         }
 
         Streamline.Marker(PCLMarker.PresentEnd);
         FinishFrame();
+        uint? presentedFrames = presented ? Streamline.ReadPresentedFrameCount() : null;
+        if (Settings.FrameGeneration && Streamline.FrameGenerationFailed)
+        {
+            // Do not leave a failed FG mode enabled and silently pay its overhead.
+            // The SDK error is recorded by the presentation-state query above.
+            Settings.FrameGeneration = false;
+            rebuild = true;
+        }
         Camera.CommitHistory();
         Scene.CommitHistory();
         reset = false;
         frameNumber++;
-        statsFrames++;
-        cpuTotal += Stopwatch.GetElapsedTime(start).TotalMilliseconds;
-        double interval = Stopwatch.GetElapsedTime(statsTick).TotalSeconds;
-        if (interval >= 0.5)
+        long timestamp = Stopwatch.GetTimestamp();
+        if (!presented)
         {
-            RenderFps = statsFrames / interval;
-            CpuMilliseconds = cpuTotal / statsFrames;
-            statsFrames = 0;
-            cpuTotal = 0;
-            statsTick = Stopwatch.GetTimestamp();
-            Streamline.ReadStatistics();
+            statistics.Reset(timestamp);
+        }
+        else if (statistics.RecordFrame(timestamp, presentedFrames, Stopwatch.GetElapsedTime(start, timestamp).TotalMilliseconds))
+        {
+            Streamline.ReadLatencyStatistics();
         }
     }
 
