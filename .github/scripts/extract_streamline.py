@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import faulthandler
 import hashlib
 import json
 import os
@@ -35,6 +36,7 @@ def download(url, path):
 def main():
     if os.environ.get("GITHUB_ACTIONS") != "true":
         raise SystemExit("Interface extraction runs exclusively in GitHub Actions.")
+    faulthandler.enable()
 
     from clang import cindex as cx
 
@@ -243,6 +245,7 @@ def main():
         print("Parsing", config_name, flush=True)
         tu = index.parse(str(unit), args=common_args + defines,
                          options=cx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+        print("Parsed translation unit", flush=True)
         diagnostics = [str(d) for d in tu.diagnostics]
         failures = [str(d) for d in tu.diagnostics if d.severity >= cx.Diagnostic.Error]
         if failures:
@@ -257,6 +260,7 @@ def main():
                 if child.kind in {cx.CursorKind.NAMESPACE, cx.CursorKind.LINKAGE_SPEC}:
                     discover(child)
                 elif file.startswith("include/") and child.kind in declaration_kinds:
+                    print("Extracting", qualified(child), child.kind.name, flush=True)
                     item = serialize(child)
                     key = item["id"]
                     if key in declarations:
@@ -291,10 +295,11 @@ def main():
     macros = []
     for path in public_headers:
         text = (sdk / path).read_text(encoding="utf-8-sig")
-        for match in re.finditer(r"^\s*#\s*define\s+(\w+)([^\n]*(?:\\\n[^\n]*)*)", text, re.MULTILINE):
+        logical_text = text.replace("\\\n", " ")
+        for match in re.finditer(r"^\s*#\s*define\s+(\w+)([^\n]*)", logical_text, re.MULTILINE):
             name, body = match[1], match[2]
             macros.append({"id": f"macro:{path}:{name}", "name": name, "file": path,
-                           "line": text.count("\n", 0, match.start()) + 1, "body": body.strip(),
+                           "body": body.strip(),
                            "classification": "unclassified"})
     snapshot = {"schemaVersion": 1,
                 "source": {"repository": "NVIDIA-RTX/Streamline", "release": release["tag_name"],
@@ -306,7 +311,7 @@ def main():
                 "configurations": configurations, "inputs": sorted(inputs, key=lambda i: (i["path"], i["classification"])),
                 "declarations": sorted(declarations.values(), key=lambda i: (i["file"], i["line"], i["id"])),
                 "macros": macros,
-                "exports": (sdk / "source/core/sl.interposer/exports.def").read_text(encoding="utf-8-sig")}
+                "exports": re.findall(r"^\s*(sl\w+)\s*$", (sdk / "source/core/sl.interposer/exports.def").read_text(encoding="utf-8-sig"), re.MULTILINE)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
     print(f"Wrote {len(declarations)} declarations, {len(macros)} macros from {len(public_headers)} public inputs.")
