@@ -114,6 +114,9 @@ def main():
     lib.clang_EvalResult_getAsDouble.argtypes = [ctypes.c_void_p]
     lib.clang_EvalResult_getAsDouble.restype = ctypes.c_double
     lib.clang_EvalResult_dispose.argtypes = [ctypes.c_void_p]
+    lib.clang_getCursorPlatformAvailability.argtypes = [cx.Cursor, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(cx._CXString),
+                                                       ctypes.POINTER(ctypes.c_int), ctypes.POINTER(cx._CXString), ctypes.c_void_p, ctypes.c_int]
+    lib.clang_getCursorPlatformAvailability.restype = ctypes.c_int
     source_cache = {}
 
     def relative(path):
@@ -212,6 +215,12 @@ def main():
                   "deprecated": cursor.availability == cx.AvailabilityKind.DEPRECATED}
         if parent_id and cursor.kind in {cx.CursorKind.PARM_DECL, cx.CursorKind.TEMPLATE_TYPE_PARAMETER, cx.CursorKind.CXX_BASE_SPECIFIER}:
             result["id"] = parent_id + "/" + result["kind"] + ":" + result["id"]
+        if result["deprecated"]:
+            deprecated, unavailable = ctypes.c_int(), ctypes.c_int()
+            deprecated_message, unavailable_message = cx._CXString(), cx._CXString()
+            lib.clang_getCursorPlatformAvailability(cursor, ctypes.byref(deprecated), ctypes.byref(deprecated_message),
+                                                    ctypes.byref(unavailable), ctypes.byref(unavailable_message), None, 0)
+            result["deprecationMessage"] = cx._CXString.from_result(deprecated_message)
         if cursor.kind in record_kinds:
             result["source"] = source(cursor)
         if cursor.kind in callable_kinds:
