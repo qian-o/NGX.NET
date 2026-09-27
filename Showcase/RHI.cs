@@ -7,6 +7,11 @@ namespace Showcase;
 
 internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 {
+    public bool RayQuerySupported
+    {
+        get; protected set;
+    }
+    public string RayQueryStatus { get; protected set; } = "Unavailable";
     public Window Window { get; } = window;
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
@@ -65,6 +70,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     {
         Streamline.Initialize(BackendName == "Vulkan");
         InitializeDevice();
+        Console.WriteLine($"Hardware Ray Query: {RayQueryStatus}");
+        if (!RayQuerySupported)
+        {
+            Streamline.Unavailable[SL.FeatureDLSSRR] = RayQueryStatus;
+        }
         Window.LatencyPingMessage = Streamline.LatencyPingMessage;
         Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
         Camera.Reset(Scene);
@@ -113,7 +123,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 bool output = slot is ImageSlot.Reconstructed or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final || slot == ImageSlot.DisplayInput && Settings.Reconstruction != Reconstruction.NIS;
-                Frames[frame][(int)slot] = CreateImage(output ? outputWidth : InputWidth, output ? outputHeight : InputHeight, RenderLayout.Format(slot));
+                int width = slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputWidth : InputWidth;
+                int height = slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputHeight : InputHeight;
+                Frames[frame][(int)slot] = CreateImage(width, height, RenderLayout.Format(slot));
             }
         }
         UpdateDescriptors();
@@ -192,6 +204,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
         Vector3 center = (Scene.Minimum + Scene.Maximum) * 0.5f;
+        Vector3 sun = Vector3.Normalize(new(0.4f, 0.8f, 0.25f));
         Constants = new()
         {
             ViewProjection = Camera.JitteredViewProjection,
@@ -200,11 +213,12 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             InverseViewProjection = inverse,
             Camera = new(Camera.Position, 1),
             Size = new(InputWidth, InputHeight, outputWidth, outputHeight),
-            Sun = new(Vector3.Normalize(new(0.4f, 0.8f, 0.25f)), 1),
+            Sun = new(sun, 1),
             Scene = new(Scene.Objects.Length, frameNumber, Scene.RayEpsilon, Scene.Scale),
             Parameters = new(Settings.RayTracing ? 1 : 0, Settings.Exposure, 0, Settings.Reconstruction == Reconstruction.Native ? 1 : Settings.Reconstruction == Reconstruction.NIS ? 2 : 0),
             Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, 0),
-            Center = new(center.X, Scene.GroundHeight, center.Z, 0)
+            Center = new(center.X, Scene.GroundHeight, center.Z, 0),
+            SunViewProjection = Scene.GetSunViewProjection(sun)
         };
         Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
         Streamline.Marker(PCLMarker.SimulationEnd);
@@ -215,6 +229,15 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
         Streamline.Marker(PCLMarker.RenderSubmitStart);
+        if (RayQuerySupported)
+        {
+            UpdateRayTracingScene();
+        }
+        if (!Settings.RayTracing)
+        {
+            DrawShadow();
+        }
+        Transition(Image(ImageSlot.Shadow), ImageUse.ShaderRead);
         DrawScene();
         foreach (ImageSlot slot in new[] { ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth })
         {
@@ -358,6 +381,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected abstract GpuImage CreateImage(int width, int height, ImageFormat format);
     protected abstract void UpdateDescriptors();
     protected abstract bool BeginCommands();
+    protected abstract void UpdateRayTracingScene();
+    protected abstract void DrawShadow();
     protected abstract void DrawScene();
     protected abstract void DrawUI(ImDrawDataPtr data);
     protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants);

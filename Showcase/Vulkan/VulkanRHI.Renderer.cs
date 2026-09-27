@@ -55,11 +55,10 @@ internal sealed unsafe partial class VulkanRHI
         };
         Check(api.vkBeginCommandBuffer(commandBuffer, &begin), "vkBeginCommandBuffer(upload)");
         recording = true;
-        sceneBuffers[0] = StaticBuffer<SceneVertex>(Scene.Vertices);
+        sceneBuffers[0] = StaticBuffer<SceneVertex>(Scene.Vertices, rayGeometry: true);
         sceneBuffers[1] = StaticBuffer<SceneMaterial>(Scene.Materials);
         sceneBuffers[2] = StaticBuffer<uint>(Scene.Texels);
         sceneBuffers[3] = StaticBuffer<TextureDescription>(Scene.TextureInfo);
-        sceneBuffers[5] = StaticBuffer<BvhNode>(Scene.Nodes);
         font = (VkTexture)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
         VkBufferResource fontUpload = CreateBuffer((ulong)UI.FontPixels.Length, VkBufferUsageFlags.TransferSrc, true);
         fontUpload.Write<byte>(UI.FontPixels);
@@ -85,6 +84,11 @@ internal sealed unsafe partial class VulkanRHI
             pMemoryBarriers = &memory
         };
         api.vkCmdPipelineBarrier2(commandBuffer, &dependency);
+        if (RayQuerySupported)
+        {
+            InitializeAccelerationStructures();
+        }
+
         Check(api.vkEndCommandBuffer(commandBuffer), "vkEndCommandBuffer(upload)");
         recording = false;
         VkCommandBuffer uploadCommand = commandBuffer;
@@ -105,10 +109,15 @@ internal sealed unsafe partial class VulkanRHI
         List<VkDescriptorSetLayoutBinding> bindings = [new() { binding = 0, descriptorType = VkDescriptorType.UniformBufferDynamic, descriptorCount = 1, stageFlags = VkShaderStageFlags.All }];
         for (uint i = 0; i < RenderLayout.SrvCount; i++)
         {
+            if (i == 5 && !RayQuerySupported)
+            {
+                continue;
+            }
+
             bindings.Add(new()
             {
                 binding = i + 1,
-                descriptorType = i < 6 ? VkDescriptorType.StorageBuffer : VkDescriptorType.SampledImage,
+                descriptorType = i < 5 ? VkDescriptorType.StorageBuffer : i == 5 ? VkDescriptorType.AccelerationStructureKHR : VkDescriptorType.SampledImage,
                 descriptorCount = 1,
                 stageFlags = VkShaderStageFlags.All
             });
@@ -142,18 +151,30 @@ internal sealed unsafe partial class VulkanRHI
             };
             Check(api.vkCreateDescriptorSetLayout(&create, null, out descriptorLayout), "vkCreateDescriptorSetLayout");
         }
-        VkDescriptorPoolSize* sizes = stackalloc VkDescriptorPoolSize[5]
+        List<VkDescriptorPoolSize> sizes =
+        [
+            new(VkDescriptorType.UniformBufferDynamic, RenderLayout.FramesInFlight),
+            new(VkDescriptorType.StorageBuffer, RenderLayout.FramesInFlight * 5),
+            new(VkDescriptorType.SampledImage, RenderLayout.FramesInFlight * (RenderLayout.SrvCount - 6)),
+            new(VkDescriptorType.StorageImage, RenderLayout.FramesInFlight * RenderLayout.UavCount),
+            new(VkDescriptorType.Sampler, RenderLayout.FramesInFlight)
+        ];
+        if (RayQuerySupported)
         {
-            new(VkDescriptorType.UniformBufferDynamic, RenderLayout.FramesInFlight), new(VkDescriptorType.StorageBuffer, RenderLayout.FramesInFlight * 6),
-            new(VkDescriptorType.SampledImage, RenderLayout.FramesInFlight * (RenderLayout.SrvCount - 6)), new(VkDescriptorType.StorageImage, RenderLayout.FramesInFlight * RenderLayout.UavCount), new(VkDescriptorType.Sampler, RenderLayout.FramesInFlight)
-        };
-        VkDescriptorPoolCreateInfo poolInfo = new()
+            sizes.Add(new(VkDescriptorType.AccelerationStructureKHR, RenderLayout.FramesInFlight));
+        }
+
+        VkDescriptorPoolSize[] poolSizes = [.. sizes];
+        fixed (VkDescriptorPoolSize* pointer = poolSizes)
         {
-            maxSets = RenderLayout.FramesInFlight,
-            poolSizeCount = 5,
-            pPoolSizes = sizes
-        };
-        Check(api.vkCreateDescriptorPool(&poolInfo, null, out descriptorPool), "vkCreateDescriptorPool");
+            VkDescriptorPoolCreateInfo poolInfo = new()
+            {
+                maxSets = RenderLayout.FramesInFlight,
+                poolSizeCount = (uint)poolSizes.Length,
+                pPoolSizes = pointer
+            };
+            Check(api.vkCreateDescriptorPool(&poolInfo, null, out descriptorPool), "vkCreateDescriptorPool");
+        }
         VkDescriptorSetLayout setLayout = descriptorLayout;
         foreach (VkFrame frame in slots)
         {
@@ -183,6 +204,7 @@ internal sealed unsafe partial class VulkanRHI
         };
         Check(api.vkCreatePipelineLayout(&layoutInfo, null, out pipelineLayout), "vkCreatePipelineLayout");
         scenePipeline = GraphicsPipeline(false);
+        shadowPipeline = GraphicsPipeline(false, shadow: true);
         uiPipeline = GraphicsPipeline(true);
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())
         {
@@ -218,7 +240,7 @@ internal sealed unsafe partial class VulkanRHI
     }
     private VkShaderModule Shader(string entry, string stage)
     {
-        byte[] bytes = ShaderCompiler.Compile("Scene.slang", entry, stage, true);
+        byte[] bytes = ShaderCompiler.Compile("Scene.slang", entry, stage, true, RayQuerySupported);
         fixed (byte* code = bytes)
         {
             VkShaderModuleCreateInfo create = new()
@@ -230,9 +252,9 @@ internal sealed unsafe partial class VulkanRHI
             return module;
         }
     }
-    private VkPipeline GraphicsPipeline(bool ui)
+    private VkPipeline GraphicsPipeline(bool ui, bool shadow = false)
     {
-        string vertexName = ui ? "UiVS" : "SceneVS", fragmentName = ui ? "UiPS" : "ScenePS";
+        string vertexName = shadow ? "ShadowVS" : ui ? "UiVS" : "SceneVS", fragmentName = shadow ? "ShadowPS" : ui ? "UiPS" : "ScenePS";
         VkShaderModule vertex = Shader(vertexName, "vertex"), fragment = Shader(fragmentName, "fragment");
         try
         {
@@ -272,7 +294,7 @@ internal sealed unsafe partial class VulkanRHI
                 depthCompareOp = VkCompareOp.Less,
                 maxDepthBounds = 1
             };
-            int targetCount = ui ? 1 : 4;
+            int targetCount = shadow ? 0 : ui ? 1 : 4;
             VkPipelineColorBlendAttachmentState* blendAttachments = stackalloc VkPipelineColorBlendAttachmentState[4];
             for (int i = 0; i < targetCount; i++)
             {
@@ -367,10 +389,28 @@ internal sealed unsafe partial class VulkanRHI
                 api.vkUpdateDescriptorSets(1, &write, 0, null);
             }
             Buffer(0, VkDescriptorType.UniformBufferDynamic, frame.Constants, (ulong)sizeof(FrameConstants));
-            for (uint i = 0; i < 6; i++)
+            for (uint i = 0; i < 5; i++)
             {
                 VkBufferResource buffer = i == 4 ? frame.Objects : sceneBuffers[i];
                 Buffer(i + 1, VkDescriptorType.StorageBuffer, buffer, buffer.Size);
+            }
+            if (RayQuerySupported)
+            {
+                VkAccelerationStructureKHR top = frame.Tlas!.Handle;
+                VkWriteDescriptorSetAccelerationStructureKHR acceleration = new()
+                {
+                    accelerationStructureCount = 1,
+                    pAccelerationStructures = &top
+                };
+                VkWriteDescriptorSet write = new()
+                {
+                    pNext = &acceleration,
+                    dstSet = frame.Descriptors,
+                    dstBinding = 6,
+                    descriptorCount = 1,
+                    descriptorType = VkDescriptorType.AccelerationStructureKHR
+                };
+                api.vkUpdateDescriptorSets(1, &write, 0, null);
             }
             for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
@@ -460,6 +500,40 @@ internal sealed unsafe partial class VulkanRHI
         api.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
         api.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
+    protected override void UpdateRayTracingScene()
+    {
+        VkFrame frame = slots[FrameSlot];
+        if (Settings.RayTracing || !frame.TlasBuilt)
+        {
+            UpdateAccelerationStructure(frame);
+        }
+    }
+
+    protected override void DrawShadow()
+    {
+        VkTexture shadow = (VkTexture)Image(ImageSlot.Shadow);
+        Transition(shadow, ImageUse.DepthAttachment);
+        VkRenderingAttachmentInfo depth = new()
+        {
+            imageView = shadow.View,
+            imageLayout = shadow.Layout,
+            loadOp = VkAttachmentLoadOp.Clear,
+            storeOp = VkAttachmentStoreOp.Store,
+            clearValue = new VkClearValue(new VkClearDepthStencilValue(1, 0))
+        };
+        VkRenderingInfo rendering = new()
+        {
+            renderArea = new(0, 0, (uint)shadow.Width, (uint)shadow.Height),
+            layerCount = 1,
+            pDepthAttachment = &depth
+        };
+        api.vkCmdBeginRendering(commandBuffer, &rendering);
+        Bind(VkPipelineBindPoint.Graphics, shadowPipeline, Constants);
+        Viewport(shadow.Width, shadow.Height);
+        api.vkCmdDraw(commandBuffer, (uint)Scene.Vertices.Length, 1, 0, 0);
+        api.vkCmdEndRendering(commandBuffer);
+    }
+
     protected override void DrawScene()
     {
         VkRenderingAttachmentInfo* colors = stackalloc VkRenderingAttachmentInfo[4];
@@ -715,6 +789,11 @@ internal sealed unsafe partial class VulkanRHI
                 api.vkDestroyPipeline(pipeline);
             }
 
+            if (!shadowPipeline.IsNull)
+            {
+                api.vkDestroyPipeline(shadowPipeline);
+            }
+
             if (!scenePipeline.IsNull)
             {
                 api.vkDestroyPipeline(scenePipeline);
@@ -753,6 +832,11 @@ internal sealed unsafe partial class VulkanRHI
             foreach (VkFrame? frame in slots)
             {
                 frame?.Dispose();
+            }
+
+            foreach (VkAcceleration bottom in bottomLevels)
+            {
+                bottom.Dispose();
             }
 
             foreach (VkBufferResource? buffer in sceneBuffers)

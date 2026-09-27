@@ -15,6 +15,10 @@ internal static class Program
                     foreach ((string entry, string stage) in ShaderEntries())
                     {
                         Console.WriteLine($"{(shaderVulkan ? "SPIR-V" : "DXIL")} {entry}: {ShaderCompiler.Compile("Scene.slang", entry, stage, shaderVulkan).Length:N0} bytes");
+                        if (entry == "Lighting")
+                        {
+                            Console.WriteLine($"{(shaderVulkan ? "SPIR-V" : "DXIL")} Lighting (raster only): {ShaderCompiler.Compile("Scene.slang", entry, stage, shaderVulkan, false).Length:N0} bytes");
+                        }
                     }
                 }
 
@@ -71,6 +75,8 @@ internal static class Program
     {
         yield return ("SceneVS", "vertex");
         yield return ("ScenePS", "fragment");
+        yield return ("ShadowVS", "vertex");
+        yield return ("ShadowPS", "fragment");
         yield return ("UiVS", "vertex");
         yield return ("UiPS", "fragment");
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())

@@ -1,7 +1,10 @@
+#ifndef HAS_RAY_QUERY
+#define HAS_RAY_QUERY 1
+#endif
+
 struct Vertex { float4 position; float4 normal; float4 tangent; float4 uv; };
 struct Material { float4 baseColor; float4 emissiveMetallic; float4 parameters; float4 textures; };
-struct ObjectData { float4 offset; float4 previousOffset; };
-struct Node { float3 minimum; uint first; float3 maximum; uint count; };
+struct ObjectData { float4 offset; float4 previousOffset; uint4 geometry; };
 struct Globals
 {
     row_major float4x4 viewProjection;
@@ -15,6 +18,7 @@ struct Globals
     float4 parameters; // ray tracing, exposure, input image, FXAA enabled
     float4 jitter; // pixel jitter.xy; generate RR guides when z is set
     float4 center;
+    row_major float4x4 sunViewProjection;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<Globals> g : register(b0);
 [[vk::binding(1, 0)]] StructuredBuffer<Vertex> vertices : register(t0);
@@ -22,7 +26,9 @@ struct Globals
 [[vk::binding(3, 0)]] StructuredBuffer<uint> texels : register(t2);
 [[vk::binding(4, 0)]] StructuredBuffer<uint4> textureInfo : register(t3);
 [[vk::binding(5, 0)]] StructuredBuffer<ObjectData> objects : register(t4);
-[[vk::binding(6, 0)]] StructuredBuffer<Node> nodes : register(t5);
+#if HAS_RAY_QUERY
+[[vk::binding(6, 0)]] RaytracingAccelerationStructure sceneAcceleration : register(t5);
+#endif
 [[vk::binding(7, 0)]] Texture2D<float4> albedoImage : register(t6);
 [[vk::binding(8, 0)]] Texture2D<float4> normalImage : register(t7);
 [[vk::binding(9, 0)]] Texture2D<float4> emissiveImage : register(t8);
@@ -37,7 +43,8 @@ struct Globals
 [[vk::binding(18, 0)]] Texture2D<float4> uiImage : register(t17);
 [[vk::binding(19, 0)]] Texture2D<float4> finalImage : register(t18);
 [[vk::binding(20, 0)]] Texture2D<float4> diffuseImage : register(t19);
-[[vk::binding(22, 0)]] Texture2D<float4> fontImage : register(t21);
+[[vk::binding(22, 0)]] Texture2D<float> shadowImage : register(t21);
+[[vk::binding(23, 0)]] Texture2D<float4> fontImage : register(t22);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
 [[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
@@ -148,61 +155,93 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
     return output;
 }
 
-struct Hit { float distance; uint triangle; uint object; float2 bary; };
-bool intersectBox(float3 origin, float3 inverseDirection, Node node, float limit)
+struct ShadowVertex
 {
-    float3 a = (node.minimum - origin) * inverseDirection;
-    float3 b = (node.maximum - origin) * inverseDirection;
-    float3 mn = min(a, b), mx = max(a, b);
-    return max(max(mn.x, mn.y), max(mn.z, 0)) <= min(min(mx.x, mx.y), min(mx.z, limit));
+    float4 position : SV_Position;
+    float2 uv : TEXCOORD0;
+    nointerpolation uint material : TEXCOORD1;
+};
+[shader("vertex")]
+ShadowVertex ShadowVS(uint id : SV_VertexID)
+{
+    Vertex v = vertices[id];
+    ShadowVertex result;
+    result.position = mul(float4(v.position.xyz + objects[(uint)v.position.w].offset.xyz, 1), g.sunViewProjection);
+    result.uv = v.uv.xy;
+    result.material = (uint)v.normal.w;
+    return result;
 }
+[shader("fragment")]
+void ShadowPS(ShadowVertex input, bool front : SV_IsFrontFace)
+{
+    Material m = materials[input.material];
+    if (!front && m.parameters.w == 0) discard;
+    if (m.parameters.z >= 0)
+    {
+        float lod = textureLod((int)m.textures.x, ddx(input.uv), ddy(input.uv));
+        clip(m.baseColor.a * sampleTexture((int)m.textures.x, input.uv, lod, true).a - m.parameters.z);
+    }
+}
+float shadowVisibility(float3 p, float3 normal)
+{
+    uint width, height;
+    shadowImage.GetDimensions(width, height);
+    // One shadow texel in world space provides a resolution-scaled normal offset.
+    float4 clip = mul(float4(p + normal * (g.scene.w / width), 1), g.sunViewProjection);
+    float3 projected = clip.xyz / clip.w;
+    float2 uv = projected.xy * float2(0.5, -0.5) + 0.5;
+    if (any(uv < 0) || any(uv > 1) || projected.z < 0 || projected.z > 1) return 1;
+    int2 pixel = int2(uv * float2(width, height));
+    float visibility = 0;
+    for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
+            visibility += projected.z <= shadowImage[clamp(pixel + int2(x, y), int2(0), int2(width, height) - 1)] ? 1 : 0;
+    return visibility / 9;
+}
+
+#if HAS_RAY_QUERY
+struct Hit { float distance; uint triangle; uint object; float2 bary; };
 Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
 {
-    Hit hit; hit.distance = limit; hit.triangle = 0xffffffff; hit.object = 0; hit.bary = 0;
-    float3 inv = 1.0 / select(abs(direction) > 1e-20, direction, float3(1e-20));
-    for (uint objectIndex = 0; objectIndex < (uint)g.scene.x; objectIndex++)
+    Hit hit;
+    hit.distance = limit; hit.triangle = 0xffffffff; hit.object = 0; hit.bary = 0;
+    if (limit <= g.scene.z) return hit;
+    RayDesc ray;
+    ray.Origin = origin;
+    ray.Direction = direction;
+    ray.TMin = g.scene.z;
+    ray.TMax = limit;
+    RayQuery<RAY_FLAG_NONE> query;
+    query.TraceRayInline(sceneAcceleration, anyHit ? RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH : RAY_FLAG_NONE, 0xff, ray);
+    while (query.Proceed())
     {
-        ObjectData object = objects[objectIndex];
-        float3 localOrigin = origin - object.offset.xyz;
-        uint stack[64]; uint top = 0; stack[top++] = (uint)object.offset.w;
-        while (top > 0)
+        if (query.CandidateType() != CANDIDATE_NON_OPAQUE_TRIANGLE) continue;
+        uint objectIndex = query.CandidateInstanceID();
+        // Each BLAS contains one non-indexed triangle geometry.
+        uint firstVertex = objects[objectIndex].geometry.x + query.CandidatePrimitiveIndex() * 3;
+        Vertex a = vertices[firstVertex], b = vertices[firstVertex + 1], c = vertices[firstVertex + 2];
+        Material material = materials[(uint)a.normal.w];
+        // All instances translate rigid geometry. Geometric winding keeps the
+        // material's one-/two-sided rule identical on DXR and Vulkan.
+        if (material.parameters.w == 0 && dot(direction, cross(b.position.xyz - a.position.xyz, c.position.xyz - a.position.xyz)) >= 0) continue;
+        if (material.parameters.z >= 0)
         {
-            Node node = nodes[stack[--top]];
-            if (!intersectBox(localOrigin, inv, node, hit.distance)) continue;
-            if ((node.count & 0x80000000) != 0)
-            {
-                stack[top++] = node.count & 0x7fffffff;
-                stack[top++] = node.first;
-                continue;
-            }
-            for (uint i = 0; i < node.count; i++)
-            {
-                uint triangle = node.first + i;
-                Vertex a = vertices[triangle * 3], b = vertices[triangle * 3 + 1], c = vertices[triangle * 3 + 2];
-                float3 e1 = b.position.xyz - a.position.xyz, e2 = c.position.xyz - a.position.xyz;
-                float3 p = cross(direction, e2);
-                float determinant = dot(e1, p);
-                if (abs(determinant) < 1e-12) continue;
-                float3 t = localOrigin - a.position.xyz;
-                float u = dot(t, p) / determinant;
-                float3 q = cross(t, e1);
-                float v = dot(direction, q) / determinant;
-                float distance = dot(e2, q) / determinant;
-                if (u < 0 || v < 0 || u + v > 1 || distance <= g.scene.z || distance >= hit.distance) continue;
-                Material material = materials[(uint)a.normal.w];
-                if (determinant < 0 && material.parameters.w == 0) continue;
-                if (material.parameters.z >= 0)
-                {
-                    float2 uv = a.uv.xy * (1 - u - v) + b.uv.xy * u + c.uv.xy * v;
-                    if (material.baseColor.a * sampleTexture((int)material.textures.x, uv, 0, true).a < material.parameters.z) continue;
-                }
-                hit.distance = distance; hit.triangle = triangle; hit.object = objectIndex; hit.bary = float2(u, v);
-                if (anyHit) return hit;
-            }
+            float2 bary = query.CandidateTriangleBarycentrics();
+            float2 uv = a.uv.xy * (1 - bary.x - bary.y) + b.uv.xy * bary.x + c.uv.xy * bary.y;
+            if (material.baseColor.a * sampleTexture((int)material.textures.x, uv, 0, true).a < material.parameters.z) continue;
         }
+        query.CommitNonOpaqueTriangleHit();
+    }
+    if (query.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
+    {
+        hit.object = query.CommittedInstanceID();
+        hit.triangle = objects[hit.object].geometry.x / 3 + query.CommittedPrimitiveIndex();
+        hit.distance = query.CommittedRayT();
+        hit.bary = query.CommittedTriangleBarycentrics();
     }
     return hit;
 }
+#endif
 float3 sky(float3 direction) { return lerp(float3(0.08, 0.09, 0.12), float3(0.4, 0.6, 1.0), saturate(direction.y * 0.5 + 0.5)); }
 uint hash(uint x) { x ^= x >> 16; x *= 0x7feb352d; x ^= x >> 15; x *= 0x846ca68b; return x ^ (x >> 16); }
 float random(inout uint state) { state = hash(state); return float(state >> 8) / 16777216.0; }
@@ -226,15 +265,24 @@ float3 brdf(Surface s, float3 v, float3 l)
 }
 float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 {
-    float visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
+    float visibility;
+#if HAS_RAY_QUERY
+    if (g.parameters.x > 0) visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
+    else
+#endif
+    visibility = shadowVisibility(p, s.normal);
     float3 color = brdf(s, view, sunDirection) * float3(6, 5.6, 4.8) * visibility;
     for (uint i = 0; i < 2; i++)
     {
         float3 lightPosition = g.center.xyz + float3((i == 0 ? -1 : 1) * g.scene.w * 0.15, g.scene.w * 0.045, 0);
         float3 delta = lightPosition - p;
         float distanceSquared = dot(delta, delta);
+        if (distanceSquared <= g.scene.z * g.scene.z) continue;
         float3 l = normalize(delta);
-        float unoccluded = trace(p + s.normal * g.scene.z, l, sqrt(distanceSquared), true).triangle == 0xffffffff ? 1 : 0;
+        float unoccluded = 1;
+#if HAS_RAY_QUERY
+        if (g.parameters.x > 0) unoccluded = trace(p + s.normal * g.scene.z, l, sqrt(distanceSquared), true).triangle == 0xffffffff ? 1 : 0;
+#endif
         color += brdf(s, view, l) * (i == 0 ? float3(1, 0.35, 0.08) : float3(0.15, 0.4, 1)) * g.scene.w * g.scene.w * 0.002 / max(distanceSquared, g.scene.z) * unoccluded;
     }
     return color;
@@ -264,6 +312,7 @@ float3 integratedSpecularAlbedo(float3 f0, float roughness, float nv)
     }
     return saturate(result / sampleCount);
 }
+#if HAS_RAY_QUERY
 float3 secondaryRadiance(float3 origin, float3 direction, out float distance)
 {
     Hit hit = trace(origin, direction, g.scene.w * 4, false);
@@ -279,6 +328,7 @@ float3 secondaryRadiance(float3 origin, float3 direction, out float distance)
     float3 p = origin + direction * distance;
     return s.emissive + directLight(s, p, -direction, g.sun.xyz) + s.albedo * (1 - s.metallic) * sky(s.normal) * 0.08;
 }
+#endif
 [shader("compute")]
 [numthreads(8, 8, 1)]
 void Lighting(uint3 id : SV_DispatchThreadID)
@@ -319,6 +369,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     float nv = saturate(dot(s.normal, view));
     float3 specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
     float specularDistance = g.scene.w * 4;
+#if HAS_RAY_QUERY
     if (g.parameters.x > 0)
     {
         float u = random(rng), phi = random(rng) * 6.2831853;
@@ -341,6 +392,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         }
     }
     else
+#endif
     {
         color += s.albedo * (1 - s.metallic) * sky(s.normal) * 0.25;
         color += sky(reflect(-view, s.normal)) * specularAlbedo;

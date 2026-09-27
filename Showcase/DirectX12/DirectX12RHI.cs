@@ -11,7 +11,7 @@ using Resource = Streamline.NET.Resource;
 
 namespace Showcase;
 
-internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
+internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
 {
     public override string BackendName => "DirectX 12";
     protected override nint Command => commandList.NativePointer;
@@ -24,13 +24,13 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
     private ID3D12Fence fence = null!;
     private IDXGISwapChain3? swapChain;
     private ID3D12RootSignature root = null!;
-    private ID3D12PipelineState scenePipeline = null!, uiPipeline = null!;
+    private ID3D12PipelineState scenePipeline = null!, uiPipeline = null!, shadowPipeline = null!;
     private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
     private ID3D12DescriptorHeap descriptors = null!, renderTargets = null!, depthViews = null!;
     private ID3D12QueryHeap queries = null!;
     private ID3D12Resource queryReadback = null!;
     private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
-    private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[6];
+    private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[4];
     private readonly List<ID3D12Resource> uploads = [];
     private readonly List<ID3D12Resource> backBuffers = [];
     private DxImage font = null!;
@@ -51,8 +51,13 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
         public int VertexCapacity, IndexCapacity;
         public ulong Fence;
         public bool Timestamp;
+        public ID3D12Resource? Tlas, RayScratch, RayInstances;
+        public bool TlasBuilt;
         public void Dispose()
         {
+            Tlas?.Dispose();
+            RayScratch?.Dispose();
+            RayInstances?.Dispose();
             Vertices?.Dispose();
             Indices?.Dispose();
             Constants.Dispose();
@@ -122,6 +127,13 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
             DeviceLUIDSizeInBytes = sizeof(long)
         };
         Streamline.QueryFeatures(info, false);
+        RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
+        RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
+        if (RayQuerySupported)
+        {
+            rayDevice = device.QueryInterface<ID3D12Device5>();
+        }
+
         queue = device.CreateCommandQueue(CommandListType.Direct);
         fence = device.CreateFence();
         queue.GetTimestampFrequency(out timestampFrequency).CheckError();
@@ -131,7 +143,7 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
     {
         descriptors = device.CreateDescriptorHeap(new(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView, RenderLayout.FramesInFlight * DescriptorsPerFrame, DescriptorHeapFlags.ShaderVisible));
         renderTargets = device.CreateDescriptorHeap(new(DescriptorHeapType.RenderTargetView, RenderLayout.FramesInFlight * (int)ImageSlot.Count));
-        depthViews = device.CreateDescriptorHeap(new(DescriptorHeapType.DepthStencilView, RenderLayout.FramesInFlight));
+        depthViews = device.CreateDescriptorHeap(new(DescriptorHeapType.DepthStencilView, RenderLayout.FramesInFlight * 2));
         descriptorIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
         rtvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
         dsvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.DepthStencilView);
@@ -148,11 +160,20 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
 
         commandList = device.CreateCommandList<ID3D12GraphicsCommandList>(CommandListType.Direct, slots[0].Allocator);
         recording = true;
+        if (RayQuerySupported)
+        {
+            rayCommands = commandList.QueryInterface<ID3D12GraphicsCommandList4>();
+        }
+
         sceneBuffers[0] = StaticBuffer<SceneVertex>(Scene.Vertices);
         sceneBuffers[1] = StaticBuffer<SceneMaterial>(Scene.Materials);
         sceneBuffers[2] = StaticBuffer<uint>(Scene.Texels);
         sceneBuffers[3] = StaticBuffer<TextureDescription>(Scene.TextureInfo);
-        sceneBuffers[5] = StaticBuffer<BvhNode>(Scene.Nodes);
+        if (RayQuerySupported)
+        {
+            InitializeAccelerationStructures();
+        }
+
         font = (DxImage)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
         int rowPitch = (UI.FontWidth * 4 + 255) & ~255;
         ID3D12Resource fontUpload = UploadBuffer(rowPitch * UI.FontHeight);
@@ -215,6 +236,18 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
             RenderTargetFormats = [Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16_Float],
             DepthStencilFormat = Format.D32_Float
         });
+        shadowPipeline = device.CreateGraphicsPipelineState(new()
+        {
+            RootSignature = root,
+            VertexShader = Compile("ShadowVS", "vertex"),
+            PixelShader = Compile("ShadowPS", "fragment"),
+            BlendState = BlendDescription.Opaque,
+            RasterizerState = new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
+            DepthStencilState = DepthStencilDescription.Default,
+            PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+            RenderTargetFormats = [],
+            DepthStencilFormat = Format.D32_Float
+        });
         uiPipeline = device.CreateGraphicsPipelineState(new()
         {
             RootSignature = root,
@@ -244,7 +277,7 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
         queryReadback = device.CreateCommittedResource(HeapType.Readback, ResourceDescription.Buffer(RenderLayout.FramesInFlight * 16), ResourceStates.CopyDest);
     }
 
-    private static byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false);
+    private byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false, RayQuerySupported);
     private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(HeapType.Upload, ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)), ResourceStates.GenericRead);
     private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
     {
@@ -302,11 +335,11 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
     private GpuDescriptorHandle Gpu(int frame, int index) => descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
     protected override void UpdateDescriptors()
     {
-        uint[] strides = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject), (uint)sizeof(BvhNode)];
-        uint[] counts = [(uint)Scene.Vertices.Length, (uint)Scene.Materials.Length, (uint)Scene.Texels.Length, (uint)Scene.TextureInfo.Length, (uint)Scene.Objects.Length, (uint)Scene.Nodes.Length];
+        uint[] strides = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject)];
+        uint[] counts = [(uint)Scene.Vertices.Length, (uint)Scene.Materials.Length, (uint)Scene.Texels.Length, (uint)Scene.TextureInfo.Length, (uint)Scene.Objects.Length];
         for (int frame = 0; frame < Frames.Length; frame++)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
             {
                 device.CreateShaderResourceView(i == 4 ? slots[frame].Objects : sceneBuffers[i], new()
                 {
@@ -320,13 +353,39 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
                 }, Cpu(frame, i));
             }
 
+            if (RayQuerySupported)
+            {
+                device.CreateShaderResourceView(null, new()
+                {
+                    ViewDimension = Vortice.Direct3D12.ShaderResourceViewDimension.RaytracingAccelerationStructure,
+                    Shader4ComponentMapping = ShaderComponentMapping.Default,
+                    RaytracingAccelerationStructure = new()
+                    {
+                        Location = slots[frame].Tlas!.GPUVirtualAddress
+                    }
+                }, Cpu(frame, 5));
+            }
+            else
+            {
+                // The raster shader variant has no acceleration-structure binding.
+                device.CreateShaderResourceView(null, new()
+                {
+                    ViewDimension = Vortice.Direct3D12.ShaderResourceViewDimension.Buffer,
+                    Shader4ComponentMapping = ShaderComponentMapping.Default,
+                    Buffer = new()
+                    {
+                        NumElements = 1,
+                        StructureByteStride = sizeof(uint)
+                    }
+                }, Cpu(frame, 5));
+            }
             for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 DxImage image = (DxImage)Frames[frame][(int)slot];
                 CreateSrv(image, Cpu(frame, 6 + (int)slot));
-                if (slot == ImageSlot.Depth)
+                if (image.Format == ImageFormat.Depth)
                 {
-                    image.Dsv = depthViews.GetCPUDescriptorHandleForHeapStart() + (int)(frame * dsvIncrement);
+                    image.Dsv = depthViews.GetCPUDescriptorHandleForHeapStart() + (int)((frame * 2 + (slot == ImageSlot.Depth ? 0 : 1)) * dsvIncrement);
                     device.CreateDepthStencilView(image.Texture, new()
                     {
                         Format = Format.D32_Float,
@@ -411,6 +470,28 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
             commandList.SetComputeRootDescriptorTable(2, Gpu(FrameSlot, RenderLayout.SrvCount));
         }
     }
+    protected override void UpdateRayTracingScene()
+    {
+        DxFrame frame = slots[FrameSlot];
+        if (Settings.RayTracing || !frame.TlasBuilt)
+        {
+            UpdateAccelerationStructure(frame);
+        }
+    }
+
+    protected override void DrawShadow()
+    {
+        DxImage shadow = (DxImage)Image(ImageSlot.Shadow);
+        Transition(shadow, ImageUse.DepthAttachment);
+        commandList.ClearDepthStencilView(shadow.Dsv, ClearFlags.Depth, 1, 0);
+        Bind(true, shadowPipeline, Constants);
+        commandList.OMSetRenderTargets(Array.Empty<CpuDescriptorHandle>(), shadow.Dsv);
+        commandList.RSSetViewport(0, 0, shadow.Width, shadow.Height);
+        commandList.RSSetScissorRect(shadow.Width, shadow.Height);
+        commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
+        commandList.UnsetRenderTargets();
+    }
+
     protected override void DrawScene()
     {
         CpuDescriptorHandle[] targets = new CpuDescriptorHandle[4];
@@ -602,6 +683,7 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
             pipeline.Dispose();
         }
 
+        shadowPipeline?.Dispose();
         scenePipeline?.Dispose();
         uiPipeline?.Dispose();
         root?.Dispose();
@@ -610,6 +692,13 @@ internal sealed unsafe class DirectX12RHI(Window window, UserInterface ui) : RHI
             slot?.Dispose();
         }
 
+        foreach (ID3D12Resource blas in bottomLevels)
+        {
+            blas.Dispose();
+        }
+
+        rayCommands?.Dispose();
+        rayDevice?.Dispose();
         foreach (ID3D12Resource? buffer in sceneBuffers)
         {
             buffer?.Dispose();

@@ -29,13 +29,13 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private uint imageIndex;
     private VkCommandBuffer commandBuffer;
     private readonly VkFrame[] slots = new VkFrame[RenderLayout.FramesInFlight];
-    private readonly VkBufferResource[] sceneBuffers = new VkBufferResource[6];
+    private readonly VkBufferResource[] sceneBuffers = new VkBufferResource[4];
     private readonly List<VkBufferResource> uploads = [];
     private VkTexture font = null!;
     private VkDescriptorSetLayout descriptorLayout;
     private VkDescriptorPool descriptorPool;
     private VkPipelineLayout pipelineLayout;
-    private VkPipeline scenePipeline, uiPipeline;
+    private VkPipeline scenePipeline, uiPipeline, shadowPipeline;
     private readonly Dictionary<ComputePass, VkPipeline> pipelines = [];
     private VkSampler sampler;
     private VkQueryPool queryPool;
@@ -51,6 +51,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         public VkBuffer Buffer;
         public VkDeviceMemory Memory;
         public ulong Size;
+        public ulong Address;
         public void* Mapped;
         public void Write<T>(ReadOnlySpan<T> values, int offset = 0) where T : unmanaged => MemoryMarshal.AsBytes(values).CopyTo(new Span<byte>((byte*)Mapped + offset, values.Length * sizeof(T)));
         public void Dispose()
@@ -105,8 +106,14 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         public required VkBufferResource Objects;
         public VkBufferResource? Vertices, Indices;
         public bool Submitted;
+        public VkAcceleration? Tlas;
+        public VkBufferResource? RayScratch, RayInstances;
+        public bool TlasBuilt;
         public void Dispose()
         {
+            Tlas?.Dispose();
+            RayScratch?.Dispose();
+            RayInstances?.Dispose();
             Vertices?.Dispose();
             Indices?.Dispose();
             Constants.Dispose();
@@ -156,10 +163,26 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         foreach (VkPhysicalDevice candidate in devices)
         {
             instanceApi.vkGetPhysicalDeviceProperties(candidate, out VkPhysicalDeviceProperties properties);
-            Vortice.Vulkan.VkPhysicalDeviceVulkan13Features features13 = new();
-            VkPhysicalDeviceVulkan11Features features11 = new()
+            if (properties.apiVersion < VkVersion.Version_1_3)
+            {
+                continue;
+            }
+            VkPhysicalDeviceRayQueryFeaturesKHR queryFeatures = new();
+            VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationFeatures = new()
+            {
+                pNext = &queryFeatures
+            };
+            Vortice.Vulkan.VkPhysicalDeviceVulkan13Features features13 = new()
+            {
+                pNext = &accelerationFeatures
+            };
+            Vortice.Vulkan.VkPhysicalDeviceVulkan12Features features12 = new()
             {
                 pNext = &features13
+            };
+            VkPhysicalDeviceVulkan11Features features11 = new()
+            {
+                pNext = &features12
             };
             VkPhysicalDeviceFeatures2 features = new()
             {
@@ -171,6 +194,18 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 continue;
             }
 
+            Check(instanceApi.vkEnumerateDeviceExtensionProperties(candidate, out uint extensionCount), "vkEnumerateDeviceExtensionProperties(count)");
+            VkExtensionProperties[] availableExtensions = new VkExtensionProperties[extensionCount];
+            Check(instanceApi.vkEnumerateDeviceExtensionProperties(candidate, availableExtensions), "vkEnumerateDeviceExtensionProperties");
+            HashSet<string> extensionNames = [];
+            foreach (VkExtensionProperties extension in availableExtensions)
+            {
+                extensionNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
+            }
+            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure && features12.bufferDeviceAddress
+                && RayExtensions.All(extensionNames.Contains);
+            instanceApi.vkGetPhysicalDeviceFormatProperties(candidate, VkFormat.R32G32B32Sfloat, out VkFormatProperties vertexFormat);
+            rayQuery &= (vertexFormat.bufferFeatures & VkFormatFeatureFlags.AccelerationStructureVertexBufferKHR) != 0;
             instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, out uint familyCount);
             VkQueueFamilyProperties[] families = new VkQueueFamilyProperties[familyCount];
             instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, families);
@@ -191,6 +226,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 bestScore = score;
                 physical = candidate;
                 queueFamily = i;
+                RayQuerySupported = rayQuery;
+                RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
                 AdapterName = Marshal.PtrToStringUTF8((nint)properties.deviceName) ?? "Vulkan GPU";
                 timestampPeriod = properties.limits.timestampPeriod;
                 timestampBits = families[i].timestampValidBits;
@@ -211,14 +248,29 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             queueCount = 1,
             pQueuePriorities = &priority
         };
+        VkPhysicalDeviceRayQueryFeaturesKHR enabledRayQuery = new()
+        {
+            rayQuery = true
+        };
+        VkPhysicalDeviceAccelerationStructureFeaturesKHR enabledAcceleration = new()
+        {
+            accelerationStructure = true,
+            pNext = &enabledRayQuery
+        };
         Vortice.Vulkan.VkPhysicalDeviceVulkan13Features enabled13 = new()
         {
             dynamicRendering = true,
-            synchronization2 = true
+            synchronization2 = true,
+            pNext = RayQuerySupported ? &enabledAcceleration : null
+        };
+        Vortice.Vulkan.VkPhysicalDeviceVulkan12Features enabled12 = new()
+        {
+            pNext = &enabled13,
+            bufferDeviceAddress = RayQuerySupported
         };
         VkPhysicalDeviceVulkan11Features enabled11 = new()
         {
-            pNext = &enabled13,
+            pNext = &enabled12,
             shaderDrawParameters = true
         };
         VkPhysicalDeviceFeatures2 enabled = new()
@@ -231,7 +283,21 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 shaderStorageImageExtendedFormats = true
             }
         };
-        using VkStringArray deviceExtensions = new(["VK_KHR_swapchain"u8]);
+        List<VkUtf8String> requestedExtensions = ["VK_KHR_swapchain"u8];
+        if (RayQuerySupported)
+        {
+            requestedExtensions.AddRange(["VK_KHR_acceleration_structure"u8, "VK_KHR_ray_query"u8, "VK_KHR_deferred_host_operations"u8]);
+            VkPhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new();
+            VkPhysicalDeviceProperties2 properties = new()
+            {
+                pNext = &accelerationProperties
+            };
+            instanceApi.vkGetPhysicalDeviceProperties2(physical, &properties);
+            scratchAlignment = accelerationProperties.minAccelerationStructureScratchOffsetAlignment;
+            maxRayInstances = accelerationProperties.maxInstanceCount;
+            maxRayPrimitives = accelerationProperties.maxPrimitiveCount;
+        }
+        using VkStringArray deviceExtensions = new(requestedExtensions);
         VkDeviceCreateInfo deviceInfo = new()
         {
             pNext = &enabled,
@@ -278,13 +344,31 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         };
         Check(api.vkCreateBuffer(&info, null, out resource.Buffer), "vkCreateBuffer");
         api.vkGetBufferMemoryRequirements(resource.Buffer, out VkMemoryRequirements requirements);
+        bool addressable = (usage & VkBufferUsageFlags.ShaderDeviceAddress) != 0;
+        VkMemoryAllocateFlagsInfo flags = new()
+        {
+            flags = VkMemoryAllocateFlags.DeviceAddress
+        };
         VkMemoryAllocateInfo allocation = new()
         {
+            pNext = addressable ? &flags : null,
             allocationSize = requirements.size,
             memoryTypeIndex = MemoryType(requirements.memoryTypeBits, host ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent : VkMemoryPropertyFlags.DeviceLocal)
         };
         Check(api.vkAllocateMemory(&allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
         Check(api.vkBindBufferMemory(resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
+        if (addressable)
+        {
+            VkBufferDeviceAddressInfo address = new()
+            {
+                buffer = resource.Buffer
+            };
+            resource.Address = api.vkGetBufferDeviceAddress(&address);
+            if (resource.Address == 0)
+            {
+                throw new InvalidOperationException("Vulkan returned a null buffer device address.");
+            }
+        }
         if (host)
         {
             void* mapped;
@@ -293,10 +377,16 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
         return resource;
     }
-    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
+    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false) where T : unmanaged
     {
         ulong size = (ulong)(data.Length * sizeof(T));
-        VkBufferResource buffer = CreateBuffer(size, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferDst, false);
+        VkBufferUsageFlags usage = VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferDst;
+        if (rayGeometry && RayQuerySupported)
+        {
+            usage |= VkBufferUsageFlags.ShaderDeviceAddress | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR;
+        }
+
+        VkBufferResource buffer = CreateBuffer(size, usage, false);
         VkBufferResource upload = CreateBuffer(size, VkBufferUsageFlags.TransferSrc, true);
         upload.Write(data);
         uploads.Add(upload);

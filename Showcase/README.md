@@ -44,12 +44,25 @@ Changing window size changes output resolution. Animation pause keeps rendering.
 - The scene uses metallic/roughness materials, normal maps, alpha masking, a sky,
   a shadowed sun, local lights and two moving objects with different materials.
   glTF hierarchy transforms are evaluated on load; downloaded assets are unchanged.
-- The shared ray tracer traverses a software BVH on shader cores. It traces shadows
-  and, in ray-tracing mode, one stochastic diffuse and one GGX specular secondary
-  ray per pixel. The secondary surface receives direct lighting. This is a limited
-  bounce renderer; RT-core acceleration and a separate conventional denoiser are
-  outside this implementation. Ray tracing with RR disabled exposes the noisy
-  input. Performance needs measurement on the target GPU.
+- Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
+  `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. It traces shadows
+  and one stochastic diffuse and one GGX specular secondary ray per pixel. The
+  secondary surface receives direct lighting. Ray tracing with RR disabled exposes
+  the noisy input. This is a limited bounce renderer; performance needs measurement
+  on the target GPU.
+- Each rigid object has one non-indexed BLAS built at startup. Sponza's geometry is
+  static; the moving objects update TLAS instance transforms. Each frame slot owns
+  its TLAS, scratch buffer and instance upload allocation. A slot is first built,
+  then updated in place after its GPU fence completes. Resize and reconstruction
+  changes reuse the geometry acceleration structures.
+- Ray-query candidates apply the material's alpha cutoff and one-/two-sided rules
+  before committing hits. The instance ID and primitive index locate the original
+  shared vertices, UVs and materials. There is no software BVH rendering path.
+- With ray tracing off, lighting uses a raster sun shadow map. When ray-query
+  capabilities are unavailable, the renderer compiles its raster lighting variant and disables ray
+  tracing and RR while keeping the other supported rendering/features available.
+  Vulkan requests its ray-query, acceleration-structure and buffer-device-address
+  features before device creation, independently of the interposer's SDK needs.
 - Textures retain their source dimensions and receive a full mip chain. Base color
   and emissive maps are decoded to linear color during sampling. Normals and
   metallic/roughness maps are sampled as data.
@@ -82,8 +95,8 @@ dotnet run --project Showcase -c Release -- --check-shaders
 dotnet run --project Showcase -c Release -- --check-scene
 ```
 
-`--check-shaders` compiles all nine shader entry points to DXIL and SPIR-V on
-Windows. Slangc.NET and DXC native libraries are restored through NuGet; a separate
+`--check-shaders` compiles all eleven shader entry points, plus the raster-only
+lighting variant, to DXIL and SPIR-V on Windows. Slangc.NET and DXC native libraries are restored through NuGet; a separate
 shader SDK installation is not required. On other supported compiler platforms,
 the check compiles SPIR-V and explicitly reports that Windows DXIL remains unchecked;
 build/run with `-p:PlatformTarget=AnyCPU` when the host is not x64.
@@ -124,10 +137,18 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   referenced data remain under `Assets/Scenes/`; all downloads remain ignored.
 - Scene preparation: passed, 264,187 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
-- All nine SPIR-V shaders and all nine HLSL translations: compiled successfully.
-- CPU checks: buffer layouts, complete BVH coverage and traversal depth, texture
-  mip bounds, camera jitter/reprojection, animation pause and history commit passed.
-  SPIR-V member offsets and array strides match the CPU buffer layouts.
-- Windows DXIL compilation, device creation, actual DLSS/RR/FG behavior, GPU timings,
-  image quality, backend parity and resize/exit stability: pending Windows acceptance.
+- All eleven SPIR-V shaders and HLSL translations, plus the raster lighting
+  variant: compiled successfully. The hardware lighting binary contains SPIR-V
+  ray-query instructions and its acceleration-structure binding; the raster variant
+  contains neither.
+- CPU checks for this revision: all 264,187 triangles map into three complete,
+  non-overlapping BLAS ranges with correct material/object references. DXR and
+  Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
+  masks, BLAS addresses and translated positions. Moving/paused instances preserve
+  raster history. The raster shadow projection encloses the scene bounds.
+- SPIR-V member offsets and strides match the 48-byte object records and 432-byte
+  frame constants. The earlier software BVH coverage check is superseded by the
+  hardware geometry/instance checks above.
+- Windows DXIL compilation, device creation, hardware AS builds/updates,
+  actual DLSS/RR/FG behavior, GPU timings, image quality, backend parity and resize/exit stability: pending Windows acceptance.
   No GPU performance results or rendered screenshots have been claimed.

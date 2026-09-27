@@ -127,13 +127,15 @@ internal sealed unsafe class UserInterface : IDisposable
             ImGui.Text($"Output {rhi.Window.Width} x {rhi.Window.Height}");
             ImGui.TextDisabled("Resize the window to change output size.");
             ImGui.SeparatorText("Ray tracing and latency");
-            ImGui.BeginDisabled(settings.Reconstruction == Reconstruction.RayReconstruction);
+            ImGui.BeginDisabled(!rhi.RayQuerySupported || settings.Reconstruction == Reconstruction.RayReconstruction);
             ImGui.Checkbox("Ray-traced indirect light / reflections", ref settings.RayTracing);
             ImGui.EndDisabled();
             if (settings.RayTracing && settings.Reconstruction != Reconstruction.RayReconstruction)
             {
                 ImGui.TextWrapped("Raw low-sample ray-traced input. Choose Ray Reconstruction to denoise it.");
             }
+
+            ImGui.TextWrapped($"Hardware Ray Query: {rhi.RayQueryStatus}");
 
             bool fgAvailable = session.Available(SL.FeatureDLSSG) && Math.Min(rhi.Window.Width, rhi.Window.Height) >= session.MinimumFGDimension;
             ImGui.BeginDisabled(!fgAvailable);

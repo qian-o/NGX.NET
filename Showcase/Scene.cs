@@ -26,13 +26,7 @@ internal struct SceneMaterial
 }
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct BvhNode
-{
-    public Vector3 Minimum;
-    public uint First;
-    public Vector3 Maximum;
-    public uint Count;
-}
+internal record struct GeometryRange(uint FirstVertex, uint VertexCount, uint Reserved0 = 0, uint Reserved1 = 0);
 
 [StructLayout(LayoutKind.Sequential)]
 internal record struct TextureDescription(uint Offset, uint Width, uint Height, uint Mips);
@@ -42,6 +36,7 @@ internal struct SceneObject
 {
     public Vector4 Offset;
     public Vector4 PreviousOffset;
+    public GeometryRange Geometry;
 }
 
 internal sealed class Scene
@@ -53,7 +48,6 @@ internal sealed class Scene
     public SceneMaterial[] Materials { get; private set; } = [];
     public uint[] Texels { get; private set; } = [];
     public TextureDescription[] TextureInfo { get; private set; } = [];
-    public BvhNode[] Nodes { get; private set; } = [];
     public SceneObject[] Objects { get; private set; } = [];
     public Vector3 Minimum
     {
@@ -74,7 +68,10 @@ internal sealed class Scene
     public static Scene Load(string path)
     {
         ModelRoot model = ModelRoot.Load(path);
-        Scene scene = new() { Model = model };
+        Scene scene = new()
+        {
+            Model = model
+        };
         List<uint> texels = [];
         List<TextureDescription> textureInfo = [];
         Dictionary<(int, bool), int> images = [];
@@ -192,16 +189,14 @@ internal sealed class Scene
         scene.Minimum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Min);
         scene.Maximum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Max);
         List<SceneVertex> ordered = [];
-        List<BvhNode> nodes = [];
         List<SceneObject> objects = [];
         void AddObject(List<SceneVertex> vertices)
         {
-            uint root = BuildBvh(vertices, ordered, nodes);
             objects.Add(new()
             {
-                Offset = new(0, 0, 0, root),
-                PreviousOffset = new(0, 0, 0, root)
+                Geometry = new((uint)ordered.Count, (uint)vertices.Count)
             });
+            ordered.AddRange(vertices);
         }
         AddObject(staticVertices);
         for (int i = 0; i < 2; i++)
@@ -217,7 +212,6 @@ internal sealed class Scene
             AddObject(CreateSphere(scene.Scale * 0.018f, i + 1, materialIndex));
         }
         scene.Vertices = [.. ordered];
-        scene.Nodes = [.. nodes];
         scene.Objects = [.. objects];
         scene.Materials = [.. materials];
         scene.Texels = texels.Count == 0 ? [uint.MaxValue] : [.. texels];
@@ -227,6 +221,13 @@ internal sealed class Scene
         scene.CommitHistory();
         Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Count * 4L / 1048576} MiB texels.");
         return scene;
+    }
+
+    public Matrix4x4 GetSunViewProjection(Vector3 direction)
+    {
+        Vector3 center = (Minimum + Maximum) * 0.5f;
+        Matrix4x4 view = Matrix4x4.CreateLookAt(center + direction * Scale, center, Vector3.UnitY);
+        return view * Matrix4x4.CreateOrthographic(Scale, Scale, RayEpsilon, Scale * 2);
     }
 
     public void Update(double delta, bool paused)
@@ -293,61 +294,6 @@ internal sealed class Scene
         }
 
         return origin.Y - nearest;
-    }
-
-    private static uint BuildBvh(List<SceneVertex> source, List<SceneVertex> output, List<BvhNode> nodes)
-    {
-        int[] triangles = Enumerable.Range(0, source.Count / 3).ToArray();
-        uint Build(int start, int count)
-        {
-            Vector3 minimum = new(float.PositiveInfinity);
-            Vector3 maximum = new(float.NegativeInfinity);
-            for (int i = start; i < start + count; i++)
-            {
-                for (int v = 0; v < 3; v++)
-                {
-                    Vector3 p = source[triangles[i] * 3 + v].Position.AsVector3();
-                    minimum = Vector3.Min(minimum, p);
-                    maximum = Vector3.Max(maximum, p);
-                }
-            }
-            uint nodeIndex = (uint)nodes.Count;
-            nodes.Add(default);
-            if (count <= 4)
-            {
-                uint first = (uint)output.Count / 3;
-                for (int i = start; i < start + count; i++)
-                {
-                    output.AddRange(source.GetRange(triangles[i] * 3, 3));
-                }
-                nodes[(int)nodeIndex] = new()
-                {
-                    Minimum = minimum,
-                    Maximum = maximum,
-                    First = first,
-                    Count = (uint)count
-                };
-            }
-            else
-            {
-                Vector3 extent = maximum - minimum;
-                int axis = extent.X >= extent.Y && extent.X >= extent.Z ? 0 : extent.Y >= extent.Z ? 1 : 2;
-                float Center(int triangle) => (source[triangle * 3].Position[axis] + source[triangle * 3 + 1].Position[axis] + source[triangle * 3 + 2].Position[axis]) / 3;
-                Array.Sort(triangles, start, count, Comparer<int>.Create((a, b) => Center(a).CompareTo(Center(b))));
-                uint left = Build(start, count / 2);
-                uint right = Build(start + count / 2, count - count / 2);
-                // A branch stores the right child in Count with its high bit set.
-                nodes[(int)nodeIndex] = new()
-                {
-                    Minimum = minimum,
-                    Maximum = maximum,
-                    First = left,
-                    Count = right | 0x80000000
-                };
-            }
-            return nodeIndex;
-        }
-        return Build(0, triangles.Length);
     }
 
     private static List<SceneVertex> CreateSphere(float radius, int objectIndex, int materialIndex)

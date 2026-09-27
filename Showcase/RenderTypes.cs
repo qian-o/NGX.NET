@@ -10,7 +10,7 @@ internal enum Reconstruction
 }
 internal enum ImageSlot
 {
-    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, DepthCopy, Count
+    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, DepthCopy, Shadow, Count
 }
 internal enum ImageFormat
 {
@@ -56,6 +56,7 @@ internal struct FrameConstants
     public Vector4 Parameters;
     public Vector4 Jitter;
     public Vector4 Center;
+    public Matrix4x4 SunViewProjection;
 }
 
 internal abstract class GpuImage : IDisposable
@@ -71,7 +72,8 @@ internal abstract class GpuImage : IDisposable
 internal static class RenderLayout
 {
     public const int FramesInFlight = 3;
-    public const int SrvCount = 22;
+    public const int SrvCount = 23;
+    public const int ShadowMapSize = 2048;
     public const int UavCount = 9;
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
@@ -79,7 +81,7 @@ internal static class RenderLayout
     public static ImageFormat Format(ImageSlot slot) => slot switch
     {
         ImageSlot.Motion => ImageFormat.Rg16,
-        ImageSlot.Depth => ImageFormat.Depth,
+        ImageSlot.Depth or ImageSlot.Shadow => ImageFormat.Depth,
         ImageSlot.HitDistance or ImageSlot.DepthCopy => ImageFormat.Float,
         ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => ImageFormat.Rgba8,
         _ => ImageFormat.Rgba16
