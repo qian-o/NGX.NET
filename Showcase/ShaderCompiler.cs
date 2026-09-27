@@ -12,16 +12,6 @@ internal static class ShaderCompiler
         {
             arguments.AddRange(["-fvk-use-entrypoint-name", "-fvk-use-dx-position-w", "-fvk-invert-y"]);
         }
-        else
-        {
-            string dxc = Path.Combine(AppContext.BaseDirectory, "dxcompiler.dll");
-            if (!File.Exists(dxc))
-            {
-                dxc = Path.Combine(AppContext.BaseDirectory, "runtimes", "win-x64", "native", "dxcompiler.dll");
-            }
-
-            arguments.AddRange(["-dxc-path", dxc]);
-        }
         return SlangCompiler.Compile([.. arguments]);
     }
 }

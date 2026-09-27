@@ -4,39 +4,13 @@ namespace Showcase;
 
 internal static class Program
 {
-    private static int Main(string[] args)
+    private static int Main()
     {
         try
         {
-            if (args.Contains("--check-shaders"))
-            {
-                foreach (bool shaderVulkan in OperatingSystem.IsWindows() ? new[] { false, true } : new[] { true })
-                {
-                    foreach ((string entry, string stage) in ShaderEntries())
-                    {
-                        Console.WriteLine($"{(shaderVulkan ? "SPIR-V" : "DXIL")} {entry}: {ShaderCompiler.Compile("Scene.slang", entry, stage, shaderVulkan).Length:N0} bytes");
-                        if (entry == "Lighting")
-                        {
-                            Console.WriteLine($"{(shaderVulkan ? "SPIR-V" : "DXIL")} Lighting (raster only): {ShaderCompiler.Compile("Scene.slang", entry, stage, shaderVulkan, false).Length:N0} bytes");
-                        }
-                    }
-                }
-
-                if (!OperatingSystem.IsWindows())
-                {
-                    Console.WriteLine("DXIL compilation must also be checked on Windows with the deployed DXC runtime.");
-                }
-
-                return 0;
-            }
-            if (args.Contains("--check-scene"))
-            {
-                Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
-                return 0;
-            }
             if (!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
             {
-                throw new PlatformNotSupportedException("Showcase requires Windows x64. Shader/scene checks can run separately on other supported compiler platforms.");
+                throw new PlatformNotSupportedException("Showcase requires Windows x64.");
             }
 
             Console.WriteLine("Streamline.NET Showcase\n1. DirectX 12\n2. Vulkan");
@@ -68,20 +42,6 @@ internal static class Program
                 Console.ReadLine();
             }
             return 1;
-        }
-    }
-
-    internal static IEnumerable<(string Entry, string Stage)> ShaderEntries()
-    {
-        yield return ("SceneVS", "vertex");
-        yield return ("ScenePS", "fragment");
-        yield return ("ShadowVS", "vertex");
-        yield return ("ShadowPS", "fragment");
-        yield return ("UiVS", "vertex");
-        yield return ("UiPS", "fragment");
-        foreach (ComputePass pass in Enum.GetValues<ComputePass>())
-        {
-            yield return (pass.ToString(), "compute");
         }
     }
 }

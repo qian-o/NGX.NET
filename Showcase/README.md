@@ -91,16 +91,11 @@ presentation measurement source. GPU rendering time excludes generated frames.
 
 ```powershell
 dotnet build Streamline.NET.slnx -c Release --warnaserror
-dotnet run --project Showcase -c Release -- --check-shaders
-dotnet run --project Showcase -c Release -- --check-scene
 ```
 
-`--check-shaders` compiles all eleven shader entry points, plus the raster-only
-lighting variant, to DXIL and SPIR-V on Windows. Slangc.NET and DXC native libraries are restored through NuGet; a separate
-shader SDK installation is not required. On other supported compiler platforms,
-the check compiles SPIR-V and explicitly reports that Windows DXIL remains unchecked;
-build/run with `-p:PlatformTarget=AnyCPU` when the host is not x64.
-`--check-scene` loads and prepares the complete scene without initializing graphics.
+Slangc.NET and DXC native libraries are restored through NuGet. The application
+uses the compiler's default downstream-library discovery without overriding its
+DXC path. Shaders compile as part of renderer initialization.
 
 The SDK writes its diagnostics to `Logs/` under the output directory. Startup and
 feature availability are printed to the console. Managed failures also write a
