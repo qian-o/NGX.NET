@@ -690,6 +690,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private static Format NativeFormat(ImageFormat format) => format switch
     {
         ImageFormat.Rgba16 => Format.R16G16B16A16_Float,
+        ImageFormat.Rgba32 => Format.R32G32B32A32_Float,
         ImageFormat.Rg16 => Format.R16G16_Float,
         ImageFormat.Float => Format.R32_Float,
         ImageFormat.Depth => Format.D32_Float,

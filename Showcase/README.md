@@ -86,28 +86,42 @@ placeholder options.
   Daylight and exposure metering are automatic. glTF hierarchy
   transforms are evaluated on load; downloaded materials and textures are unchanged.
 - Automatic exposure meters HDR color after reconstruction, before tone mapping
-  and UI composition. A stratified 128 x 128 sampling grid averages luminance in
-  linear light before conversion to exposure stops. Averaging individual sample
-  logs would overexpose the scene when many raw ray samples are zero.
+  and UI composition. Each 16 x 16 output-pixel tile averages luminance in linear
+  light before conversion to exposure stops; partial edge tiles retain their
+  actual pixel count. Averaging individual sample logs would overexpose the scene
+  when many raw ray samples are zero.
   The meter targets 18% gray, limits adaptation to +/-8 stops and follows the
   preceding submitted frame, with one-second brightening and quarter-second
-  darkening half-lives. Reset/resize initializes from the current measurement.
+  darkening half-lives. Exposure history uses 32-bit floats to preserve small
+  adaptation steps at high frame rates. Reset/resize initializes from the current measurement.
   Lighting and Streamline's unexposed HDR inputs are not scaled by the meter.
+- Local exposure estimates illumination using aligned material reflectance guides,
+  then separates its broad base from detail with a bilateral filter. A pixel-weighted
+  histogram controls compression toward a six-stop base range, capped at +/-2 stops
+  of local correction. The illumination anchor and compression adapt over time.
+  Joint bilateral upsampling protects silhouettes; texture RGB is never blurred,
+  and zero radiance stays black. This makes shadow detail visible while retaining
+  highlight color, without changing the incoming light or material textures.
   AgX's default view transform replaces the per-channel ACES approximation,
   with its published color-space matrices and highlight response. No saturation
   boost or additional creative look is applied. The implementation and MIT notice
   are in `Assets/Shaders/ToneMapping.slang` and `LICENSE-AgX.txt`.
 - Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
-  `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. It traces shadows
-  and one stochastic diffuse and one GGX specular secondary ray per pixel. The
-  secondary path evaluates up to two surface interactions with direct light and
-  actual visibility, including emission or visible sky reached by the final
-  scattered ray. There is no fixed secondary ambient fill. This remains a limited
-  bounce renderer with an
-  analytic daylight environment; performance needs measurement on the target GPU.
+  `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. Each pixel uses
+  four stratified diffuse and GGX specular samples, plus sun/sky visibility samples.
+  Secondary paths evaluate up to eight surface scattering events; Russian roulette
+  after the third event preserves surviving paths' expected energy. Emission or
+  visible sky reached by the final scattered ray is still resolved.
+  Sky importance sampling uses the scene's upper bounding rectangle as a portal,
+  with full geometry visibility and multiple importance sampling against the BSDF.
+  The rectangle emits no light; it directs samples toward the atrium sky to reduce
+  variance. This remains a finite-depth renderer with an analytic daylight environment.
+  These defaults prioritize quality and increase ray work; target GPU performance
+  has not been measured for this revision.
 - Direct shading, GGX visible-normal sampling and the RR specular guide use the same
   height-correlated Smith model. This improves grazing-angle behavior without
-  clamping away real lighting. The raster path adds screen-space contact occlusion
+  clamping away real lighting. The GGX distribution retains its normalized peak at
+  low roughness, consistent with the specular sampling PDF. The raster path adds screen-space contact occlusion
   to indirect light only; the traced path uses geometric visibility instead.
 - Each rigid object has one non-indexed BLAS built at startup. Sponza's geometry is
   static; the moving objects update TLAS instance transforms. Each frame slot owns
@@ -195,8 +209,8 @@ runtime files to the wrapper package.
 
 ## Verification record
 
-Resource preparation was checked on 2026-09-27. RR independence and the texture /
-reflection input corrections were checked on 2026-09-28; earlier checks remain below.
+Resource preparation was checked on 2026-09-27. RR independence, texture/reflection
+inputs, sky sampling and local exposure were checked on 2026-09-28; earlier checks remain below.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -213,7 +227,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   DeepDVC, NIS, DirectSR and nvperf binaries, even with older cached SDK files present.
 - Scene preparation: passed, 270,203 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
-- All twelve SPIR-V shaders and HLSL translations, plus the raster lighting
+- All fourteen SPIR-V shaders and HLSL translations, plus the raster lighting
   variant: compiled successfully. The hardware lighting binary contains SPIR-V
   ray-query instructions and its acceleration-structure binding; the raster variant
   contains neither.
@@ -222,7 +236,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
   masks, BLAS addresses and translated positions. Moving/paused instances preserve
   raster history. The raster shadow projection encloses the scene bounds.
-- SPIR-V member offsets and strides match the 48-byte object records and 464-byte
+- SPIR-V member offsets and strides match the 48-byte object records and 496-byte
   frame constants. The earlier software BVH coverage check is superseded by the
   hardware geometry/instance checks above.
 - The user reported that both Windows backends ran successfully, then reported a
@@ -240,6 +254,18 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   and tone mapper for a fixed/automatic-exposure comparison. This checks the shared shader
   math, not Windows Ray Query, DLSS RR or frame-generation execution. The corrected
   Windows appearance and GPU performance still need acceptance.
+- The current shared sky-sampling shader ran in an isolated Apple M4 harness:
+  a synthetic aperture integral agreed with numerical quadrature, MIS and brute-force
+  sampling agreed within sampling error, and the MIS estimator had lower variance.
+  GGX distribution/PDF probes remained finite and retained the low-roughness peak.
+  These are mathematical checks, not scene performance measurements.
+- All four current exposure/tone-map passes also ran on Apple M4. Checks covered
+  odd image dimensions, weighted metering, invalid reset history, exact black,
+  material contrast, an illumination edge crossing a tile, and adaptation at
+  30/120 FPS. A 128 x 80, 128-sample CPU Sponza reference remained finite; nearest
+  enlargement supplied a representative post-process image size for the shared GPU
+  passes. Its arch shadows gained detail while floor brightness and sky clipping
+  decreased. This offline comparison does not validate Windows Ray Query or DLSS RR.
 - Current UI checks use offscreen ImGui draw data with fixture values, not measured
   GPU results: English text under English/Chinese UI cultures, a 360 x 160 window with
   scrolling and 200% DPI passed. Title dragging moved the window, collapse/expand
@@ -275,8 +301,11 @@ Development host: macOS arm64, .NET SDK 10.0.401.
 - [Heitz, Sampling the GGX Distribution of Visible Normals, JCGT 7(4), 2018](https://jcgt.org/published/0007/04/01/)
   for GGX visible-normal sampling.
 - [PBRT, A Better Path Tracer](https://pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/A_Better_Path_Tracer)
-  for resolving environment/emission before terminating the scattering path.
-
+  for path termination, Russian roulette and multiple importance sampling.
+- [PBRT, Infinite Area Lights](https://pbr-book.org/4ed/Light_Sources/Infinite_Area_Lights)
+  for portal-guided environment sampling with visibility.
+- [Durand and Dorsey, Fast Bilateral Filtering for the Display of High-Dynamic-Range Images](https://people.csail.mit.edu/fredo/PUBLI/Siggraph2002/)
+  for edge-preserving base/detail tone reproduction.
 - [three.js AgX implementation](https://github.com/mrdoob/three.js/blob/9b02bfe8671c4dd8c9327c1636edc529b6462812/src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js)
   for the neutral AgX view transform, adapted from Filament/Blender.
 - [NVIDIA DLSS Frame Generation guide, frame-time measurement](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/docs/ProgrammingGuideDLSS_G.md#130-how-to-obtain-the-actual-frame-times-and-number-of-frames-presented)

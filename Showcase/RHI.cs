@@ -118,6 +118,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
                 bool output = slot is ImageSlot.Reconstructed or ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final;
                 int width = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputWidth : InputWidth;
                 int height = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputHeight : InputHeight;
+                if (slot is ImageSlot.Luminance or ImageSlot.FilteredLuminance)
+                {
+                    width = (outputWidth + RenderLayout.LuminanceTileSize - 1) / RenderLayout.LuminanceTileSize;
+                    height = (outputHeight + RenderLayout.LuminanceTileSize - 1) / RenderLayout.LuminanceTileSize;
+                }
                 Frames[frame][(int)slot] = CreateImage(width, height, RenderLayout.Format(slot));
             }
         }
@@ -209,7 +214,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Center = new(center.X, Scene.GroundHeight, center.Z, 0),
             SunViewProjection = Scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
-            Exposure = new(1, delta, reset ? 1 : 0, 0)
+            Exposure = new(1, delta, reset ? 1 : 0, 0),
+            EnvironmentMinimum = new(Scene.Minimum, 0),
+            EnvironmentMaximum = new(Scene.Maximum, 0)
         };
         Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
         Streamline.Marker(PCLMarker.SimulationEnd);
@@ -266,6 +273,12 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         FrameConstants post = Constants;
         post.Parameters.Z = hdrReconstruction ? 1 : 0;
+        Transition(Image(ImageSlot.Luminance), ImageUse.Storage);
+        Dispatch(ComputePass.PrepareLuminance, Image(ImageSlot.Luminance).Width, Image(ImageSlot.Luminance).Height, post);
+        Transition(Image(ImageSlot.Luminance), ImageUse.ShaderRead);
+        Transition(Image(ImageSlot.FilteredLuminance), ImageUse.Storage);
+        Dispatch(ComputePass.FilterLuminance, Image(ImageSlot.FilteredLuminance).Width, Image(ImageSlot.FilteredLuminance).Height, post);
+        Transition(Image(ImageSlot.FilteredLuminance), ImageUse.ShaderRead);
         // Meter reconstructed HDR when available, before tone mapping and UI. Each
         // frame reads the preceding submitted frame's result, not its slot's old value.
         int previousFrame = (FrameSlot + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;

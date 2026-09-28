@@ -10,11 +10,11 @@ internal enum Reconstruction
 }
 internal enum ImageSlot
 {
-    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Count
+    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Luminance, FilteredLuminance, Count
 }
 internal enum ImageFormat
 {
-    Rgba16, Rg16, Float, Depth, Rgba8
+    Rgba16, Rgba32, Rg16, Float, Depth, Rgba8
 }
 internal enum ImageUse
 {
@@ -22,7 +22,7 @@ internal enum ImageUse
 }
 internal enum ComputePass
 {
-    Lighting, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
+    Lighting, PrepareLuminance, FilterLuminance, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
 }
 
 internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruction, bool FrameGeneration);
@@ -64,6 +64,8 @@ internal struct FrameConstants
     public Matrix4x4 SunViewProjection;
     public Vector4 Lighting;
     public Vector4 Exposure; // automatic metering enabled, delta seconds, reset history, reserved
+    public Vector4 EnvironmentMinimum;
+    public Vector4 EnvironmentMaximum;
 }
 
 internal abstract class GpuImage : IDisposable
@@ -88,15 +90,17 @@ internal static class RenderLayout
     public const int PreviousExposureSrv = 6 + (int)ImageSlot.Count;
     public const int SrvCount = PreviousExposureSrv + 2; // previous exposure and font
     public const int ShadowMapSize = 2048;
-    public const int UavCount = 10;
+    public const int LuminanceTileSize = 16;
+    public const int UavCount = 12;
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
-    public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure];
+    public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];
     public static ImageFormat Format(ImageSlot slot) => slot switch
     {
         ImageSlot.Motion => ImageFormat.Rg16,
+        ImageSlot.Exposure => ImageFormat.Rgba32,
         ImageSlot.Depth or ImageSlot.Shadow => ImageFormat.Depth,
-        ImageSlot.HitDistance or ImageSlot.Exposure => ImageFormat.Float,
+        ImageSlot.HitDistance or ImageSlot.FilteredLuminance => ImageFormat.Float,
         ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => ImageFormat.Rgba8,
         _ => ImageFormat.Rgba16
     };

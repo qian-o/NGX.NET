@@ -520,6 +520,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private static VkFormat NativeFormat(ImageFormat format) => format switch
     {
         ImageFormat.Rgba16 => VkFormat.R16G16B16A16Sfloat,
+        ImageFormat.Rgba32 => VkFormat.R32G32B32A32Sfloat,
         ImageFormat.Rg16 => VkFormat.R16G16Sfloat,
         ImageFormat.Float => VkFormat.R32Sfloat,
         ImageFormat.Depth => VkFormat.D32Sfloat,
