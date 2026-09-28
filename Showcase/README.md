@@ -35,6 +35,7 @@ collapse it. The panel sizes itself to its contents and follows system DPI scali
 | DLSS Super Resolution | Off, Quality, Balanced, Performance, Ultra Performance |
 | DLSS Frame Generation | Off / On |
 | DLSS Ray Reconstruction | Off / On |
+| Pause Animation | Off / On |
 
 Hardware ray tracing stays active when supported. Turning RR off exposes noisy
 ray-traced lighting; no substitute denoiser is used. Turning SR off while keeping
@@ -42,6 +43,9 @@ RR on runs reconstruction at native resolution using the SDK's DLAA mode interna
 With both off, native ray-traced color goes directly to display processing.
 Devices without hardware ray queries use raster lighting with shadow mapping.
 Exposure adjusts automatically.
+
+Pause Animation freezes the spheres in place. Camera movement, rendering and
+DLSS settings remain available; resuming continues from the paused position.
 
 Hold the right mouse button to look around. Use W/A/S/D to move, Q/E to move
 vertically, and Shift to move faster.
@@ -64,8 +68,8 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
 
 - Sponza's hierarchy is baked into static geometry with its authored materials,
   normal maps and alpha masks. Collapsed triangles are discarded and invalid
-  tangents are rebuilt from triangle UVs. Moving metal and ceramic spheres provide
-  reflection and motion references.
+  tangents are rebuilt from triangle UVs. Polished gold and chromium spheres provide
+  warm and neutral reflection references with matching roughness.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
   Camera depth uses floating-point reverse Z (near = 1, far/clear = 0) to keep

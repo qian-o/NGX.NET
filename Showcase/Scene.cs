@@ -245,17 +245,17 @@ internal sealed class Scene
             AddObject(group, group.Key.Opaque, group.Key.DoubleSided);
         }
         scene.staticObjectCount = objects.Count;
-        // The moving metal object is a polished reference for inspecting reflected
-        // detail. Architecture keeps its authored glTF roughness values.
+        // Gold and neutral chromium provide warm and untinted polished reflections.
+        // Base colors are linear reflectance; both use the same surface roughness.
         const float polishedMetalRoughness = 0.08f;
         for (int i = 0; i < 2; i++)
         {
             int materialIndex = materials.Count;
             materials.Add(new()
             {
-                BaseColor = i == 0 ? new(0.82f, 0.56f, 0.26f, 1) : new(0.3f, 0.38f, 0.42f, 1),
-                EmissiveMetallic = new(0, 0, 0, i == 0 ? 1 : 0),
-                Parameters = new(i == 0 ? polishedMetalRoughness : 0.58f, 1, -1, 0),
+                BaseColor = i == 0 ? new(0.82f, 0.56f, 0.26f, 1) : new(0.55f, 0.56f, 0.55f, 1),
+                EmissiveMetallic = new(0, 0, 0, 1),
+                Parameters = new(polishedMetalRoughness, 1, -1, 0),
                 Textures = new(-1)
             });
             float radius = scene.Scale * 0.018f;

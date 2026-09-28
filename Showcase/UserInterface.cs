@@ -106,6 +106,8 @@ internal sealed unsafe class UserInterface : IDisposable
             ImGui.TextUnformatted($"FPS: {Rate(rhi.PresentedFps)}");
             ImGui.Separator();
             Graphics(rhi);
+            ImGui.Separator();
+            ImGui.Checkbox("Pause Animation", ref rhi.AnimationPaused);
         }
         ImGui.End();
         ImGui.Render();

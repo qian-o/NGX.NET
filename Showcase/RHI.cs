@@ -24,6 +24,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
     public RenderSettings Settings { get; } = new();
+    // Simulation state stays outside RenderSettings so pausing never recreates GPU resources.
+    public bool AnimationPaused;
     protected abstract RenderAPI API
     {
         get;
@@ -271,7 +273,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     {
         Camera.Move(Window, delta);
 
-        Scene.Update(delta);
+        Scene.Update(AnimationPaused ? 0 : delta);
         bool temporal = Settings.Reconstruction != Reconstruction.Native;
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
