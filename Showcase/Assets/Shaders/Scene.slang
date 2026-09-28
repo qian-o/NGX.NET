@@ -17,9 +17,8 @@ struct Globals
     float4 size; // render width, height, output width, height
     float4 sun;
     float4 scene; // object count, frame number, ray epsilon, scale
-    float4 parameters; // ray tracing, exposure compensation, input image, reverse-order triangle count (0 = forward)
+    float4 parameters; // reserved.xy, input image.z, reverse-order triangle count.w (0 = forward)
     float4 jitter; // pixel jitter.xy; RR guides enabled.z; texture mip bias.w
-    float4 center;
     row_major float4x4 sunViewProjection;
     float4 lighting; // sun irradiance, sky radiance, reserved, raster AO radius
     float4 exposure; // automatic metering enabled, delta seconds, reset history, reserved
@@ -563,16 +562,22 @@ float ambientVisibility(int2 pixel, float3 p, float3 n)
     }
     return saturate(1 - occlusion / directions);
 }
-Surface primarySurface(uint2 pixel, float3 view)
+Surface primaryMaterial(uint2 pixel, float3 view)
 {
     float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
-    Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w;
+    Surface s = (Surface)0;
+    s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w;
+    s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
+    if (dot(s.normal, view) < 0) s.normal = -s.normal;
+    return s;
+}
+Surface primarySurface(uint2 pixel, float3 view)
+{
+    Surface s = primaryMaterial(pixel, view);
     float3 geometry = surfaceGeometryImage[pixel].xyz;
     uint first = (uint)geometry.z * 3;
     surfaceGeometry(s, vertices[first], vertices[first + 1], vertices[first + 2],
         float3(1 - geometry.x - geometry.y, geometry.xy), view);
-    s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
-    if (dot(s.normal, view) < 0) s.normal = -s.normal;
     return s;
 }
 #include "ReflectionMotion.slang"
@@ -602,35 +607,40 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         if (g.jitter.z > 0) specularMotionOutput[pixel] = motionOutput[pixel];
         return;
     }
+#if HAS_RAY_QUERY
+    // Geometry was already read by TraceLighting. Resolve only needs the material.
+    Surface s = primaryMaterial(pixel, view);
+#else
     Surface s = primarySurface(pixel, view);
+#endif
     float3 color = s.emissive;
     float3 f0 = lerp(0.04, s.albedo, s.metallic);
     float nv = saturate(dot(s.normal, view));
     float3 specularAlbedo = 0;
-    if (g.jitter.z > 0 || g.parameters.x == 0)
-        specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
-    if (g.parameters.x > 0)
-    {
-        float3 sampled = 0;
-        for (uint path = 0; path < primarySampleCount * 2; path++)
-            sampled += lightingSamplesImage.Load(int4(pixel, path, 0)).rgb;
-        color += sampled / primarySampleCount;
-    }
-    else
-    {
-        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p + s.shadowOffset, s.geometricNormal);
-        float visibility = ambientVisibility(int2(pixel), p, s.normal);
-        float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
-        color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;
-        // Lagarde's specular-occlusion approximation for the raster environment.
-        float specularVisibility = saturate(pow(nv + visibility, exp2(-16 * s.roughness - 1)) - 1 + visibility);
-        color += lerp(sky(reflect(-view, s.normal)), diffuseEnvironment, s.roughness * s.roughness) * specularAlbedo * specularVisibility;
-    }
-    sceneOutput[pixel] = float4(max(color, 0), 1);
+#if HAS_RAY_QUERY
+    if (g.jitter.z > 0) specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
+    float3 sampled = 0;
+    for (uint path = 0; path < primarySampleCount * 2; path++)
+        sampled += lightingSamplesImage.Load(int4(pixel, path, 0)).rgb;
+    color += sampled / primarySampleCount;
+#else
+    specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
+    color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p + s.shadowOffset, s.geometricNormal);
+    float visibility = ambientVisibility(int2(pixel), p, s.normal);
+    float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
+    color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;
+    // Lagarde's specular-occlusion approximation for the raster environment.
+    float specularVisibility = saturate(pow(nv + visibility, exp2(-16 * s.roughness - 1)) - 1 + visibility);
+    color += lerp(sky(reflect(-view, s.normal)), diffuseEnvironment, s.roughness * s.roughness) * specularAlbedo * specularVisibility;
+#endif
+    // The RR input is RGBA16_FLOAT. Preserve finite HDR up to its format limit;
+    // a valid, very bright specular sample must not become infinity on storage.
+    sceneOutput[pixel] = float4(clamp(color, 0, 65504.0), 1);
     if (g.jitter.z > 0)
     {
         specularOutput[pixel] = float4(specularAlbedo, 1);
-        diffuseOutput[pixel] = float4(s.albedo * (1 - s.metallic), 1);
+        // Match the diffuse BRDF's Fresnel energy split, including grazing views.
+        diffuseOutput[pixel] = float4(s.albedo * (1 - s.metallic) * (1 - specularAlbedo), 1);
     }
 }
 float3 sampleHdr(float2 uv)
@@ -643,7 +653,7 @@ float3 sampleDisplay(float2 uv, bool toneMap)
 {
     if (!toneMap) return displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
     float3 hdr = sampleHdr(uv);
-    return linearToSrgb(displayToneMap(hdr * exp2(localExposure(uv, hdr) + g.parameters.y)));
+    return linearToSrgb(displayToneMap(hdr * exp2(localExposure(uv, hdr))));
 }
 float luminance(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
 // FXAA edge filter for the native raster path.

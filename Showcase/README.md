@@ -63,8 +63,9 @@ Each frame updates scene/camera history, renders depth and materials, computes
 lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and presents.
 
 - Sponza's hierarchy is baked into static geometry with its authored materials,
-  normal maps and alpha masks. Moving metal and ceramic spheres provide reflection
-  and motion references.
+  normal maps and alpha masks. Collapsed triangles are discarded and invalid
+  tangents are rebuilt from triangle UVs. Moving metal and ceramic spheres provide
+  reflection and motion references.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
   Camera depth uses floating-point reverse Z (near = 1, far/clear = 0) to keep
@@ -84,6 +85,8 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
   surfaces using current/previous camera, sphere and reflected-object positions.
   A deterministic guide ray on the spheres keeps motion independent of noisy
   radiance samples. Other meshes use a local planar reflection approximation.
+  Albedo guides follow the shading model's Fresnel energy split. HDR values are
+  bounded only by the finite range of the half-float input texture before storage.
 - Global/local exposure and neutral highlight compression run after reconstruction.
   Midtone RGB ratios are preserved; only bright highlights fade toward white. The UI
   is rendered separately with premultiplied alpha at output resolution; FG receives

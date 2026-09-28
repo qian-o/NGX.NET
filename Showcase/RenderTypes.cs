@@ -63,7 +63,6 @@ internal struct FrameConstants
     public Vector4 Scene;
     public Vector4 Parameters;
     public Vector4 Jitter;
-    public Vector4 Center;
     public Matrix4x4 SunViewProjection;
     public Vector4 Lighting;
     public Vector4 Exposure; // automatic metering enabled, delta seconds, reset history, reserved

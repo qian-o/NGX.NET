@@ -156,6 +156,7 @@ internal sealed class Scene
                 throw new InvalidDataException($"Non-invertible scene transform: {node.Name}");
             }
             Matrix4x4 normalMatrix = Matrix4x4.Transpose(inverse);
+            float handedness = MathF.Sign(world.GetDeterminant());
             foreach (MeshPrimitive primitive in node.Mesh.Primitives)
             {
                 IList<Vector3> positions = primitive.GetVertexAccessor("POSITION").AsVector3Array();
@@ -164,19 +165,44 @@ internal sealed class Scene
                 IList<Vector4>? tangents = primitive.GetVertexAccessor("TANGENT")?.AsVector4Array();
                 foreach ((int a, int b, int c) in primitive.GetTriangleIndices())
                 {
-                    int[] indices = world.GetDeterminant() < 0 ? [a, c, b] : [a, b, c];
-                    Vector3 faceNormal = Vector3.Normalize(Vector3.Cross(positions[b] - positions[a], positions[c] - positions[a]));
-                    foreach (int index in indices)
+                    int second = handedness < 0 ? c : b, third = handedness < 0 ? b : c;
+                    Vector3 pa = Vector3.Transform(positions[a], world);
+                    Vector3 pb = Vector3.Transform(positions[second], world);
+                    Vector3 pc = Vector3.Transform(positions[third], world);
+                    Vector3 edge1 = pb - pa, edge2 = pc - pa;
+                    Vector3 faceNormal = Vector3.Cross(edge1, edge2);
+                    if (faceNormal.LengthSquared() == 0)
                     {
-                        Vector3 n = Vector3.Normalize(Vector3.TransformNormal(normals?[index] ?? faceNormal, normalMatrix));
-                        Vector4 t = tangents?[index] ?? new(Vector3.Normalize(Vector3.Cross(Math.Abs(n.Y) < 0.99f ? Vector3.UnitY : Vector3.UnitX, n)), 1);
+                        // Collapsed triangles have no coverage or valid geometric normal.
+                        continue;
+                    }
+                    faceNormal = Vector3.Normalize(faceNormal);
+                    Vector2 uv0 = uv?[a] ?? Vector2.Zero;
+                    Vector2 uv1 = (uv?[second] ?? Vector2.Zero) - uv0;
+                    Vector2 uv2 = (uv?[third] ?? Vector2.Zero) - uv0;
+                    for (int corner = 0; corner < 3; corner++)
+                    {
+                        int index = corner == 0 ? a : corner == 1 ? second : third;
+                        Vector3 n = normals is null ? faceNormal : Vector3.TransformNormal(normals[index], normalMatrix);
+                        n = n.LengthSquared() > 0 ? Vector3.Normalize(n) : faceNormal;
+                        Vector4 t = default;
                         if (tangents is not null)
                         {
-                            t = new(Vector3.Normalize(Vector3.TransformNormal(t.AsVector3(), world)), t.W * MathF.Sign(world.GetDeterminant()));
+                            Vector3 direction = Vector3.TransformNormal(tangents[index].AsVector3(), world);
+                            if (direction.LengthSquared() > 0)
+                            {
+                                t = new(Vector3.Normalize(direction), tangents[index].W * handedness);
+                            }
+                        }
+                        if (Vector3.Cross(n, t.AsVector3()).LengthSquared() == 0)
+                        {
+                            // Repair invalid authored tangents from the UV basis rather
+                            // than rotating the normal map into an arbitrary frame.
+                            t = TriangleTangent(n, edge1, edge2, uv1, uv2);
                         }
                         staticVertices.Add(new()
                         {
-                            Position = new(Vector3.Transform(positions[index], world), 0),
+                            Position = new(corner == 0 ? pa : corner == 1 ? pb : pc, 0),
                             Normal = new(n, primitive.Material?.LogicalIndex ?? fallback),
                             Tangent = t,
                             UV = new(uv?[index] ?? Vector2.Zero, 0, 0)
@@ -250,6 +276,25 @@ internal sealed class Scene
         scene.CommitHistory();
         Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Count * 4L / 1048576} MiB texels.");
         return scene;
+    }
+
+    private static Vector4 TriangleTangent(Vector3 normal, Vector3 edge1, Vector3 edge2, Vector2 uv1, Vector2 uv2)
+    {
+        float determinant = uv1.X * uv2.Y - uv1.Y * uv2.X;
+        if (determinant != 0)
+        {
+            Vector3 tangent = (edge1 * uv2.Y - edge2 * uv1.Y) / determinant;
+            tangent -= normal * Vector3.Dot(normal, tangent);
+            if (tangent.LengthSquared() > 0)
+            {
+                tangent = Vector3.Normalize(tangent);
+                Vector3 bitangent = (edge2 * uv1.X - edge1 * uv2.X) / determinant;
+                return new(tangent, Vector3.Dot(Vector3.Cross(normal, tangent), bitangent) < 0 ? -1 : 1);
+            }
+        }
+        // Degenerate UVs have no defined tangent space; use a finite orthogonal frame.
+        Vector3 axis = Math.Abs(normal.Y) < 0.99f ? Vector3.UnitY : Vector3.UnitX;
+        return new(Vector3.Normalize(Vector3.Cross(axis, normal)), 1);
     }
 
     public Matrix4x4 GetSunViewProjection(Vector3 direction)

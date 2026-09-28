@@ -126,9 +126,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         // Discard presentation counts from before the configuration change.
         _ = Streamline.ReadPresentedFrameCount();
-        applied = Settings with
-        {
-        };
+        applied = Settings with { };
         reset = true;
         recreateSwapChain = false;
         Scene.CommitHistory();
@@ -277,7 +275,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         bool temporal = Settings.Reconstruction != Reconstruction.Native;
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
-        Vector3 center = (Scene.Minimum + Scene.Maximum) * 0.5f;
         const float elevation = 50 * MathF.PI / 180;
         const float azimuth = 65 * MathF.PI / 180;
         Vector3 sun = new(MathF.Cos(elevation) * MathF.Cos(azimuth), MathF.Sin(elevation), MathF.Cos(elevation) * MathF.Sin(azimuth));
@@ -292,10 +289,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Size = new(InputWidth, InputHeight, outputWidth, outputHeight),
             Sun = new(sun, solarAngularRadius),
             Scene = new(Scene.Objects.Length, frameNumber, Scene.RayEpsilon, Scene.Scale),
-            Parameters = new(RayQuerySupported ? 1 : 0, 0, 0, 0),
             Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0,
                 RenderLayout.TextureMipBias(InputWidth, outputWidth, temporal)),
-            Center = new(center.X, Scene.GroundHeight, center.Z, 0),
             SunViewProjection = Scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
             Exposure = new(1, delta, reset ? 1 : 0, 0),
