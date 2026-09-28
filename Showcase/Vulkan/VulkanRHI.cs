@@ -1,15 +1,19 @@
 ﻿using System.Runtime.InteropServices;
+using Showcase.Handlers;
+using Showcase.Helpers;
+using Showcase.Models;
 using Streamline.NET;
 using Vortice.Vulkan;
 using static Vortice.Vulkan.Vulkan;
-using Resource = Streamline.NET.Resource;
 
-namespace Showcase;
+namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) : RHI(window, ui)
 {
     protected override RenderAPI API => RenderAPI.Vulkan;
+
     protected override nint Command => commandBuffer.Handle;
+
     private VkInstance instance;
     private VkInstanceApi instanceApi = null!;
     private VkDevice device;
@@ -32,90 +36,15 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private VkDescriptorSetLayout descriptorLayout;
     private VkDescriptorPool descriptorPool;
     private VkPipelineLayout pipelineLayout;
-    private VkPipeline scenePipeline, depthPipeline, uiPipeline, shadowPipeline;
+    private VkPipeline scenePipeline;
+    private VkPipeline depthPipeline;
+    private VkPipeline uiPipeline;
+    private VkPipeline shadowPipeline;
     private readonly Dictionary<ComputePass, VkPipeline> pipelines = [];
     private VkSampler sampler;
     private int uniformStride = RenderLayout.UniformStride;
     private int constantIndex;
     private bool recording;
-
-    private sealed class VkBufferResource : IDisposable
-    {
-        public required VkDeviceApi Api;
-        public VkBuffer Buffer;
-        public VkDeviceMemory Memory;
-        public ulong Size;
-        public ulong Address;
-        public void* Mapped;
-        public void Write<T>(ReadOnlySpan<T> values, int offset = 0) where T : unmanaged => MemoryMarshal.AsBytes(values).CopyTo(new Span<byte>((byte*)Mapped + offset, values.Length * sizeof(T)));
-        public void Dispose()
-        {
-            if (Mapped != null)
-            {
-                Api.vkUnmapMemory(Memory);
-            }
-
-            Api.vkDestroyBuffer(Buffer);
-            Api.vkFreeMemory(Memory);
-        }
-    }
-    private sealed class VkTexture : GpuImage
-    {
-        public required VkDeviceApi Api;
-        public VkImage Texture;
-        public VkImageView View;
-        public VkDeviceMemory Memory;
-        public VkImageLayout Layout;
-        public VkImageUsageFlags Usage;
-        public override Resource Describe() => new()
-        {
-            Type = ResourceType.Tex2d,
-            Native = (void*)Texture.Handle,
-            Memory = (void*)Memory.Handle,
-            View = (void*)View.Handle,
-            State = (uint)Layout,
-            NativeFormat = (uint)NativeFormat(Format),
-            Width = (uint)Width,
-            Height = (uint)Height,
-            MipLevels = 1,
-            ArrayLayers = (uint)Layers,
-            Usage = (uint)Usage
-        };
-        public override void Dispose()
-        {
-            Api.vkDestroyImageView(View);
-            Api.vkDestroyImage(Texture);
-            Api.vkFreeMemory(Memory);
-        }
-    }
-    private sealed class VkFrame : IDisposable
-    {
-        public required VkDeviceApi Api;
-        public VkCommandPool Pool;
-        public VkCommandBuffer Command;
-        public VkFence Fence;
-        public VkSemaphore Acquire;
-        public VkDescriptorSet Descriptors;
-        public required VkBufferResource Constants;
-        public required VkBufferResource Objects;
-        public VkBufferResource? Vertices, Indices;
-        public VkAcceleration? Tlas;
-        public VkBufferResource? RayScratch, RayInstances;
-        public bool TlasBuilt;
-        public void Dispose()
-        {
-            Tlas?.Dispose();
-            RayScratch?.Dispose();
-            RayInstances?.Dispose();
-            Vertices?.Dispose();
-            Indices?.Dispose();
-            Constants.Dispose();
-            Objects.Dispose();
-            Api.vkDestroySemaphore(Acquire);
-            Api.vkDestroyFence(Fence);
-            Api.vkDestroyCommandPool(Pool);
-        }
-    }
 
     private static void Check(VkResult result, string operation)
     {
@@ -153,13 +82,16 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         VkPhysicalDevice[] devices = new VkPhysicalDevice[count];
         Check(instanceApi.vkEnumeratePhysicalDevices(devices), "vkEnumeratePhysicalDevices");
         int bestScore = -1;
+
         foreach (VkPhysicalDevice candidate in devices)
         {
             instanceApi.vkGetPhysicalDeviceProperties(candidate, out VkPhysicalDeviceProperties properties);
+
             if (properties.apiVersion < VkVersion.Version_1_3)
             {
                 continue;
             }
+
             VkPhysicalDeviceRayQueryFeaturesKHR queryFeatures = new();
             VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationFeatures = new()
             {
@@ -182,7 +114,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 pNext = &features11
             };
             instanceApi.vkGetPhysicalDeviceFeatures2(candidate, &features);
-            if (!features11.shaderDrawParameters || !features13.dynamicRendering || !features13.synchronization2 || !features.features.shaderStorageImageReadWithoutFormat || !features.features.shaderStorageImageWriteWithoutFormat || !features.features.shaderStorageImageExtendedFormats)
+
+            if (!features11.shaderDrawParameters || !features13.dynamicRendering || !features13.synchronization2 ||
+                !features.features.shaderStorageImageReadWithoutFormat || !features.features.shaderStorageImageWriteWithoutFormat ||
+                !features.features.shaderStorageImageExtendedFormats)
             {
                 continue;
             }
@@ -191,26 +126,30 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             VkExtensionProperties[] availableExtensions = new VkExtensionProperties[extensionCount];
             Check(instanceApi.vkEnumerateDeviceExtensionProperties(candidate, availableExtensions), "vkEnumerateDeviceExtensionProperties");
             HashSet<string> extensionNames = [];
+
             foreach (VkExtensionProperties extension in availableExtensions)
             {
                 extensionNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
             }
-            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure && features12.bufferDeviceAddress
-                && RayExtensions.All(extensionNames.Contains);
+
+            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure && features12.bufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
             instanceApi.vkGetPhysicalDeviceFormatProperties(candidate, VkFormat.R32G32B32Sfloat, out VkFormatProperties vertexFormat);
             rayQuery &= (vertexFormat.bufferFeatures & VkFormatFeatureFlags.AccelerationStructureVertexBufferKHR) != 0;
             instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, out uint familyCount);
             VkQueueFamilyProperties[] families = new VkQueueFamilyProperties[familyCount];
             instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, families);
+
             for (uint i = 0; i < familyCount; i++)
             {
                 Check(instanceApi.vkGetPhysicalDeviceSurfaceSupportKHR(candidate, i, surface, out VkBool32 present), "vkGetPhysicalDeviceSurfaceSupportKHR");
+
                 if (!present || (families[i].queueFlags & (VkQueueFlags.Graphics | VkQueueFlags.Compute)) != (VkQueueFlags.Graphics | VkQueueFlags.Compute))
                 {
                     continue;
                 }
 
                 int score = properties.vendorID == 0x10DE ? 2 : properties.deviceType == VkPhysicalDeviceType.DiscreteGpu ? 1 : 0;
+
                 if (score <= bestScore)
                 {
                     continue;
@@ -226,6 +165,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
             }
         }
+
         if (physical.IsNull)
         {
             throw new NotSupportedException("A Vulkan 1.3 graphics/compute/present queue and storage-image support are required.");
@@ -275,9 +215,15 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             }
         };
         List<VkUtf8String> requestedExtensions = ["VK_KHR_swapchain"u8];
+
         if (RayQuerySupported)
         {
-            requestedExtensions.AddRange(["VK_KHR_acceleration_structure"u8, "VK_KHR_ray_query"u8, "VK_KHR_deferred_host_operations"u8]);
+            requestedExtensions.AddRange(
+            [
+                "VK_KHR_acceleration_structure"u8,
+                "VK_KHR_ray_query"u8,
+                "VK_KHR_deferred_host_operations"u8
+            ]);
             VkPhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new();
             VkPhysicalDeviceProperties2 properties = new()
             {
@@ -288,6 +234,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             maxRayInstances = accelerationProperties.maxInstanceCount;
             maxRayPrimitives = accelerationProperties.maxPrimitiveCount;
         }
+
         using VkStringArray deviceExtensions = new(requestedExtensions);
         VkDeviceCreateInfo deviceInfo = new()
         {
@@ -297,6 +244,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             enabledExtensionCount = deviceExtensions.Length,
             ppEnabledExtensionNames = deviceExtensions
         };
+
         // The interposer augments its own required features/extensions and registers the device.
         Check(instanceApi.vkCreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
         api = GetApi(instance, device);
@@ -320,6 +268,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
         throw new NotSupportedException($"No Vulkan memory type supports {flags}.");
     }
+
     private VkBufferResource CreateBuffer(ulong size, VkBufferUsageFlags usage, bool host)
     {
         VkBufferResource resource = new()
@@ -348,6 +297,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         };
         Check(api.vkAllocateMemory(&allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
         Check(api.vkBindBufferMemory(resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
+
         if (addressable)
         {
             VkBufferDeviceAddressInfo address = new()
@@ -355,23 +305,29 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 buffer = resource.Buffer
             };
             resource.Address = api.vkGetBufferDeviceAddress(&address);
+
             if (resource.Address == 0)
             {
                 throw new InvalidOperationException("Vulkan returned a null buffer device address.");
             }
         }
+
         if (host)
         {
             void* mapped;
             Check(api.vkMapMemory(resource.Memory, 0, resource.Size, 0, &mapped), "vkMapMemory");
             resource.Mapped = mapped;
         }
+
         return resource;
     }
-    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false) where T : unmanaged
+
+    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false)
+        where T : unmanaged
     {
         ulong size = (ulong)(data.Length * sizeof(T));
         VkBufferUsageFlags usage = VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferDst;
+
         if (rayGeometry && RayQuerySupported)
         {
             usage |= VkBufferUsageFlags.ShaderDeviceAddress | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR;
@@ -386,8 +342,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             size = size
         };
         api.vkCmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
+
         return buffer;
     }
+
     protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
         VkImageUsageFlags usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst;
@@ -429,8 +387,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             subresourceRange = Range(format, layers)
         };
         Check(api.vkCreateImageView(&view, null, out texture.View), "vkCreateImageView");
+
         return texture;
     }
+
     protected override void CreateSwapChain()
     {
         Check(instanceApi.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, out VkSurfaceCapabilitiesKHR capabilities), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
@@ -438,6 +398,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         VkSurfaceFormatKHR[] formats = new VkSurfaceFormatKHR[count];
         Check(instanceApi.vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, formats), "vkGetPhysicalDeviceSurfaceFormatsKHR");
         VkSurfaceFormatKHR selected = formats.FirstOrDefault(x => x.format == VkFormat.R8G8B8A8Unorm && x.colorSpace == VkColorSpaceKHR.SrgbNonLinear);
+
         if (selected.format == VkFormat.Undefined)
         {
             selected = formats.FirstOrDefault(x => x.format == VkFormat.B8G8R8A8Unorm && x.colorSpace == VkColorSpaceKHR.SrgbNonLinear);
@@ -457,6 +418,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         VkPresentModeKHR[] modes = new VkPresentModeKHR[count];
         Check(instanceApi.vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, modes), "vkGetPhysicalDeviceSurfacePresentModesKHR");
         uint imageCount = Math.Max(capabilities.minImageCount, RenderLayout.FramesInFlight);
+
         if (capabilities.maxImageCount > 0)
         {
             imageCount = Math.Min(imageCount, capabilities.maxImageCount);
@@ -484,11 +446,13 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         presentSemaphores = new VkSemaphore[count];
         Check(api.vkGetSwapchainImagesKHR(swapChain, backBuffers), "vkGetSwapchainImagesKHR");
         VkSemaphoreCreateInfo semaphore = new();
+
         for (int i = 0; i < presentSemaphores.Length; i++)
         {
             Check(api.vkCreateSemaphore(&semaphore, null, out presentSemaphores[i]), "vkCreateSemaphore(present)");
         }
     }
+
     protected override void DestroySwapChain()
     {
         if (api is null)
@@ -504,12 +468,14 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         presentSemaphores = [];
         backBuffers = [];
         backLayouts = [];
+
         if (!swapChain.IsNull)
         {
             api.vkDestroySwapchainKHR(swapChain);
             swapChain = default;
         }
     }
+
     private static VkFormat NativeFormat(ImageFormat format) => format switch
     {
         ImageFormat.Rgba16 => VkFormat.R16G16B16A16Sfloat,
@@ -519,5 +485,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         ImageFormat.Depth => VkFormat.D32Sfloat,
         _ => VkFormat.R8G8B8A8Unorm
     };
+
     private static VkImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color, 0, 1, 0, (uint)layers);
 }

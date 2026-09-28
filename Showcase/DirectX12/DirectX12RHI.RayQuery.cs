@@ -1,8 +1,9 @@
-﻿using Vortice.Direct3D12;
+﻿using Showcase.Models;
 using Vortice.DXGI;
+using Vortice.Direct3D12;
 using Vortice.Mathematics;
 
-namespace Showcase;
+namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI
 {
@@ -16,10 +17,11 @@ internal sealed unsafe partial class DirectX12RHI
         {
             throw new InvalidOperationException("DXR returned an empty acceleration-structure allocation size.");
         }
+
         ulong alignment = D3D12.RaytracingAccelerationStructureByteAlignment;
         ulong alignedSize = (size + alignment - 1) / alignment * alignment;
-        return device.CreateCommittedResource(HeapType.Default,
-            ResourceDescription.Buffer(alignedSize, ResourceFlags.AllowUnorderedAccess), state);
+
+        return device.CreateCommittedResource(HeapType.Default, ResourceDescription.Buffer(alignedSize, ResourceFlags.AllowUnorderedAccess), state);
     }
 
     private void InitializeAccelerationStructures()
@@ -49,6 +51,7 @@ internal sealed unsafe partial class DirectX12RHI
             ID3D12Resource bottom = AccelerationBuffer(sizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
             bottomLevels.Add(bottom);
             ID3D12Resource scratch = AccelerationBuffer(sizes.ScratchDataSizeInBytes, ResourceStates.UnorderedAccess);
+
             // Startup submission owns this scratch storage until WaitIdle releases the upload batch.
             uploads.Add(scratch);
             rayCommands!.BuildRaytracingAccelerationStructure(new()
@@ -68,6 +71,7 @@ internal sealed unsafe partial class DirectX12RHI
             DescriptorsCount = (uint)Scene.Objects.Length
         };
         RaytracingAccelerationStructurePrebuildInfo topSizes = rayDevice!.GetRaytracingAccelerationStructurePrebuildInfo(topInputs);
+
         foreach (DxFrame frame in slots)
         {
             frame.Tlas = AccelerationBuffer(topSizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
@@ -79,6 +83,7 @@ internal sealed unsafe partial class DirectX12RHI
     private static RaytracingInstanceDescription CreateRayInstance(SceneObject instance, uint id, ulong address)
     {
         System.Numerics.Vector4 offset = instance.Offset;
+
         return new()
         {
             Transform = new Matrix3x4(1, 0, 0, offset.X, 0, 1, 0, offset.Y, 0, 0, 1, offset.Z),
@@ -95,16 +100,20 @@ internal sealed unsafe partial class DirectX12RHI
         // BeginCommands has already waited for this frame slot's fence. Other slots
         // retain their own TLAS, scratch and instance data until their GPU work ends.
         Span<RaytracingInstanceDescription> instances = frame.RayInstances!.Map<RaytracingInstanceDescription>(0, Scene.Objects.Length);
+
         for (int i = 0; i < instances.Length; i++)
         {
             instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].GPUVirtualAddress);
         }
+
         frame.RayInstances.Unmap(0);
+
         if (frame.TlasBuilt)
         {
             commandList.ResourceBarrierUnorderedAccessView(frame.Tlas!);
             commandList.ResourceBarrierUnorderedAccessView(frame.RayScratch!);
         }
+
         BuildRaytracingAccelerationStructureInputs inputs = new()
         {
             Type = RaytracingAccelerationStructureType.TopLevel,
@@ -113,6 +122,7 @@ internal sealed unsafe partial class DirectX12RHI
             DescriptorsCount = (uint)Scene.Objects.Length,
             InstanceDescriptions = frame.RayInstances.GPUVirtualAddress
         };
+
         if (frame.TlasBuilt)
         {
             inputs.Flags |= RaytracingAccelerationStructureBuildFlags.PerformUpdate;

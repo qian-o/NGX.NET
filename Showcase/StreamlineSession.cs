@@ -3,6 +3,9 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Showcase.Handlers;
+using Showcase.Helpers;
+using Showcase.Models;
 using Streamline.NET;
 
 namespace Showcase;
@@ -12,27 +15,24 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private static readonly (uint Id, string Name)[] Features =
     [
         (SL.FeatureDLSS, "DLSS Super Resolution / Deep Learning Anti-Aliasing (DLAA)"),
-        (SL.FeatureDLSSRR, "DLSS Ray Reconstruction"), (SL.FeatureDLSSG, "DLSS Frame Generation"),
-        (SL.FeatureReflex, "Reflex"), (SL.FeaturePCL, "Latency markers")
+        (SL.FeatureDLSSRR, "DLSS Ray Reconstruction"),
+        (SL.FeatureDLSSG, "DLSS Frame Generation"),
+        (SL.FeatureReflex, "Reflex"),
+        (SL.FeaturePCL, "Latency markers")
     ];
+
     public Dictionary<uint, string> Unavailable { get; } = [];
-    public nint Module
-    {
-        get; private set;
-    }
-    public uint LatencyPingMessage
-    {
-        get; private set;
-    }
-    public uint MaximumGeneratedFrames
-    {
-        get; private set;
-    }
-    public uint MinimumFGDimension
-    {
-        get; private set;
-    }
+
+    public nint Module { get; private set; }
+
+    public uint LatencyPingMessage { get; private set; }
+
+    public uint MaximumGeneratedFrames { get; private set; }
+
+    public uint MinimumFGDimension { get; private set; }
+
     public bool FrameGenerationFailed => lastStateResult != SLResult.Ok || frameGenerationIssue is not null;
+
     private readonly ViewportHandle viewport = new(0);
     private FrameToken frame;
     private DLSSGStatus? frameGenerationIssue;
@@ -50,6 +50,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private static int apiError;
 
     public bool Available(uint feature) => !Unavailable.ContainsKey(feature);
+
     public static void Check(SLResult result, string operation)
     {
         if (result != SLResult.Ok)
@@ -61,14 +62,18 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private void* Keep(nint pointer)
     {
         allocations.Add(pointer);
+
         return (void*)pointer;
     }
+
     private sbyte* Utf8(string value) => (sbyte*)Keep(Marshal.StringToCoTaskMemUTF8(value));
+
     private char* Utf16(string value) => (char*)Keep(Marshal.StringToCoTaskMemUni(value));
 
     public void Initialize(RenderAPI api)
     {
         string path = Path.Combine(AppContext.BaseDirectory, "sl.interposer.dll");
+
         if (!File.Exists(path))
         {
             throw new FileNotFoundException("Run Showcase/Assets/UpdateAssets.ps1, then rebuild Showcase.", path);
@@ -104,6 +109,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         };
         Check(SL.Init(in preferences), "slInit");
         initialized = true;
+
         // This reference belongs to the sample; the wrapper retains its separate reference.
         Module = NativeLibrary.Load(path);
         Console.WriteLine($"Streamline runtime: {FileVersionInfo.GetVersionInfo(path).FileVersion ?? "Unknown"}");
@@ -115,6 +121,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         {
             SLResult support = SL.IsFeatureSupported(id, in adapter);
             SLResult loadedResult = SL.IsFeatureLoaded(id, out Bool8 loaded);
+
             if (support != SLResult.Ok)
             {
                 Unavailable[id] = support.ToString();
@@ -126,12 +133,14 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
             Console.WriteLine($"{name}: {(Available(id) ? "Available" : Unavailable[id])}");
         }
+
         if (Available(SL.FeatureDLSSG) && !Available(SL.FeatureReflex))
         {
             Unavailable[SL.FeatureDLSSG] = "Reflex is required";
         }
 
         frameGenerationLoaded = Available(SL.FeatureDLSSG);
+
         if (frameGenerationLoaded)
         {
             DLSSGState state = SL.DLSSG.GetState(in viewport, null);
@@ -139,12 +148,14 @@ internal sealed unsafe class StreamlineSession : IDisposable
             MinimumFGDimension = state.MinWidthOrHeight;
             SetFrameGeneration(0);
         }
+
         if (Available(SL.FeaturePCL))
         {
             PCLOptions options = new();
             Check(SL.PCL.SetOptions(in options), "slPCLSetOptions");
             LatencyPingMessage = SL.PCL.GetState().StatsWindowMessage;
         }
+
         SetLowLatency();
     }
 
@@ -164,6 +175,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     public (int Width, int Height) Configure(RenderSettings settings, int width, int height)
     {
         uint w = (uint)width, h = (uint)height;
+
         switch (settings.Reconstruction)
         {
             case Reconstruction.DLSS:
@@ -196,6 +208,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         DrainMessages();
         Check(SL.GetNewFrameToken(out FrameToken token, &frameIndex), "slGetNewFrameToken");
         frame = token;
+
         if (Available(SL.FeatureReflex))
         {
             Check(SL.Reflex.Sleep(frame), "slReflexSleep");
@@ -217,6 +230,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         Constants constants = CameraConstants(camera, width, height, outputWidth, outputHeight, reset);
         Check(SL.SetConstants(in constants, frame, in viewport), "slSetConstants");
+
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
             rayOptions = RayOptions(settings, outputWidth, outputHeight, camera);
@@ -233,6 +247,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         Vector3 forward = camera.Forward;
         Vector3 right = Vector3.Normalize(Vector3.Cross(forward, Vector3.UnitY));
         Vector3 up = Vector3.Cross(right, forward);
+
         return new()
         {
             CameraViewToClip = Matrix(camera.Projection),
@@ -265,6 +280,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         Matrix4x4 view = camera?.View ?? Matrix4x4.Identity;
         Matrix4x4.Invert(view, out Matrix4x4 inverse);
+
         return new()
         {
             Mode = settings.ReconstructionQuality,
@@ -282,6 +298,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     public void Tags(int frameSlot, nint command, ReadOnlySpan<(uint Type, ImageSlot Slot)> resources, ReadOnlySpan<GpuImage> images, bool present = false)
     {
         Span<ResourceTag> tags = stackalloc ResourceTag[resources.Length];
+
         for (int i = 0; i < resources.Length; i++)
         {
             (uint type, ImageSlot slot) = resources[i];
@@ -301,6 +318,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
             };
             taggedTypes.Add(type);
         }
+
         Check(SL.SetTagForFrame(frame, in viewport, tags, (void*)command), "slSetTagForFrame");
     }
 
@@ -350,25 +368,33 @@ internal sealed unsafe class StreamlineSession : IDisposable
         {
             return 1;
         }
+
         DLSSGState state = new();
+
         // Null options avoid the expensive optional VRAM estimate.
         SLResult result = SL.DLSSG.GetState(in viewport, ref state, null);
+
         if (result != SLResult.Ok)
         {
             if (lastStateResult != result)
             {
                 Console.Error.WriteLine($"DLSS Frame Generation state query failed: {result}");
             }
+
             lastStateResult = result;
+
             return null;
         }
+
         lastStateResult = SLResult.Ok;
         DLSSGStatus? previousIssue = frameGenerationIssue;
         frameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
+
         if (previousIssue != frameGenerationIssue)
         {
             Console.WriteLine($"DLSS Frame Generation: {state.Status}");
         }
+
         return state.NumFramesActuallyPresented;
     }
 
@@ -387,11 +413,13 @@ internal sealed unsafe class StreamlineSession : IDisposable
                 Check(SL.DLSSD.SetOptions(in viewport, in rayOptions), "slDLSSDSetOptions(Off)");
                 break;
         }
+
         if (evaluatedFeature is uint feature)
         {
             Check(SL.FreeResources(feature, in viewport), $"slFreeResources({feature})");
             evaluatedFeature = null;
         }
+
         reconstruction = Reconstruction.Native;
     }
 
@@ -399,7 +427,10 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         if (frame.Handle != 0 && taggedTypes.Count > 0)
         {
-            ResourceTag[] tags = taggedTypes.Select(type => new ResourceTag() { Type = type }).ToArray();
+            ResourceTag[] tags = taggedTypes.Select(type => new ResourceTag()
+            {
+                Type = type
+            }).ToArray();
             Check(SL.SetTagForFrame(frame, in viewport, tags, null), "slSetTagForFrame(clear)");
             taggedTypes.Clear();
         }
@@ -415,11 +446,13 @@ internal sealed unsafe class StreamlineSession : IDisposable
         }
 
         int error = Interlocked.Exchange(ref apiError, 0);
+
         if (error != 0)
         {
             throw new InvalidOperationException($"Asynchronous Streamline presentation error: 0x{error:X8}");
         }
     }
+
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void Log(LogType type, sbyte* message)
     {
@@ -427,8 +460,11 @@ internal sealed unsafe class StreamlineSession : IDisposable
         {
             messages.Enqueue($"[Streamline/{type}] {Marshal.PtrToStringUTF8((nint)message)}");
         }
-        catch { }
+        catch
+        {
+        }
     }
+
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnApiError(APIError* error)
     {
@@ -437,6 +473,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
             Interlocked.Exchange(ref apiError, error->Hres != 0 ? error->Hres : error->VkRes);
         }
     }
+
     public void Dispose()
     {
         if (initialized)
@@ -446,11 +483,13 @@ internal sealed unsafe class StreamlineSession : IDisposable
             initialized = false;
             Console.WriteLine($"slShutdown: {result}");
         }
+
         if (Module != 0)
         {
             NativeLibrary.Free(Module);
             Module = 0;
         }
+
         foreach (nint pointer in allocations)
         {
             Marshal.FreeCoTaskMem(pointer);

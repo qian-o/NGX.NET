@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Streamline.NET.Generator;
 
@@ -104,6 +104,7 @@ internal sealed class NativeDeclaration
 
     public List<NativeExpression> Expressions { get; set; } = [];
 
+    [JsonIgnore]
     public ParameterContract Contract { get; set; } = new();
 
     [JsonIgnore]
@@ -118,21 +119,11 @@ internal sealed class NativeDeclaration
 
 internal sealed class ParameterContract
 {
-    public bool ReturnValue { get; set; }
+    public bool ReturnValue { get; init; }
 
-    public string? ReturnValueContract { get; set; }
+    public string Convenience { get; init; } = "raw";
 
-    public string Direction { get; set; } = "unspecified";
-
-    public string Lifetime { get; set; } = "native-contract";
-
-    public string Convenience { get; set; } = "raw";
-
-    public string? CountParameter { get; set; }
-
-    public string? Encoding { get; set; }
-
-    public string Evidence { get; set; } = "";
+    public string? CountParameter { get; init; }
 }
 
 internal sealed class NativeType

@@ -12809,8 +12809,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slInit"
+      ]
     },
     {
       "id": "c:@PFun_slShutdown",
@@ -12866,8 +12865,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slShutdown"
+      ]
     },
     {
       "id": "c:@PFun_slIsFeatureSupported",
@@ -13033,8 +13031,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slIsFeatureSupported"
+      ]
     },
     {
       "id": "c:@PFun_slIsFeatureLoaded",
@@ -13197,8 +13194,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slIsFeatureLoaded"
+      ]
     },
     {
       "id": "c:@PFun_slSetFeatureLoaded",
@@ -13337,8 +13333,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetFeatureLoaded"
+      ]
     },
     {
       "id": "c:@PFun_slEvaluateFeature",
@@ -13699,8 +13694,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slEvaluateFeature"
+      ]
     },
     {
       "id": "c:@PFun_slAllocateResources",
@@ -13930,8 +13924,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slAllocateResources"
+      ]
     },
     {
       "id": "c:@PFun_slFreeResources",
@@ -14097,8 +14090,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slFreeResources"
+      ]
     },
     {
       "id": "c:@PFun_slSetTag",
@@ -14396,8 +14388,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetTag"
+      ]
     },
     {
       "id": "c:@PFun_slSetTagForFrame",
@@ -14761,8 +14752,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetTagForFrame"
+      ]
     },
     {
       "id": "c:@PFun_slGetFeatureRequirements",
@@ -14928,8 +14918,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slGetFeatureRequirements"
+      ]
     },
     {
       "id": "c:@PFun_slGetFeatureVersion",
@@ -15095,8 +15084,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slGetFeatureVersion"
+      ]
     },
     {
       "id": "c:@PFun_slUpgradeInterface",
@@ -15243,8 +15231,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slUpgradeInterface"
+      ]
     },
     {
       "id": "c:@PFun_slSetConstants",
@@ -15504,8 +15491,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetConstants"
+      ]
     },
     {
       "id": "c:@PFun_slGetNativeInterface",
@@ -15716,8 +15702,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slGetNativeInterface"
+      ]
     },
     {
       "id": "c:@PFun_slGetFeatureFunction",
@@ -15968,8 +15953,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slGetFeatureFunction"
+      ]
     },
     {
       "id": "c:@PFun_slGetNewFrameToken",
@@ -16183,8 +16167,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slGetNewFrameToken"
+      ]
     },
     {
       "id": "c:@PFun_slSetD3DDevice",
@@ -16307,8 +16290,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetD3DDevice"
+      ]
     },
     {
       "id": "c:@F@slInit",
@@ -16413,13 +16395,7 @@
           "source": "const sl::Preferences &pref",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:83"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slInit/PARM_DECL:c:sl_core_api.h@4237@F@slInit@sdkVersion",
@@ -16459,13 +16435,7 @@
             }
           ],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:83"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -16620,13 +16590,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:106"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slIsFeatureSupported/PARM_DECL:c:sl_core_api.h@5178@F@slIsFeatureSupported@adapterInfo",
@@ -16659,13 +16623,7 @@
           "source": "const sl::AdapterInfo& adapterInfo",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:106"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -16767,13 +16725,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:118"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slIsFeatureLoaded/PARM_DECL:c:sl_core_api.h@5807@F@slIsFeatureLoaded@loaded",
@@ -16805,13 +16757,7 @@
           "source": "bool& loaded",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output",
-            "lifetime": "call",
-            "convenience": "out",
-            "evidence": "include/sl_core_api.h:118"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -16905,13 +16851,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:134"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetFeatureLoaded/PARM_DECL:c:sl_core_api.h@6622@F@slSetFeatureLoaded@loaded",
@@ -16935,13 +16875,7 @@
           "source": "bool loaded",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:134"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -17103,13 +17037,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_core_api.h:152"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTagForFrame/PARM_DECL:c:sl_core_api.h@7834@F@slSetTagForFrame@viewport",
@@ -17142,13 +17070,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:152"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTagForFrame/PARM_DECL:c:sl_core_api.h@7870@F@slSetTagForFrame@resources",
@@ -17181,14 +17103,7 @@
           "source": "const sl::ResourceTag* resources",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-elements-only",
-            "convenience": "readonly-span",
-            "evidence": "include/sl_core_api.h:152",
-            "countParameter": "numResources"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTagForFrame/PARM_DECL:c:sl_core_api.h@7904@F@slSetTagForFrame@numResources",
@@ -17212,13 +17127,7 @@
           "source": "uint32_t numResources",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:152"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTagForFrame/PARM_DECL:c:sl_core_api.h@7927@F@slSetTagForFrame@cmdBuffer",
@@ -17250,13 +17159,7 @@
           "source": "sl::CommandBuffer* cmdBuffer",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:152"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -17402,13 +17305,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:173"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTag/PARM_DECL:c:sl_core_api.h@9239@F@slSetTag@tags",
@@ -17441,14 +17338,7 @@
           "source": "const sl::ResourceTag* tags",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-elements-only",
-            "convenience": "readonly-span",
-            "evidence": "include/sl_core_api.h:173",
-            "countParameter": "numTags"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTag/PARM_DECL:c:sl_core_api.h@9268@F@slSetTag@numTags",
@@ -17472,13 +17362,7 @@
           "source": "uint32_t numTags",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:173"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetTag/PARM_DECL:c:sl_core_api.h@9286@F@slSetTag@cmdBuffer",
@@ -17510,13 +17394,7 @@
           "source": "sl::CommandBuffer* cmdBuffer",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:173"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -17654,13 +17532,7 @@
           "source": "const sl::Constants& values",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:185"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetConstants/PARM_DECL:c:sl_core_api.h@9887@F@slSetConstants@frame",
@@ -17693,13 +17565,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_core_api.h:185"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slSetConstants/PARM_DECL:c:sl_core_api.h@9916@F@slSetConstants@viewport",
@@ -17732,13 +17598,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:185"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -17841,13 +17701,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:197"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetFeatureRequirements/PARM_DECL:c:sl_core_api.h@10499@F@slGetFeatureRequirements@requirements",
@@ -17880,15 +17734,7 @@
           "source": "sl::FeatureRequirements& requirements",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_core_api.h:197",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -17991,13 +17837,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:209"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetFeatureVersion/PARM_DECL:c:sl_core_api.h@11051@F@slGetFeatureVersion@version",
@@ -18030,15 +17870,7 @@
           "source": "sl::FeatureVersion& version",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_core_api.h:209",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -18165,13 +17997,7 @@
           "source": "sl::CommandBuffer* cmdBuffer",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:222"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slAllocateResources/PARM_DECL:c:sl_core_api.h@11742@F@slAllocateResources@feature",
@@ -18195,13 +18021,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:222"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slAllocateResources/PARM_DECL:c:sl_core_api.h@11763@F@slAllocateResources@viewport",
@@ -18234,13 +18054,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:222"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -18343,13 +18157,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:240"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slFreeResources/PARM_DECL:c:sl_core_api.h@12681@F@slFreeResources@viewport",
@@ -18382,13 +18190,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_core_api.h:240"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -18540,13 +18342,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:262"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slEvaluateFeature/PARM_DECL:c:sl_core_api.h@13970@F@slEvaluateFeature@frame",
@@ -18579,13 +18375,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_core_api.h:262"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slEvaluateFeature/PARM_DECL:c:sl_core_api.h@13999@F@slEvaluateFeature@inputs",
@@ -18626,13 +18416,7 @@
           "source": "const sl::BaseStructure** inputs",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:262"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slEvaluateFeature/PARM_DECL:c:sl_core_api.h@14033@F@slEvaluateFeature@numInputs",
@@ -18656,13 +18440,7 @@
           "source": "uint32_t numInputs",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:262"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slEvaluateFeature/PARM_DECL:c:sl_core_api.h@14053@F@slEvaluateFeature@cmdBuffer",
@@ -18694,13 +18472,7 @@
           "source": "sl::CommandBuffer* cmdBuffer",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:262"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -18818,13 +18590,7 @@
           "source": "void** baseInterface",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output-address",
-            "lifetime": "native-COM-contract",
-            "convenience": "ref-address",
-            "evidence": "include/sl_core_api.h:275"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -18950,13 +18716,7 @@
           "source": "void* proxyInterface",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:289"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetNativeInterface/PARM_DECL:c:sl_core_api.h@15387@F@slGetNativeInterface@baseInterface",
@@ -18996,13 +18756,7 @@
           "source": "void** baseInterface",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output-address",
-            "lifetime": "native-COM-contract",
-            "convenience": "out-address",
-            "evidence": "include/sl_core_api.h:289"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -19128,13 +18882,7 @@
           "source": "sl::Feature feature",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:303"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetFeatureFunction/PARM_DECL:c:sl_core_api.h@16063@F@slGetFeatureFunction@functionName",
@@ -19166,14 +18914,7 @@
           "source": "const char* functionName",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call",
-            "convenience": "utf8-string",
-            "evidence": "include/sl_core_api.h:303",
-            "encoding": "UTF-8"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetFeatureFunction/PARM_DECL:c:sl_core_api.h@16089@F@slGetFeatureFunction@function",
@@ -19213,13 +18954,7 @@
           "source": "void*& function",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output-address",
-            "lifetime": "plugin-loaded",
-            "convenience": "out-address",
-            "evidence": "include/sl_core_api.h:303"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -19355,13 +19090,7 @@
           "source": "sl::FrameToken*& token",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output-borrowed-address",
-            "lifetime": "sdk-owned",
-            "convenience": "out-frame-token",
-            "evidence": "include/sl_core_api.h:316"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slGetNewFrameToken/PARM_DECL:c:sl_core_api.h@16658@F@slGetNewFrameToken@frameIndex",
@@ -19407,13 +19136,7 @@
             }
           ],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:316"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -19515,13 +19238,7 @@
           "source": "void* d3dDevice",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_core_api.h:326"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -36830,8 +36547,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDeepDVCSetOptions"
+      ]
     },
     {
       "id": "c:@PFun_slDeepDVCGetState",
@@ -37024,8 +36740,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDeepDVCGetState"
+      ]
     },
     {
       "id": "c:@F@slDeepDVCSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DeepDVCOptions#",
@@ -37139,13 +36854,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_deepdvc.h:82"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDeepDVCSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DeepDVCOptions#/PARM_DECL:c:sl_deepdvc.h@3230@F@slDeepDVCSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DeepDVCOptions#@options",
@@ -37178,13 +36887,7 @@
           "source": "const sl::DeepDVCOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_deepdvc.h:82"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -37305,13 +37008,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_deepdvc.h:88"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDeepDVCGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DeepDVCState#/PARM_DECL:c:sl_deepdvc.h@3477@F@slDeepDVCGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DeepDVCState#@state",
@@ -37344,15 +37041,7 @@
           "source": "sl::DeepDVCState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_deepdvc.h:88",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -39734,8 +39423,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDirectSRGetOptimalSettings"
+      ]
     },
     {
       "id": "c:@PFun_slDirectSRGetVariantInfo",
@@ -39925,8 +39613,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDirectSRGetVariantInfo"
+      ]
     },
     {
       "id": "c:@PFun_slDirectSRSetOptions",
@@ -40119,8 +39806,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDirectSRSetOptions"
+      ]
     },
     {
       "id": "c:@F@slDirectSRGetOptimalSettings#&1$@N@sl@S@DirectSROptions#&$@N@sl@S@DirectSROptimalSettings#",
@@ -40234,13 +39920,7 @@
           "source": "const sl::DirectSROptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_directsr.h:156"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDirectSRGetOptimalSettings#&1$@N@sl@S@DirectSROptions#&$@N@sl@S@DirectSROptimalSettings#/PARM_DECL:c:sl_directsr.h@5822@F@slDirectSRGetOptimalSettings#&1$@N@sl@S@DirectSROptions#&$@N@sl@S@DirectSROptimalSettings#@settings",
@@ -40273,15 +39953,7 @@
           "source": "sl::DirectSROptimalSettings& settings",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_directsr.h:156",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -40400,13 +40072,7 @@
           "source": "uint32_t *numVariants",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output-if-buffer-null-otherwise-input",
-            "lifetime": "call",
-            "convenience": "variant-query-or-fill",
-            "evidence": "source/plugins/sl.directsr/directsrEntry.cpp:426-452"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDirectSRGetVariantInfo#*i#*$@N@sl@S@DirectSRVariantInfo#/PARM_DECL:c:sl_directsr.h@6086@F@slDirectSRGetVariantInfo#*i#*$@N@sl@S@DirectSRVariantInfo#@variantInfo",
@@ -40439,13 +40105,7 @@
           "source": "sl::DirectSRVariantInfo *variantInfo",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "output",
-            "lifetime": "call",
-            "convenience": "variant-query-or-fill",
-            "evidence": "source/plugins/sl.directsr/directsrEntry.cpp:426-452"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -40566,13 +40226,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_directsr.h:168"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDirectSRSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DirectSROptions#/PARM_DECL:c:sl_directsr.h@6357@F@slDirectSRSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DirectSROptions#@options",
@@ -40605,13 +40259,7 @@
           "source": "const sl::DirectSROptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_directsr.h:168"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -43020,8 +42668,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSGetOptimalSettings"
+      ]
     },
     {
       "id": "c:@PFun_slDLSSGetState",
@@ -43214,8 +42861,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSGetState"
+      ]
     },
     {
       "id": "c:@PFun_slDLSSSetOptions",
@@ -43408,8 +43054,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSSetOptions"
+      ]
     },
     {
       "id": "c:@F@slDLSSGetOptimalSettings#&1$@N@sl@S@DLSSOptions#&$@N@sl@S@DLSSOptimalSettings#",
@@ -43523,13 +43168,7 @@
           "source": "const sl::DLSSOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss.h:177"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSGetOptimalSettings#&1$@N@sl@S@DLSSOptions#&$@N@sl@S@DLSSOptimalSettings#/PARM_DECL:c:sl_dlss.h@7859@F@slDLSSGetOptimalSettings#&1$@N@sl@S@DLSSOptions#&$@N@sl@S@DLSSOptimalSettings#@settings",
@@ -43562,15 +43201,7 @@
           "source": "sl::DLSSOptimalSettings& settings",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_dlss.h:177",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -43691,13 +43322,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss.h:183"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSState#/PARM_DECL:c:sl_dlss.h@8110@F@slDLSSGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSState#@state",
@@ -43730,15 +43355,7 @@
           "source": "sl::DLSSState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_dlss.h:183",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -43859,13 +43476,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss.h:189"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSOptions#/PARM_DECL:c:sl_dlss.h@8328@F@slDLSSSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSOptions#@options",
@@ -43898,13 +43509,7 @@
           "source": "const sl::DLSSOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss.h:189"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -46270,8 +45875,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSDGetOptimalSettings"
+      ]
     },
     {
       "id": "c:@PFun_slDLSSDGetState",
@@ -46464,8 +46068,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSDGetState"
+      ]
     },
     {
       "id": "c:@PFun_slDLSSDSetOptions",
@@ -46658,8 +46261,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSDSetOptions"
+      ]
     },
     {
       "id": "c:@F@slDLSSDGetOptimalSettings#&1$@N@sl@S@DLSSDOptions#&$@N@sl@S@DLSSDOptimalSettings#",
@@ -46773,13 +46375,7 @@
           "source": "const sl::DLSSDOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_d.h:172"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSDGetOptimalSettings#&1$@N@sl@S@DLSSDOptions#&$@N@sl@S@DLSSDOptimalSettings#/PARM_DECL:c:sl_dlss_d.h@7572@F@slDLSSDGetOptimalSettings#&1$@N@sl@S@DLSSDOptions#&$@N@sl@S@DLSSDOptimalSettings#@settings",
@@ -46812,15 +46408,7 @@
           "source": "sl::DLSSDOptimalSettings& settings",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_dlss_d.h:172",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -46941,13 +46529,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_d.h:178"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSDGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSDState#/PARM_DECL:c:sl_dlss_d.h@7830@F@slDLSSDGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSDState#@state",
@@ -46980,15 +46562,7 @@
           "source": "sl::DLSSDState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_dlss_d.h:178",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -47109,13 +46683,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_d.h:184"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSDSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSDOptions#/PARM_DECL:c:sl_dlss_d.h@8055@F@slDLSSDSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSDOptions#@options",
@@ -47148,13 +46716,7 @@
           "source": "const sl::DLSSDOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_d.h:184"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -50956,8 +50518,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSGGetState"
+      ]
     },
     {
       "id": "c:@PFun_slDLSSGSetOptions",
@@ -51150,8 +50711,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slDLSSGSetOptions"
+      ]
     },
     {
       "id": "c:@F@slDLSSGGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSGState#*1$@N@sl@S@DLSSGOptions#",
@@ -51282,13 +50842,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_g.h:212"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSGGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSGState#*1$@N@sl@S@DLSSGOptions#/PARM_DECL:c:sl_dlss_g.h@10509@F@slDLSSGGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSGState#*1$@N@sl@S@DLSSGOptions#@state",
@@ -51321,15 +50875,7 @@
           "source": "sl::DLSSGState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_dlss_g.h:212",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSGGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSGState#*1$@N@sl@S@DLSSGOptions#/PARM_DECL:c:sl_dlss_g.h@10532@F@slDLSSGGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@DLSSGState#*1$@N@sl@S@DLSSGOptions#@options",
@@ -51362,13 +50908,7 @@
           "source": "const sl::DLSSGOptions* options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_dlss_g.h:212"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -51489,13 +51029,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_g.h:218"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slDLSSGSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSGOptions#/PARM_DECL:c:sl_dlss_g.h@10775@F@slDLSSGSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@DLSSGOptions#@options",
@@ -51528,13 +51062,7 @@
           "source": "const sl::DLSSGOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_dlss_g.h:218"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -55339,8 +54867,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slSetVulkanInfo"
+      ]
     },
     {
       "id": "c:@F@slSetVulkanInfo",
@@ -55437,13 +54964,7 @@
           "source": "const sl::VulkanInfo& info",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_helpers_vk.h:256"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -58571,8 +58092,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slNISSetOptions"
+      ]
     },
     {
       "id": "c:@PFun_slNISGetState",
@@ -58765,8 +58285,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slNISGetState"
+      ]
     },
     {
       "id": "c:@F@slNISSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@NISOptions#",
@@ -58880,13 +58399,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_nis.h:92"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slNISSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@NISOptions#/PARM_DECL:c:sl_nis.h@3437@F@slNISSetOptions#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@NISOptions#@options",
@@ -58919,13 +58432,7 @@
           "source": "const sl::NISOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_nis.h:92"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -59046,13 +58553,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_nis.h:98"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slNISGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@NISState#/PARM_DECL:c:sl_nis.h@3664@F@slNISGetState#&1$@N@sl@S@ViewportHandle#&$@N@sl@S@NISState#@state",
@@ -59085,15 +58586,7 @@
           "source": "sl::NISState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_nis.h:98",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -61711,8 +61204,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slPCLGetState"
+      ]
     },
     {
       "id": "c:@PFun_slPCLSetMarker",
@@ -61881,8 +61373,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slPCLSetMarker"
+      ]
     },
     {
       "id": "c:@PFun_slPCLSetOptions",
@@ -62008,8 +61499,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slPCLSetOptions"
+      ]
     },
     {
       "id": "c:@F@slPCLGetState#&$@N@sl@S@PCLState#",
@@ -62106,15 +61596,7 @@
           "source": "sl::PCLState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_pcl.h:147",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -62219,13 +61701,7 @@
           "source": "sl::PCLMarker marker",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "unspecified",
-            "lifetime": "native-contract",
-            "convenience": "raw",
-            "evidence": "include/sl_pcl.h:153"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slPCLSetMarker#$@N@sl@E@PCLMarker#&1$@N@sl@S@FrameToken#/PARM_DECL:c:sl_pcl.h@5394@F@slPCLSetMarker#$@N@sl@E@PCLMarker#&1$@N@sl@S@FrameToken#@frame",
@@ -62258,13 +61734,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_pcl.h:153"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -62368,13 +61838,7 @@
           "source": "const sl::PCLOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_pcl.h:159"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -65880,8 +65344,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slReflexGetState"
+      ]
     },
     {
       "id": "c:@PFun_slReflexSleep",
@@ -66007,8 +65470,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slReflexSleep"
+      ]
     },
     {
       "id": "c:@PFun_slReflexSetOptions",
@@ -66134,8 +65596,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slReflexSetOptions"
+      ]
     },
     {
       "id": "c:@PFun_slReflexSetCameraData",
@@ -66395,8 +65856,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slReflexSetCameraData"
+      ]
     },
     {
       "id": "c:@PFun_slReflexGetPredictedCameraData",
@@ -66656,8 +66116,7 @@
       "configurations": [
         "windows-x64",
         "windows-x64-unicode"
-      ],
-      "overloadContractSource": "slReflexGetPredictedCameraData"
+      ]
     },
     {
       "id": "c:@F@slReflexGetState#&$@N@sl@S@ReflexState#",
@@ -66754,15 +66213,7 @@
           "source": "sl::ReflexState& state",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_reflex.h:204",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -66866,13 +66317,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_reflex.h:210"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -66976,13 +66421,7 @@
           "source": "const sl::ReflexOptions& options",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_reflex.h:216"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -67120,13 +66559,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_reflex.h:222"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slReflexSetCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&1$@N@sl@S@ReflexCameraData#/PARM_DECL:c:sl_reflex.h@10005@F@slReflexSetCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&1$@N@sl@S@ReflexCameraData#@frame",
@@ -67159,13 +66592,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_reflex.h:222"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slReflexSetCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&1$@N@sl@S@ReflexCameraData#/PARM_DECL:c:sl_reflex.h@10034@F@slReflexSetCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&1$@N@sl@S@ReflexCameraData#@inCameraData",
@@ -67198,13 +66625,7 @@
           "source": "const sl::ReflexCameraData& inCameraData",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_reflex.h:222"
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",
@@ -67342,13 +66763,7 @@
           "source": "const sl::ViewportHandle& viewport",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "in",
-            "evidence": "include/sl_reflex.h:228"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slReflexGetPredictedCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&$@N@sl@S@ReflexPredictedCameraData#/PARM_DECL:c:sl_reflex.h@10316@F@slReflexGetPredictedCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&$@N@sl@S@ReflexPredictedCameraData#@frame",
@@ -67381,13 +66796,7 @@
           "source": "const sl::FrameToken& frame",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input",
-            "lifetime": "borrowed-sdk-object",
-            "convenience": "frame-token",
-            "evidence": "include/sl_reflex.h:228"
-          }
+          "classification": "application"
         },
         {
           "id": "c:@F@slReflexGetPredictedCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&$@N@sl@S@ReflexPredictedCameraData#/PARM_DECL:c:sl_reflex.h@10345@F@slReflexGetPredictedCameraData#&1$@N@sl@S@ViewportHandle#&1$@N@sl@S@FrameToken#&$@N@sl@S@ReflexPredictedCameraData#@outCameraData",
@@ -67420,15 +66829,7 @@
           "source": "sl::ReflexPredictedCameraData& outCameraData",
           "expressions": [],
           "children": [],
-          "classification": "application",
-          "contract": {
-            "direction": "input-output",
-            "lifetime": "call-outer-structure-only",
-            "convenience": "ref",
-            "evidence": "include/sl_reflex.h:228",
-            "returnValue": true,
-            "returnValueContract": "Output value after initializing the native structure header; the ref overload retains caller-selected versions and extension chains."
-          }
+          "classification": "application"
         }
       ],
       "classification": "application",

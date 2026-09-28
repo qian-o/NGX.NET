@@ -1,4 +1,4 @@
-namespace Streamline.NET.Generator;
+﻿namespace Streamline.NET.Generator;
 
 internal sealed class TypeMapper(InterfaceSnapshot snapshot)
 {
@@ -15,6 +15,7 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
         foreach (NativeDeclaration declaration in declarations)
         {
             yield return declaration;
+
             foreach (NativeDeclaration child in AllDeclarations(declaration.Children))
             {
                 yield return child;
@@ -106,6 +107,7 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
 
         IEnumerable<string> arguments = type.Parameters.Select(Map).Append(Map(type.Result
             ?? throw new InvalidDataException($"Missing return type: {type.Spelling}")));
+
         return "delegate* unmanaged[Cdecl]<" + string.Join(", ", arguments) + ">";
     }
 
@@ -156,22 +158,40 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
         {
             string member = string.Concat(name[12..].Split('_').Select(part => part switch
             {
-                "TYPELESS" => "Typeless", "FLOAT" => "Float", "UINT" => "UInt", "SINT" => "SInt",
-                "UNORM" => "Unorm", "SNORM" => "Snorm", "SRGB" => "Srgb", "UNKNOWN" => "Unknown",
-                "FORCE" => "Force", "BIAS" => "Bias", "SHARED" => "Shared", "EXP" => "Exp",
-                "OPAQUE" => "Opaque", "SAMPLER" => "Sampler", "FEEDBACK" => "Feedback",
-                "MIN" => "Min", "MIP" => "Mip", "REGION" => "Region", "USED" => "Used",
+                "TYPELESS" => "Typeless",
+                "FLOAT" => "Float",
+                "UINT" => "UInt",
+                "SINT" => "SInt",
+                "UNORM" => "Unorm",
+                "SNORM" => "Snorm",
+                "SRGB" => "Srgb",
+                "UNKNOWN" => "Unknown",
+                "FORCE" => "Force",
+                "BIAS" => "Bias",
+                "SHARED" => "Shared",
+                "EXP" => "Exp",
+                "OPAQUE" => "Opaque",
+                "SAMPLER" => "Sampler",
+                "FEEDBACK" => "Feedback",
+                "MIN" => "Min",
+                "MIP" => "Mip",
+                "REGION" => "Region",
+                "USED" => "Used",
                 _ => part
             }));
+
             return char.IsDigit(member[0]) ? "Format" + member : member;
         }
+
         name = name.Length > 1 && name[0] == 'e' && char.IsUpper(name[1]) ? name[1..] : PascalCase(name);
+
         return name.Replace("_", "", StringComparison.Ordinal);
     }
 
     public static string ConstantName(string name)
     {
         name = name.StartsWith('k') ? name[1..] : MemberName(name);
+
         return name.Replace("_INVALID", "Invalid", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
     }
 
@@ -184,6 +204,7 @@ internal sealed class TypeMapper(InterfaceSnapshot snapshot)
     public static string Group(NativeDeclaration declaration)
     {
         string file = Path.GetFileNameWithoutExtension(declaration.File);
+
         return file switch
         {
             "sl_dlss" => "DLSS",

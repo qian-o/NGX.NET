@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Streamline.NET.Generator;
@@ -8,6 +8,7 @@ internal sealed partial class CSharpEmitter
     private static string FieldName(NativeDeclaration record, NativeDeclaration field)
     {
         string name = field.Access == "PRIVATE" ? field.Name : TypeMapper.MemberName(field.Name);
+
         return record.Children.Any(child => child.Kind == "ENUM_DECL" && child.Name == name) ? name + "Value" : name;
     }
 
@@ -19,11 +20,17 @@ internal sealed partial class CSharpEmitter
         }
 
         string name = TypeMapper.TypeName(declaration.Name);
-        StringBuilder builder = File(TypeMapper.Group(declaration), "Structs");
+        StringBuilder builder = File(TypeMapper.Group(declaration), name, "System.Runtime.InteropServices");
         bool hasHeader = declaration.Children.Any(child => child.Kind == "CXX_BASE_SPECIFIER" && child.Type.Declaration == "sl::BaseStructure");
         NativeDeclaration? union = declaration.Children.FirstOrDefault(child => child.Kind == "UNION_DECL");
         List<NativeDeclaration> fields = [.. union?.Fields ?? declaration.Fields];
         string layout = union is null ? "Sequential" : "Explicit";
+
+        if (fields.Any(field => field.Type.Kind == "CONSTANTARRAY"))
+        {
+            File(TypeMapper.Group(declaration), name, "System.Runtime.CompilerServices");
+        }
+
         builder.AppendLine();
         Comment(builder, declaration);
         builder.AppendLine($"[StructLayout(LayoutKind.{layout}, Pack = {declaration.Type.Alignment}, Size = {declaration.Type.Size})]");
@@ -33,6 +40,7 @@ internal sealed partial class CSharpEmitter
         if (hasHeader)
         {
             NativeDeclaration baseStructure = snapshot.Declarations.Single(item => item.QualifiedName == "sl::BaseStructure");
+
             foreach (NativeDeclaration field in baseStructure.Fields)
             {
                 Comment(builder, field, "    ");
@@ -138,6 +146,7 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine($"    public {name}()");
             builder.AppendLine("    {");
             builder.AppendLine("        this = default;");
+            builder.AppendLine();
 
             if (hasHeader)
             {
@@ -167,13 +176,16 @@ internal sealed partial class CSharpEmitter
                 else if (field.Expressions.Count > 0)
                 {
                     NativeExpression expression = field.Expressions[^1];
+
                     if (expression.Text != "{}")
                     {
                         string value = expression.Value is not null ? ConstantValue(expression, field.Type) : TranslateExpression(expression.Text);
+
                         if (expression.Value == "0" || expression.Value == "0.0")
                         {
                             continue;
                         }
+
                         builder.AppendLine($"        {fieldName} = {value};");
                     }
                 }
@@ -206,6 +218,7 @@ internal sealed partial class CSharpEmitter
             builder.AppendLine("    {");
             EmitInitializers(builder, declaration, constructor);
             string body = constructor.Source[(constructor.Source.IndexOf('{') + 1)..].Trim().TrimEnd('}', ';').Trim();
+
             if (body.Length > 0)
             {
                 if (declaration.Name == "ResourceTag" && body == "if (e) extent = *e;")
@@ -230,23 +243,27 @@ internal sealed partial class CSharpEmitter
     private string ParameterDeclaration(NativeDeclaration parameter)
     {
         string result = mapper.Map(parameter.Type) + " " + TypeMapper.Identifier(parameter.Name.TrimStart('_'));
+
         if (parameter.Source.Contains('=') && parameter.Expressions.Count > 0)
         {
             NativeExpression expression = parameter.Expressions[^1];
             result += " = " + (expression.Text == "nullptr" ? "null" : ConstantValue(expression, parameter.Type));
         }
+
         return result;
     }
 
     private void EmitInitializers(StringBuilder builder, NativeDeclaration declaration, NativeDeclaration constructor)
     {
         Match initializers = Regex.Match(constructor.Source, @"\)\s*:\s*(.*?)\{", RegexOptions.Singleline);
+
         if (!initializers.Success)
         {
             return;
         }
 
         Dictionary<string, string> parameters = constructor.Parameters.ToDictionary(parameter => parameter.Name, parameter => TypeMapper.Identifier(parameter.Name.TrimStart('_')), StringComparer.Ordinal);
+
         foreach (Match initializer in Regex.Matches(initializers.Groups[1].Value, @"(\w+)\(((?:[^()]|\([^()]*\))*)\)"))
         {
             if (initializer.Groups[1].Value == "BaseStructure")
@@ -261,6 +278,7 @@ internal sealed partial class CSharpEmitter
             {
                 expression = "unchecked((uint)" + expression + ")";
             }
+
             builder.AppendLine($"        {FieldName(declaration, field)} = {expression};");
         }
     }

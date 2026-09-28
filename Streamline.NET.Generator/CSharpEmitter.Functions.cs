@@ -17,7 +17,7 @@ internal sealed partial class CSharpEmitter
         string signature = string.Join(", ", parameters.Select(ParameterDeclaration));
         StringBuilder builder = File(TypeMapper.Group(declaration), "SL.Functions");
         NativeDeclaration? alias = snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name);
-        NativeDeclaration documented = alias is not null && declaration.Comment.Length == 0 ? alias : declaration;
+        NativeDeclaration documented = alias is not null && alias.Comment.Length > 0 ? alias : declaration;
         builder.AppendLine();
         Comment(builder, documented, "    ");
         builder.AppendLine($"    public static {result} {name}({signature})");
@@ -39,7 +39,7 @@ internal sealed partial class CSharpEmitter
                 builder.AppendLine($"        return SLNative.{name}({arguments});");
             }
 
-            StringBuilder imports = File("Interop", "SLNative");
+            StringBuilder imports = File("Interop", "SLNative", "System.Runtime.CompilerServices", "System.Runtime.InteropServices");
             imports.AppendLine();
             imports.AppendLine($"    [LibraryImport(StreamlineLibrary.ImportName, EntryPoint = \"{declaration.Name}\")]");
             imports.AppendLine("    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
@@ -48,6 +48,7 @@ internal sealed partial class CSharpEmitter
         else
         {
             Match feature = Regex.Match(declaration.Source, @"SL_FEATURE_FUN_IMPORT_STATIC\(sl::(k\w+),\s*(\w+)\)");
+
             if (!feature.Success || feature.Groups[2].Value != declaration.Name || result != "SLResult")
             {
                 throw new InvalidDataException($"Unresolved feature entry: {declaration.Name}");
@@ -65,13 +66,16 @@ internal sealed partial class CSharpEmitter
         EmitReferenceOverload(builder, declaration);
         EmitValueReturnOverload(builder, declaration);
         Record(declaration, apiPath);
+
         foreach (NativeDeclaration parameter in parameters)
         {
             Record(parameter, apiPath + " parameter " + parameter.Name);
         }
+
         if (alias is not null)
         {
             Record(alias, "Unmanaged function pointer signature for " + apiPath);
+
             foreach (NativeDeclaration parameter in alias.Parameters)
             {
                 Record(parameter, "Function pointer parameter " + parameter.Name);
@@ -102,11 +106,13 @@ internal sealed partial class CSharpEmitter
             string name = TypeMapper.Identifier(parameter.Name);
             NativeType? element = parameter.Type.Element;
             string convenience = parameter.Contract.Convenience;
+
             if (counts.TryGetValue(parameter.Name, out string? spanName))
             {
                 arguments.Add("(uint)" + spanName + ".Length");
                 continue;
             }
+
             if (convenience == "raw")
             {
                 signatures.Add(ParameterDeclaration(parameter));
@@ -115,6 +121,7 @@ internal sealed partial class CSharpEmitter
             }
 
             changed = true;
+
             switch (convenience)
             {
                 case "frame-token":
@@ -132,20 +139,24 @@ internal sealed partial class CSharpEmitter
                 case "out":
                     string valueType = mapper.Map(element!);
                     signatures.Add(convenience + " " + valueType + " " + name);
+
                     if (convenience == "out")
                     {
                         before.Add(name + " = default;");
                     }
+
                     pins.Add($"fixed ({valueType}* {parameter.Name}Pointer = &{name})");
                     arguments.Add(parameter.Name + "Pointer");
                     break;
                 case "out-address":
                 case "ref-address":
                     signatures.Add((convenience == "out-address" ? "out " : "ref ") + "nint " + name);
+
                     if (convenience == "out-address")
                     {
                         before.Add(name + " = 0;");
                     }
+
                     pins.Add($"fixed (nint* {parameter.Name}Pointer = &{name})");
                     arguments.Add("(" + mapper.Map(parameter.Type) + ")" + parameter.Name + "Pointer");
                     break;
@@ -171,26 +182,34 @@ internal sealed partial class CSharpEmitter
         }
 
         builder.AppendLine();
-        NativeDeclaration documentation = declaration.Comment.Length == 0
-            ? snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name) ?? declaration
-            : declaration;
+        NativeDeclaration documentation = snapshot.Declarations.FirstOrDefault(item => item.Name == "PFun_" + declaration.Name && item.Comment.Length > 0) ?? declaration;
         Comment(builder, documentation, "    ", "Temporary strings, references and spans remain fixed for this call only. Nested pointers and SDK objects retain their original ownership and lifetime requirements.");
         builder.AppendLine($"    public static SLResult {FunctionName(declaration)}({string.Join(", ", signatures)})");
         builder.AppendLine("    {");
+
         foreach (string statement in before)
         {
             builder.AppendLine("        " + statement);
         }
+
+        if (before.Count > 0 && pins.Count > 0)
+        {
+            builder.AppendLine();
+        }
+
         foreach (string pin in pins)
         {
             builder.AppendLine("        " + pin);
         }
+
         if (pins.Count > 0)
         {
             builder.AppendLine("        {");
         }
+
         string indent = pins.Count > 0 ? "            " : "        ";
         string call = $"{FunctionName(declaration)}({string.Join(", ", arguments)})";
+
         if (after.Count == 0)
         {
             builder.AppendLine(indent + "return " + call + ";");
@@ -198,16 +217,21 @@ internal sealed partial class CSharpEmitter
         else
         {
             builder.AppendLine(indent + "SLResult result = " + call + ";");
+            builder.AppendLine();
+
             foreach (string statement in after)
             {
                 builder.AppendLine(indent + statement);
             }
+
             builder.AppendLine(indent + "return result;");
         }
+
         if (pins.Count > 0)
         {
             builder.AppendLine("        }");
         }
+
         builder.AppendLine("    }");
     }
 

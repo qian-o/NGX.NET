@@ -382,23 +382,6 @@ def main():
     for name in sorted(required_macros):
         include_macro(name)
 
-    overload_contracts = json.loads((Path(__file__).parent / "overload-contracts.json").read_text(encoding="utf-8"))
-    for item in declarations.values():
-        name = item["name"].removeprefix("PFun_")
-        contract = overload_contracts.get(name)
-        if not contract:
-            continue
-        if item["type"]["canonical"] != contract["canonicalSignature"]:
-            raise RuntimeError("Review overload contract for changed signature: " + name)
-        if item["kind"] != "FUNCTION_DECL":
-            item["overloadContractSource"] = name
-            continue
-        for parameter in item["children"]:
-            if parameter["kind"] == "PARM_DECL":
-                if parameter["name"] not in contract["parameters"]:
-                    raise RuntimeError("Review changed parameter contract: " + name + ":" + parameter["name"])
-                parameter["contract"] = contract["parameters"][parameter["name"]]
-
     macros = []
     compilation_macros = {"SL_API", "SL_DISABLE_DEPRECATED_WARNINGS", "SL_RESTORE_DEPRECATED_WARNINGS", "UNICODE", "_UNICODE"}
     application_macros = {"SL_FUN_DECL", "SL_FEATURE_FUN_IMPORT", "SL_FEATURE_FUN_IMPORT_STATIC", "SL_ENUM_OPERATORS_32", "SL_ENUM_OPERATORS_64", "SR_DEPRECATED_SHARPENING", "FEATURE_SPECIFIC_BUFFER_TYPE_ID", "SL_CASE_STR", "SL_FALLTHROUGH", "SL_VK_FEATURE", "SL_VK_FEATURE_SUPPORT", "SL_VK_FEATURE_MERGE_SUPPORT", "SL_CHECK", "SL_FAILED", "SL_SUCCEEDED", "SL_STRUCT_BEGIN", "SL_STRUCT_END", "SL_STRUCT_PROTECTED_BEGIN", "SL_STRUCT", "SL_STRUCT_PROTECTED", "SL_VERSION_MAJOR", "SL_VERSION_MINOR", "SL_VERSION_PATCH"}

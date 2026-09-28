@@ -61,13 +61,3 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
-
-# Deterministic source and snapshot bytes across developer machines and Actions.
-*.cs text eol=lf
-*.json text eol=lf
-*.csproj text eol=lf
-*.props text eol=lf
-*.slnx text eol=lf
-*.py text eol=lf
-*.yml text eol=lf
-*.md text eol=lf

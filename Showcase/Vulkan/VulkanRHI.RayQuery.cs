@@ -1,26 +1,20 @@
-﻿using Vortice.Vulkan;
+﻿using Showcase.Models;
+using Vortice.Vulkan;
 
-namespace Showcase;
+namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI
 {
-    private static readonly string[] RayExtensions = ["VK_KHR_acceleration_structure", "VK_KHR_ray_query", "VK_KHR_deferred_host_operations"];
+    private static readonly string[] RayExtensions =
+    [
+        "VK_KHR_acceleration_structure",
+        "VK_KHR_ray_query",
+        "VK_KHR_deferred_host_operations"
+    ];
     private readonly List<VkAcceleration> bottomLevels = [];
     private uint scratchAlignment;
-    private ulong maxRayInstances, maxRayPrimitives;
-
-    private sealed class VkAcceleration : IDisposable
-    {
-        public required VkDeviceApi Api;
-        public required VkBufferResource Storage;
-        public VkAccelerationStructureKHR Handle;
-        public ulong Address;
-        public void Dispose()
-        {
-            Api.vkDestroyAccelerationStructureKHR(Handle);
-            Storage.Dispose();
-        }
-    }
+    private ulong maxRayInstances;
+    private ulong maxRayPrimitives;
 
     private VkAcceleration CreateAcceleration(VkAccelerationStructureTypeKHR type, ulong size)
     {
@@ -37,6 +31,7 @@ internal sealed unsafe partial class VulkanRHI
             type = type
         };
         VkAccelerationStructureKHR handle;
+
         try
         {
             Check(api.vkCreateAccelerationStructureKHR(&create, null, &handle), "vkCreateAccelerationStructureKHR");
@@ -46,6 +41,7 @@ internal sealed unsafe partial class VulkanRHI
             storage.Dispose();
             throw;
         }
+
         VkAcceleration acceleration = new()
         {
             Api = api,
@@ -57,11 +53,13 @@ internal sealed unsafe partial class VulkanRHI
             accelerationStructure = handle
         };
         acceleration.Address = api.vkGetAccelerationStructureDeviceAddressKHR(&address);
+
         if (acceleration.Address == 0)
         {
             acceleration.Dispose();
             throw new InvalidOperationException("Vulkan returned a null acceleration-structure address.");
         }
+
         return acceleration;
     }
 
@@ -75,8 +73,7 @@ internal sealed unsafe partial class VulkanRHI
         return CreateBuffer(checked(size + scratchAlignment - 1), VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.ShaderDeviceAddress, false);
     }
 
-    private ulong ScratchAddress(VkBufferResource scratch) =>
-        (scratch.Address + scratchAlignment - 1) / scratchAlignment * scratchAlignment;
+    private ulong ScratchAddress(VkBufferResource scratch) => (scratch.Address + scratchAlignment - 1) / scratchAlignment * scratchAlignment;
 
     private void RayBarrier(VkPipelineStageFlags2 sourceStage, VkAccessFlags2 sourceAccess, VkPipelineStageFlags2 destinationStage, VkAccessFlags2 destinationAccess)
     {
@@ -106,6 +103,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             GeometryRange range = instance.Geometry;
             uint primitiveCount = range.VertexCount / 3;
+
             if (primitiveCount > maxRayPrimitives)
             {
                 throw new NotSupportedException("Scene exceeds Vulkan maxPrimitiveCount.");
@@ -143,6 +141,7 @@ internal sealed unsafe partial class VulkanRHI
             VkAcceleration bottom = CreateAcceleration(VkAccelerationStructureTypeKHR.BottomLevel, sizes.accelerationStructureSize);
             bottomLevels.Add(bottom);
             VkBufferResource scratch = CreateRayScratch(sizes.buildScratchSize);
+
             // Initial upload submission retains each scratch allocation until its GPU fence completes.
             uploads.Add(scratch);
             build.dstAccelerationStructure = bottom.Handle;
@@ -154,9 +153,8 @@ internal sealed unsafe partial class VulkanRHI
             VkAccelerationStructureBuildRangeInfoKHR* ranges = &rangeInfo;
             api.vkCmdBuildAccelerationStructuresKHR(commandBuffer, 1, &build, &ranges);
         }
-        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR,
-            VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR);
 
+        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR, VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR);
         uint count = (uint)Scene.Objects.Length;
         VkAccelerationStructureGeometryKHR instances = InstanceGeometry(0);
         VkAccelerationStructureBuildGeometryInfoKHR topBuild = new()
@@ -169,12 +167,12 @@ internal sealed unsafe partial class VulkanRHI
         };
         VkAccelerationStructureBuildSizesInfoKHR topSizes = new();
         api.vkGetAccelerationStructureBuildSizesKHR(VkAccelerationStructureBuildTypeKHR.Device, &topBuild, &count, &topSizes);
+
         foreach (VkFrame frame in slots)
         {
             frame.Tlas = CreateAcceleration(VkAccelerationStructureTypeKHR.TopLevel, topSizes.accelerationStructureSize);
             frame.RayScratch = CreateRayScratch(Math.Max(topSizes.buildScratchSize, topSizes.updateScratchSize));
-            frame.RayInstances = CreateBuffer((ulong)(Scene.Objects.Length * sizeof(VkAccelerationStructureInstanceKHR)),
-                VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR | VkBufferUsageFlags.ShaderDeviceAddress, true);
+            frame.RayInstances = CreateBuffer((ulong)(Scene.Objects.Length * sizeof(VkAccelerationStructureInstanceKHR)), VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR | VkBufferUsageFlags.ShaderDeviceAddress, true);
         }
     }
 
@@ -196,6 +194,7 @@ internal sealed unsafe partial class VulkanRHI
     private static VkAccelerationStructureInstanceKHR CreateRayInstance(SceneObject instance, uint id, ulong address)
     {
         System.Numerics.Vector4 offset = instance.Offset;
+
         // Vortice exposes overlapping native bitfields. Set the custom index
         // before the mask and the address last; the packed GPU record is 64 bytes.
         return new()
@@ -213,11 +212,14 @@ internal sealed unsafe partial class VulkanRHI
         // BeginCommands has waited for this slot's fence; each slot owns independent
         // TLAS, scratch and instance allocations, including during in-place updates.
         Span<VkAccelerationStructureInstanceKHR> instances = new(frame.RayInstances!.Mapped, Scene.Objects.Length);
+
         for (int i = 0; i < instances.Length; i++)
         {
             instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].Address);
         }
-        RayBarrier(VkPipelineStageFlags2.Host | VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.AccelerationStructureBuildKHR,
+
+        RayBarrier(
+            VkPipelineStageFlags2.Host | VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.AccelerationStructureBuildKHR,
             VkAccessFlags2.HostWrite | VkAccessFlags2.AccelerationStructureReadKHR | VkAccessFlags2.AccelerationStructureWriteKHR,
             VkPipelineStageFlags2.AccelerationStructureBuildKHR,
             VkAccessFlags2.ShaderRead | VkAccessFlags2.AccelerationStructureReadKHR | VkAccessFlags2.AccelerationStructureWriteKHR);
@@ -242,8 +244,7 @@ internal sealed unsafe partial class VulkanRHI
         };
         VkAccelerationStructureBuildRangeInfoKHR* ranges = &range;
         api.vkCmdBuildAccelerationStructuresKHR(commandBuffer, 1, &build, &ranges);
-        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR,
-            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.AccelerationStructureReadKHR);
+        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.AccelerationStructureReadKHR);
         frame.TlasBuilt = true;
     }
 }

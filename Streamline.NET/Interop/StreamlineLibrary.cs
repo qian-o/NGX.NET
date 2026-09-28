@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Streamline.NET;
@@ -68,6 +68,7 @@ internal static class StreamlineLibrary
             }
 
             module = NativeLibrary.Load(libraryPath);
+
             return module;
         }
     }

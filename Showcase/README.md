@@ -6,6 +6,10 @@ DLSS Super Resolution, Ray Reconstruction and Frame Generation.
 ## Run
 
 Install the .NET 10 SDK and a graphics driver supporting your selected features.
+For DirectX 12, provide [DXC](https://github.com/microsoft/DirectXShaderCompiler/releases)
+(`dxcompiler.dll` and `dxil.dll`) where Slang can load it, such as beside the
+Showcase executable. Slang uses DXC to compile DXIL shaders.
+
 Run from the repository root in PowerShell:
 
 ```powershell

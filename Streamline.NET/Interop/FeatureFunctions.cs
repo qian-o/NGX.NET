@@ -1,4 +1,4 @@
-namespace Streamline.NET;
+﻿namespace Streamline.NET;
 
 internal static unsafe class FeatureFunctions
 {
@@ -26,12 +26,14 @@ internal static unsafe class FeatureFunctions
         // All callers supply compiler-emitted, null-terminated UTF-8 literals.
         nint function = 0;
         SLResult result;
+
         fixed (byte* pointer = encodedName)
         {
             result = SLNative.GetFeatureFunction(feature, (sbyte*)pointer, (void**)&function);
         }
 
         address = function;
+
         if (result == SLResult.Ok)
         {
             lock (sync)

@@ -1,12 +1,15 @@
 ﻿using System.Numerics;
 using ImGuiNET;
+using Showcase.Handlers;
+using Showcase.Helpers;
+using Showcase.Models;
+using Vortice.DXGI;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
-using Vortice.DXGI;
 using Vortice.Mathematics;
 using Format = Vortice.DXGI.Format;
 
-namespace Showcase;
+namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI
 {
@@ -18,6 +21,7 @@ internal sealed unsafe partial class DirectX12RHI
         descriptorIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
         rtvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
         dsvIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.DepthStencilView);
+
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = new()
@@ -30,6 +34,7 @@ internal sealed unsafe partial class DirectX12RHI
 
         commandList = device.CreateCommandList<ID3D12GraphicsCommandList>(CommandListType.Direct, slots[0].Allocator);
         recording = true;
+
         if (RayQuerySupported)
         {
             rayCommands = commandList.QueryInterface<ID3D12GraphicsCommandList4>();
@@ -39,6 +44,7 @@ internal sealed unsafe partial class DirectX12RHI
         sceneBuffers[1] = StaticBuffer<SceneMaterial>(Scene.Materials);
         sceneBuffers[2] = StaticBuffer<uint>(Scene.Texels);
         sceneBuffers[3] = StaticBuffer<TextureDescription>(Scene.TextureInfo);
+
         if (RayQuerySupported)
         {
             InitializeAccelerationStructures();
@@ -48,6 +54,7 @@ internal sealed unsafe partial class DirectX12RHI
         int rowPitch = (UI.FontWidth * 4 + 255) & ~255;
         ID3D12Resource fontUpload = UploadBuffer(rowPitch * UI.FontHeight);
         byte* mapped = fontUpload.Map<byte>(0);
+
         for (int row = 0; row < UI.FontHeight; row++)
         {
             UI.FontPixels.AsSpan(row * UI.FontWidth * 4, UI.FontWidth * 4).CopyTo(new Span<byte>(mapped + row * rowPitch, UI.FontWidth * 4));
@@ -73,6 +80,7 @@ internal sealed unsafe partial class DirectX12RHI
         recording = false;
         queue.ExecuteCommandList(commandList);
         WaitIdle();
+
         foreach (ID3D12Resource upload in uploads)
         {
             upload.Dispose();
@@ -98,6 +106,7 @@ internal sealed unsafe partial class DirectX12RHI
         scenePipeline = GraphicsPipeline(GraphicsPass.Scene);
         shadowPipeline = GraphicsPipeline(GraphicsPass.Shadow);
         uiPipeline = GraphicsPipeline(GraphicsPass.UI);
+
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())
         {
             pipelines[pass] = device.CreateComputePipelineState(new()
@@ -114,17 +123,22 @@ internal sealed unsafe partial class DirectX12RHI
         (string vertex, string fragment) = RenderLayout.Shaders(pass);
         ReadOnlySpan<ImageSlot> targets = RenderLayout.ColorTargets(pass);
         Format[] formats = new Format[targets.Length];
+
         for (int i = 0; i < formats.Length; i++)
         {
             formats[i] = NativeFormat(RenderLayout.Format(targets[i]));
         }
+
         return device.CreateGraphicsPipelineState(new()
         {
             RootSignature = root,
             VertexShader = Compile(vertex, "vertex"),
             PixelShader = Compile(fragment, "fragment"),
             BlendState = ui ? new(Blend.One, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha) : BlendDescription.Opaque,
-            RasterizerState = ui ? RasterizerDescription.CullNone : new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
+            RasterizerState = ui ? RasterizerDescription.CullNone : new RasterizerDescription(CullMode.None, FillMode.Solid)
+            {
+                FrontCounterClockwise = true
+            },
             DepthStencilState = pass switch
             {
                 GraphicsPass.Scene => new(true, DepthWriteMask.Zero, ComparisonFunction.Equal),
@@ -132,7 +146,10 @@ internal sealed unsafe partial class DirectX12RHI
                 GraphicsPass.Shadow => DepthStencilDescription.Default,
                 _ => DepthStencilDescription.None
             },
-            InputLayout = ui ? new InputLayoutDescription(new InputElementDescription("POSITION", 0, Format.R32G32_Float, 0, 0), new InputElementDescription("TEXCOORD", 0, Format.R32G32_Float, 8, 0), new InputElementDescription("COLOR", 0, Format.R8G8B8A8_UNorm, 16, 0)) : default,
+            InputLayout = ui ? new InputLayoutDescription(
+                new InputElementDescription("POSITION", 0, Format.R32G32_Float, 0, 0),
+                new InputElementDescription("TEXCOORD", 0, Format.R32G32_Float, 8, 0),
+                new InputElementDescription("COLOR", 0, Format.R8G8B8A8_UNorm, 16, 0)) : default,
             PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
             RenderTargetFormats = formats,
             DepthStencilFormat = ui ? Format.Unknown : Format.D32_Float
@@ -140,12 +157,30 @@ internal sealed unsafe partial class DirectX12RHI
     }
 
     private byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false, RayQuerySupported);
+
     private CpuDescriptorHandle Cpu(int frame, int index) => descriptors.GetCPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+
     private GpuDescriptorHandle Gpu(int frame, int index) => descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+
     protected override void UpdateDescriptors()
     {
-        uint[] strides = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject)];
-        uint[] counts = [(uint)Scene.Vertices.Length, (uint)Scene.Materials.Length, (uint)Scene.Texels.Length, (uint)Scene.TextureInfo.Length, (uint)Scene.Objects.Length];
+        uint[] strides =
+        [
+            (uint)sizeof(SceneVertex),
+            (uint)sizeof(SceneMaterial),
+            sizeof(uint),
+            (uint)sizeof(TextureDescription),
+            (uint)sizeof(SceneObject)
+        ];
+        uint[] counts =
+        [
+            (uint)Scene.Vertices.Length,
+            (uint)Scene.Materials.Length,
+            (uint)Scene.Texels.Length,
+            (uint)Scene.TextureInfo.Length,
+            (uint)Scene.Objects.Length
+        ];
+
         for (int frame = 0; frame < Frames.Length; frame++)
         {
             for (int i = 0; i < 5; i++)
@@ -188,10 +223,12 @@ internal sealed unsafe partial class DirectX12RHI
                     }
                 }, Cpu(frame, 5));
             }
+
             for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 DxImage image = (DxImage)Frames[frame][(int)slot];
                 CreateSrv(image, Cpu(frame, 6 + (int)slot));
+
                 if (image.Format == ImageFormat.Depth)
                 {
                     image.Dsv = depthViews.GetCPUDescriptorHandleForHeapStart() + (int)((frame * 2 + (slot == ImageSlot.Depth ? 0 : 1)) * dsvIncrement);
@@ -207,10 +244,12 @@ internal sealed unsafe partial class DirectX12RHI
                     device.CreateRenderTargetView(image.Texture, null, image.Rtv);
                 }
             }
+
             int previousFrame = (frame + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
             CreateSrv((DxImage)Frames[previousFrame][(int)ImageSlot.Exposure], Cpu(frame, RenderLayout.PreviousExposureSrv));
             CreateSrv(font, Cpu(frame, RenderLayout.FontSrv));
             CreateSrv((DxImage)LightingSamples, Cpu(frame, RenderLayout.LightingSamplesSrv));
+
             for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
             {
                 DxImage image = (DxImage)Frames[frame][(int)RenderLayout.StorageImages[i]];
@@ -220,6 +259,7 @@ internal sealed unsafe partial class DirectX12RHI
                     ViewDimension = UnorderedAccessViewDimension.Texture2D
                 }, Cpu(frame, RenderLayout.SrvCount + i));
             }
+
             device.CreateUnorderedAccessView(((DxImage)LightingSamples).Texture, null, new()
             {
                 Format = NativeFormat(LightingSamples.Format),
@@ -231,6 +271,7 @@ internal sealed unsafe partial class DirectX12RHI
             }, Cpu(frame, RenderLayout.SrvCount + RenderLayout.LightingSamplesUav));
         }
     }
+
     private void CreateSrv(DxImage image, CpuDescriptorHandle descriptor)
     {
         ShaderResourceViewDescription description = new()
@@ -239,6 +280,7 @@ internal sealed unsafe partial class DirectX12RHI
             ViewDimension = image.Layers > 1 ? Vortice.Direct3D12.ShaderResourceViewDimension.Texture2DArray : Vortice.Direct3D12.ShaderResourceViewDimension.Texture2D,
             Shader4ComponentMapping = ShaderComponentMapping.Default
         };
+
         if (image.Layers > 1)
         {
             description.Texture2DArray = new()
@@ -254,6 +296,7 @@ internal sealed unsafe partial class DirectX12RHI
                 MipLevels = 1
             };
         }
+
         device.CreateShaderResourceView(image.Texture, description, descriptor);
     }
 
@@ -266,11 +309,14 @@ internal sealed unsafe partial class DirectX12RHI
         recording = true;
         frame.Objects.SetData<SceneObject>(Scene.Objects);
         constantIndex = 0;
+
         return true;
     }
+
     private void Bind(bool graphics, ID3D12PipelineState pipeline, FrameConstants constants)
     {
         int offset = constantIndex++ * RenderLayout.UniformStride;
+
         if (constantIndex > RenderLayout.UniformSlots)
         {
             throw new InvalidOperationException("Too many uniform blocks for a frame.");
@@ -280,6 +326,7 @@ internal sealed unsafe partial class DirectX12RHI
         frame.Constants.SetData(in constants, offset);
         commandList.SetDescriptorHeaps(descriptors);
         commandList.SetPipelineState(pipeline);
+
         if (graphics)
         {
             commandList.SetGraphicsRootSignature(root);
@@ -296,6 +343,7 @@ internal sealed unsafe partial class DirectX12RHI
             commandList.SetComputeRootDescriptorTable(2, Gpu(FrameSlot, RenderLayout.SrvCount));
         }
     }
+
     protected override void UpdateRayTracingScene() => UpdateAccelerationStructure(slots[FrameSlot]);
 
     protected override void DrawShadow()
@@ -315,6 +363,7 @@ internal sealed unsafe partial class DirectX12RHI
     {
         ReadOnlySpan<ImageSlot> colorTargets = RenderLayout.ColorTargets(GraphicsPass.Scene);
         Span<CpuDescriptorHandle> targets = stackalloc CpuDescriptorHandle[colorTargets.Length];
+
         for (int i = 0; i < targets.Length; i++)
         {
             DxImage image = (DxImage)Image(colorTargets[i]);
@@ -322,6 +371,7 @@ internal sealed unsafe partial class DirectX12RHI
             targets[i] = image.Rtv;
             commandList.ClearRenderTargetView(image.Rtv, new Color4(0, 0, 0, 0));
         }
+
         DxImage depth = (DxImage)Image(ImageSlot.Depth);
         Transition(depth, ImageUse.DepthAttachment);
         commandList.ClearDepthStencilView(depth.Dsv, ClearFlags.Depth, 0, 0);
@@ -337,17 +387,20 @@ internal sealed unsafe partial class DirectX12RHI
         commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
         commandList.UnsetRenderTargets();
     }
+
     protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1)
     {
         Bind(false, pipelines[pass], constants);
         commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, (uint)groupsZ);
     }
+
     protected override void DrawUI(ImDrawDataPtr data)
     {
         DxFrame frame = slots[FrameSlot];
         EnsureUpload(ref frame.Vertices, ref frame.VertexCapacity, data.TotalVtxCount * sizeof(ImDrawVert));
         EnsureUpload(ref frame.Indices, ref frame.IndexCapacity, data.TotalIdxCount * sizeof(ushort));
         int vertexOffset = 0, indexOffset = 0;
+
         for (int i = 0; i < data.CmdListsCount; i++)
         {
             ImDrawListPtr list = data.CmdLists[i];
@@ -356,6 +409,7 @@ internal sealed unsafe partial class DirectX12RHI
             vertexOffset += list.VtxBuffer.Size;
             indexOffset += list.IdxBuffer.Size;
         }
+
         DxImage image = (DxImage)Image(ImageSlot.UI);
         Transition(image, ImageUse.ColorAttachment);
         commandList.ClearRenderTargetView(image.Rtv, new Color4(0, 0, 0, 0));
@@ -366,12 +420,15 @@ internal sealed unsafe partial class DirectX12RHI
         commandList.IASetIndexBuffer(frame.Indices!.GPUVirtualAddress, (uint)(data.TotalIdxCount * sizeof(ushort)), Format.R16_UInt);
         vertexOffset = 0;
         indexOffset = 0;
+
         for (int i = 0; i < data.CmdListsCount; i++)
         {
             ImDrawListPtr list = data.CmdLists[i];
+
             for (int c = 0; c < list.CmdBuffer.Size; c++)
             {
                 ImDrawCmdPtr draw = list.CmdBuffer[c];
+
                 if (draw.UserCallback != 0)
                 {
                     throw new NotSupportedException("Unexpected UI draw callback.");
@@ -379,6 +436,7 @@ internal sealed unsafe partial class DirectX12RHI
 
                 Vector4 clip = draw.ClipRect;
                 int left = Math.Max(0, (int)clip.X), top = Math.Max(0, (int)clip.Y), right = Math.Min(Window.Width, (int)clip.Z), bottom = Math.Min(Window.Height, (int)clip.W);
+
                 if (right <= left || bottom <= top)
                 {
                     continue;
@@ -387,11 +445,14 @@ internal sealed unsafe partial class DirectX12RHI
                 commandList.RSSetScissorRect(new Vortice.RawRect(left, top, right, bottom));
                 commandList.DrawIndexedInstanced(draw.ElemCount, 1, (uint)indexOffset + draw.IdxOffset, vertexOffset + (int)draw.VtxOffset, 0);
             }
+
             vertexOffset += list.VtxBuffer.Size;
             indexOffset += list.IdxBuffer.Size;
         }
+
         commandList.UnsetRenderTargets();
     }
+
     private void EnsureUpload(ref ID3D12Resource? buffer, ref int capacity, int required)
     {
         if (buffer is not null && capacity >= required)
@@ -403,6 +464,7 @@ internal sealed unsafe partial class DirectX12RHI
         capacity = Math.Max(4096, required * 2);
         buffer = UploadBuffer(capacity);
     }
+
     protected override void Transition(GpuImage image, ImageUse use)
     {
         DxImage texture = (DxImage)image;
@@ -415,6 +477,7 @@ internal sealed unsafe partial class DirectX12RHI
             ImageUse.CopyDestination => ResourceStates.CopyDest,
             _ => ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource
         };
+
         if (texture.State != state)
         {
             commandList.ResourceBarrierTransition(texture.Texture, texture.State, state);
@@ -422,6 +485,7 @@ internal sealed unsafe partial class DirectX12RHI
 
         texture.State = state;
     }
+
     protected override void SubmitFrame()
     {
         DxImage final = (DxImage)Image(ImageSlot.Final);
@@ -434,16 +498,20 @@ internal sealed unsafe partial class DirectX12RHI
         recording = false;
         queue.ExecuteCommandList(commandList);
     }
+
     protected override bool Present()
     {
         swapChain!.Present(0, PresentFlags.None).CheckError();
+
         return true;
     }
+
     protected override void FinishFrame()
     {
         slots[FrameSlot].Fence = ++fenceValue;
         queue.Signal(fence, fenceValue).CheckError();
     }
+
     private void WaitFence(ulong value)
     {
         if (value == 0 || fence.CompletedValue >= value)
@@ -454,6 +522,7 @@ internal sealed unsafe partial class DirectX12RHI
         fence.SetEventOnCompletion(value, fenceEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
         fenceEvent.WaitOne();
     }
+
     protected override void WaitIdle()
     {
         if (queue is null || fence is null)
@@ -464,6 +533,7 @@ internal sealed unsafe partial class DirectX12RHI
         queue.Signal(fence, ++fenceValue).CheckError();
         WaitFence(fenceValue);
     }
+
     protected override void DisposeDevice()
     {
         if (recording)
@@ -472,6 +542,7 @@ internal sealed unsafe partial class DirectX12RHI
         }
 
         DestroySwapChain();
+
         foreach (ID3D12PipelineState pipeline in pipelines.Values)
         {
             pipeline.Dispose();
@@ -482,6 +553,7 @@ internal sealed unsafe partial class DirectX12RHI
         depthPipeline?.Dispose();
         uiPipeline?.Dispose();
         root?.Dispose();
+
         foreach (DxFrame? slot in slots)
         {
             slot?.Dispose();
@@ -494,6 +566,7 @@ internal sealed unsafe partial class DirectX12RHI
 
         rayCommands?.Dispose();
         rayDevice?.Dispose();
+
         foreach (ID3D12Resource? buffer in sceneBuffers)
         {
             buffer?.Dispose();

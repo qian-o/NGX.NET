@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Streamline.NET;
 
@@ -6,8 +6,17 @@ internal static unsafe partial class SecurityNative
 {
     [LibraryImport("crypt32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    internal static partial int CryptQueryObject(uint objectType, void* value, uint contentFlags, uint formatFlags, uint flags,
-        uint* encoding, uint* contentType, uint* formatType, nint* store, nint* message, nint* context);
+    internal static partial int CryptQueryObject(uint objectType,
+                                                 void* value,
+                                                 uint contentFlags,
+                                                 uint formatFlags,
+                                                 uint flags,
+                                                 uint* encoding,
+                                                 uint* contentType,
+                                                 uint* formatType,
+                                                 nint* store,
+                                                 nint* message,
+                                                 nint* context);
 
     [LibraryImport("crypt32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
@@ -35,7 +44,12 @@ internal static unsafe partial class SecurityNative
 
     [LibraryImport("crypt32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    internal static partial CertContext* CertFindCertificateInStore(nint store, uint encoding, uint flags, uint findType, void* parameter, CertContext* previous);
+    internal static partial CertContext* CertFindCertificateInStore(nint store,
+                                                                    uint encoding,
+                                                                    uint flags,
+                                                                    uint findType,
+                                                                    void* parameter,
+                                                                    CertContext* previous);
 
     [LibraryImport("crypt32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
@@ -43,7 +57,14 @@ internal static unsafe partial class SecurityNative
 
     [LibraryImport("crypt32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    internal static partial int CryptDecodeObjectEx(uint encoding, sbyte* structureType, byte* encoded, uint size, uint flags, void* parameters, void* decoded, uint* decodedSize);
+    internal static partial int CryptDecodeObjectEx(uint encoding,
+                                                    sbyte* structureType,
+                                                    byte* encoded,
+                                                    uint size,
+                                                    uint flags,
+                                                    void* parameters,
+                                                    void* decoded,
+                                                    uint* decodedSize);
 
     [LibraryImport("kernel32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
@@ -60,16 +81,21 @@ internal static unsafe partial class SecurityNative
     internal static CmsgSignerInfo* ReadSigner(nint message)
     {
         uint size = 0;
+
         if (CryptMsgGetParam(message, CmsgSignerInfoParam, 0, null, &size) == 0 || size == 0)
         {
             return null;
         }
+
         CmsgSignerInfo* signer = (CmsgSignerInfo*)LocalAlloc(Lptr, size);
+
         if (signer != null && CryptMsgGetParam(message, CmsgSignerInfoParam, 0, signer, &size) == 0)
         {
             LocalFree(signer);
+
             return null;
         }
+
         return signer;
     }
 }

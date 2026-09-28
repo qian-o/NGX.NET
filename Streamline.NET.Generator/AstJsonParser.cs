@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Streamline.NET.Generator;
 
@@ -36,6 +36,8 @@ internal static class AstJsonParser
                 throw new InvalidDataException($"Unclassified declaration: {declaration.QualifiedName}");
             }
         }
+
+        OverloadContracts.Apply(snapshot);
 
         return snapshot;
     }

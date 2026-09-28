@@ -5,24 +5,37 @@
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>IDE0130</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageId>Streamline.NET</PackageId>
+        <!-- Package Metadata -->
         <Version>0.1.0</Version>
         <Authors>qian-o</Authors>
-        <Description>Independent C# wrapper for NVIDIA Streamline.</Description>
-        <PackageTags>streamline;nvidia;dlss;graphics</PackageTags>
-        <RepositoryUrl>https://github.com/qian-o/Streamline.NET</RepositoryUrl>
+        <Copyright>Copyright (c) 2026 qian-o</Copyright>
+        <Description>C# bindings for NVIDIA Streamline.</Description>
+        <PackageTags>Streamline;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
+
+        <!-- Repository Information -->
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
         <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
+
+        <!-- Package Content -->
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <!-- Debug Symbols & Source Link -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="../LICENSE" Pack="true" PackagePath="/" />
-        <None Include="../README.md" Pack="true" PackagePath="/" />
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+        <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

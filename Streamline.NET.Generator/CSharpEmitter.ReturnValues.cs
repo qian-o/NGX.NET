@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace Streamline.NET.Generator;
 
@@ -7,18 +7,20 @@ internal sealed partial class CSharpEmitter
     private void EmitValueReturnOverload(StringBuilder builder, NativeDeclaration declaration)
     {
         List<NativeDeclaration> outputs = [.. declaration.Parameters.Where(parameter => parameter.Contract.ReturnValue)];
+
         if (outputs.Count == 0)
         {
             return;
         }
+
         if (outputs.Count != 1 || declaration.ResultType?.Declaration != "sl::Result")
         {
             throw new InvalidDataException("A value-return overload requires one reviewed output and an SLResult result: " + declaration.Name);
         }
 
         NativeDeclaration output = outputs[0];
-        if (output.Contract.Convenience != "ref" || output.Type.Element?.Kind != "RECORD"
-            || string.IsNullOrWhiteSpace(output.Contract.ReturnValueContract))
+
+        if (output.Contract.Convenience != "ref" || output.Type.Element?.Kind != "RECORD")
         {
             throw new InvalidDataException("Missing output-structure contract: " + output.QualifiedName);
         }
@@ -26,14 +28,17 @@ internal sealed partial class CSharpEmitter
         string outputType = mapper.Map(output.Type.Element);
         List<string> parameters = [];
         List<string> arguments = [];
+
         foreach (NativeDeclaration parameter in declaration.Parameters)
         {
             string name = TypeMapper.Identifier(parameter.Name);
+
             if (parameter == output)
             {
                 arguments.Add("ref " + name);
                 continue;
             }
+
             switch (parameter.Contract.Convenience)
             {
                 case "in":

@@ -1,17 +1,21 @@
 ﻿using System.Runtime.InteropServices;
+using Showcase.Handlers;
+using Showcase.Helpers;
+using Showcase.Models;
 using Streamline.NET;
+using Vortice.DXGI;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
-using Vortice.DXGI;
 using Format = Vortice.DXGI.Format;
-using Resource = Streamline.NET.Resource;
 
-namespace Showcase;
+namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
 {
     protected override RenderAPI API => RenderAPI.D3D12;
+
     protected override nint Command => commandList.NativePointer;
+
     private ID3D12Device device = null!;
     private IDXGIFactory4 factory = null!;
     private IDXGIAdapter1 adapter = null!;
@@ -20,62 +24,27 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private ID3D12Fence fence = null!;
     private IDXGISwapChain3? swapChain;
     private ID3D12RootSignature root = null!;
-    private ID3D12PipelineState scenePipeline = null!, depthPipeline = null!, uiPipeline = null!, shadowPipeline = null!;
+    private ID3D12PipelineState scenePipeline = null!;
+    private ID3D12PipelineState depthPipeline = null!;
+    private ID3D12PipelineState uiPipeline = null!;
+    private ID3D12PipelineState shadowPipeline = null!;
     private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
-    private ID3D12DescriptorHeap descriptors = null!, renderTargets = null!, depthViews = null!;
+    private ID3D12DescriptorHeap descriptors = null!;
+    private ID3D12DescriptorHeap renderTargets = null!;
+    private ID3D12DescriptorHeap depthViews = null!;
     private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
     private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[4];
     private readonly List<ID3D12Resource> uploads = [];
     private readonly List<ID3D12Resource> backBuffers = [];
     private DxImage font = null!;
-    private uint descriptorIncrement, rtvIncrement, dsvIncrement;
+    private uint descriptorIncrement;
+    private uint rtvIncrement;
+    private uint dsvIncrement;
     private ulong fenceValue;
     private int constantIndex;
     private bool recording;
     private readonly AutoResetEvent fenceEvent = new(false);
     private const int DescriptorsPerFrame = RenderLayout.SrvCount + RenderLayout.UavCount;
-
-    private sealed class DxFrame : IDisposable
-    {
-        public required ID3D12CommandAllocator Allocator;
-        public required ID3D12Resource Constants;
-        public required ID3D12Resource Objects;
-        public ID3D12Resource? Vertices, Indices;
-        public int VertexCapacity, IndexCapacity;
-        public ulong Fence;
-        public ID3D12Resource? Tlas, RayScratch, RayInstances;
-        public bool TlasBuilt;
-        public void Dispose()
-        {
-            Tlas?.Dispose();
-            RayScratch?.Dispose();
-            RayInstances?.Dispose();
-            Vertices?.Dispose();
-            Indices?.Dispose();
-            Constants.Dispose();
-            Objects.Dispose();
-            Allocator.Dispose();
-        }
-    }
-
-    private sealed class DxImage : GpuImage
-    {
-        public required ID3D12Resource Texture;
-        public ResourceStates State;
-        public CpuDescriptorHandle Rtv, Dsv;
-        public override Resource Describe() => new()
-        {
-            Type = ResourceType.Tex2d,
-            Native = (void*)Texture.NativePointer,
-            State = (uint)State,
-            Width = (uint)Width,
-            Height = (uint)Height,
-            NativeFormat = (uint)NativeFormat(Format),
-            MipLevels = 1,
-            ArrayLayers = (uint)Layers
-        };
-        public override void Dispose() => Texture.Dispose();
-    }
 
     protected override void InitializeDevice()
     {
@@ -85,6 +54,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         Marshal.ThrowExceptionForHR(createFactory(0, &iid, &pointer));
         factory = new(pointer);
         List<IDXGIAdapter1> candidates = [];
+
         for (uint i = 0; factory.EnumAdapters1(i, out IDXGIAdapter1 candidate).Success; i++)
         {
             if ((candidate.Description1.Flags & AdapterFlags.Software) == 0)
@@ -96,7 +66,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
                 candidate.Dispose();
             }
         }
+
         adapter = candidates.OrderByDescending(x => x.Description1.VendorId == 0x10DE).FirstOrDefault() ?? throw new InvalidOperationException("No hardware graphics adapter found.");
+
         foreach (IDXGIAdapter1 candidate in candidates)
         {
             if (candidate != adapter)
@@ -120,6 +92,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         Streamline.QueryFeatures(info);
         RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
+
         if (RayQuerySupported)
         {
             rayDevice = device.QueryInterface<ID3D12Device5>();
@@ -130,7 +103,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     }
 
     private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(HeapType.Upload, ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)), ResourceStates.GenericRead);
-    private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
+
+    private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data)
+        where T : unmanaged
     {
         int size = data.Length * sizeof(T);
         ID3D12Resource buffer = device.CreateCommittedResource(HeapType.Default, ResourceDescription.Buffer((ulong)size), ResourceStates.CopyDest);
@@ -139,6 +114,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         uploads.Add(upload);
         commandList.CopyBufferRegion(buffer, 0, upload, 0, (ulong)size);
         commandList.ResourceBarrierTransition(buffer, ResourceStates.CopyDest, ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
+
         return buffer;
     }
 
@@ -159,11 +135,13 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(queue, Window.Handle, description);
         swapChain = created.QueryInterface<IDXGISwapChain3>();
         factory.MakeWindowAssociation(Window.Handle, WindowAssociationFlags.IgnoreAltEnter).CheckError();
+
         for (uint i = 0; i < RenderLayout.FramesInFlight; i++)
         {
             backBuffers.Add(swapChain.GetBuffer<ID3D12Resource>(i));
         }
     }
+
     protected override void DestroySwapChain()
     {
         foreach (ID3D12Resource buffer in backBuffers)
@@ -175,13 +153,24 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         swapChain?.Dispose();
         swapChain = null;
     }
+
     protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
         ResourceFlags flags = format == ImageFormat.Depth ? ResourceFlags.AllowDepthStencil : ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess;
         Format resourceFormat = format == ImageFormat.Depth ? Format.R32_Typeless : NativeFormat(format);
         ResourceDescription description = ResourceDescription.Texture2D(resourceFormat, (uint)width, (uint)height, (ushort)layers, 1, flags: flags);
-        return new DxImage { Width = width, Height = height, Layers = layers, Format = format, Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common), State = ResourceStates.Common };
+
+        return new DxImage
+        {
+            Width = width,
+            Height = height,
+            Layers = layers,
+            Format = format,
+            Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common),
+            State = ResourceStates.Common
+        };
     }
+
     private static Format NativeFormat(ImageFormat format) => format switch
     {
         ImageFormat.Rgba16 => Format.R16G16B16A16_Float,

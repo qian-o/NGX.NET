@@ -10,12 +10,14 @@ internal sealed partial class CSharpEmitter
         if (declaration.File == "include/sl_helpers_vk.h")
         {
             EmitVulkanHelper(declaration);
+
             return true;
         }
 
         if (declaration.Name.Contains("AsStr", StringComparison.Ordinal))
         {
             EmitStringHelper(declaration);
+
             return true;
         }
 
@@ -30,7 +32,9 @@ internal sealed partial class CSharpEmitter
                 builder.AppendLine("    /// <summary>Returns whether any bit in the mask is present, preserving the native Boolean operator&amp; semantics.</summary>");
                 builder.AppendLine($"    public static bool HasAnyFlags({csType} value, {csType} mask) => (value & mask) != 0;");
             }
+
             Record(declaration, declaration.Name == "operator&" ? ApiPath(TypeMapper.Group(declaration), "HasAnyFlags") : "C# enum bitwise operator " + declaration.Name);
+
             return true;
         }
 
@@ -41,14 +45,17 @@ internal sealed partial class CSharpEmitter
             Comment(builder, declaration, "    ");
             builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {HelperName(declaration)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
             builder.AppendLine("    {");
+
             if (declaration.Name == "resolveDLSSPreset")
             {
                 List<string> cases = Regex.Matches(declaration.Source, @"case\s+(\w+::\w+)\s*:").Select(match => TranslateExpression(match.Groups[1].Value)).ToList();
                 Match fallback = Regex.Match(declaration.Source, @"default:\s*return\s+(\w+::\w+);");
+
                 if (cases.Count == 0 || !fallback.Success)
                 {
                     throw new InvalidDataException("Unsupported preset resolution body.");
                 }
+
                 builder.AppendLine($"        return preset is {string.Join(" or ", cases)} ? preset : {TranslateExpression(fallback.Groups[1].Value)};");
             }
             else
@@ -57,16 +64,20 @@ internal sealed partial class CSharpEmitter
                 {
                     throw new InvalidDataException("Unsupported DLSSD preset resolution body.");
                 }
+
                 builder.AppendLine("        return (DLSSDPreset)SL.DLSS.ResolvePreset((DLSSPreset)preset);");
             }
+
             builder.AppendLine("    }");
             Record(declaration, ApiPath(HelperGroup(declaration), HelperName(declaration)));
+
             return true;
         }
 
         if (declaration.File == "include/sl_matrix_helpers.h" || declaration.Name == "transpose")
         {
             EmitMathHelper(declaration);
+
             return true;
         }
 
@@ -77,19 +88,24 @@ internal sealed partial class CSharpEmitter
     {
         StringBuilder builder = File(HelperGroup(declaration), "SL.Strings");
         List<(string Value, string Text)> cases = [];
+
         foreach (Match match in Regex.Matches(declaration.Source, @"SL_CASE_STR\(([^)]+)\)"))
         {
             cases.Add((TranslateSymbol(match.Groups[1].Value), match.Groups[1].Value));
         }
+
         foreach (Match match in Regex.Matches(declaration.Source, "case\\s+([^:]+):\\s*return\\s+\"([^\"]*)\";"))
         {
             cases.Add((TranslateSymbol(match.Groups[1].Value.Trim()), match.Groups[2].Value));
         }
+
         MatchCollection returns = Regex.Matches(declaration.Source, "return\\s+\"([^\"]*)\";");
+
         if (cases.Count == 0 || returns.Count == 0)
         {
             throw new InvalidDataException($"Unsupported string helper: {declaration.Name}");
         }
+
         string fallback = returns[^1].Groups[1].Value;
         builder.AppendLine();
         Comment(builder, declaration, "    ");
@@ -97,10 +113,12 @@ internal sealed partial class CSharpEmitter
         builder.AppendLine("    {");
         builder.AppendLine($"        return {declaration.Parameters.Single().Name} switch");
         builder.AppendLine("        {");
+
         foreach ((string value, string text) in cases)
         {
             builder.AppendLine($"            {value} => \"{text}\",");
         }
+
         builder.AppendLine($"            _ => \"{fallback}\"");
         builder.AppendLine("        };");
         builder.AppendLine("    }");
@@ -110,12 +128,13 @@ internal sealed partial class CSharpEmitter
     private string TranslateSymbol(string symbol)
     {
         symbol = symbol.Replace("sl::", "", StringComparison.Ordinal);
+
         return symbol.StartsWith('k') ? "SL." + TypeMapper.ConstantName(symbol) : TranslateExpression(symbol);
     }
 
     private void EmitMathHelper(NativeDeclaration declaration)
     {
-        StringBuilder builder = File("Helpers", "SL.Math");
+        StringBuilder builder = File("Helpers", "SL.Math", "System.Runtime.CompilerServices");
         string body = declaration.Source[(declaration.Source.IndexOf('{') + 1)..declaration.Source.LastIndexOf('}')];
         body = Regex.Replace(body, @"\bstatic float4x4 (\w+) = \{(.*?)\};", match =>
         {
@@ -124,6 +143,7 @@ internal sealed partial class CSharpEmitter
             state.AppendLine();
             state.AppendLine("    // Shared history retained from the upstream helper. Not thread-safe or per-viewport.");
             state.AppendLine($"    private static Float4x4 {match.Groups[1].Value} = new({initializer.Trim().TrimEnd(',')});");
+
             return "";
         }, RegexOptions.Singleline);
         body = TranslateMathBody(body, declaration.Parameters.ToList());
@@ -133,10 +153,12 @@ internal sealed partial class CSharpEmitter
             : "Preserves the upstream formula, precision and defined boundary behavior.");
         builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({string.Join(", ", declaration.Parameters.Select(ParameterDeclaration))})");
         builder.AppendLine("    {");
+
         foreach (string line in body.Trim('\n', '\r').Split('\n'))
         {
             builder.AppendLine(string.IsNullOrWhiteSpace(line) ? "" : "    " + line.TrimEnd());
         }
+
         builder.AppendLine("    }");
         EmitMathReferenceOverload(builder, declaration);
         Record(declaration, "SL." + TypeMapper.PascalCase(declaration.Name));
@@ -144,6 +166,14 @@ internal sealed partial class CSharpEmitter
 
     private static string TranslateMathBody(string body, List<NativeDeclaration> parameters)
     {
+        List<string> comments = [];
+        body = Regex.Replace(body, @"//[^\r\n]*|/\*[\s\S]*?\*/", match =>
+        {
+            comments.Add(match.Value);
+
+            return "__COMMENT" + (comments.Count - 1) + "__";
+        });
+
         body = Regex.Replace(body, @"\bconst\s+", "");
         body = Regex.Replace(body, @"\b(\d+)\.f\b", "$1.0f");
         body = body.Replace("sqrtf(", "MathF.Sqrt(", StringComparison.Ordinal);
@@ -153,16 +183,28 @@ internal sealed partial class CSharpEmitter
         body = Regex.Replace(body, @"\bFloat4x4\s+(\w+)\s*;", "Float4x4 $1 = new();");
         body = Regex.Replace(body, @"(Float4x4\s+\w+\s*=)\s*\{(.*?)\};", "$1 new($2);", RegexOptions.Singleline);
         body = Regex.Replace(body, @"(\w+\[\d+\]\s*=)\s*\{([^}]+)\};", "$1 new($2);");
+
         foreach (string function in new[] { "matrixMul", "matrixFullInvert", "matrixOrthoNormalInvert", "vectorNormalize", "vectorCrossProduct", "calcCameraToPrevCamera" })
         {
             body = Regex.Replace(body, @"\b" + function + @"\(([^;()]*)\)", match => TypeMapper.PascalCase(function) + "(" + string.Join(", ", match.Groups[1].Value.Split(',').Select((argument, index) => (index == 0 ? "ref " : "in ") + argument.Trim())) + ")");
         }
+
         body = Regex.Replace(body, @"\.(\w+)", match => "." + TypeMapper.MemberName(match.Groups[1].Value));
+
         foreach (NativeDeclaration parameter in parameters.Where(parameter => parameter.Type.Kind == "LVALUEREFERENCE"))
         {
             body = Regex.Replace(body, @"\b" + Regex.Escape(parameter.Name) + @"\b", "(*" + parameter.Name + ")");
         }
+
         body = Regex.Replace(body, @"float\* (\w+) = &([^;]+);", "float* $1 = (float*)Unsafe.AsPointer(ref $2);");
+        body = Regex.Replace(body, @"new\(\s+(.*?)\s+\)", "new($1)");
+        body = Regex.Replace(body, @",[ \t]+", ", ");
+
+        for (int index = 0; index < comments.Count; index++)
+        {
+            body = body.Replace("__COMMENT" + index + "__", comments[index], StringComparison.Ordinal);
+        }
+
         return body;
     }
 
@@ -175,10 +217,12 @@ internal sealed partial class CSharpEmitter
         string parameters = string.Join(", ", declaration.Parameters.Select(parameter => (parameter.Type.Element!.Const ? "in " : "ref ") + mapper.Map(parameter.Type.Element) + " " + parameter.Name));
         builder.AppendLine($"    public static {mapper.Map(declaration.ResultType!)} {TypeMapper.PascalCase(declaration.Name)}({parameters})");
         builder.AppendLine("    {");
+
         foreach (NativeDeclaration parameter in declaration.Parameters)
         {
             builder.AppendLine($"        fixed ({mapper.Map(parameter.Type)} {parameter.Name}Pointer = &{parameter.Name})");
         }
+
         builder.AppendLine("        {");
         builder.AppendLine("            " + (declaration.ResultType!.Kind == "VOID" ? "" : "return ") + TypeMapper.PascalCase(declaration.Name) + "(" + string.Join(", ", declaration.Parameters.Select(parameter => parameter.Name + "Pointer")) + ");");
         builder.AppendLine("        }");

@@ -1,6 +1,8 @@
-namespace Streamline.NET;
+﻿namespace Streamline.NET;
 
-/// <summary>Application-facing Streamline functions and constants.</summary>
+/// <summary>
+/// Application-facing Streamline functions and constants.
+/// </summary>
 public static unsafe partial class SL
 {
     /// <summary>

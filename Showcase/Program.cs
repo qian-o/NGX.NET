@@ -1,4 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using Showcase.DirectX12;
+using Showcase.Handlers;
+using Showcase.Vulkan;
 
 namespace Showcase;
 
@@ -21,6 +24,7 @@ internal static class Program
             using Window window = new();
             using RHI rhi = vulkan ? new VulkanRHI(window, ui) : new DirectX12RHI(window, ui);
             rhi.Initialize();
+
             while (!window.Closed)
             {
                 rhi.RenderFrame();
@@ -36,11 +40,13 @@ internal static class Program
             string path = Path.Combine(logs, $"showcase-{DateTime.Now:yyyyMMdd-HHmmss}.log");
             File.WriteAllText(path, exception.ToString());
             Console.Error.WriteLine($"Failure log: {path}");
+
             if (OperatingSystem.IsWindows() && !Console.IsInputRedirected)
             {
                 Console.WriteLine("Press Enter to close.");
                 Console.ReadLine();
             }
+
             return 1;
         }
     }
