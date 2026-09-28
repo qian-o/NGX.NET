@@ -268,9 +268,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         queries = device.CreateQueryHeap<ID3D12QueryHeap>(new()
         {
             Type = QueryHeapType.Timestamp,
-            Count = RenderLayout.FramesInFlight * 2
+            Count = RenderLayout.FramesInFlight * (int)GpuTimestamp.Count
         });
-        queryReadback = device.CreateCommittedResource(HeapType.Readback, ResourceDescription.Buffer(RenderLayout.FramesInFlight * 16), ResourceStates.CopyDest);
+        queryReadback = device.CreateCommittedResource(HeapType.Readback, ResourceDescription.Buffer(RenderLayout.FramesInFlight * (int)GpuTimestamp.Count * sizeof(ulong)), ResourceStates.CopyDest);
     }
 
     private byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false, RayQuerySupported);
@@ -426,17 +426,22 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         WaitFence(frame.Fence);
         if (frame.Timestamp)
         {
+            Span<ulong> timestamps = stackalloc ulong[(int)GpuTimestamp.Count];
             ulong* values = queryReadback.Map<ulong>(0);
-            ulong start = values[FrameSlot * 2], end = values[FrameSlot * 2 + 1];
-            GpuMilliseconds = end >= start && timestampFrequency != 0 ? (end - start) * 1000.0 / timestampFrequency : null;
+            new ReadOnlySpan<ulong>(values + FrameSlot * (int)GpuTimestamp.Count, (int)GpuTimestamp.Count).CopyTo(timestamps);
             queryReadback.Unmap(0);
+            frame.Timestamp = false;
+            if (timestampFrequency != 0)
+            {
+                RecordGpuTimestamps(timestamps, 1000.0 / timestampFrequency);
+            }
         }
         frame.Allocator.Reset();
         commandList.Reset(frame.Allocator, null);
         recording = true;
         frame.Objects.SetData<SceneObject>(Scene.Objects);
         constantIndex = 0;
-        commandList.EndQuery(queries, QueryType.Timestamp, (uint)FrameSlot * 2);
+        WriteTimestamp(GpuTimestamp.Start);
         return true;
     }
     private void Bind(bool graphics, ID3D12PipelineState pipeline, FrameConstants constants)
@@ -507,6 +512,8 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         Bind(false, pipelines[pass], constants);
         commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, 1);
     }
+    protected override void WriteTimestamp(GpuTimestamp timestamp) =>
+        commandList.EndQuery(queries, QueryType.Timestamp, (uint)(FrameSlot * (int)GpuTimestamp.Count + (int)timestamp));
     protected override void DrawUI(ImDrawDataPtr data)
     {
         DxFrame frame = slots[FrameSlot];
@@ -597,8 +604,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         commandList.ResourceBarrierTransition(back, ResourceStates.Present, ResourceStates.CopyDest);
         commandList.CopyResource(back, final.Texture);
         commandList.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
-        commandList.EndQuery(queries, QueryType.Timestamp, (uint)FrameSlot * 2 + 1);
-        commandList.ResolveQueryData(queries, QueryType.Timestamp, (uint)FrameSlot * 2, 2, queryReadback, (ulong)FrameSlot * 16);
+        WriteTimestamp(GpuTimestamp.End);
+        commandList.ResolveQueryData(queries, QueryType.Timestamp, (uint)(FrameSlot * (int)GpuTimestamp.Count), (uint)GpuTimestamp.Count,
+            queryReadback, (ulong)(FrameSlot * (int)GpuTimestamp.Count * sizeof(ulong)));
         commandList.Close();
         recording = false;
         queue.ExecuteCommandList(commandList);

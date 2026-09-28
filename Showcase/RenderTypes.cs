@@ -24,8 +24,13 @@ internal enum ComputePass
 {
     Lighting, PrepareLuminance, FilterLuminance, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
 }
+internal enum GpuTimestamp
+{
+    Start, Geometry, Lighting, Reconstruction, PostProcessing, End, Count
+}
 
 internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruction, bool FrameGeneration);
+internal sealed record RendererState(Scene Scene, Camera Camera, RenderSettings Settings);
 
 internal sealed record RenderSettings
 {

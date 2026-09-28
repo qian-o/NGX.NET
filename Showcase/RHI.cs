@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Text.Json;
 using ImGuiNET;
 using Streamline.NET;
 
@@ -23,7 +24,10 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public Window Window { get; } = window;
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
-    public RenderSettings Settings { get; } = new();
+    public RenderSettings Settings { get; private set; } = new();
+    // Streamline 2.14.1 shares NGX parameters between SR and RR. RR's matrix
+    // pointers outlive its freed viewport; SR does not replace those parameters.
+    public bool RestartRequired => applied is { RayReconstruction: true } && !Settings.RayReconstruction;
     public abstract string BackendName
     {
         get;
@@ -45,7 +49,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         get; protected set;
     }
     protected Scene Scene = null!;
-    protected Camera Camera { get; } = new();
+    protected Camera Camera { get; private set; } = new();
     protected readonly GpuImage[][] Frames = new GpuImage[RenderLayout.FramesInFlight][];
     protected int FrameSlot;
     protected FrameConstants Constants;
@@ -62,8 +66,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private bool disposed;
     private long previousTick = Stopwatch.GetTimestamp();
     private readonly FrameStatistics statistics = new();
+    private readonly GpuProfile gpuProfile = new();
 
-    public void Initialize()
+    public RendererState CaptureState() => new(Scene, Camera, Settings with { });
+
+    public void Initialize(RendererState? state = null)
     {
         Streamline.Initialize(BackendName == "Vulkan");
         InitializeDevice();
@@ -73,9 +80,18 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Streamline.Unavailable[SL.FeatureDLSSRR] = RayQueryStatus;
         }
         Window.LatencyPingMessage = Streamline.LatencyPingMessage;
-        Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
-        Camera.Reset(Scene);
-        Settings.Reset(Capabilities);
+        if (state is null)
+        {
+            Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
+            Camera.Reset(Scene);
+            Settings.Reset(Capabilities);
+        }
+        else
+        {
+            Scene = state.Scene;
+            Camera = state.Camera;
+            Settings = state.Settings;
+        }
         InitializeRenderer();
         ready = true;
         Window.BeforeWindowChange = SuspendFrameGeneration;
@@ -139,6 +155,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Scene.CommitHistory();
         Console.WriteLine($"{BackendName}: {InputWidth}x{InputHeight} -> {outputWidth}x{outputHeight}, {Settings.Reconstruction}, FG={(Settings.FrameGeneration ? "On" : "Off")}");
         statistics.Reset(Stopwatch.GetTimestamp());
+        gpuProfile.Reset();
     }
 
     private void SuspendFrameGeneration()
@@ -179,6 +196,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
         previousTick = start;
         UI.Build(this, delta);
+        if (RestartRequired)
+        {
+            // Finish the CPU marker before Program recreates the SDK/device at
+            // a GPU-idle boundary. No new GPU commands reference the old session.
+            Streamline.Marker(PCLMarker.SimulationEnd);
+            return;
+        }
         if (rebuild || outputWidth != Window.Width || outputHeight != Window.Height || ResourcesChanged())
         {
             Resize();
@@ -241,6 +265,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             Transition(Image(slot), ImageUse.ShaderRead);
         }
+        WriteTimestamp(GpuTimestamp.Geometry);
 
         foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse })
         {
@@ -252,6 +277,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             Transition(Image(slot), ImageUse.ShaderRead);
         }
+        WriteTimestamp(GpuTimestamp.Lighting);
 
         uint? reconstruction = Feature(Settings.Reconstruction);
         bool hdrReconstruction = reconstruction.HasValue;
@@ -271,6 +297,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Streamline.Evaluate(reconstruction!.Value, Command);
             Transition(Image(ImageSlot.Reconstructed), ImageUse.ShaderRead);
         }
+        WriteTimestamp(GpuTimestamp.Reconstruction);
         FrameConstants post = Constants;
         post.Parameters.Z = hdrReconstruction ? 1 : 0;
         Transition(Image(ImageSlot.Luminance), ImageUse.Storage);
@@ -294,6 +321,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         // Keep native, un-reconstructed RT samples intact for the RR comparison.
         Dispatch(Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay, outputWidth, outputHeight, post);
         Transition(Image(ImageSlot.Hudless), ImageUse.ShaderRead);
+        WriteTimestamp(GpuTimestamp.PostProcessing);
         DrawUI(ImGui.GetDrawData());
         Transition(Image(ImageSlot.UI), ImageUse.ShaderRead);
         Transition(Image(ImageSlot.Final), ImageUse.Storage);
@@ -339,6 +367,29 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     private bool ResourcesChanged() => applied is null || applied.Quality != Settings.Quality ||
         applied.FrameGeneration != Settings.FrameGeneration || applied.RayReconstruction != Settings.RayReconstruction;
+    protected void RecordGpuTimestamps(ReadOnlySpan<ulong> timestamps, double millisecondsPerTick, ulong mask = ulong.MaxValue)
+    {
+        double[]? average = gpuProfile.Add(timestamps, millisecondsPerTick, mask);
+        GpuMilliseconds = gpuProfile.LastMilliseconds;
+        if (average is null)
+        {
+            return;
+        }
+        // One capture per configuration, never per-frame console output or UI clutter.
+        string path = Path.Combine(AppContext.BaseDirectory, "Logs", "performance.jsonl");
+        File.AppendAllText(path, JsonSerializer.Serialize(new
+        {
+            Timestamp = DateTimeOffset.UtcNow,
+            Backend = BackendName,
+            GPU = AdapterName,
+            InputWidth, InputHeight, OutputWidth = outputWidth, OutputHeight = outputHeight,
+            Mode = Settings.Quality.ToString(), Settings.RayReconstruction, Settings.FrameGeneration,
+            Samples = GpuProfile.SampleCount,
+            GeometryMs = average[0], LightingMs = average[1], ReconstructionMs = average[2],
+            PostProcessingMs = average[3], CompositionAndCopyMs = average[4],
+            TotalGpuMs = average.Sum(), RenderFps
+        }) + Environment.NewLine);
+    }
     protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];
     private (uint, ImageSlot, GpuImage) Tag(uint type, ImageSlot slot) => (type, slot, Image(slot));
     public static uint? Feature(Reconstruction method) => method switch
@@ -374,6 +425,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected abstract void DrawScene();
     protected abstract void DrawUI(ImDrawDataPtr data);
     protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants);
+    protected abstract void WriteTimestamp(GpuTimestamp timestamp);
     protected abstract void Transition(GpuImage image, ImageUse use);
     protected abstract void SubmitFrame();
     protected abstract bool Present();

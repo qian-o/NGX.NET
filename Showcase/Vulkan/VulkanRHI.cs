@@ -105,6 +105,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         public required VkBufferResource Objects;
         public VkBufferResource? Vertices, Indices;
         public bool Submitted;
+        public bool TimestampsPending;
         public VkAcceleration? Tlas;
         public VkBufferResource? RayScratch, RayInstances;
         public bool TlasBuilt;

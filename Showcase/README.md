@@ -170,6 +170,15 @@ placeholder options.
 - Three frame slots protect pending GPU work. Resize/mode changes wait for relevant
   work, release SDK resources according to the feature contract, recreate targets
   and reset history. Normal frame rendering waits only when reusing a frame slot.
+- Leaving RR recreates the SDK session and graphics device after GPU idle. This
+  isolates a Streamline 2.14.1 lifetime hazard: the RR plugin stores matrix addresses
+  in shared NGX parameters and erases their viewport on release; the SR plugin does
+  not replace those matrix parameters. This is consistent with the reported
+  `WorldToScreenMatrix not invertible` warning after disabling RR on both backends.
+  CPU scene data, animation, camera and selected settings survive the transition;
+  temporal histories restart. Compiled shaders are cached per backend/entry/variant,
+  and the wrapper's process-lifetime library path is configured only once. The
+  switch may pause briefly. Native Windows warning elimination remains to be verified.
 - All SDK parameters with nested pointers and tagged resource descriptions retain
   storage through their required lifetime. SDK shutdown runs while graphics objects
   and callbacks remain alive.
@@ -197,13 +206,24 @@ dotnet build Streamline.NET.slnx -c Release --warnaserror
 
 Slangc.NET and DXC native libraries are restored through NuGet. The application
 uses the compiler's default downstream-library discovery without overriding its
-DXC path. Shaders compile as part of renderer initialization.
+DXC path. Shaders compile on first use and reuse their bytecode during session recreation.
 
 The SDK writes its diagnostics to `Logs/` under the output directory. Startup and
 feature availability are printed to the console. Managed failures also write a
 `showcase-*.log` file there. For Windows acceptance, record the selected backend,
 GPU and driver, SDK version, input/output sizes and feature settings, together with
 logs and screenshots of any issue.
+
+For performance diagnosis, `Logs/performance.jsonl` records one capture after
+startup and each configuration change. It skips three potentially stale frame-slot
+results and averages 30 completed GPU frames, using six native timestamps. Each
+record contains geometry/TLAS, lighting, reconstruction, post-processing, and
+UI/composition/copy intervals, along with backend, GPU, actual input/output sizes,
+settings and render FPS. These are graphics-queue intervals, not GPU execution
+of generated frames or CPU/presentation latency. Timestamp readback uses already
+completed frame slots; no extra GPU-idle wait is added. The Settings panel and
+per-frame console output are unchanged. Keep a configuration running for at least
+10 seconds when collecting a capture on a slow GPU.
 
 ## Dependencies
 
@@ -231,6 +251,18 @@ Development host: macOS arm64, .NET SDK 10.0.401.
 
 - Solution Release build with warnings as errors: passed. Windows x64
   framework-dependent publishing also passed; native dependencies were inspected.
+- RR-exit handling: 2,000 moving-camera cases verified finite, invertible projection,
+  history and RR world-to-screen matrices. Twelve mode transitions verified the
+  restart boundary and retained CPU state. An isolated harness exercised the actual
+  application loop with fake devices, checking disposal-before-reinitialization,
+  state transfer, normal close and initialization failure for both backend selections.
+  The real shader compiler cache reused SPIR-V bytecode and kept ray/raster variants
+  distinct. These checks do not execute native Streamline teardown/reinitialization.
+- GPU capture checks verified unit conversion, bounded 30-frame averaging, stale-slot
+  exclusion after reconfiguration, Vulkan valid-bit rollover, invalid full-width
+  timestamp rejection and the actual JSON writer with explicitly synthetic ticks.
+  The laptop's reported 15 FPS is not a measured post-fix result; target captures
+  are needed before attributing its frame time to tracing, DLSS or post-processing.
 - PowerShell asset script: executed successfully using PowerShell 7.6.0; retrieved
   Streamline v2.14.1 production files and Sponza revision
   `7d4ba189827916452eeadc82d4b712dbc6280a6f`. The new runtime filter was checked
@@ -326,6 +358,9 @@ Development host: macOS arm64, .NET SDK 10.0.401.
 
 ## Rendering references
 
+- [Streamline 2.14.1 RR plugin](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/source/plugins/sl.dlss_d/dlss_dEntry.cpp)
+  and [SR plugin](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/source/plugins/sl.dlss/dlssEntry.cpp)
+  for shared NGX parameters and matrix/viewport lifetimes during feature switching.
 - [NVIDIA RTX ray-tracing best practices](https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/)
   for opaque geometry and avoiding unnecessary candidate-shader work.
 - [Vulkan ray traversal](https://docs.vulkan.org/spec/latest/chapters/raytraversal.html)

@@ -61,6 +61,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private readonly HashSet<uint> evaluatedFeatures = [];
     private static readonly ConcurrentQueue<string> messages = new();
     private static int apiError;
+    private static bool libraryConfigured;
 
     public bool Available(uint feature) => !Unavailable.ContainsKey(feature);
     public static void Check(SLResult result, string operation)
@@ -93,7 +94,13 @@ internal sealed unsafe class StreamlineSession : IDisposable
         }
 
         RuntimeVersion = FileVersionInfo.GetVersionInfo(path).FileVersion ?? "Unknown";
-        SL.SetLibraryPath(path);
+        // The wrapper owns its module for process lifetime; subsequent SDK
+        // sessions reuse it and must not attempt to configure its path again.
+        if (!libraryConfigured)
+        {
+            SL.SetLibraryPath(path);
+            libraryConfigured = true;
+        }
         char** plugins = (char**)Keep(Marshal.AllocCoTaskMem(sizeof(nint)));
         *plugins = Utf16(AppContext.BaseDirectory);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
@@ -227,6 +234,17 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     public void SetConstants(Camera camera, RenderSettings settings, int width, int height, int outputWidth, int outputHeight, bool reset)
     {
+        Constants constants = CameraConstants(camera, width, height, outputWidth, outputHeight, reset);
+        Check(SL.SetConstants(in constants, Frame, in Viewport), "slSetConstants");
+        if (settings.Reconstruction == Reconstruction.RayReconstruction)
+        {
+            DLSSDOptions options = RayOptions(settings, outputWidth, outputHeight, camera);
+            Check(SL.DLSSD.SetOptions(in Viewport, in options), "slDLSSDSetOptions(camera)");
+        }
+    }
+
+    private static Constants CameraConstants(Camera camera, int width, int height, int outputWidth, int outputHeight, bool reset)
+    {
         Matrix4x4.Invert(camera.Projection, out Matrix4x4 inverseProjection);
         Matrix4x4.Invert(camera.ViewProjection, out Matrix4x4 inverseViewProjection);
         Matrix4x4 clipToPrevious = inverseViewProjection * camera.PreviousViewProjection;
@@ -234,7 +252,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         Vector3 forward = camera.Forward;
         Vector3 right = Vector3.Normalize(Vector3.Cross(forward, Vector3.UnitY));
         Vector3 up = Vector3.Cross(right, forward);
-        Constants constants = new()
+        return new()
         {
             CameraViewToClip = Matrix(camera.Projection),
             ClipToCameraView = Matrix(inverseProjection),
@@ -260,12 +278,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
             MotionVectorsDilated = SLBoolean.False,
             MotionVectorsJittered = SLBoolean.False
         };
-        Check(SL.SetConstants(in constants, Frame, in Viewport), "slSetConstants");
-        if (settings.Reconstruction == Reconstruction.RayReconstruction)
-        {
-            DLSSDOptions options = RayOptions(settings, outputWidth, outputHeight, camera);
-            Check(SL.DLSSD.SetOptions(in Viewport, in options), "slDLSSDSetOptions(camera)");
-        }
     }
 
     private static DLSSDOptions RayOptions(RenderSettings settings, int width, int height, Camera? camera)
