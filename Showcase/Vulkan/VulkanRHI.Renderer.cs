@@ -203,10 +203,10 @@ internal sealed unsafe partial class VulkanRHI
             pSetLayouts = &setLayout
         };
         Check(api.vkCreatePipelineLayout(&layoutInfo, null, out pipelineLayout), "vkCreatePipelineLayout");
-        scenePipeline = GraphicsPipeline(false);
-        depthPipeline = GraphicsPipeline(false, depthOnly: true);
-        shadowPipeline = GraphicsPipeline(false, shadow: true);
-        uiPipeline = GraphicsPipeline(true);
+        scenePipeline = GraphicsPipeline(GraphicsPass.Scene);
+        depthPipeline = GraphicsPipeline(GraphicsPass.Depth);
+        shadowPipeline = GraphicsPipeline(GraphicsPass.Shadow);
+        uiPipeline = GraphicsPipeline(GraphicsPass.UI);
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())
         {
             string entry = pass.ToString();
@@ -244,9 +244,12 @@ internal sealed unsafe partial class VulkanRHI
             return module;
         }
     }
-    private VkPipeline GraphicsPipeline(bool ui, bool shadow = false, bool depthOnly = false)
+    private VkPipeline GraphicsPipeline(GraphicsPass pass)
     {
-        string vertexName = shadow ? "ShadowVS" : ui ? "UiVS" : "SceneVS", fragmentName = shadow ? "ShadowPS" : ui ? "UiPS" : depthOnly ? "DepthPS" : "ScenePS";
+        bool ui = pass == GraphicsPass.UI;
+        bool depthOnly = pass is GraphicsPass.Depth or GraphicsPass.Shadow;
+        (string vertexName, string fragmentName) = RenderLayout.Shaders(pass);
+        ReadOnlySpan<ImageSlot> targets = RenderLayout.ColorTargets(pass);
         VkShaderModule vertex = Shader(vertexName, "vertex"), fragment = Shader(fragmentName, "fragment");
         try
         {
@@ -282,12 +285,12 @@ internal sealed unsafe partial class VulkanRHI
             VkPipelineDepthStencilStateCreateInfo depth = new()
             {
                 depthTestEnable = !ui,
-                depthWriteEnable = shadow || depthOnly,
-                depthCompareOp = !ui && !shadow && !depthOnly ? VkCompareOp.Equal : VkCompareOp.Less,
+                depthWriteEnable = depthOnly,
+                depthCompareOp = pass == GraphicsPass.Scene ? VkCompareOp.Equal : VkCompareOp.Less,
                 maxDepthBounds = 1
             };
-            int targetCount = shadow || depthOnly ? 0 : ui ? 1 : 4;
-            VkPipelineColorBlendAttachmentState* blendAttachments = stackalloc VkPipelineColorBlendAttachmentState[4];
+            int targetCount = targets.Length;
+            VkPipelineColorBlendAttachmentState* blendAttachments = stackalloc VkPipelineColorBlendAttachmentState[targetCount];
             for (int i = 0; i < targetCount; i++)
             {
                 blendAttachments[i] = new()
@@ -314,7 +317,11 @@ internal sealed unsafe partial class VulkanRHI
                 dynamicStateCount = 2,
                 pDynamicStates = states
             };
-            VkFormat* formats = stackalloc VkFormat[4] { ui ? VkFormat.R8G8B8A8Unorm : VkFormat.R16G16B16A16Sfloat, VkFormat.R16G16B16A16Sfloat, VkFormat.R16G16B16A16Sfloat, VkFormat.R16G16Sfloat };
+            VkFormat* formats = stackalloc VkFormat[targetCount];
+            for (int i = 0; i < targetCount; i++)
+            {
+                formats[i] = NativeFormat(RenderLayout.Format(targets[i]));
+            }
             VkPipelineRenderingCreateInfo rendering = new()
             {
                 colorAttachmentCount = (uint)targetCount,
@@ -513,10 +520,11 @@ internal sealed unsafe partial class VulkanRHI
 
     protected override void DrawScene()
     {
-        VkRenderingAttachmentInfo* colors = stackalloc VkRenderingAttachmentInfo[4];
-        for (int i = 0; i < 4; i++)
+        ReadOnlySpan<ImageSlot> colorTargets = RenderLayout.ColorTargets(GraphicsPass.Scene);
+        VkRenderingAttachmentInfo* colors = stackalloc VkRenderingAttachmentInfo[colorTargets.Length];
+        for (int i = 0; i < colorTargets.Length; i++)
         {
-            VkTexture image = (VkTexture)Image((ImageSlot)i);
+            VkTexture image = (VkTexture)Image(colorTargets[i]);
             Transition(image, ImageUse.ColorAttachment);
             colors[i] = new()
             {
@@ -550,7 +558,7 @@ internal sealed unsafe partial class VulkanRHI
         // Make prepass depth writes visible to the next rendering scope's tests.
         Barrier(depth.Texture, depth.Layout, depth.Layout, Range(depth.Format));
         depthAttachment.loadOp = VkAttachmentLoadOp.Load;
-        rendering.colorAttachmentCount = 4;
+        rendering.colorAttachmentCount = (uint)colorTargets.Length;
         rendering.pColorAttachments = colors;
         api.vkCmdBeginRendering(commandBuffer, &rendering);
         FrameConstants colorConstants = Constants;
@@ -650,7 +658,6 @@ internal sealed unsafe partial class VulkanRHI
             ImageUse.DepthAttachment => VkImageLayout.DepthStencilAttachmentOptimal,
             ImageUse.CopySource => VkImageLayout.TransferSrcOptimal,
             ImageUse.CopyDestination => VkImageLayout.TransferDstOptimal,
-            ImageUse.Present => VkImageLayout.PresentSrcKHR,
             _ => VkImageLayout.ShaderReadOnlyOptimal
         };
         if (texture.Layout != layout)
@@ -659,7 +666,6 @@ internal sealed unsafe partial class VulkanRHI
         }
 
         texture.Layout = layout;
-        texture.Use = use;
     }
     private void Barrier(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageSubresourceRange range)
     {

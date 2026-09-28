@@ -18,7 +18,11 @@ internal enum ImageFormat
 }
 internal enum ImageUse
 {
-    ShaderRead, Storage, ColorAttachment, DepthAttachment, CopySource, CopyDestination, Present
+    ShaderRead, Storage, ColorAttachment, DepthAttachment, CopySource, CopyDestination
+}
+internal enum GraphicsPass
+{
+    Scene, Depth, Shadow, UI
 }
 internal enum ComputePass
 {
@@ -73,13 +77,29 @@ internal abstract class GpuImage : IDisposable
     public required int Height;
     public required ImageFormat Format;
     public int Layers = 1;
-    public ImageUse Use;
     public abstract Resource Describe();
     public abstract void Dispose();
 }
 
 internal static class RenderLayout
 {
+    public static (string Vertex, string Fragment) Shaders(GraphicsPass pass) => pass switch
+    {
+        GraphicsPass.Scene => ("SceneVS", "ScenePS"),
+        GraphicsPass.Depth => ("SceneVS", "DepthPS"),
+        GraphicsPass.Shadow => ("ShadowVS", "ShadowPS"),
+        GraphicsPass.UI => ("UiVS", "UiPS"),
+        _ => throw new ArgumentOutOfRangeException(nameof(pass))
+    };
+
+    public static ReadOnlySpan<ImageSlot> ColorTargets(GraphicsPass pass) => pass switch
+    {
+        GraphicsPass.Scene => [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Motion],
+        GraphicsPass.UI => [ImageSlot.UI],
+        GraphicsPass.Depth or GraphicsPass.Shadow => [],
+        _ => throw new ArgumentOutOfRangeException(nameof(pass))
+    };
+
     // NVIDIA's DLSS integration guide, section 3.5: native bias 0, epsilon 0.
     // Native rendering keeps its ordinary footprint; temporal reconstruction needs
     // texture detail at the output resolution rather than the lower input resolution.

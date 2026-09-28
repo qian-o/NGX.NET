@@ -24,7 +24,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
     public RenderSettings Settings { get; } = new();
-    public abstract string BackendName
+    protected abstract RenderAPI API
     {
         get;
     }
@@ -62,7 +62,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     public void Initialize()
     {
-        Streamline.Initialize(BackendName == "Vulkan");
+        Streamline.Initialize(API);
         InitializeDevice();
         Console.WriteLine($"Hardware Ray Query: {RayQueryStatus}");
         if (!RayQuerySupported)
@@ -126,7 +126,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
         // Discard presentation counts from before the configuration change.
         _ = Streamline.ReadPresentedFrameCount();
-        applied = Settings with { };
+        applied = Settings with
+        {
+        };
         reset = true;
         recreateSwapChain = false;
         Scene.CommitHistory();

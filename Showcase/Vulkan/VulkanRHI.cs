@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
-using ImGuiNET;
+﻿using System.Runtime.InteropServices;
 using Streamline.NET;
 using Vortice.Vulkan;
 using static Vortice.Vulkan.Vulkan;
@@ -10,7 +8,7 @@ namespace Showcase;
 
 internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) : RHI(window, ui)
 {
-    public override string BackendName => "Vulkan";
+    protected override RenderAPI API => RenderAPI.Vulkan;
     protected override nint Command => commandBuffer.Handle;
     private VkInstance instance;
     private VkInstanceApi instanceApi = null!;

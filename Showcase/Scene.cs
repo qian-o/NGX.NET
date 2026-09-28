@@ -41,9 +41,6 @@ internal struct SceneObject
 
 internal sealed class Scene
 {
-    // Retain the source graph and material/texture references; GPU geometry bakes
-    // its hierarchy transforms once because the downloaded architecture is static.
-    public ModelRoot Model { get; private init; } = null!;
     public SceneVertex[] Vertices { get; private set; } = [];
     public SceneMaterial[] Materials { get; private set; } = [];
     public uint[] Texels { get; private set; } = [];
@@ -69,10 +66,7 @@ internal sealed class Scene
     public static Scene Load(string path)
     {
         ModelRoot model = ModelRoot.Load(path);
-        Scene scene = new()
-        {
-            Model = model
-        };
+        Scene scene = new();
         // Texture RGB is 8-bit sRGB. Cache all 256 exact decode values once so
         // bilinear/trilinear samples do not repeat three pow operations per texel.
         List<uint> texels = new(256);
