@@ -110,7 +110,10 @@ placeholder options.
   are in `Assets/Shaders/ToneMapping.slang` and `LICENSE-AgX.txt`.
 - Hardware ray tracing uses a shared Slang `RayQuery` implementation: DXR 1.1
   `TraceRayInline` on DirectX 12 and `VK_KHR_ray_query` on Vulkan. Each pixel uses
-  four stratified diffuse and GGX specular samples, plus sun/sky visibility samples.
+  one diffuse and one GGX specular sample per frame, plus sun/sky visibility samples.
+  A stable pixel rotation visits all four 2 x 2 strata across four frames. This
+  replaces four samples of each lobe per frame to reduce tracing cost. Individual
+  raw frames are noisier; RR's final temporal quality requires Windows acceptance.
   Secondary paths evaluate up to eight surface scattering events; Russian roulette
   after the third event preserves surviving paths' expected energy. Emission or
   visible sky reached by the final scattered ray is still resolved.
@@ -118,8 +121,14 @@ placeholder options.
   with full geometry visibility and multiple importance sampling against the BSDF.
   The rectangle emits no light; it directs samples toward the atrium sky to reduce
   variance. This remains a finite-depth renderer with an analytic daylight environment.
-  These defaults prioritize quality and increase ray work; target GPU performance
-  has not been measured for this revision.
+  Target GPU performance and RR motion quality have not been measured for this revision.
+- Diffuse and specular paths run in independent dispatch layers. A separate lighting
+  pass combines them, writes RR albedo guides and handles sky motion. It contains
+  no ray queries. A shared two-layer RGBA32F scratch image retains full intermediate
+  precision and is reused on the ordered graphics queue, with read/write barriers.
+  It is never tagged for the SDK and is not duplicated across frame slots (19.5 MiB
+  at the reported 1067 x 600 input). Specular distance has one traced writer per
+  foreground pixel; the resolve pass writes the sky sentinel only for background.
 - Direct shading, GGX visible-normal sampling and the RR specular guide use the same
   height-correlated Smith model. This improves grazing-angle behavior without
   clamping away real lighting. The GGX distribution retains its normalized peak at
@@ -159,8 +168,9 @@ placeholder options.
   avoiding zero-vector normalization in normal mapping and indirect paths.
 - Sun directions below the shading horizon skip visibility queries because their
   BRDF contribution is zero. The integrated specular-albedo guide is evaluated only
-  when RR or the raster environment needs it. Ray sample count, bounce limit,
-  texture resolution, anisotropic filtering and local-exposure behavior remain unchanged.
+  when RR or the raster environment needs it. The bounce limit, texture resolution,
+  anisotropic filtering and local-exposure behavior remain unchanged. The lower
+  per-frame path count applies with RR both on and off; ray tracing remains active.
 - The UI renders separately with premultiplied alpha at output resolution. HUD-less
   color and UI obey `final.rgb = ui.rgb + (1 - ui.a) * hudless.rgb`.
 - Frame generation uses the interposer's swap chain and presentation hooks. Its
@@ -216,10 +226,12 @@ logs and screenshots of any issue.
 
 For performance diagnosis, `Logs/performance.jsonl` records one capture after
 startup and each configuration change. It skips three potentially stale frame-slot
-results and averages 30 completed GPU frames, using six native timestamps. Each
+results and averages 30 completed GPU frames, using seven native timestamps. Each
 record contains geometry/TLAS, lighting, reconstruction, post-processing, and
 UI/composition/copy intervals, along with backend, GPU, actual input/output sizes,
-settings and render FPS. These are graphics-queue intervals, not GPU execution
+settings and render FPS. `LightingMs` remains the total lighting interval for
+comparison with earlier logs; `RayTracingMs` and `LightingResolveMs` now split it,
+and `PrimarySamplesPerLobe` records the sampling rate. These are graphics-queue intervals, not GPU execution
 of generated frames or CPU/presentation latency. Timestamp readback uses already
 completed frame slots; no extra GPU-idle wait is added. The Settings panel and
 per-frame console output are unchanged. Keep a configuration running for at least
@@ -274,10 +286,10 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   DeepDVC, NIS, DirectSR and nvperf binaries, even with older cached SDK files present.
 - Scene preparation: passed, 270,203 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
-- All fourteen SPIR-V shaders and HLSL translations, plus the raster lighting
-  variant: compiled successfully. The hardware lighting binary contains SPIR-V
-  ray-query instructions and its acceleration-structure binding; the raster variant
-  contains neither.
+- All fifteen SPIR-V shaders and HLSL translations, plus raster variants of tracing
+  and lighting: compiled successfully. The hardware tracing binary contains SPIR-V
+  ray-query instructions and its acceleration-structure binding in `TraceLighting`;
+  `Lighting` and both raster variants contain neither.
 - CPU checks for this revision: all 270,203 triangles map into four complete,
   non-overlapping BLAS ranges with correct material/object references. DXR and
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
@@ -306,6 +318,23 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   sampling agreed within sampling error, and the MIS estimator had lower variance.
   GGX distribution/PDF probes remained finite and retained the low-roughness peak.
   These are mathematical checks, not scene performance measurements.
+- User-supplied Windows captures on RTX 3050 Laptop / DirectX 12 contained two
+  Quality/RR-on runs at 1067 x 600 input and 1600 x 900 output. Their averages were
+  189.27 ms total, 164.74 ms lighting (87.04%), 11.27 ms geometry, 12.76 ms RR and
+  0.36 ms post-processing, approximately 5.3 render FPS. The file did not contain
+  Ultra Performance or RR-off captures and cannot verify the RR-exit warning fix.
+- The actual old/new shared lighting shaders ran through Metal ray queries on
+  Apple M4 with the real 270,203-triangle scene, four BLASes and all textures, using
+  a 512 x 288 CPU-generated primary-surface fixture. Median lighting time changed
+  from 109.31 ms to 24.69 ms. This includes the deliberate per-frame sampling
+  reduction; it is not an RTX result or an equal per-frame-noise comparison.
+  Old 32-frame/four-sample and new 128-frame/one-sample averages used equal cumulative
+  samples per lobe. HDR means were 0.0073251 and 0.0073314, within sampling error;
+  RR specular-albedo guides matched exactly and hit distances remained finite.
+  The shader resolve also passed odd 257 x 129 dimensions, exact lobe/emission
+  summation, scratch reuse, sky with uninitialized sample slots and hit-distance
+  preservation. Metal test bindings were remapped for its shared register namespace;
+  native Windows synchronization, speed and reconstructed motion quality still need acceptance.
 - Performance-revision equality checks compared all 270,203 complete triangles
   before/after partitioning, including winding, vertex attributes, world positions
   and animation. Materials and every texture/mip byte remained identical. All
@@ -372,6 +401,8 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   for GGX visible-normal sampling.
 - [PBRT, A Better Path Tracer](https://pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/A_Better_Path_Tracer)
   for path termination, Russian roulette and multiple importance sampling.
+- [PBRT, Mapping Path Tracing to the GPU](https://www.pbr-book.org/4ed/Wavefront_Rendering_on_GPUs/Mapping_Path_Tracing_to_the_GPU)
+  for separating path workloads and the register/divergence versus bandwidth tradeoff.
 - [PBRT, Infinite Area Lights](https://pbr-book.org/4ed/Light_Sources/Infinite_Area_Lights)
   for portal-guided environment sampling with visibility.
 - [Durand and Dorsey, Fast Bilateral Filtering for the Display of High-Dynamic-Range Images](https://people.csail.mit.edu/fredo/PUBLI/Siggraph2002/)

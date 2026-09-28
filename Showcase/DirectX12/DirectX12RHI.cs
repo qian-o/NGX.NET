@@ -78,7 +78,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             Height = (uint)Height,
             NativeFormat = (uint)NativeFormat(Format),
             MipLevels = 1,
-            ArrayLayers = 1
+            ArrayLayers = (uint)Layers
         };
         public override void Dispose() => Texture.Dispose();
     }
@@ -320,12 +320,12 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         swapChain?.Dispose();
         swapChain = null;
     }
-    protected override GpuImage CreateImage(int width, int height, ImageFormat format)
+    protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
         ResourceFlags flags = format == ImageFormat.Depth ? ResourceFlags.AllowDepthStencil : ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess;
         Format resourceFormat = format == ImageFormat.Depth ? Format.R32_Typeless : NativeFormat(format);
-        ResourceDescription description = ResourceDescription.Texture2D(resourceFormat, (uint)width, (uint)height, 1, 1, flags: flags);
-        return new DxImage { Width = width, Height = height, Format = format, Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common), State = ResourceStates.Common };
+        ResourceDescription description = ResourceDescription.Texture2D(resourceFormat, (uint)width, (uint)height, (ushort)layers, 1, flags: flags);
+        return new DxImage { Width = width, Height = height, Layers = layers, Format = format, Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common), State = ResourceStates.Common };
     }
     private CpuDescriptorHandle Cpu(int frame, int index) => descriptors.GetCPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
     private GpuDescriptorHandle Gpu(int frame, int index) => descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
@@ -396,7 +396,8 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             }
             int previousFrame = (frame + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
             CreateSrv((DxImage)Frames[previousFrame][(int)ImageSlot.Exposure], Cpu(frame, RenderLayout.PreviousExposureSrv));
-            CreateSrv(font, Cpu(frame, RenderLayout.SrvCount - 1));
+            CreateSrv(font, Cpu(frame, RenderLayout.FontSrv));
+            CreateSrv((DxImage)LightingSamples, Cpu(frame, RenderLayout.LightingSamplesSrv));
             for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
             {
                 DxImage image = (DxImage)Frames[frame][(int)RenderLayout.StorageImages[i]];
@@ -406,19 +407,32 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
                     ViewDimension = UnorderedAccessViewDimension.Texture2D
                 }, Cpu(frame, RenderLayout.SrvCount + i));
             }
+            device.CreateUnorderedAccessView(((DxImage)LightingSamples).Texture, null, new()
+            {
+                Format = NativeFormat(LightingSamples.Format),
+                ViewDimension = UnorderedAccessViewDimension.Texture2DArray,
+                Texture2DArray = new() { ArraySize = (uint)LightingSamples.Layers }
+            }, Cpu(frame, RenderLayout.SrvCount + RenderLayout.LightingSamplesUav));
         }
     }
-    private void CreateSrv(DxImage image, CpuDescriptorHandle descriptor) => device.CreateShaderResourceView(image.Texture,
-        new()
+    private void CreateSrv(DxImage image, CpuDescriptorHandle descriptor)
+    {
+        ShaderResourceViewDescription description = new()
         {
             Format = image.Format == ImageFormat.Depth ? Format.R32_Float : NativeFormat(image.Format),
-            ViewDimension = Vortice.Direct3D12.ShaderResourceViewDimension.Texture2D,
-            Shader4ComponentMapping = ShaderComponentMapping.Default,
-            Texture2D = new()
-            {
-                MipLevels = 1
-            }
-        }, descriptor);
+            ViewDimension = image.Layers > 1 ? Vortice.Direct3D12.ShaderResourceViewDimension.Texture2DArray : Vortice.Direct3D12.ShaderResourceViewDimension.Texture2D,
+            Shader4ComponentMapping = ShaderComponentMapping.Default
+        };
+        if (image.Layers > 1)
+        {
+            description.Texture2DArray = new() { MipLevels = 1, ArraySize = (uint)image.Layers };
+        }
+        else
+        {
+            description.Texture2D = new() { MipLevels = 1 };
+        }
+        device.CreateShaderResourceView(image.Texture, description, descriptor);
+    }
 
     protected override bool BeginCommands()
     {
@@ -507,10 +521,10 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
         commandList.UnsetRenderTargets();
     }
-    protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants)
+    protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1)
     {
         Bind(false, pipelines[pass], constants);
-        commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, 1);
+        commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, (uint)groupsZ);
     }
     protected override void WriteTimestamp(GpuTimestamp timestamp) =>
         commandList.EndQuery(queries, QueryType.Timestamp, (uint)(FrameSlot * (int)GpuTimestamp.Count + (int)timestamp));

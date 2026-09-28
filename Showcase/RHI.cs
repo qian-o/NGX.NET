@@ -51,6 +51,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected Scene Scene = null!;
     protected Camera Camera { get; private set; } = new();
     protected readonly GpuImage[][] Frames = new GpuImage[RenderLayout.FramesInFlight][];
+    // Scratch data is consumed entirely on the graphics queue before the next
+    // frame writes it. One shared allocation avoids multiplying it by frame slots.
+    protected GpuImage LightingSamples = null!;
     protected int FrameSlot;
     protected FrameConstants Constants;
     protected abstract nint Command
@@ -142,6 +145,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
                 Frames[frame][(int)slot] = CreateImage(width, height, RenderLayout.Format(slot));
             }
         }
+        LightingSamples = CreateImage(RayQuerySupported ? InputWidth : 1, RayQuerySupported ? InputHeight : 1,
+            ImageFormat.Rgba32, RenderLayout.LightingPaths);
         UpdateDescriptors();
         Streamline.SetFrameGeneration(Settings.FrameGeneration ? 1u : 0);
         // Discard counts from initialization or the old swap chain. Mode changes
@@ -272,6 +277,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Transition(Image(slot), ImageUse.Storage);
         }
 
+        if (RayQuerySupported)
+        {
+            Transition(LightingSamples, ImageUse.Storage);
+            Dispatch(ComputePass.TraceLighting, InputWidth, InputHeight, Constants, RenderLayout.LightingPaths);
+        }
+        Transition(LightingSamples, ImageUse.ShaderRead);
+        WriteTimestamp(GpuTimestamp.RayTracing);
         Dispatch(ComputePass.Lighting, InputWidth, InputHeight, Constants);
         foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse })
         {
@@ -384,9 +396,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             GPU = AdapterName,
             InputWidth, InputHeight, OutputWidth = outputWidth, OutputHeight = outputHeight,
             Mode = Settings.Quality.ToString(), Settings.RayReconstruction, Settings.FrameGeneration,
+            PrimarySamplesPerLobe = RenderLayout.PrimarySamples,
             Samples = GpuProfile.SampleCount,
-            GeometryMs = average[0], LightingMs = average[1], ReconstructionMs = average[2],
-            PostProcessingMs = average[3], CompositionAndCopyMs = average[4],
+            GeometryMs = average[0], LightingMs = average[1] + average[2],
+            RayTracingMs = average[1], LightingResolveMs = average[2], ReconstructionMs = average[3],
+            PostProcessingMs = average[4], CompositionAndCopyMs = average[5],
             TotalGpuMs = average.Sum(), RenderFps
         }) + Environment.NewLine);
     }
@@ -400,6 +414,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     };
     private void ReleaseTargets()
     {
+        LightingSamples?.Dispose();
+        LightingSamples = null!;
         foreach (GpuImage[]? frame in Frames)
         {
             if (frame is not null)
@@ -417,14 +433,14 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected abstract void InitializeRenderer();
     protected abstract void CreateSwapChain();
     protected abstract void DestroySwapChain();
-    protected abstract GpuImage CreateImage(int width, int height, ImageFormat format);
+    protected abstract GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1);
     protected abstract void UpdateDescriptors();
     protected abstract bool BeginCommands();
     protected abstract void UpdateRayTracingScene();
     protected abstract void DrawShadow();
     protected abstract void DrawScene();
     protected abstract void DrawUI(ImDrawDataPtr data);
-    protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants);
+    protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1);
     protected abstract void WriteTimestamp(GpuTimestamp timestamp);
     protected abstract void Transition(GpuImage image, ImageUse use);
     protected abstract void SubmitFrame();

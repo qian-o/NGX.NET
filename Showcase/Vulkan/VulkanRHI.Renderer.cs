@@ -419,11 +419,13 @@ internal sealed unsafe partial class VulkanRHI
 
             int previousFrame = (index + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
             Texture(RenderLayout.PreviousExposureSrv + 1, VkDescriptorType.SampledImage, (VkTexture)Frames[previousFrame][(int)ImageSlot.Exposure], VkImageLayout.ShaderReadOnlyOptimal);
-            Texture(RenderLayout.SrvCount, VkDescriptorType.SampledImage, font, VkImageLayout.ShaderReadOnlyOptimal);
+            Texture(RenderLayout.FontSrv + 1, VkDescriptorType.SampledImage, font, VkImageLayout.ShaderReadOnlyOptimal);
+            Texture(RenderLayout.LightingSamplesSrv + 1, VkDescriptorType.SampledImage, (VkTexture)LightingSamples, VkImageLayout.ShaderReadOnlyOptimal);
             for (int i = 0; i < RenderLayout.StorageImages.Length; i++)
             {
                 Texture(32 + (uint)i, VkDescriptorType.StorageImage, (VkTexture)Frames[index][(int)RenderLayout.StorageImages[i]], VkImageLayout.General);
             }
+            Texture(32 + RenderLayout.LightingSamplesUav, VkDescriptorType.StorageImage, (VkTexture)LightingSamples, VkImageLayout.General);
 
             VkDescriptorImageInfo samplerInfo = new()
             {
@@ -578,10 +580,10 @@ internal sealed unsafe partial class VulkanRHI
         api.vkCmdDraw(commandBuffer, (uint)Scene.Vertices.Length, 1, 0, 0);
         api.vkCmdEndRendering(commandBuffer);
     }
-    protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants)
+    protected override void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1)
     {
         Bind(VkPipelineBindPoint.Compute, pipelines[pass], constants);
-        api.vkCmdDispatch(commandBuffer, (uint)(width + 7) / 8, (uint)(height + 7) / 8, 1);
+        api.vkCmdDispatch(commandBuffer, (uint)(width + 7) / 8, (uint)(height + 7) / 8, (uint)groupsZ);
     }
     protected override void DrawUI(ImDrawDataPtr data)
     {
@@ -674,7 +676,7 @@ internal sealed unsafe partial class VulkanRHI
         };
         if (texture.Layout != layout)
         {
-            Barrier(texture.Texture, texture.Layout, layout, Range(texture.Format));
+            Barrier(texture.Texture, texture.Layout, layout, Range(texture.Format, texture.Layers));
         }
 
         texture.Layout = layout;

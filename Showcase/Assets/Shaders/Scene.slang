@@ -55,6 +55,7 @@ struct Globals
 [[vk::binding(24, 0)]] Texture2D<float> filteredLuminanceImage : register(t23);
 [[vk::binding(25, 0)]] Texture2D<float4> previousExposureImage : register(t24);
 [[vk::binding(26, 0)]] Texture2D<float4> fontImage : register(t25);
+[[vk::binding(27, 0)]] Texture2DArray<float4> lightingSamplesImage : register(t26);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
 [[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
@@ -67,6 +68,7 @@ struct Globals
 [[vk::binding(41, 0)]] RWTexture2D<float4> exposureOutput : register(u9);
 [[vk::binding(42, 0)]] RWTexture2D<float4> luminanceOutput : register(u10);
 [[vk::binding(43, 0)]] RWTexture2D<float> filteredLuminanceOutput : register(u11);
+[[vk::binding(44, 0)]] RWTexture2DArray<float4> lightingSamplesOutput : register(u12);
 [[vk::binding(48, 0)]] SamplerState linearSampler : register(s0);
 
 float3 linearToSrgb(float3 c) { return select(c <= 0.0031308, c * 12.92, 1.055 * pow(max(c, 0), 1.0 / 2.4) - 0.055); }
@@ -398,10 +400,10 @@ float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
     if (dot(s.normal, sunDirection) <= 0) return 0;
     float visibility;
 #if HAS_RAY_QUERY
-    if (g.parameters.x > 0) visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
-    else
-#endif
+    visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
+#else
     visibility = shadowVisibility(p, s.normal);
+#endif
     float3 color = brdf(s, view, sunDirection) * float3(1, 0.96, 0.88) * g.lighting.x * visibility;
     return color;
 }
@@ -464,83 +466,15 @@ float ambientVisibility(int2 pixel, float3 p, float3 n)
 // RR guide section 3.4.9 specifies FP16_MAX or FP32_MAX for the sky. This is
 // independent of the finite traversal limit used to trace the scene's geometry.
 static const float skyHitDistance = 65504.0;
-#if HAS_RAY_QUERY
-Surface hitSurface(Hit hit, float3 direction)
+Surface primarySurface(uint2 pixel, float3 view)
 {
-    Vertex a = vertices[hit.triangle * 3], b = vertices[hit.triangle * 3 + 1], c = vertices[hit.triangle * 3 + 2];
-    float3 weights = float3(1 - hit.bary.x - hit.bary.y, hit.bary);
-    float2 uv = a.uv.xy * weights.x + b.uv.xy * weights.y + c.uv.xy * weights.z;
-    float3 n = normalize(a.normal.xyz * weights.x + b.normal.xyz * weights.y + c.normal.xyz * weights.z);
-    float4 tangent = a.tangent * weights.x + b.tangent * weights.y + c.tangent * weights.z;
-    float footprint = hit.distance * 2 * g.camera.w / g.size.y;
-    float uvScale = max(length(b.uv.xy - a.uv.xy) / max(length(b.position.xyz - a.position.xyz), g.scene.z),
-                        length(c.uv.xy - a.uv.xy) / max(length(c.position.xyz - a.position.xyz), g.scene.z));
-    Material material = materials[(uint)a.normal.w];
-    float4 lod;
-    for (uint i = 0; i < 4; i++)
-    {
-        int index = (int)material.textures[i];
-        lod[i] = index < 0 ? 0 : max(log2(max(footprint * uvScale * max(textureInfo[index].y, textureInfo[index].z), 1)) + g.jitter.w, 0);
-    }
-    Surface s = surface(material, uv, n, tangent, lod);
-    if (dot(s.normal, direction) > 0) s.normal = -s.normal;
+    float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
+    Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w;
+    s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
+    if (dot(s.normal, view) < 0) s.normal = -s.normal;
     return s;
 }
-float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, inout uint rng, out float distance)
-{
-    const uint surfaceBounces = 8;
-    float3 radiance = 0, throughput = 1;
-    distance = skyHitDistance;
-    // Resolve emission/environment after the last scattering event as well.
-    // Stopping before tracing that ray would discard valid terminal skylight.
-    [loop]
-    for (uint bounce = 0; bounce <= surfaceBounces; bounce++)
-    {
-        Hit hit = trace(origin, direction, g.scene.w * 4, false);
-        if (bounce == 0 && hit.triangle != 0xffffffff) distance = hit.distance;
-        if (hit.triangle == 0xffffffff)
-        {
-            radiance += throughput * sky(direction) * escapeWeight;
-            break;
-        }
-        Surface s = hitSurface(hit, direction);
-        radiance += throughput * s.emissive;
-        if (bounce == surfaceBounces) break;
-        float3 p = origin + direction * hit.distance;
-        float3 view = -direction;
-        radiance += throughput * (directLight(s, p, view, sampleSun(rng))
-            + skyLighting(s, p, view, float2(random(rng), random(rng)), false));
-        float probability = specularProbability(s);
-        float3 halfVector;
-        float2 u = float2(random(rng), random(rng));
-        if (random(rng) < probability)
-        {
-            direction = sampleSpecular(s, view, u, halfVector);
-        }
-        else
-        {
-            float r = sqrt(u.x), phi = u.y * 6.2831853;
-            direction = basisDirection(s.normal, float3(r * cos(phi), r * sin(phi), sqrt(1 - u.x)));
-        }
-        if (dot(s.normal, direction) <= 0) break;
-        float2 pdfs = bsdfPdfs(s, view, direction);
-        float pdf = lerp(pdfs.x, pdfs.y, probability);
-        if (pdf <= 0) break;
-        throughput *= brdf(s, view, direction) / pdf;
-        escapeWeight = powerHeuristic(pdf, skyPortalPdf(p, direction));
-        // Preserve low-energy paths statistically instead of truncating all
-        // indirect illumination after two surfaces. The survival weight is unbiased.
-        if (bounce >= 2)
-        {
-            float survival = min(max(throughput.r, max(throughput.g, throughput.b)), 0.95);
-            if (survival <= 0 || random(rng) >= survival) break;
-            throughput /= survival;
-        }
-        origin = p + s.normal * g.scene.z;
-    }
-    return radiance;
-}
-#endif
+#include "PathTracing.slang"
 [shader("compute")]
 [numthreads(8, 8, 1)]
 void Lighting(uint3 id : SV_DispatchThreadID)
@@ -566,65 +500,23 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         motionOutput[pixel] = (previous.xy / previous.w - current.xy / current.w) * float2(0.5, -0.5) * g.size.xy;
         return;
     }
-    float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
-    Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w; s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
-    if (dot(s.normal, view) < 0) s.normal = -s.normal;
-    uint rng = hash(pixel.x + pixel.y * (uint)g.size.x + (uint)g.scene.y * 0x9e3779b9);
+    Surface s = primarySurface(pixel, view);
     float3 color = s.emissive;
     float3 f0 = lerp(0.04, s.albedo, s.metallic);
     float nv = saturate(dot(s.normal, view));
     float3 specularAlbedo = 0;
     if (g.jitter.z > 0 || g.parameters.x == 0)
         specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
-    float specularDistance = skyHitDistance;
-#if HAS_RAY_QUERY
     if (g.parameters.x > 0)
     {
-        const uint sampleCount = 4;
         float3 sampled = 0;
-        uint stratumOffset = hash(rng) & 3;
-        [loop]
-        for (uint sample = 0; sample < sampleCount; sample++)
-        {
-            uint stratumIndex = (sample + stratumOffset) & 3;
-            float2 stratum = float2(stratumIndex & 1, stratumIndex >> 1);
-            float2 lightU = (stratum + float2(random(rng), random(rng))) / 2;
-            sampled += directLight(s, p, view, sampleSun(rng)) + skyLighting(s, p, view, lightU, true);
-            float2 diffuseU = (stratum + float2(random(rng), random(rng))) / 2;
-            float phi = diffuseU.y * 6.2831853;
-            float3 diffuseDirection = basisDirection(s.normal,
-                float3(sqrt(diffuseU.x) * cos(phi), sqrt(diffuseU.x) * sin(phi), sqrt(1 - diffuseU.x)));
-            float3 diffuseHalf = normalize(view + diffuseDirection);
-            float3 diffuseWeight = s.albedo * (1 - s.metallic) * (1 - fresnel(f0, dot(view, diffuseHalf)));
-            if (any(diffuseWeight > 0))
-            {
-                float diffusePdf = max(dot(s.normal, diffuseDirection), 0) / 3.14159265;
-                float unused;
-                sampled += diffuseWeight * secondaryRadiance(p + s.normal * g.scene.z, diffuseDirection,
-                    powerHeuristic(diffusePdf, skyPortalPdf(p, diffuseDirection)), rng, unused);
-            }
-            float2 specularU = (stratum + float2(random(rng), random(rng))) / 2;
-            float3 halfVector;
-            float3 reflected = sampleSpecular(s, view, specularU, halfVector);
-            if (dot(reflected, s.normal) > 0)
-            {
-                float nl = dot(s.normal, reflected), vh = saturate(dot(view, halfVector));
-                float3 weight = specularWeight(f0, max(nv, 1e-4), nl, vh, s.roughness * s.roughness);
-                float specularPdf = bsdfPdfs(s, view, reflected).y;
-                float distance;
-                sampled += secondaryRadiance(p + s.normal * g.scene.z, reflected,
-                    powerHeuristic(specularPdf, skyPortalPdf(p, reflected)), rng, distance) * weight;
-                // RR needs a real primary-to-secondary distance, not an average
-                // that mixes finite geometry with the sky sentinel.
-                if (sample == 0) specularDistance = distance;
-            }
-        }
-        color += sampled / sampleCount;
+        for (uint path = 0; path < primarySampleCount * 2; path++)
+            sampled += lightingSamplesImage.Load(int4(pixel, path, 0)).rgb;
+        color += sampled / primarySampleCount;
     }
     else
-#endif
     {
-        color += directLight(s, p, view, g.sun.xyz);
+        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p, s.normal);
         float visibility = ambientVisibility(int2(pixel), p, s.normal);
         float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
         color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;
@@ -637,7 +529,6 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     {
         specularOutput[pixel] = float4(specularAlbedo, 1);
         diffuseOutput[pixel] = float4(s.albedo * (1 - s.metallic), 1);
-        hitOutput[pixel] = specularDistance;
     }
 }
 float3 sampleHdr(float2 uv)

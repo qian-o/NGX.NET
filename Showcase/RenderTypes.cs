@@ -22,11 +22,11 @@ internal enum ImageUse
 }
 internal enum ComputePass
 {
-    Lighting, PrepareLuminance, FilterLuminance, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
+    TraceLighting, Lighting, PrepareLuminance, FilterLuminance, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
 }
 internal enum GpuTimestamp
 {
-    Start, Geometry, Lighting, Reconstruction, PostProcessing, End, Count
+    Start, Geometry, RayTracing, Lighting, Reconstruction, PostProcessing, End, Count
 }
 
 internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruction, bool FrameGeneration);
@@ -78,6 +78,7 @@ internal abstract class GpuImage : IDisposable
     public required int Width;
     public required int Height;
     public required ImageFormat Format;
+    public int Layers = 1;
     public ImageUse Use;
     public abstract Resource Describe();
     public abstract void Dispose();
@@ -93,10 +94,15 @@ internal static class RenderLayout
 
     public const int FramesInFlight = 3;
     public const int PreviousExposureSrv = 6 + (int)ImageSlot.Count;
-    public const int SrvCount = PreviousExposureSrv + 2; // previous exposure and font
+    public const int FontSrv = PreviousExposureSrv + 1;
+    public const int LightingSamplesSrv = FontSrv + 1;
+    public const int SrvCount = LightingSamplesSrv + 1;
+    public const int PrimarySamples = 1; // PathTracing.slang; strata advance across frames
+    public const int LightingPaths = PrimarySamples * 2; // diffuse and specular
     public const int ShadowMapSize = 2048;
     public const int LuminanceTileSize = 16;
-    public const int UavCount = 12;
+    public const int LightingSamplesUav = 12;
+    public const int UavCount = LightingSamplesUav + 1;
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
     public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];

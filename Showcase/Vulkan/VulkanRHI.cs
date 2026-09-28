@@ -83,7 +83,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Width = (uint)Width,
             Height = (uint)Height,
             MipLevels = 1,
-            ArrayLayers = 1,
+            ArrayLayers = (uint)Layers,
             Usage = (uint)Usage
         };
         public override void Dispose()
@@ -397,7 +397,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         api.vkCmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
         return buffer;
     }
-    protected override GpuImage CreateImage(int width, int height, ImageFormat format)
+    protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
         VkImageUsageFlags usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst;
         usage |= format == ImageFormat.Depth ? VkImageUsageFlags.DepthStencilAttachment : VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Storage;
@@ -406,6 +406,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Api = api,
             Width = width,
             Height = height,
+            Layers = layers,
             Format = format,
             Usage = usage
         };
@@ -415,7 +416,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             format = NativeFormat(format),
             extent = new((uint)width, (uint)height, 1),
             mipLevels = 1,
-            arrayLayers = 1,
+            arrayLayers = (uint)layers,
             samples = VkSampleCountFlags.Count1,
             tiling = VkImageTiling.Optimal,
             usage = usage
@@ -432,9 +433,9 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         VkImageViewCreateInfo view = new()
         {
             image = texture.Texture,
-            viewType = VkImageViewType.Image2D,
+            viewType = layers > 1 ? VkImageViewType.Image2DArray : VkImageViewType.Image2D,
             format = NativeFormat(format),
-            subresourceRange = Range(format)
+            subresourceRange = Range(format, layers)
         };
         Check(api.vkCreateImageView(&view, null, out texture.View), "vkCreateImageView");
         return texture;
@@ -527,5 +528,5 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         ImageFormat.Depth => VkFormat.D32Sfloat,
         _ => VkFormat.R8G8B8A8Unorm
     };
-    private static VkImageSubresourceRange Range(ImageFormat format) => new(format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color, 0, 1, 0, 1);
+    private static VkImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color, 0, 1, 0, (uint)layers);
 }
