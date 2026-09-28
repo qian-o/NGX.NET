@@ -53,9 +53,10 @@ struct Globals
 [[vk::binding(22, 0)]] Texture2D<float4> exposureImage : register(t21);
 [[vk::binding(23, 0)]] Texture2D<float4> luminanceImage : register(t22);
 [[vk::binding(24, 0)]] Texture2D<float> filteredLuminanceImage : register(t23);
-[[vk::binding(25, 0)]] Texture2D<float4> previousExposureImage : register(t24);
-[[vk::binding(26, 0)]] Texture2D<float4> fontImage : register(t25);
-[[vk::binding(27, 0)]] Texture2DArray<float4> lightingSamplesImage : register(t26);
+[[vk::binding(25, 0)]] Texture2D<float2> geometricNormalImage : register(t24);
+[[vk::binding(26, 0)]] Texture2D<float4> previousExposureImage : register(t25);
+[[vk::binding(27, 0)]] Texture2D<float4> fontImage : register(t26);
+[[vk::binding(28, 0)]] Texture2DArray<float4> lightingSamplesImage : register(t27);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
 [[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
@@ -139,7 +140,26 @@ float4 sampleTextureGrad(int index, float2 uv, float2 dx, float2 dy, float bias,
         result += sampleTexture(index, uv + span * ((i + 0.5) / taps - 0.5), lod, srgb);
     return result / taps;
 }
-struct Surface { float3 albedo; float3 normal; float3 emissive; float metallic; float roughness; float alpha; };
+// Keep the actual triangle normal separate from interpolated/normal-mapped shading.
+// Reflection must stay above the geometric surface even when a normal map tilts it.
+float2 octahedralSign(float2 v) { return float2(v.x < 0 ? -1 : 1, v.y < 0 ? -1 : 1); }
+float2 encodeGeometricNormal(float3 n)
+{
+    n /= dot(abs(n), float3(1, 1, 1));
+    return n.z >= 0 ? n.xy : (1 - abs(n.yx)) * octahedralSign(n.xy);
+}
+float3 decodeGeometricNormal(float2 encoded)
+{
+    float3 n = float3(encoded, 1 - abs(encoded.x) - abs(encoded.y));
+    if (n.z < 0) n.xy = (1 - abs(n.yx)) * octahedralSign(n.xy);
+    return normalize(n);
+}
+struct Surface { float3 albedo; float3 normal; float3 geometricNormal; float3 emissive; float metallic; float roughness; float alpha; };
+bool aboveSurface(Surface s, float3 direction)
+{
+    return dot(s.geometricNormal, direction) > 0 && dot(s.normal, direction) > 0;
+}
+float3 rayOrigin(float3 p, Surface s) { return p + s.geometricNormal * g.scene.z; }
 Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, float4 normalMap, float4 mr, float3 emission)
 {
     Surface s;
@@ -150,6 +170,7 @@ Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, fl
     s.roughness = clamp(m.parameters.x * mr.g, 0.045, 1);
     s.emissive = m.emissiveMetallic.rgb * emission;
     s.normal = normalize(n);
+    s.geometricNormal = s.normal;
     if (m.textures.y >= 0)
     {
         float3 t = tangent.xyz - n * dot(n, tangent.xyz);
@@ -208,7 +229,7 @@ RasterVertex SceneVS(uint id : SV_VertexID)
     result.material = (uint)v.normal.w;
     return result;
 }
-struct GBuffer { float4 albedo : SV_Target0; float4 normal : SV_Target1; float4 emissive : SV_Target2; float2 motion : SV_Target3; };
+struct GBuffer { float4 albedo : SV_Target0; float4 normal : SV_Target1; float4 emissive : SV_Target2; float2 motion : SV_Target3; float2 geometricNormal : SV_Target4; };
 [shader("fragment")]
 void DepthPS(RasterVertex input, bool front : SV_IsFrontFace)
 {
@@ -236,12 +257,15 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
         sampleTextureGrad((int)m.textures.w, input.uv, uvDx, uvDy, g.jitter.w, true).rgb);
     clip(s.alpha - m.parameters.z);
     if (dot(s.normal, g.camera.xyz - input.world) < 0) s.normal = -s.normal;
+    float3 geometricNormal = normalize(cross(ddx(input.world), ddy(input.world)));
+    if (dot(geometricNormal, g.camera.xyz - input.world) < 0) geometricNormal = -geometricNormal;
     GBuffer output;
     output.albedo = float4(s.albedo, 1);
     output.normal = float4(s.normal, s.roughness);
     output.emissive = float4(s.emissive, s.metallic);
     float2 motion = input.previous.xy / input.previous.w - input.current.xy / input.current.w;
     output.motion = motion * float2(0.5, -0.5) * g.size.xy;
+    output.geometricNormal = encodeGeometricNormal(geometricNormal);
     return output;
 }
 
@@ -291,7 +315,9 @@ float shadowVisibility(float3 p, float3 normal)
 
 #if HAS_RAY_QUERY
 struct Hit { float distance; uint triangle; uint object; float2 bary; };
-static const uint traversalFlags = RAY_FLAG_CULL_BACK_FACING_TRIANGLES | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES;
+// Material facing controls camera visibility, not whether an opaque wall blocks
+// light. Back-face culling here lets visibility and bounce rays escape thin roofs.
+static const uint traversalFlags = RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES;
 void traverse<let flags : uint>(inout RayQuery<flags> query, float3 origin, float3 direction, float limit)
 {
     RayDesc ray;
@@ -308,8 +334,8 @@ void traverse<let flags : uint>(inout RayQuery<flags> query, float3 origin, floa
         uint firstVertex = objects[objectIndex].geometry.x + query.CandidatePrimitiveIndex() * 3;
         Vertex a = vertices[firstVertex], b = vertices[firstVertex + 1], c = vertices[firstVertex + 2];
         Material material = materials[(uint)a.normal.w];
-        // Opaque hits and one-sided back faces are resolved by traversal. Only
-        // alpha-tested geometry reaches this loop; double-sided instances disable culling.
+        // Opaque hits are resolved by traversal. Alpha-tested surfaces retain
+        // their cutouts on both sides for visibility and indirect-light rays.
         if (material.parameters.z >= 0)
         {
             float2 bary = query.CandidateTriangleBarycentrics();
@@ -394,7 +420,7 @@ float smithG1(float nv, float alpha)
 float3 brdf(Surface s, float3 v, float3 l)
 {
     float nv = max(dot(s.normal, v), 1e-4), nl = max(dot(s.normal, l), 0);
-    if (nl == 0) return 0;
+    if (!aboveSurface(s, l)) return 0;
     float3 h = normalize(v + l);
     float nh = saturate(dot(s.normal, h)), vh = saturate(dot(v, h));
     float alpha = s.roughness * s.roughness;
@@ -434,13 +460,12 @@ float3 specularWeight(float3 f0, float nv, float nl, float vh, float alpha)
 
 float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 {
-    // The BRDF is zero below the shading horizon; no visibility ray is needed.
-    if (dot(s.normal, sunDirection) <= 0) return 0;
+    if (!aboveSurface(s, sunDirection)) return 0;
     float visibility;
 #if HAS_RAY_QUERY
-    visibility = occluded(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4) ? 0 : 1;
+    visibility = occluded(rayOrigin(p, s), sunDirection, g.scene.w * 4) ? 0 : 1;
 #else
-    visibility = shadowVisibility(p, s.normal);
+    visibility = shadowVisibility(p, s.geometricNormal);
 #endif
     float3 color = brdf(s, view, sunDirection) * float3(1, 0.96, 0.88) * g.lighting.x * visibility;
     return color;
@@ -508,6 +533,7 @@ Surface primarySurface(uint2 pixel, float3 view)
 {
     float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
     Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w;
+    s.geometricNormal = decodeGeometricNormal(geometricNormalImage[pixel]);
     s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
     if (dot(s.normal, view) < 0) s.normal = -s.normal;
     return s;
@@ -554,7 +580,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     }
     else
     {
-        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p, s.normal);
+        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p, s.geometricNormal);
         float visibility = ambientVisibility(int2(pixel), p, s.normal);
         float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
         color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;

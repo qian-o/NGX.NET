@@ -67,6 +67,9 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
   and motion references.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
+- Lighting rays test both sides of opaque surfaces while preserving alpha cutouts.
+  Separate geometric normals keep reflected paths above the actual surface and
+  offset ray origins independently of normal-map detail.
 - Diffuse and specular paths run independently with importance sampling, temporal
   strata and throughput-based Russian roulette. Filtering uses mipmaps and
   anisotropic texture footprints.

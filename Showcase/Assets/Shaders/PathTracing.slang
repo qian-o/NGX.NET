@@ -21,6 +21,8 @@ Surface hitSurface(Hit hit, float3 direction)
     }
     Surface s = surface(material, uv, n, tangent, lod);
     if (dot(s.normal, direction) > 0) s.normal = -s.normal;
+    float3 geometricNormal = normalize(cross(b.position.xyz - a.position.xyz, c.position.xyz - a.position.xyz));
+    s.geometricNormal = dot(geometricNormal, direction) > 0 ? -geometricNormal : geometricNormal;
     return s;
 }
 float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, float3 throughput, bool diffusePath, inout uint rng, out float distance)
@@ -59,7 +61,7 @@ float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, fl
             float r = sqrt(u.x), phi = u.y * 6.2831853;
             direction = basisDirection(s.normal, float3(r * cos(phi), r * sin(phi), sqrt(1 - u.x)));
         }
-        if (dot(s.normal, direction) <= 0) break;
+        if (!aboveSurface(s, direction)) break;
         float2 pdfs = bsdfPdfs(s, view, direction);
         float pdf = lerp(pdfs.x, pdfs.y, probability);
         if (pdf <= 0) break;
@@ -78,7 +80,7 @@ float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, fl
             if (random(rng) >= survival) break;
             throughput /= survival;
         }
-        origin = p + s.normal * g.scene.z;
+        origin = rayOrigin(p, s);
     }
     return radiance;
 }
@@ -114,11 +116,11 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         float3 direction = basisDirection(s.normal, float3(sqrt(u.x) * cos(phi), sqrt(u.x) * sin(phi), sqrt(1 - u.x)));
         float3 h = normalize(view + direction);
         float3 weight = s.albedo * (1 - s.metallic) * (1 - fresnel(f0, dot(view, h)));
-        if (any(weight > 0))
+        if (any(weight > 0) && aboveSurface(s, direction))
         {
             float pdf = max(dot(s.normal, direction), 0) / 3.14159265;
             float unused;
-            color += secondaryRadiance(p + s.normal * g.scene.z, direction,
+            color += secondaryRadiance(rayOrigin(p, s), direction,
                 powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, true, rng, unused);
         }
     }
@@ -129,12 +131,12 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         float3 direction = sampleSpecular(s, view, u, halfVector);
         float distance = skyHitDistance;
         float nl = dot(s.normal, direction);
-        if (nl > 0)
+        if (aboveSurface(s, direction))
         {
             float nv = max(dot(s.normal, view), 1e-4), vh = saturate(dot(view, halfVector));
             float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness);
             float pdf = bsdfPdfs(s, view, direction).y;
-            color = secondaryRadiance(p + s.normal * g.scene.z, direction,
+            color = secondaryRadiance(rayOrigin(p, s), direction,
                 powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, distance);
         }
         // Preserve one real first-specular-sample distance, including the sky

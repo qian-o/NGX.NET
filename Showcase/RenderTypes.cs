@@ -10,7 +10,7 @@ internal enum Reconstruction
 }
 internal enum ImageSlot
 {
-    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Luminance, FilteredLuminance, Count
+    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Luminance, FilteredLuminance, GeometricNormal, Count
 }
 internal enum ImageFormat
 {
@@ -94,7 +94,7 @@ internal static class RenderLayout
 
     public static ReadOnlySpan<ImageSlot> ColorTargets(GraphicsPass pass) => pass switch
     {
-        GraphicsPass.Scene => [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Motion],
+        GraphicsPass.Scene => [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Motion, ImageSlot.GeometricNormal],
         GraphicsPass.UI => [ImageSlot.UI],
         GraphicsPass.Depth or GraphicsPass.Shadow => [],
         _ => throw new ArgumentOutOfRangeException(nameof(pass))
@@ -119,7 +119,7 @@ internal static class RenderLayout
     public const int UavCount = LightingSamplesUav + 1;
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
-    public static readonly ImageSlot[] GeometryOutputs = [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth];
+    public static readonly ImageSlot[] GeometryOutputs = [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth, ImageSlot.GeometricNormal];
     public static readonly ImageSlot[] LightingOutputs = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse];
     public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];
     public static (int Width, int Height) Size(ImageSlot slot, int inputWidth, int inputHeight, int outputWidth, int outputHeight) => slot switch
@@ -134,7 +134,7 @@ internal static class RenderLayout
 
     public static ImageFormat Format(ImageSlot slot) => slot switch
     {
-        ImageSlot.Motion => ImageFormat.Rg16,
+        ImageSlot.Motion or ImageSlot.GeometricNormal => ImageFormat.Rg16,
         ImageSlot.Exposure => ImageFormat.Rgba32,
         ImageSlot.Depth or ImageSlot.Shadow => ImageFormat.Depth,
         ImageSlot.HitDistance or ImageSlot.FilteredLuminance => ImageFormat.Float,

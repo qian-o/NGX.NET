@@ -37,7 +37,7 @@ float specularProbability(Surface s)
 float2 bsdfPdfs(Surface s, float3 view, float3 direction)
 {
     float nl = dot(s.normal, direction);
-    if (nl <= 0) return 0;
+    if (!aboveSurface(s, direction)) return 0;
     float nv = max(dot(s.normal, view), 1e-4);
     float3 h = normalize(view + direction);
     float alpha = s.roughness * s.roughness;
@@ -50,8 +50,8 @@ float3 skyLighting(Surface s, float3 p, float3 view, float2 u, bool separateLobe
     float lightPdf;
     float3 direction = sampleSkyPortal(p, u, lightPdf);
     float nl = dot(s.normal, direction);
-    if (lightPdf <= 0 || nl <= 0) return 0;
-    if (occluded(p + s.normal * g.scene.z, direction, g.scene.w * 4)) return 0;
+    if (lightPdf <= 0 || !aboveSurface(s, direction)) return 0;
+    if (occluded(rayOrigin(p, s), direction, g.scene.w * 4)) return 0;
     float2 pdf = bsdfPdfs(s, view, direction);
     float3 contribution;
     if (separateLobes)
