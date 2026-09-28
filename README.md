@@ -44,6 +44,14 @@ Feature operations and their dedicated helpers are grouped under `SL.DLSS`,
 `SL.DLSSD`, `SL.DLSSG`, `SL.Reflex`, `SL.PCL`, `SL.NIS`, `SL.DeepDVC` and
 `SL.DirectSR`. Core operations remain on `SL`; data types keep their existing names.
 
+DLSS 5 Neural Rendering has an availability boundary in the public v2.14.1 SDK:
+`SL.FeatureDLSSNR` and the uplift buffer tags are generated from the public headers,
+but the official release archive contains no NR-specific options header, integration
+guide, `sl.dlss_nr.dll` or `nvngx_dlssnr.dll`. The framework's feature ID and changelog
+entry do not provide a complete NR integration contract. This is not an omitted
+public API in the generator. See the [SDK availability audit](Streamline.NET.Delivery.md)
+for the checked release and archive hash. Showcase does not currently execute NR.
+
 Value-returning overloads initialize the output structure with `new()` and return
 it only for `SLResult.Ok`. Other results, including non-success warnings, throw
 `SLException`; its `Result` and `NativeFunction` properties retain the SDK result

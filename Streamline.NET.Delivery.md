@@ -4,6 +4,24 @@
 
 工作流范围更正：实现过程中擅自增加了 `.github/workflows/validate.yml`，现已撤销。目前仅保留接口提取工作流，构建、验证与打包手动执行。下文 CI 链接与结果保留为已发生的验证记录，不作为后续自动化安排。
 
+## 2026-09-28 DLSS 5／NR 公开 SDK 可用性核对
+
+用户要求为 Showcase 接入 DLSS 5 Neural Rendering，并根据 SDK 运行时能力禁用不支持的选项；仅使用公开 SDK。此次核对的结论是：当前公开 v2.14.1 发布内容缺少完成 NR 接入所需的专用接口和运行文件，未发现生成器漏掉已公开的 NR 接口。Showcase 尚未实现 NR。
+
+核对对象为 [Streamline v2.14.1](https://github.com/NVIDIA-RTX/Streamline/releases/tag/v2.14.1)，GitHub Latest 在此次查询时仍指向此版本。完整下载官方 `streamline-sdk-v2.14.1.zip`，文件大小为 275,994,000 字节，SHA-256 为 `92c4d954631a1710da86ca3fa8d5034f2b9503838c95fc4ae977ae149319781b`，与 Showcase 已记录的运行包哈希一致。
+
+| 核对项 | 结果 |
+|---|---|
+| 公开头文件 | 官方源码树与压缩包根目录 `include/` 均有 24 个 Streamline 公开头文件，与 AST 快照的文件集合、逐文件 SHA-256 全部一致；没有缺失或额外文件。外部依赖的 `external/**/include/` 不计为 Streamline 公开接口。 |
+| NR 相关声明 | `kFeatureDLSS_NR = 1004`、对应字符串映射及 `kBufferTypeUpliftInputColor`、`kBufferTypeUpliftOutputColor`、`kBufferTypeUpliftControlMask` 均已有生成实现和覆盖记录。 |
+| NR 专用接口与文档 | 公开源码及完整发布包均未包含 NR 的专用配置结构、函数声明或接入指南；不能从功能 ID 推导其 ABI、默认值和调用顺序。 |
+| NR 运行文件 | 完整发布包没有 `sl.dlss_nr.dll` 或 `nvngx_dlssnr.dll`，并非 Showcase 资源脚本过滤掉了这两个文件。 |
+| 再生成 | `0 added, 0 changed, 0 removed`；生成 55 个文件，未分类和未处理声明均为 0；生成文件与覆盖记录没有工作区差异。 |
+
+[官方更新记录](https://github.com/NVIDIA-RTX/Streamline/blob/v2.14.1/changelog.txt) 提到新增 `sl.dlss_nr` 支持，但这与公开发布包是否包含完整接入材料是两个不同的事实。API 完整性结论以实际公开头文件为范围，不表示所有提及的功能都能使用公开包完成接入。
+
+后续实现需要公开发布的 NR 插件、对应头文件及集成说明。取得这些材料后，按同一提取／生成流程加入专用接口，并在 Showcase 中通过 SDK 的功能支持与插件加载结果控制开关可用性；不根据显卡名称或 RTX 代际写死禁用。此次没有加入虚构的 NR 配置结构或无执行路径的设置开关，也没有将临时核对代码或下载包加入仓库。
+
 ## 2026-09-27 API 完整性复核与清理
 
 已删除 `.github/validation/`、`.github/aot-smoke/` 和 `.github/scripts/verify_package.py`，同时删除测试项目的本地构建产物及 README 中的调用命令。`.github` 现仅保留接口提取工作流、提取脚本和 `overload-contracts.json` 输入契约。此次核对临时执行，不新增测试项目、验证脚本或工作流到版本库。
