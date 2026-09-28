@@ -122,9 +122,16 @@ placeholder options.
   A stable pixel rotation visits all four 2 x 2 strata across four frames. This
   replaces four samples of each lobe per frame to reduce tracing cost. Individual
   raw frames are noisier; RR's final temporal quality requires Windows acceptance.
-  Secondary paths evaluate up to eight surface scattering events; Russian roulette
-  after the third event preserves surviving paths' expected energy. Emission or
-  visible sky reached by the final scattered ray is still resolved.
+  Secondary paths evaluate up to eight surface scattering events. Their throughput
+  includes the primary diffuse/specular weight, and continuation uses Russian
+  roulette with probability `sqrt(clamp(max(throughput), 0, 1))`. Surviving paths
+  divide their throughput by that probability, preserving expected lighting without
+  a nonzero energy cutoff. The first hit and its lighting are always evaluated;
+  a diffuse first hit that has received no light keeps one extra event before
+  roulette starts. This conservative survival rule protects dark-region variance
+  better than terminating proportionally to the unmodified path weight. Emission
+  or visible sky reached by the final scattered ray is still resolved. Noise
+  distribution changes, so RR's motion quality requires target-machine acceptance.
   Sky importance sampling uses the scene's upper bounding rectangle as a portal,
   with full geometry visibility and multiple importance sampling against the BSDF.
   The rectangle emits no light; it directs samples toward the atrium sky to reduce
@@ -342,6 +349,23 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   lighting resolve 0.76 ms, RR 13.34 ms and post-processing 0.37 ms. This confirms
   the preceding sampling revision on RTX; it precedes the depth-prepass/visibility
   changes below and is not evidence of their Windows speedup.
+- After the depth/visibility revision, the user's same-mode RTX capture measured
+  51.69 ms / 19.33 FPS: geometry 3.88 ms, tracing 33.07 ms, lighting resolve
+  0.77 ms and RR 13.45 ms. Geometry improved substantially; tracing and RR still
+  dominated, motivating the continuation-policy change described above.
+- Continuation-policy validation used the shared ray-query shaders, real Sponza
+  geometry/textures and the existing 512 x 288 primary-surface fixture on Apple M4.
+  More aggressive policies were rejected after measuring dark-region variance.
+  The selected policy reduced median lighting time from 22.21 to 12.31 ms. A
+  near-equal GPU-time comparison used 128 old-policy frames versus 224 new-policy
+  frames (about 2.84 versus 2.76 seconds of lighting work), against an independent
+  512-frame reference. Surface, dark-region and metal HDR mean-squared errors all
+  decreased in this fixture. Mean luminance was 0.0073314 before, 0.0073273 after,
+  versus reference 0.0073258; the estimates agree within sampling uncertainty.
+  Every sampled first-specular-hit distance remained identical, and all HDR values
+  stayed finite. Primary sample count, materials, exposure, ray-tracing activation
+  and the eight-event maximum remain unchanged. These are isolated Metal results;
+  native Windows speedup and RR behavior during motion have not been measured.
 - Depth/visibility revision: actual shared raster shaders and scene data executed
   on Apple M4 at 1067 x 600 with reconstruction mip bias, and 513 x 289 with jitter
   and nonzero motion. Depth, alpha coverage and motion matched bit-for-bit. A

@@ -23,10 +23,10 @@ Surface hitSurface(Hit hit, float3 direction)
     if (dot(s.normal, direction) > 0) s.normal = -s.normal;
     return s;
 }
-float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, inout uint rng, out float distance)
+float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, float3 throughput, bool diffusePath, inout uint rng, out float distance)
 {
     const uint surfaceBounces = 8;
-    float3 radiance = 0, throughput = 1;
+    float3 radiance = 0;
     distance = skyHitDistance;
     // Resolve emission/environment after the last scattering event as well.
     // Stopping before tracing that ray would discard valid terminal skylight.
@@ -65,12 +65,17 @@ float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, in
         if (pdf <= 0) break;
         throughput *= brdf(s, view, direction) / pdf;
         escapeWeight = powerHeuristic(pdf, skyPortalPdf(p, direction));
-        // Preserve low-energy paths statistically instead of truncating all
-        // indirect illumination after two surfaces. The survival weight is unbiased.
-        if (bounce >= 2)
+        float continuation = max(throughput.r, max(throughput.g, throughput.b));
+        if (continuation <= 0) break;
+        // Allocate continuation from the complete path weight, including the
+        // primary BSDF. Keep an extra event for an unlit diffuse first hit so
+        // occluded regions can collect bounce light before roulette begins.
+        if (bounce > 0 || !diffusePath || any(radiance > 0))
         {
-            float survival = min(max(throughput.r, max(throughput.g, throughput.b)), 0.95);
-            if (survival <= 0 || random(rng) >= survival) break;
+            // Square-root survival is more conservative than linear throughput:
+            // dim paths survive more often, reducing rare, large sample weights.
+            float survival = sqrt(saturate(continuation));
+            if (random(rng) >= survival) break;
             throughput /= survival;
         }
         origin = p + s.normal * g.scene.z;
@@ -113,8 +118,8 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         {
             float pdf = max(dot(s.normal, direction), 0) / 3.14159265;
             float unused;
-            color += weight * secondaryRadiance(p + s.normal * g.scene.z, direction,
-                powerHeuristic(pdf, skyPortalPdf(p, direction)), rng, unused);
+            color += secondaryRadiance(p + s.normal * g.scene.z, direction,
+                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, true, rng, unused);
         }
     }
     else
@@ -129,8 +134,8 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
             float nv = max(dot(s.normal, view), 1e-4), vh = saturate(dot(view, halfVector));
             float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness);
             float pdf = bsdfPdfs(s, view, direction).y;
-            color = weight * secondaryRadiance(p + s.normal * g.scene.z, direction,
-                powerHeuristic(pdf, skyPortalPdf(p, direction)), rng, distance);
+            color = secondaryRadiance(p + s.normal * g.scene.z, direction,
+                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, distance);
         }
         // Preserve one real first-specular-sample distance, including the sky
         // sentinel. Other paths neither average nor race to write this RR guide.
