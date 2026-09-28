@@ -2,7 +2,7 @@
 
 ## 1. 目标与边界
 
-Showcase 是使用 Streamline.NET 的 DLSS 渲染示例：以同一场景展示 DLSS 超分／DLAA、光线重建和插帧，内部接入必要的 Reflex／PCL，提供可直接参考的 C# 接入代码。示例不加载、调用或部署 NIS、DirectSR、DeepDVC 等其他功能；wrapper 的完整 API 保持独立。
+Showcase 是使用 Streamline.NET 的 DLSS 渲染示例：以同一场景展示 DLSS 超分、光线重建和插帧，内部接入必要的 Reflex／PCL，提供可直接参考的 C# 接入代码。示例不加载、调用或部署 NIS、DirectSR、DeepDVC 等其他功能；wrapper 的完整 API 保持独立。
 
 本文独立于《Streamline.NET 设计规范》。Showcase 是单一应用项目，通过公开 API 使用 wrapper；渲染代码、依赖和资产更新脚本均属于示例，不改变绑定库的工程结构与发布内容。
 
@@ -169,7 +169,7 @@ SDK 内部资源采用默认分配方式，示例不额外接管其分配器。�
 
 | 功能 | 展示方式 |
 |---|---|
-| DLSS Super Resolution／DLAA | 提供质量模式；通过最佳配置查询确定输入尺寸，场景颜色重建后再进行显示后处理与 UI 合成 [4] |
+| DLSS Super Resolution | 提供质量模式；通过最佳配置查询确定输入尺寸，场景颜色重建后再进行显示后处理与 UI 合成 [4] |
 | Ray Reconstruction | 仅控制重建／降噪，开关独立于始终运行的硬件光追；提供对应材质缓冲，不再叠加一次 DLSS SR；关闭后允许带噪画面 [8] |
 | Frame Generation | 只提供开关，开启时每个真实帧生成一帧；实际经过官方呈现路径，使用深度、运动矢量、无 HUD 和 UI 数据，不伪装成普通 Dispatch [5] |
 | Reflex／PCL | 内部自动管理低延迟、休眠和输入／渲染标记，显示可取得的延迟状态；不再暴露模式组合 [9] |
@@ -182,7 +182,7 @@ SDK 的调试、性能数据按其可用入口使用，不要求为了遍历 wra
 
 控制台只负责启动时的后端选择。面板标题统一为 `Settings`，使用 ImGui 原生拖动与折叠行为；不提供关闭按钮，不允许手动调整大小。设置 `AlwaysAutoResize` 使窗口按内容自动定尺寸，仅限制最大尺寸不超过视口；初始放在左上方，后续保留用户拖动的位置。字号为 16 逻辑像素，支持系统 DPI，界面统一英文。
 
-面板显示显卡名称和一个 `FPS`（含生成帧的呈现速率），不显示 DLSS 版本、内部／输出分辨率或单独的 `Render` 帧率。图形选项采用官方名称：`DLSS Super Resolution` 下拉框、`DLSS Frame Generation` 和 `DLSS Ray Reconstruction` 开关。DLAA 选项使用完整的 `Deep Learning Anti-Aliasing (DLAA)` 名称，选中后的紧凑预览显示 `DLAA`。硬件支持时光追始终运行，RR 开关只控制重建与降噪，不停用光追或动态 TLAS 更新。关闭 RR 后保留噪声，不自动切换光栅或额外降噪器。关闭超分但保留 RR 时，以 DLAA 质量在原生分辨率进行光线重建；两者都关闭时显示不经 FXAA 的原生带噪光追结果。
+面板显示显卡名称和一个 `FPS`（含生成帧的呈现速率），不显示 DLSS 版本、内部／输出分辨率或单独的 `Render` 帧率。图形选项采用官方名称：`DLSS Super Resolution` 下拉框、`DLSS Frame Generation` 和 `DLSS Ray Reconstruction` 开关。超分下拉框仅提供 `Off`、`Quality`、`Balanced`、`Performance`、`Ultra Performance`，不包含 DLAA。硬件支持时光追始终运行，RR 开关只控制重建与降噪，不停用光追或动态 TLAS 更新。关闭 RR 后保留噪声，不自动切换光栅或额外降噪器。关闭超分但保留 RR 时，以 DLAA 质量在原生分辨率进行光线重建；两者都关闭时显示不经 FXAA 的原生带噪光追结果。
 
 不提供亮度滑条、详细信息、重置按钮、动画控制、模式说明、工具提示和操作提示。自动曝光继续在内部执行。取消隐藏状态、F1 显隐快捷键和隐藏后的重新打开按钮；用户通过标题栏折叠和展开面板，相机操作保持有效。
 

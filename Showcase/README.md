@@ -3,7 +3,7 @@
 A Windows x64 / .NET 10 rendering sample using the public Streamline.NET API.
 Select DirectX 12 or Vulkan in the startup console. Both backends share the scene,
 material system, shaders, camera, UI and Streamline frame sequence. The sample
-uses DLSS Super Resolution / DLAA, Ray Reconstruction and Frame Generation.
+uses DLSS Super Resolution, Ray Reconstruction and Frame Generation.
 Reflex/PCL support low latency and frame markers internally. NIS, DirectSR and
 DeepDVC are not loaded, called or deployed; the wrapper still exposes their APIs.
 
@@ -49,15 +49,16 @@ visibility shortcut. The three graphics controls use the official feature names:
 
 | Control | Choices / behavior |
 |---|---|
-| DLSS Super Resolution | Off, Deep Learning Anti-Aliasing (DLAA), Quality, Balanced, Performance, Ultra Performance |
+| DLSS Super Resolution | Off, Quality, Balanced, Performance, Ultra Performance |
 | DLSS Frame Generation | Off / On; manages Reflex and required swap-chain changes internally |
 | DLSS Ray Reconstruction | Off / On for reconstruction/denoising only; ray tracing keeps running |
 
 With upscaling off and RR on, Ray Reconstruction operates at native resolution
-using DLAA quality. RR off retains ray-traced lighting and animated TLAS updates.
+using the SDK's DLAA quality internally; DLAA is not listed as an upscaling option.
+RR off retains ray-traced lighting and animated TLAS updates.
 Noise is expected; there is no replacement denoiser. With both SR and RR off, the
-native RT image goes directly through tone mapping without FXAA. With SR or DLAA
-on, that reconstruction still processes the noisy input. Only one reconstruction
+native RT image goes directly through tone mapping without FXAA. With SR on,
+that reconstruction still processes the noisy input. Only one reconstruction
 pass executes. Brightness
 is metered automatically. There are no brightness controls, reset buttons,
 advanced/details sections, status lists, tooltips or operation hints in the panel.
@@ -70,7 +71,7 @@ placeholder options.
 ## Rendering and integration
 
 - Native RT is unfiltered when reconstruction is off; FXAA is used only by the
-  unsupported-hardware raster fallback. DLSS SR and DLAA receive untonemapped HDR color,
+  unsupported-hardware raster fallback. DLSS reconstruction receives untonemapped HDR color,
   depth and camera/object motion. RR receives the same scene with real noisy
   illumination, diffuse/specular albedo, world normals, linear roughness and
   specular hit distance. RR performs the reconstruction directly. Sky and missed

@@ -12,7 +12,7 @@ internal sealed unsafe class UserInterface : IDisposable
     private const float TextSize = 16;
     private const float AtlasTextSize = 32;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
-    private static readonly DLSSMode[] QualityModes = [DLSSMode.Off, DLSSMode.DLAA, DLSSMode.MaxQuality, DLSSMode.Balanced, DLSSMode.MaxPerformance, DLSSMode.UltraPerformance];
+    private static readonly DLSSMode[] QualityModes = [DLSSMode.Off, DLSSMode.MaxQuality, DLSSMode.Balanced, DLSSMode.MaxPerformance, DLSSMode.UltraPerformance];
     public byte[] FontPixels
     {
         get;
@@ -118,10 +118,10 @@ internal sealed unsafe class UserInterface : IDisposable
         ImGui.TextUnformatted("DLSS Super Resolution");
         // A content-sized window needs an explicit item width; using the remaining
         // window width here would feed its previous size back into auto-sizing.
-        float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(PreviewLabel(mode)).X);
+        float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(QualityLabel(mode)).X);
         ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + ImGui.GetStyle().FramePadding.X * 2);
         ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayReconstruction);
-        if (ImGui.BeginCombo("##DLSS", PreviewLabel(settings.Quality)))
+        if (ImGui.BeginCombo("##DLSS", QualityLabel(settings.Quality)))
         {
             foreach (DLSSMode mode in QualityModes)
             {
@@ -147,12 +147,10 @@ internal sealed unsafe class UserInterface : IDisposable
     }
 
     private static string Rate(double? fps) => fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
-    private static string PreviewLabel(DLSSMode mode) => mode == DLSSMode.DLAA ? "DLAA" : QualityLabel(mode);
 
     private static string QualityLabel(DLSSMode mode) => mode switch
     {
         DLSSMode.Off => "Off",
-        DLSSMode.DLAA => "Deep Learning Anti-Aliasing (DLAA)",
         DLSSMode.MaxQuality => "Quality",
         DLSSMode.Balanced => "Balanced",
         DLSSMode.MaxPerformance => "Performance",
