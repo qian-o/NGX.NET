@@ -10,7 +10,7 @@ internal enum Reconstruction
 }
 internal enum ImageSlot
 {
-    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, HitDistance, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Luminance, FilteredLuminance, SurfaceGeometry, Count
+    Albedo, Normal, Emissive, Motion, Depth, Scene, Specular, SpecularMotion, Reconstructed, DisplayInput, Hudless, UI, Final, Diffuse, Shadow, Exposure, Luminance, FilteredLuminance, SurfaceGeometry, Count
 }
 internal enum ImageFormat
 {
@@ -69,6 +69,7 @@ internal struct FrameConstants
     public Vector4 Exposure; // automatic metering enabled, delta seconds, reset history, reserved
     public Vector4 EnvironmentMinimum;
     public Vector4 EnvironmentMaximum;
+    public Vector4 PreviousCamera;
 }
 
 internal abstract class GpuImage : IDisposable
@@ -120,8 +121,8 @@ internal static class RenderLayout
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
     public static readonly ImageSlot[] GeometryOutputs = [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth, ImageSlot.SurfaceGeometry];
-    public static readonly ImageSlot[] LightingOutputs = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse];
-    public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];
+    public static readonly ImageSlot[] LightingOutputs = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.SpecularMotion, ImageSlot.Motion, ImageSlot.Diffuse];
+    public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.SpecularMotion, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];
     public static (int Width, int Height) Size(ImageSlot slot, int inputWidth, int inputHeight, int outputWidth, int outputHeight) => slot switch
     {
         ImageSlot.Exposure => (1, 1),
@@ -134,10 +135,10 @@ internal static class RenderLayout
 
     public static ImageFormat Format(ImageSlot slot) => slot switch
     {
-        ImageSlot.Motion => ImageFormat.Rg16,
+        ImageSlot.Motion or ImageSlot.SpecularMotion => ImageFormat.Rg16,
         ImageSlot.Exposure or ImageSlot.SurfaceGeometry => ImageFormat.Rgba32,
         ImageSlot.Depth or ImageSlot.Shadow => ImageFormat.Depth,
-        ImageSlot.HitDistance or ImageSlot.FilteredLuminance => ImageFormat.Float,
+        ImageSlot.FilteredLuminance => ImageFormat.Float,
         ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => ImageFormat.Rgba8,
         _ => ImageFormat.Rgba16
     };

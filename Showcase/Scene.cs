@@ -34,7 +34,7 @@ internal record struct TextureDescription(uint Offset, uint Width, uint Height, 
 [StructLayout(LayoutKind.Sequential)]
 internal struct SceneObject
 {
-    public Vector4 Offset;
+    public Vector4 Offset; // xyz: translation; w: analytic sphere radius, or 0 for a mesh
     public Vector4 PreviousOffset;
     public GeometryRange Geometry;
 }
@@ -193,7 +193,7 @@ internal sealed class Scene
         scene.Maximum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Max);
         List<SceneVertex> ordered = [];
         List<SceneObject> objects = [];
-        void AddObject(IEnumerable<SceneVertex> vertices, bool opaque, bool doubleSided)
+        void AddObject(IEnumerable<SceneVertex> vertices, bool opaque, bool doubleSided, float sphereRadius = 0)
         {
             uint first = (uint)ordered.Count;
             foreach (SceneVertex source in vertices)
@@ -204,6 +204,7 @@ internal sealed class Scene
             }
             objects.Add(new()
             {
+                Offset = new(0, 0, 0, sphereRadius),
                 Geometry = new(first, (uint)ordered.Count - first, opaque ? 1u : 0u, doubleSided ? 1u : 0u)
             });
         }
@@ -231,7 +232,8 @@ internal sealed class Scene
                 Parameters = new(i == 0 ? polishedMetalRoughness : 0.58f, 1, -1, 0),
                 Textures = new(-1)
             });
-            AddObject(CreateSphere(scene.Scale * 0.018f, materialIndex), true, false);
+            float radius = scene.Scale * 0.018f;
+            AddObject(CreateSphere(radius, materialIndex), true, false, radius);
         }
         scene.Vertices = [.. ordered];
         scene.Objects = [.. objects];

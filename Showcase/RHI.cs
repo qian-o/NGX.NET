@@ -300,7 +300,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
             Exposure = new(1, delta, reset ? 1 : 0, 0),
             EnvironmentMinimum = new(Scene.Minimum, 0),
-            EnvironmentMaximum = new(Scene.Maximum, 0)
+            EnvironmentMaximum = new(Scene.Maximum, 0),
+            PreviousCamera = new(Camera.PreviousPosition, 0)
         };
     }
 
@@ -350,7 +351,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
                 (SL.BufferTypeScalingInputColor, ImageSlot.Scene), (SL.BufferTypeScalingOutputColor, ImageSlot.Reconstructed),
                 (SL.BufferTypeDepth, ImageSlot.Depth), (SL.BufferTypeMotionVectors, ImageSlot.Motion),
                 (SL.BufferTypeAlbedo, ImageSlot.Diffuse), (SL.BufferTypeSpecularAlbedo, ImageSlot.Specular),
-                (SL.BufferTypeNormalRoughness, ImageSlot.Normal), (SL.BufferTypeSpecularHitDistance, ImageSlot.HitDistance)
+                (SL.BufferTypeNormalRoughness, ImageSlot.Normal), (SL.BufferTypeSpecularMotionVectors, ImageSlot.SpecularMotion)
             ];
             Streamline.Tags(FrameSlot, Command, feature == SL.FeatureDLSSRR ? tags : tags[..4], Frames[FrameSlot]);
             Streamline.Evaluate(feature, Command);

@@ -24,18 +24,18 @@ Surface hitSurface(Hit hit, float3 direction)
     surfaceGeometry(s, a, b, c, weights, -direction);
     return s;
 }
-float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, float3 throughput, bool diffusePath, inout uint rng, out float distance)
+float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, float3 throughput, bool diffusePath, inout uint rng, out Hit firstHit)
 {
     const uint surfaceBounces = 8;
     float3 radiance = 0;
-    distance = skyHitDistance;
+    firstHit = (Hit)0;
     // Resolve emission/environment after the last scattering event as well.
     // Stopping before tracing that ray would discard valid terminal skylight.
     [loop]
     for (uint bounce = 0; bounce <= surfaceBounces; bounce++)
     {
         Hit hit = trace(origin, direction, g.scene.w * 4);
-        if (bounce == 0 && hit.triangle != 0xffffffff) distance = hit.distance;
+        if (bounce == 0) firstHit = hit;
         if (hit.triangle == 0xffffffff)
         {
             radiance += throughput * sky(direction) * escapeWeight;
@@ -118,7 +118,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         if (any(weight > 0) && aboveSurface(s, direction))
         {
             float pdf = max(dot(s.normal, direction), 0) / 3.14159265;
-            float unused;
+            Hit unused;
             color += secondaryRadiance(rayOrigin(p, s), direction,
                 powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, true, rng, unused);
         }
@@ -128,19 +128,20 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         float2 u = (stratum + float2(random(rng), random(rng))) / 2;
         float3 halfVector;
         float3 direction = sampleSpecular(s, view, u, halfVector);
-        float distance = skyHitDistance;
+        Hit firstHit = (Hit)0;
         float nl = dot(s.normal, direction);
-        if (aboveSurface(s, direction))
+        bool sampled = aboveSurface(s, direction);
+        if (sampled)
         {
             float nv = max(dot(s.normal, view), 1e-4), vh = saturate(dot(view, halfVector));
             float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness) * shadowTerm(s, direction);
             float pdf = bsdfPdfs(s, view, direction).y;
             color = secondaryRadiance(rayOrigin(p, s), direction,
-                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, distance);
+                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, firstHit);
         }
-        // Preserve one real first-specular-sample distance, including the sky
-        // sentinel. Other paths neither average nor race to write this RR guide.
-        if (sample == 0 && g.jitter.z > 0) hitOutput[pixel] = distance;
+        // One lane owns the reflection guide; other paths never race to write it.
+        if (sample == 0 && g.jitter.z > 0)
+            specularMotionOutput[pixel] = reflectionMotion(pixel, s, p, view, firstHit, sampled);
     }
     lightingSamplesOutput[id] = float4(color, 0);
 #endif

@@ -79,7 +79,11 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
   strata and throughput-based Russian roulette. Filtering uses mipmaps and
   anisotropic texture footprints.
 - Reconstruction receives HDR color, depth and camera/object motion. RR also
-  receives diffuse/specular albedo, world normals, roughness and specular hit distance.
+  receives diffuse/specular albedo, world normals, roughness and explicit reflection
+  motion. The reference spheres solve reflection correspondences on their curved
+  surfaces using current/previous camera, sphere and reflected-object positions.
+  A deterministic guide ray on the spheres keeps motion independent of noisy
+  radiance samples. Other meshes use a local planar reflection approximation.
 - Global/local exposure and neutral highlight compression run after reconstruction.
   Midtone RGB ratios are preserved; only bright highlights fade toward white. The UI
   is rendered separately with premultiplied alpha at output resolution; FG receives

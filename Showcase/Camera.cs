@@ -5,6 +5,7 @@ namespace Showcase;
 internal sealed class Camera
 {
     public Vector3 Position;
+    public Vector3 PreviousPosition { get; private set; }
     public float Yaw;
     public float Pitch;
     public const float FieldOfView = MathF.PI / 3;
@@ -114,10 +115,15 @@ internal sealed class Camera
         if (reset)
         {
             PreviousViewProjection = ViewProjection;
+            PreviousPosition = Position;
         }
     }
 
-    public void CommitHistory() => PreviousViewProjection = ViewProjection;
+    public void CommitHistory()
+    {
+        PreviousViewProjection = ViewProjection;
+        PreviousPosition = Position;
+    }
 
     private static float Halton(uint index, uint radix)
     {

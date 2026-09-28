@@ -25,6 +25,7 @@ struct Globals
     float4 exposure; // automatic metering enabled, delta seconds, reset history, reserved
     float4 environmentMinimum;
     float4 environmentMaximum;
+    float4 previousCamera;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<Globals> g : register(b0);
 [[vk::binding(1, 0)]] StructuredBuffer<Vertex> vertices : register(t0);
@@ -42,7 +43,7 @@ struct Globals
 [[vk::binding(11, 0)]] Texture2D<float> depthImage : register(t10);
 [[vk::binding(12, 0)]] Texture2D<float4> sceneImage : register(t11);
 [[vk::binding(13, 0)]] Texture2D<float4> specularImage : register(t12);
-[[vk::binding(14, 0)]] Texture2D<float> hitImage : register(t13);
+[[vk::binding(14, 0)]] Texture2D<float2> specularMotionImage : register(t13);
 [[vk::binding(15, 0)]] Texture2D<float4> reconstructedImage : register(t14);
 [[vk::binding(16, 0)]] Texture2D<float4> displayInputImage : register(t15);
 [[vk::binding(17, 0)]] Texture2D<float4> hudlessImage : register(t16);
@@ -59,7 +60,7 @@ struct Globals
 [[vk::binding(28, 0)]] Texture2DArray<float4> lightingSamplesImage : register(t27);
 [[vk::binding(32, 0)]] RWTexture2D<float4> sceneOutput : register(u0);
 [[vk::binding(33, 0)]] RWTexture2D<float4> specularOutput : register(u1);
-[[vk::binding(34, 0)]] RWTexture2D<float> hitOutput : register(u2);
+[[vk::binding(34, 0)]] RWTexture2D<float2> specularMotionOutput : register(u2);
 [[vk::binding(35, 0)]] RWTexture2D<float4> reconstructedOutput : register(u3);
 [[vk::binding(36, 0)]] RWTexture2D<float4> displayInputOutput : register(u4);
 [[vk::binding(37, 0)]] RWTexture2D<float4> hudlessOutput : register(u5);
@@ -174,7 +175,7 @@ void surfaceGeometry(inout Surface s, Vertex a, Vertex b, Vertex c, float3 weigh
     s.frameNormal = normalize(na * weights.x + nb * weights.y + nc * weights.z);
     // Hanika 2021: project onto the vertex tangent planes, only toward the
     // visible side. The correction vanishes on flat geometry and at vertices.
-    // Use it for visibility rays, not reflection paths or RR hit distances.
+    // Use it for visibility rays, not reflection paths or reconstruction guides.
     float3 p = a.position.xyz * weights.x + b.position.xyz * weights.y + c.position.xyz * weights.z;
     s.shadowOffset = -weights.x * min(dot(p - a.position.xyz, na), 0) * na
                      -weights.y * min(dot(p - b.position.xyz, nb), 0) * nb
@@ -562,9 +563,6 @@ float ambientVisibility(int2 pixel, float3 p, float3 n)
     }
     return saturate(1 - occlusion / directions);
 }
-// RR guide section 3.4.9 specifies FP16_MAX or FP32_MAX for the sky. This is
-// independent of the finite traversal limit used to trace the scene's geometry.
-static const float skyHitDistance = 65504.0;
 Surface primarySurface(uint2 pixel, float3 view)
 {
     float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
@@ -577,6 +575,7 @@ Surface primarySurface(uint2 pixel, float3 view)
     if (dot(s.normal, view) < 0) s.normal = -s.normal;
     return s;
 }
+#include "ReflectionMotion.slang"
 #include "PathTracing.slang"
 [shader("compute")]
 [numthreads(8, 8, 1)]
@@ -596,11 +595,11 @@ void Lighting(uint3 id : SV_DispatchThreadID)
         {
             specularOutput[pixel] = float4(0, 0, 0, 1);
             diffuseOutput[pixel] = 0;
-            hitOutput[pixel] = skyHitDistance;
         }
         float4 current = mul(float4(-view, 0), g.currentViewProjection);
         float4 previous = mul(float4(-view, 0), g.previousViewProjection);
         motionOutput[pixel] = (previous.xy / previous.w - current.xy / current.w) * float2(0.5, -0.5) * g.size.xy;
+        if (g.jitter.z > 0) specularMotionOutput[pixel] = motionOutput[pixel];
         return;
     }
     Surface s = primarySurface(pixel, view);
