@@ -65,6 +65,8 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
 - Sponza's hierarchy is baked into static geometry with its authored materials,
   normal maps and alpha masks. Moving metal and ceramic spheres provide reflection
   and motion references.
+- Daylight enters along the atrium opening, giving the floor direct illumination
+  and cast shadows while limiting the exposure needed to reveal the interior.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
   Camera depth uses floating-point reverse Z (near = 1, far/clear = 0) to keep
