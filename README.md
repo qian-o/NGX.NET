@@ -93,7 +93,7 @@ Run from the repository root in PowerShell:
 dotnet run --project Showcase -c Release
 ```
 
-The sample README covers requirements, controls, rendering flow and publishing.
+See the sample README for setup and controls.
 
 ## Development
 
