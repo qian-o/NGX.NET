@@ -47,8 +47,9 @@ Exposure adjusts automatically.
 Pause Animation freezes the spheres in place. Camera movement, rendering and
 DLSS settings remain available; resuming continues from the paused position.
 
-Hold the right mouse button to look around. Use W/A/S/D to move, Q/E to move
-vertically, and Shift to move faster.
+Use W/A/S/D to move, Q/E to move vertically, and Shift to move faster; no mouse
+button is required. Hold the right mouse button to look around. Movement keys are
+reserved for the UI while a dropdown is open or text input is active.
 
 ## Code organization
 

@@ -57,12 +57,15 @@ internal sealed class Camera
 
     public void Move(Window window, float delta)
     {
-        if (!window.Looking)
+        if (window.Looking)
+        {
+            Yaw += window.MouseDelta.X * 0.003f;
+            Pitch = Math.Clamp(Pitch - window.MouseDelta.Y * 0.003f, -1.5f, 1.5f);
+        }
+        if (window.KeyboardCaptured)
         {
             return;
         }
-        Yaw += window.MouseDelta.X * 0.003f;
-        Pitch = Math.Clamp(Pitch - window.MouseDelta.Y * 0.003f, -1.5f, 1.5f);
         Vector3 right = Vector3.Normalize(Vector3.Cross(Forward, Vector3.UnitY));
         float distance = speed * delta * (window.Down(0x10) ? 3 : 1);
         if (window.Down('W'))

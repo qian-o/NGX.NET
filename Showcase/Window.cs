@@ -28,6 +28,8 @@ internal sealed unsafe class Window : IDisposable
         get; private set;
     }
     public float DpiScale => GetDpiForWindow(Handle) / 96f;
+    // Ordinary Settings navigation focus must not consume the camera's movement keys.
+    public bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
     public Action? BeforeWindowChange;
     public uint LatencyPingMessage;
     public bool LatencyPing;
