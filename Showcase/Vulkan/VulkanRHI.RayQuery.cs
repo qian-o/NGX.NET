@@ -114,8 +114,7 @@ internal sealed unsafe partial class VulkanRHI
             VkAccelerationStructureGeometryKHR geometry = new()
             {
                 geometryType = VkGeometryTypeKHR.Triangles,
-                // Non-opaque triangles preserve candidate alpha/sidedness tests in the shared shader.
-                flags = VkGeometryFlagsKHR.None,
+                flags = range.Opaque != 0 ? VkGeometryFlagsKHR.Opaque : VkGeometryFlagsKHR.None,
                 geometry = new()
                 {
                     triangles = new()
@@ -204,6 +203,7 @@ internal sealed unsafe partial class VulkanRHI
             transform = new(1, 0, 0, offset.X, 0, 1, 0, offset.Y, 0, 0, 1, offset.Z),
             instanceCustomIndex = id,
             mask = byte.MaxValue,
+            flags = instance.Geometry.DoubleSided != 0 ? VkGeometryInstanceFlagsKHR.TriangleFacingCullDisable : VkGeometryInstanceFlagsKHR.None,
             accelerationStructureReference = address
         };
     }

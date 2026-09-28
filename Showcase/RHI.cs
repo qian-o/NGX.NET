@@ -274,7 +274,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         FrameConstants post = Constants;
         post.Parameters.Z = hdrReconstruction ? 1 : 0;
         Transition(Image(ImageSlot.Luminance), ImageUse.Storage);
-        Dispatch(ComputePass.PrepareLuminance, Image(ImageSlot.Luminance).Width, Image(ImageSlot.Luminance).Height, post);
+        // PrepareLuminance uses one 8x8 group per tile, rather than per 8x8 tiles.
+        Dispatch(ComputePass.PrepareLuminance, Image(ImageSlot.Luminance).Width * 8, Image(ImageSlot.Luminance).Height * 8, post);
         Transition(Image(ImageSlot.Luminance), ImageUse.ShaderRead);
         Transition(Image(ImageSlot.FilteredLuminance), ImageUse.Storage);
         Dispatch(ComputePass.FilterLuminance, Image(ImageSlot.FilteredLuminance).Width, Image(ImageSlot.FilteredLuminance).Height, post);

@@ -36,8 +36,7 @@ internal sealed unsafe partial class DirectX12RHI
                     StartAddress = sceneBuffers[0].GPUVirtualAddress + (ulong)range.FirstVertex * (uint)sizeof(SceneVertex),
                     StrideInBytes = (uint)sizeof(SceneVertex)
                 }
-            }, RaytracingGeometryFlags.None);
-            // Non-opaque geometry exposes candidates for per-material alpha and sidedness checks.
+            }, range.Opaque != 0 ? RaytracingGeometryFlags.Opaque : RaytracingGeometryFlags.None);
             BuildRaytracingAccelerationStructureInputs inputs = new()
             {
                 Type = RaytracingAccelerationStructureType.BottomLevel,
@@ -85,6 +84,8 @@ internal sealed unsafe partial class DirectX12RHI
             Transform = new Matrix3x4(1, 0, 0, offset.X, 0, 1, 0, offset.Y, 0, 0, 1, offset.Z),
             InstanceID = (Vortice.UInt24)id,
             InstanceMask = byte.MaxValue,
+            // Default ray facing matches dot(direction, cross(edge1, edge2)) < 0.
+            Flags = instance.Geometry.DoubleSided != 0 ? RaytracingInstanceFlags.TriangleCullDisable : RaytracingInstanceFlags.None,
             AccelerationStructure = address
         };
     }

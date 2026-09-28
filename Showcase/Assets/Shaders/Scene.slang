@@ -69,22 +69,23 @@ struct Globals
 [[vk::binding(43, 0)]] RWTexture2D<float> filteredLuminanceOutput : register(u11);
 [[vk::binding(48, 0)]] SamplerState linearSampler : register(s0);
 
-float3 srgbToLinear(float3 c) { return select(c <= 0.04045, c / 12.92, pow((c + 0.055) / 1.055, 2.4)); }
 float3 linearToSrgb(float3 c) { return select(c <= 0.0031308, c * 12.92, 1.055 * pow(max(c, 0), 1.0 / 2.4) - 0.055); }
-float4 unpackColor(uint p) { return float4(p & 255, (p >> 8) & 255, (p >> 16) & 255, p >> 24) / 255.0; }
-float4 fetch(uint offset, int2 p, uint2 size)
+float4 fetch(uint offset, int2 p, uint2 size, bool srgb)
 {
     p = (p % int2(size) + int2(size)) % int2(size);
-    return unpackColor(texels[offset + p.y * size.x + p.x]);
+    uint packed = texels[offset + p.y * size.x + p.x];
+    uint3 rgb = uint3(packed & 255, (packed >> 8) & 255, (packed >> 16) & 255);
+    // Scene.Load stores the exact 8-bit sRGB decode table in the buffer prefix.
+    float3 linear = srgb ? asfloat(uint3(texels[rgb.x], texels[rgb.y], texels[rgb.z])) : float3(rgb) / 255.0;
+    return float4(linear, (packed >> 24) / 255.0);
 }
 float4 sampleMip(uint offset, uint2 size, float2 uv, bool srgb)
 {
     float2 p = frac(uv) * size - 0.5;
     int2 pixel = int2(floor(p));
     float2 f = frac(p);
-    float4 a = fetch(offset, pixel, size), b = fetch(offset, pixel + int2(1, 0), size);
-    float4 c = fetch(offset, pixel + int2(0, 1), size), d = fetch(offset, pixel + 1, size);
-    if (srgb) { a.rgb = srgbToLinear(a.rgb); b.rgb = srgbToLinear(b.rgb); c.rgb = srgbToLinear(c.rgb); d.rgb = srgbToLinear(d.rgb); }
+    float4 a = fetch(offset, pixel, size, srgb), b = fetch(offset, pixel + int2(1, 0), size, srgb);
+    float4 c = fetch(offset, pixel + int2(0, 1), size, srgb), d = fetch(offset, pixel + 1, size, srgb);
     return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
 }
 float4 sampleTexture(int index, float2 uv, float lod, bool srgb)
@@ -274,7 +275,7 @@ Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
     ray.Direction = direction;
     ray.TMin = g.scene.z;
     ray.TMax = limit;
-    RayQuery<RAY_FLAG_NONE> query;
+    RayQuery<RAY_FLAG_CULL_BACK_FACING_TRIANGLES | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES> query;
     query.TraceRayInline(sceneAcceleration, anyHit ? RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH : RAY_FLAG_NONE, 0xff, ray);
     while (query.Proceed())
     {
@@ -284,9 +285,8 @@ Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
         uint firstVertex = objects[objectIndex].geometry.x + query.CandidatePrimitiveIndex() * 3;
         Vertex a = vertices[firstVertex], b = vertices[firstVertex + 1], c = vertices[firstVertex + 2];
         Material material = materials[(uint)a.normal.w];
-        // All instances translate rigid geometry. Geometric winding keeps the
-        // material's one-/two-sided rule identical on DXR and Vulkan.
-        if (material.parameters.w == 0 && dot(direction, cross(b.position.xyz - a.position.xyz, c.position.xyz - a.position.xyz)) >= 0) continue;
+        // Opaque hits and one-sided back faces are resolved by traversal. Only
+        // alpha-tested geometry reaches this loop; double-sided instances disable culling.
         if (material.parameters.z >= 0)
         {
             float2 bary = query.CandidateTriangleBarycentrics();
@@ -394,6 +394,8 @@ float3 specularWeight(float3 f0, float nv, float nl, float vh, float alpha)
 
 float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 {
+    // The BRDF is zero below the shading horizon; no visibility ray is needed.
+    if (dot(s.normal, sunDirection) <= 0) return 0;
     float visibility;
 #if HAS_RAY_QUERY
     if (g.parameters.x > 0) visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
@@ -571,7 +573,9 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     float3 color = s.emissive;
     float3 f0 = lerp(0.04, s.albedo, s.metallic);
     float nv = saturate(dot(s.normal, view));
-    float3 specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
+    float3 specularAlbedo = 0;
+    if (g.jitter.z > 0 || g.parameters.x == 0)
+        specularAlbedo = integratedSpecularAlbedo(f0, s.roughness, nv);
     float specularDistance = skyHitDistance;
 #if HAS_RAY_QUERY
     if (g.parameters.x > 0)

@@ -19,29 +19,43 @@ float surfaceReflectance(float2 uv)
     float3 reflectance = lerp(0.04 + 0.96 * albedo.rgb, albedo.rgb, metallic);
     return lerp(1, max(dot(reflectance, luminanceWeights), 0.04), saturate(albedo.a));
 }
+groupshared float2 tileLight[64];
+groupshared uint tilePixels[64];
 [shader("compute")]
 [numthreads(8, 8, 1)]
-void PrepareLuminance(uint3 id : SV_DispatchThreadID)
+void PrepareLuminance(uint3 tile : SV_GroupID, uint index : SV_GroupIndex)
 {
-    uint width, height; luminanceOutput.GetDimensions(width, height);
-    if (any(id.xy >= uint2(width, height))) return;
+    // One group cooperates on a tile instead of one thread fetching 256 pixels
+    // serially. The sampled pixels and linear-light statistic are unchanged.
     float illumination = 0, luminance = 0;
     uint count = 0;
-    [loop]
-    for (uint y = 0; y < luminanceTileSize; y++)
-        [loop]
-        for (uint x = 0; x < luminanceTileSize; x++)
+    for (uint i = index; i < luminanceTileSize * luminanceTileSize; i += 64)
+    {
+        uint2 pixel = tile.xy * luminanceTileSize + uint2(i % luminanceTileSize, i / luminanceTileSize);
+        if (all(pixel < uint2(g.size.zw)))
         {
-            uint2 pixel = id.xy * luminanceTileSize + uint2(x, y);
-            if (any(pixel >= uint2(g.size.zw))) continue;
             float2 uv = (pixel + 0.5) / g.size.zw;
             float value = dot(max(sampleHdr(uv), 0), luminanceWeights);
             luminance += value;
             illumination += value / surfaceReflectance(uv);
             count++;
         }
+    }
+    tileLight[index] = float2(illumination, luminance);
+    tilePixels[index] = count;
+    GroupMemoryBarrierWithGroupSync();
+    for (uint stride = 32; stride > 0; stride >>= 1)
+    {
+        if (index < stride)
+        {
+            tileLight[index] += tileLight[index + stride];
+            tilePixels[index] += tilePixels[index + stride];
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
     // Average noisy samples in linear light before taking a logarithm.
-    luminanceOutput[id.xy] = float4(log2(max(illumination / count, minimumLuminance)), luminance / count, count, 0);
+    if (index == 0)
+        luminanceOutput[tile.xy] = float4(log2(max(tileLight[0].x / tilePixels[0], minimumLuminance)), tileLight[0].y / tilePixels[0], tilePixels[0], 0);
 }
 [shader("compute")]
 [numthreads(8, 8, 1)]

@@ -88,7 +88,9 @@ placeholder options.
 - Automatic exposure meters HDR color after reconstruction, before tone mapping
   and UI composition. Each 16 x 16 output-pixel tile averages luminance in linear
   light before conversion to exposure stops; partial edge tiles retain their
-  actual pixel count. Averaging individual sample logs would overexpose the scene
+  actual pixel count. One 8 x 8 thread group cooperates on each tile, fetching four
+  pixels per lane and reducing their sums in shared memory. Averaging individual
+  sample logs would overexpose the scene
   when many raw ray samples are zero.
   The meter targets 18% gray, limits adaptation to +/-8 stops and follows the
   preceding submitted frame, with one-second brightening and quarter-second
@@ -123,13 +125,18 @@ placeholder options.
   clamping away real lighting. The GGX distribution retains its normalized peak at
   low roughness, consistent with the specular sampling PDF. The raster path adds screen-space contact occlusion
   to indirect light only; the traced path uses geometric visibility instead.
-- Each rigid object has one non-indexed BLAS built at startup. Sponza's geometry is
-  static; the moving objects update TLAS instance transforms. Each frame slot owns
+- Architecture is partitioned by opacity and sidedness into homogeneous rigid
+  objects, each with one non-indexed BLAS built at startup. Opaque surfaces are
+  accepted by hardware traversal; only alpha-tested surfaces invoke the candidate
+  shader. Ray back-face culling handles single-sided geometry, with culling disabled
+  on double-sided instances. The current scene has four BLAS ranges, including the
+  two moving objects; 235,263 of 270,203 triangles (87.07%) use opaque traversal.
+  Sponza's geometry is static; the moving objects update TLAS instance transforms. Each frame slot owns
   its TLAS, scratch buffer and instance upload allocation. A slot is first built,
   then updated in place after its GPU fence completes. Resize and reconstruction
   changes reuse the geometry acceleration structures.
-- Ray-query candidates apply the material's alpha cutoff and one-/two-sided rules
-  before committing hits. The instance ID and primitive index locate the original
+- Ray-query candidates apply the material's alpha cutoff before committing hits.
+  The instance ID and primitive index locate the corresponding
   shared vertices, UVs and materials. There is no software BVH rendering path.
 - When ray-query capabilities are unavailable, lighting uses a raster sun shadow
   map. The renderer compiles its raster lighting variant and disables ray
@@ -137,7 +144,10 @@ placeholder options.
   Vulkan requests its ray-query, acceleration-structure and buffer-device-address
   features before device creation, independently of the interposer's SDK needs.
 - Textures retain their source dimensions and receive a full mip chain. Base color
-  and emissive maps are decoded to linear color during sampling. Normals and
+  and emissive maps are decoded to linear color during sampling. A 1 KiB table at
+  the start of the texel buffer caches the sRGB decode for all 256 byte values;
+  texture offsets include this prefix. This replaces repeated per-texel powers
+  without changing the texture bytes or filtering. Normals and
   metallic/roughness maps are sampled as data. Each channel uses its own texture
   dimensions for mip selection. The primary surface uses up to 8 anisotropic
   samples along the principal axis of the texel footprint, with trilinear mip
@@ -147,6 +157,10 @@ placeholder options.
   rather than sharpening a blurred final image.
   Degenerate authored tangents use the same orthogonal fallback as missing tangents,
   avoiding zero-vector normalization in normal mapping and indirect paths.
+- Sun directions below the shading horizon skip visibility queries because their
+  BRDF contribution is zero. The integrated specular-albedo guide is evaluated only
+  when RR or the raster environment needs it. Ray sample count, bounce limit,
+  texture resolution, anisotropic filtering and local-exposure behavior remain unchanged.
 - The UI renders separately with premultiplied alpha at output resolution. HUD-less
   color and UI obey `final.rgb = ui.rgb + (1 - ui.a) * hudless.rgb`.
 - Frame generation uses the interposer's swap chain and presentation hooks. Its
@@ -210,7 +224,8 @@ runtime files to the wrapper package.
 ## Verification record
 
 Resource preparation was checked on 2026-09-27. RR independence, texture/reflection
-inputs, sky sampling and local exposure were checked on 2026-09-28; earlier checks remain below.
+inputs, sky sampling, local exposure and rendering-work reductions were checked
+on 2026-09-28; earlier checks remain below.
 
 Development host: macOS arm64, .NET SDK 10.0.401.
 
@@ -231,10 +246,10 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   variant: compiled successfully. The hardware lighting binary contains SPIR-V
   ray-query instructions and its acceleration-structure binding; the raster variant
   contains neither.
-- CPU checks for this revision: all 270,203 triangles map into three complete,
+- CPU checks for this revision: all 270,203 triangles map into four complete,
   non-overlapping BLAS ranges with correct material/object references. DXR and
   Vulkan emit identical 64-byte instance records, including 24-bit IDs, visibility
-  masks, BLAS addresses and translated positions. Moving/paused instances preserve
+  masks, sidedness flags, BLAS addresses and translated positions. Moving/paused instances preserve
   raster history. The raster shadow projection encloses the scene bounds.
 - SPIR-V member offsets and strides match the 48-byte object records and 496-byte
   frame constants. The earlier software BVH coverage check is superseded by the
@@ -259,6 +274,21 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   sampling agreed within sampling error, and the MIS estimator had lower variance.
   GGX distribution/PDF probes remained finite and retained the low-roughness peak.
   These are mathematical checks, not scene performance measurements.
+- Performance-revision equality checks compared all 270,203 complete triangles
+  before/after partitioning, including winding, vertex attributes, world positions
+  and animation. Materials and every texture/mip byte remained identical. All
+  256 cached sRGB values agreed with a double-precision reference within 2e-7.
+  Compiled ray queries retain hardware culling and first-hit termination for
+  visibility rays, and the raster variant contains no ray-query instructions.
+- Shared-shader GPU microbenchmarks on Apple M4 used alternating before/after runs,
+  warm-up and the median of 20 samples. At 2560 x 1440, exposure preparation changed
+  from 2.59 ms to 0.92 ms, with identical half-float tile outputs in that fixture.
+  The 1024 x 1024 texture-sampling probe at 8:1 anisotropy changed from 1.84 ms to
+  1.53 ms; maximum tested sRGB output difference was 3.6e-7, with exact linear-data
+  and alpha results. Odd dimensions and the existing local-exposure regressions
+  also passed. These isolated timings do not measure the full renderer or predict
+  RTX frame rates. Native Windows DXR/Vulkan culling, alpha silhouettes and actual
+  frame-time improvement require target-machine acceptance.
 - All four current exposure/tone-map passes also ran on Apple M4. Checks covered
   odd image dimensions, weighted metering, invalid reset history, exact black,
   material contrast, an illumination edge crossing a tile, and adaptation at
@@ -296,6 +326,11 @@ Development host: macOS arm64, .NET SDK 10.0.401.
 
 ## Rendering references
 
+- [NVIDIA RTX ray-tracing best practices](https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/)
+  for opaque geometry and avoiding unnecessary candidate-shader work.
+- [Vulkan ray traversal](https://docs.vulkan.org/spec/latest/chapters/raytraversal.html)
+  and [DXR functional specification](https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html)
+  for consistent hardware facing, opacity and candidate handling.
 - [Filament's material and lighting model](https://google.github.io/filament/main/filament.html)
   for GGX/Smith reflectance and indirect-light occlusion.
 - [Heitz, Sampling the GGX Distribution of Visible Normals, JCGT 7(4), 2018](https://jcgt.org/published/0007/04/01/)

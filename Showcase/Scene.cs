@@ -26,7 +26,7 @@ internal struct SceneMaterial
 }
 
 [StructLayout(LayoutKind.Sequential)]
-internal record struct GeometryRange(uint FirstVertex, uint VertexCount, uint Reserved0 = 0, uint Reserved1 = 0);
+internal record struct GeometryRange(uint FirstVertex, uint VertexCount, uint Opaque, uint DoubleSided);
 
 [StructLayout(LayoutKind.Sequential)]
 internal record struct TextureDescription(uint Offset, uint Width, uint Height, uint Mips);
@@ -64,6 +64,7 @@ internal sealed class Scene
     public float Scale => (Maximum - Minimum).Length();
     public float RayEpsilon => Scale * 1e-5f;
     private double animationTime;
+    private int staticObjectCount;
 
     public static Scene Load(string path)
     {
@@ -72,7 +73,15 @@ internal sealed class Scene
         {
             Model = model
         };
-        List<uint> texels = [];
+        // Texture RGB is 8-bit sRGB. Cache all 256 exact decode values once so
+        // bilinear/trilinear samples do not repeat three pow operations per texel.
+        List<uint> texels = new(256);
+        for (int value = 0; value < 256; value++)
+        {
+            float encoded = value / 255f;
+            float linear = encoded <= 0.04045f ? encoded / 12.92f : MathF.Pow((encoded + 0.055f) / 1.055f, 2.4f);
+            texels.Add(BitConverter.SingleToUInt32Bits(linear));
+        }
         List<TextureDescription> textureInfo = [];
         Dictionary<(int, bool), int> images = [];
         int Texture(MaterialChannel? channel, bool srgb)
@@ -190,15 +199,31 @@ internal sealed class Scene
         scene.Maximum = staticVertices.Select(v => v.Position.AsVector3()).Aggregate(Vector3.Max);
         List<SceneVertex> ordered = [];
         List<SceneObject> objects = [];
-        void AddObject(List<SceneVertex> vertices)
+        void AddObject(IEnumerable<SceneVertex> vertices, bool opaque, bool doubleSided)
         {
+            uint first = (uint)ordered.Count;
+            foreach (SceneVertex source in vertices)
+            {
+                SceneVertex vertex = source;
+                vertex.Position.W = objects.Count;
+                ordered.Add(vertex);
+            }
             objects.Add(new()
             {
-                Geometry = new((uint)ordered.Count, (uint)vertices.Count)
+                Geometry = new(first, (uint)ordered.Count - first, opaque ? 1u : 0u, doubleSided ? 1u : 0u)
             });
-            ordered.AddRange(vertices);
         }
-        AddObject(staticVertices);
+        // A triangle's three vertices share a material, so grouping preserves
+        // whole triangles. Homogeneous opacity/sidedness enables hardware hit handling.
+        foreach (IGrouping<(bool Opaque, bool DoubleSided), SceneVertex> group in staticVertices.GroupBy(vertex =>
+        {
+            SceneMaterial material = materials[(int)vertex.Normal.W];
+            return (Opaque: material.Parameters.Z < 0, DoubleSided: material.Parameters.W != 0);
+        }))
+        {
+            AddObject(group, group.Key.Opaque, group.Key.DoubleSided);
+        }
+        scene.staticObjectCount = objects.Count;
         // The moving metal object is a polished reference for inspecting reflected
         // detail. Architecture keeps its authored glTF roughness values.
         const float polishedMetalRoughness = 0.08f;
@@ -212,13 +237,18 @@ internal sealed class Scene
                 Parameters = new(i == 0 ? polishedMetalRoughness : 0.58f, 1, -1, 0),
                 Textures = new(-1)
             });
-            AddObject(CreateSphere(scene.Scale * 0.018f, i + 1, materialIndex));
+            AddObject(CreateSphere(scene.Scale * 0.018f, materialIndex), true, false);
         }
         scene.Vertices = [.. ordered];
         scene.Objects = [.. objects];
         scene.Materials = [.. materials];
-        scene.Texels = texels.Count == 0 ? [uint.MaxValue] : [.. texels];
-        scene.TextureInfo = textureInfo.Count == 0 ? [new(0, 1, 1, 1)] : [.. textureInfo];
+        if (textureInfo.Count == 0)
+        {
+            textureInfo.Add(new((uint)texels.Count, 1, 1, 1));
+            texels.Add(uint.MaxValue);
+        }
+        scene.Texels = [.. texels];
+        scene.TextureInfo = [.. textureInfo];
         scene.GroundHeight = scene.FindGroundHeight();
         scene.Update(0, false);
         scene.CommitHistory();
@@ -240,9 +270,9 @@ internal sealed class Scene
             animationTime += delta;
         }
         Vector3 center = (Minimum + Maximum) * 0.5f;
-        for (int i = 1; i < Objects.Length; i++)
+        for (int i = staticObjectCount; i < Objects.Length; i++)
         {
-            float phase = (float)animationTime * 0.7f + (i - 1) * MathF.PI;
+            float phase = (float)animationTime * 0.7f + (i - staticObjectCount) * MathF.PI;
             Vector3 p = new(center.X + MathF.Sin(phase) * Scale * 0.09f, GroundHeight + Scale * 0.04f, center.Z + MathF.Cos(phase) * Scale * 0.018f);
             Objects[i].Offset = new(p, Objects[i].Offset.W);
         }
@@ -266,7 +296,7 @@ internal sealed class Scene
         float nearest = float.PositiveInfinity;
         for (int i = 0; i < Vertices.Length; i += 3)
         {
-            if (Vertices[i].Position.W != 0)
+            if (Vertices[i].Position.W >= staticObjectCount)
             {
                 continue;
             }
@@ -299,7 +329,7 @@ internal sealed class Scene
         return origin.Y - nearest;
     }
 
-    private static List<SceneVertex> CreateSphere(float radius, int objectIndex, int materialIndex)
+    private static List<SceneVertex> CreateSphere(float radius, int materialIndex)
     {
         const int segments = 64;
         const int rings = 32;
@@ -311,7 +341,7 @@ internal sealed class Scene
             Vector3 n = new(MathF.Sin(theta) * MathF.Cos(phi), MathF.Cos(theta), MathF.Sin(theta) * MathF.Sin(phi));
             return new()
             {
-                Position = new(n * radius, objectIndex),
+                Position = new(n * radius, 0),
                 Normal = new(n, materialIndex),
                 Tangent = new(-MathF.Sin(phi), 0, MathF.Cos(phi), 1),
                 UV = new((float)x / segments, (float)y / rings, 0, 0)
