@@ -34,7 +34,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private VkDescriptorSetLayout descriptorLayout;
     private VkDescriptorPool descriptorPool;
     private VkPipelineLayout pipelineLayout;
-    private VkPipeline scenePipeline, uiPipeline, shadowPipeline;
+    private VkPipeline scenePipeline, depthPipeline, uiPipeline, shadowPipeline;
     private readonly Dictionary<ComputePass, VkPipeline> pipelines = [];
     private VkSampler sampler;
     private VkQueryPool queryPool;

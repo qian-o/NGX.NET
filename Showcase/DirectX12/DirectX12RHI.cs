@@ -23,7 +23,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private ID3D12Fence fence = null!;
     private IDXGISwapChain3? swapChain;
     private ID3D12RootSignature root = null!;
-    private ID3D12PipelineState scenePipeline = null!, uiPipeline = null!, shadowPipeline = null!;
+    private ID3D12PipelineState scenePipeline = null!, depthPipeline = null!, uiPipeline = null!, shadowPipeline = null!;
     private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
     private ID3D12DescriptorHeap descriptors = null!, renderTargets = null!, depthViews = null!;
     private ID3D12QueryHeap queries = null!;
@@ -220,6 +220,18 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             MaxLOD = float.MaxValue
         };
         root = device.CreateRootSignature(new RootSignatureDescription1(RootSignatureFlags.AllowInputAssemblerInputLayout, parameters, [sampler]));
+        depthPipeline = device.CreateGraphicsPipelineState(new()
+        {
+            RootSignature = root,
+            VertexShader = Compile("SceneVS", "vertex"),
+            PixelShader = Compile("DepthPS", "fragment"),
+            BlendState = BlendDescription.Opaque,
+            RasterizerState = new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
+            DepthStencilState = DepthStencilDescription.Default,
+            PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+            RenderTargetFormats = [],
+            DepthStencilFormat = Format.D32_Float
+        });
         scenePipeline = device.CreateGraphicsPipelineState(new()
         {
             RootSignature = root,
@@ -227,7 +239,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             PixelShader = Compile("ScenePS", "fragment"),
             BlendState = BlendDescription.Opaque,
             RasterizerState = new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
-            DepthStencilState = DepthStencilDescription.Default,
+            DepthStencilState = new(true, DepthWriteMask.Zero, ComparisonFunction.Equal),
             PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
             RenderTargetFormats = [Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16B16A16_Float, Format.R16G16_Float],
             DepthStencilFormat = Format.D32_Float
@@ -514,10 +526,15 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         DxImage depth = (DxImage)Image(ImageSlot.Depth);
         Transition(depth, ImageUse.DepthAttachment);
         commandList.ClearDepthStencilView(depth.Dsv, ClearFlags.Depth, 1, 0);
-        Bind(true, scenePipeline, Constants);
-        commandList.OMSetRenderTargets(targets, depth.Dsv);
+        Bind(true, depthPipeline, Constants);
+        commandList.OMSetRenderTargets(Array.Empty<CpuDescriptorHandle>(), depth.Dsv);
         commandList.RSSetViewport(0, 0, InputWidth, InputHeight);
         commandList.RSSetScissorRect(InputWidth, InputHeight);
+        commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
+        FrameConstants colorConstants = Constants;
+        colorConstants.Parameters.W = Scene.Vertices.Length / 3;
+        Bind(true, scenePipeline, colorConstants);
+        commandList.OMSetRenderTargets(targets, depth.Dsv);
         commandList.DrawInstanced((uint)Scene.Vertices.Length, 1, 0, 0);
         commandList.UnsetRenderTargets();
     }
@@ -671,6 +688,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
         shadowPipeline?.Dispose();
         scenePipeline?.Dispose();
+        depthPipeline?.Dispose();
         uiPipeline?.Dispose();
         root?.Dispose();
         foreach (DxFrame? slot in slots)

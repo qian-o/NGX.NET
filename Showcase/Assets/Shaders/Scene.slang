@@ -17,7 +17,7 @@ struct Globals
     float4 size; // render width, height, output width, height
     float4 sun;
     float4 scene; // object count, frame number, ray epsilon, scale
-    float4 parameters; // ray tracing, exposure compensation, input image, reserved
+    float4 parameters; // ray tracing, exposure compensation, input image, reverse-order triangle count (0 = forward)
     float4 jitter; // pixel jitter.xy; RR guides enabled.z; texture mip bias.w
     float4 center;
     row_major float4x4 sunViewProjection;
@@ -74,7 +74,10 @@ struct Globals
 float3 linearToSrgb(float3 c) { return select(c <= 0.0031308, c * 12.92, 1.055 * pow(max(c, 0), 1.0 / 2.4) - 0.055); }
 float4 fetch(uint offset, int2 p, uint2 size, bool srgb)
 {
-    p = (p % int2(size) + int2(size)) % int2(size);
+    // sampleMip's frac(uv) guarantees each bilinear corner is in [-1, size].
+    // Wrap that single boundary without two integer divisions per coordinate.
+    p = select(p < 0, p + int2(size), p);
+    p = select(p >= int2(size), p - int2(size), p);
     uint packed = texels[offset + p.y * size.x + p.x];
     uint3 rgb = uint3(packed & 255, (packed >> 8) & 255, (packed >> 16) & 255);
     // Scene.Load stores the exact 8-bit sRGB decode table in the buffer prefix.
@@ -172,7 +175,7 @@ Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
 }
 struct RasterVertex
 {
-    float4 position : SV_Position;
+    precise float4 position : SV_Position;
     float3 normal : NORMAL;
     float4 tangent : TANGENT;
     float2 uv : TEXCOORD0;
@@ -184,6 +187,13 @@ struct RasterVertex
 [shader("vertex")]
 RasterVertex SceneVS(uint id : SV_VertexID)
 {
+    if (g.parameters.w > 0)
+    {
+        // Less-depth prepass keeps the first surface at an exactly equal depth.
+        // Reverse only triangle order (not winding) so the equal-depth color
+        // pass leaves that same first surface last when coplanar faces overlap.
+        id = ((uint)g.parameters.w - 1 - id / 3) * 3 + id % 3;
+    }
     Vertex v = vertices[id];
     ObjectData object = objects[(uint)v.position.w];
     float4 world = float4(v.position.xyz + object.offset.xyz, 1);
@@ -200,6 +210,20 @@ RasterVertex SceneVS(uint id : SV_VertexID)
 }
 struct GBuffer { float4 albedo : SV_Target0; float4 normal : SV_Target1; float4 emissive : SV_Target2; float2 motion : SV_Target3; };
 [shader("fragment")]
+void DepthPS(RasterVertex input, bool front : SV_IsFrontFace)
+{
+    Material m = materials[input.material];
+    if (!front && m.parameters.w == 0) discard;
+    if (m.parameters.z >= 0)
+    {
+        // Match the color pass's coverage, including reconstruction mip bias
+        // and anisotropic footprint. Opaque surfaces do not sample any textures.
+        float alpha = m.baseColor.a * sampleTextureGrad((int)m.textures.x, input.uv, ddx(input.uv), ddy(input.uv), g.jitter.w, true).a;
+        clip(alpha - m.parameters.z);
+    }
+}
+[shader("fragment")]
+[earlydepthstencil]
 GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
 {
     Material m = materials[input.material];
@@ -267,18 +291,15 @@ float shadowVisibility(float3 p, float3 normal)
 
 #if HAS_RAY_QUERY
 struct Hit { float distance; uint triangle; uint object; float2 bary; };
-Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
+static const uint traversalFlags = RAY_FLAG_CULL_BACK_FACING_TRIANGLES | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES;
+void traverse<let flags : uint>(inout RayQuery<flags> query, float3 origin, float3 direction, float limit)
 {
-    Hit hit;
-    hit.distance = limit; hit.triangle = 0xffffffff; hit.object = 0; hit.bary = 0;
-    if (limit <= g.scene.z) return hit;
     RayDesc ray;
     ray.Origin = origin;
     ray.Direction = direction;
     ray.TMin = g.scene.z;
     ray.TMax = limit;
-    RayQuery<RAY_FLAG_CULL_BACK_FACING_TRIANGLES | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES> query;
-    query.TraceRayInline(sceneAcceleration, anyHit ? RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH : RAY_FLAG_NONE, 0xff, ray);
+    query.TraceRayInline(sceneAcceleration, RAY_FLAG_NONE, 0xff, ray);
     while (query.Proceed())
     {
         if (query.CandidateType() != CANDIDATE_NON_OPAQUE_TRIANGLE) continue;
@@ -297,6 +318,23 @@ Hit trace(float3 origin, float3 direction, float limit, bool anyHit)
         }
         query.CommitNonOpaqueTriangleHit();
     }
+}
+bool occluded(float3 origin, float3 direction, float limit)
+{
+    if (limit <= g.scene.z) return false;
+    // Visibility only needs a committed hit. Compile-time first-hit termination
+    // avoids carrying nearest-hit distance, instance and barycentric results.
+    RayQuery<traversalFlags | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
+    traverse(query, origin, direction, limit);
+    return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
+}
+Hit trace(float3 origin, float3 direction, float limit)
+{
+    Hit hit;
+    hit.distance = limit; hit.triangle = 0xffffffff; hit.object = 0; hit.bary = 0;
+    if (limit <= g.scene.z) return hit;
+    RayQuery<traversalFlags> query;
+    traverse(query, origin, direction, limit);
     if (query.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
     {
         hit.object = query.CommittedInstanceID();
@@ -400,7 +438,7 @@ float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
     if (dot(s.normal, sunDirection) <= 0) return 0;
     float visibility;
 #if HAS_RAY_QUERY
-    visibility = trace(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4, true).triangle == 0xffffffff ? 1 : 0;
+    visibility = occluded(p + s.normal * g.scene.z, sunDirection, g.scene.w * 4) ? 0 : 1;
 #else
     visibility = shadowVisibility(p, s.normal);
 #endif

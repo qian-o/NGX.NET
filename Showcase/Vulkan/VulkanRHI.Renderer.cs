@@ -204,6 +204,7 @@ internal sealed unsafe partial class VulkanRHI
         };
         Check(api.vkCreatePipelineLayout(&layoutInfo, null, out pipelineLayout), "vkCreatePipelineLayout");
         scenePipeline = GraphicsPipeline(false);
+        depthPipeline = GraphicsPipeline(false, depthOnly: true);
         shadowPipeline = GraphicsPipeline(false, shadow: true);
         uiPipeline = GraphicsPipeline(true);
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())
@@ -252,9 +253,9 @@ internal sealed unsafe partial class VulkanRHI
             return module;
         }
     }
-    private VkPipeline GraphicsPipeline(bool ui, bool shadow = false)
+    private VkPipeline GraphicsPipeline(bool ui, bool shadow = false, bool depthOnly = false)
     {
-        string vertexName = shadow ? "ShadowVS" : ui ? "UiVS" : "SceneVS", fragmentName = shadow ? "ShadowPS" : ui ? "UiPS" : "ScenePS";
+        string vertexName = shadow ? "ShadowVS" : ui ? "UiVS" : "SceneVS", fragmentName = shadow ? "ShadowPS" : ui ? "UiPS" : depthOnly ? "DepthPS" : "ScenePS";
         VkShaderModule vertex = Shader(vertexName, "vertex"), fragment = Shader(fragmentName, "fragment");
         try
         {
@@ -290,11 +291,11 @@ internal sealed unsafe partial class VulkanRHI
             VkPipelineDepthStencilStateCreateInfo depth = new()
             {
                 depthTestEnable = !ui,
-                depthWriteEnable = !ui,
-                depthCompareOp = VkCompareOp.Less,
+                depthWriteEnable = shadow || depthOnly,
+                depthCompareOp = !ui && !shadow && !depthOnly ? VkCompareOp.Equal : VkCompareOp.Less,
                 maxDepthBounds = 1
             };
-            int targetCount = shadow ? 0 : ui ? 1 : 4;
+            int targetCount = shadow || depthOnly ? 0 : ui ? 1 : 4;
             VkPipelineColorBlendAttachmentState* blendAttachments = stackalloc VkPipelineColorBlendAttachmentState[4];
             for (int i = 0; i < targetCount; i++)
             {
@@ -570,13 +571,22 @@ internal sealed unsafe partial class VulkanRHI
         {
             renderArea = new(0, 0, (uint)InputWidth, (uint)InputHeight),
             layerCount = 1,
-            colorAttachmentCount = 4,
-            pColorAttachments = colors,
             pDepthAttachment = &depthAttachment
         };
         api.vkCmdBeginRendering(commandBuffer, &rendering);
-        Bind(VkPipelineBindPoint.Graphics, scenePipeline, Constants);
+        Bind(VkPipelineBindPoint.Graphics, depthPipeline, Constants);
         Viewport(InputWidth, InputHeight);
+        api.vkCmdDraw(commandBuffer, (uint)Scene.Vertices.Length, 1, 0, 0);
+        api.vkCmdEndRendering(commandBuffer);
+        // Make prepass depth writes visible to the next rendering scope's tests.
+        Barrier(depth.Texture, depth.Layout, depth.Layout, Range(depth.Format));
+        depthAttachment.loadOp = VkAttachmentLoadOp.Load;
+        rendering.colorAttachmentCount = 4;
+        rendering.pColorAttachments = colors;
+        api.vkCmdBeginRendering(commandBuffer, &rendering);
+        FrameConstants colorConstants = Constants;
+        colorConstants.Parameters.W = Scene.Vertices.Length / 3;
+        Bind(VkPipelineBindPoint.Graphics, scenePipeline, colorConstants);
         api.vkCmdDraw(commandBuffer, (uint)Scene.Vertices.Length, 1, 0, 0);
         api.vkCmdEndRendering(commandBuffer);
     }
@@ -797,6 +807,10 @@ internal sealed unsafe partial class VulkanRHI
             if (!scenePipeline.IsNull)
             {
                 api.vkDestroyPipeline(scenePipeline);
+            }
+            if (!depthPipeline.IsNull)
+            {
+                api.vkDestroyPipeline(depthPipeline);
             }
 
             if (!uiPipeline.IsNull)

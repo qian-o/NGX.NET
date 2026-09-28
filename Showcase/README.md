@@ -85,6 +85,14 @@ placeholder options.
   retains its authored materials, normals and roughness.
   Daylight and exposure metering are automatic. glTF hierarchy
   transforms are evaluated on load; downloaded materials and textures are unchanged.
+- A depth prepass applies the same sidedness, alpha cutoff, anisotropic footprint
+  and mip bias as the material pass. Opaque fragments only test sidedness there.
+  The material pass uses early equal-depth tests with depth writes disabled, so
+  hidden surfaces do not run the full material shader. Its triangle order is reversed
+  while winding is preserved, retaining the original first-visible primitive when
+  coplanar faces overlap. Both passes use the same vertex shader and camera constants;
+  the fourth `parameters` component supplies the reverse-order triangle count only
+  for the color pass. Vulkan explicitly synchronizes depth writes between rendering scopes.
 - Automatic exposure meters HDR color after reconstruction, before tone mapping
   and UI composition. Each 16 x 16 output-pixel tile averages luminance in linear
   light before conversion to exposure stops; partial edge tiles retain their
@@ -147,6 +155,9 @@ placeholder options.
 - Ray-query candidates apply the material's alpha cutoff before committing hits.
   The instance ID and primitive index locate the corresponding
   shared vertices, UVs and materials. There is no software BVH rendering path.
+- Visibility queries have a compile-time first-hit flag and return only occlusion.
+  Indirect/reflection queries separately return the closest hit, including its
+  distance and barycentrics. Both use the same candidate alpha tests and culling.
 - When ray-query capabilities are unavailable, lighting uses a raster sun shadow
   map. The renderer compiles its raster lighting variant and disables ray
   tracing and RR while keeping the other supported rendering/features available.
@@ -164,6 +175,9 @@ placeholder options.
   `log2(inputWidth / outputWidth) - 1`; native rendering keeps zero bias. Secondary
   hit textures use the same bias. This preserves detail before reconstruction,
   rather than sharpening a blurred final image.
+  Bilinear corners wrap with single-edge bounds checks: `frac(uv)` restricts them
+  to `[-1, size]`, eliminating repeated integer remainders while retaining negative
+  UV wrapping, non-power-of-two textures and one-texel mip levels.
   Degenerate authored tangents use the same orthogonal fallback as missing tangents,
   avoiding zero-vector normalization in normal mapping and indirect paths.
 - Sun directions below the shading horizon skip visibility queries because their
@@ -286,7 +300,7 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   DeepDVC, NIS, DirectSR and nvperf binaries, even with older cached SDK files present.
 - Scene preparation: passed, 270,203 triangles including the moving objects,
   28 material records and 69 decoded texture resources with mip chains.
-- All fifteen SPIR-V shaders and HLSL translations, plus raster variants of tracing
+- All sixteen SPIR-V shaders and HLSL translations, plus raster variants of tracing
   and lighting: compiled successfully. The hardware tracing binary contains SPIR-V
   ray-query instructions and its acceleration-structure binding in `TraceLighting`;
   `Lighting` and both raster variants contain neither.
@@ -323,6 +337,29 @@ Development host: macOS arm64, .NET SDK 10.0.401.
   189.27 ms total, 164.74 ms lighting (87.04%), 11.27 ms geometry, 12.76 ms RR and
   0.36 ms post-processing, approximately 5.3 render FPS. The file did not contain
   Ultra Performance or RR-off captures and cannot verify the RR-exit warning fix.
+- The user's next capture, with the same Quality/RR-on sizes and one sample per
+  lobe, measured 58.13 ms total / 17.20 FPS: geometry 11.49 ms, tracing 32.03 ms,
+  lighting resolve 0.76 ms, RR 13.34 ms and post-processing 0.37 ms. This confirms
+  the preceding sampling revision on RTX; it precedes the depth-prepass/visibility
+  changes below and is not evidence of their Windows speedup.
+- Depth/visibility revision: actual shared raster shaders and scene data executed
+  on Apple M4 at 1067 x 600 with reconstruction mip bias, and 513 x 289 with jitter
+  and nonzero motion. Depth, alpha coverage and motion matched bit-for-bit. A
+  primitive-ID diagnostic also matched the original visible triangles. There were
+  small interpolation/derivative differences in material outputs (401 of 8,962,800
+  components at 1067 x 600; largest albedo RMS difference 3.9e-5), so this is not a
+  claim of bit-identical material shading. Median geometry time changed from
+  10.53 to 4.86 ms; the smaller case changed from 4.57 to 2.20 ms.
+  The isolated Metal adapter maps fragment discard and early-test annotations to
+  Metal equivalents and remaps register bindings; it is not a Windows backend run.
+- Specialized visibility plus texture wrapping produced identical HDR pixels and
+  specular hit distances across 16 shared-shader GPU lighting frames. Median time
+  changed from 22.76 to 21.32 ms on Apple M4. Forty GPU texture cases covered
+  negative/repeated UVs, 1 x 1 and non-power-of-two sizes, fractional/clamped mips,
+  sRGB/linear data and alpha with bit-identical results. SPIR-V checks confirmed
+  early tests only on the material pass and distinct closest-/first-hit ray flags.
+  Sampling count, eight-event scattering limit, RR settings and scene lighting were
+  unchanged in this revision; native Windows speed and appearance still need acceptance.
 - The actual old/new shared lighting shaders ran through Metal ray queries on
   Apple M4 with the real 270,203-triangle scene, four BLASes and all textures, using
   a 512 x 288 CPU-generated primary-surface fixture. Median lighting time changed

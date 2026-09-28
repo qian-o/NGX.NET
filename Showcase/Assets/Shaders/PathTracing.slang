@@ -33,7 +33,7 @@ float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, in
     [loop]
     for (uint bounce = 0; bounce <= surfaceBounces; bounce++)
     {
-        Hit hit = trace(origin, direction, g.scene.w * 4, false);
+        Hit hit = trace(origin, direction, g.scene.w * 4);
         if (bounce == 0 && hit.triangle != 0xffffffff) distance = hit.distance;
         if (hit.triangle == 0xffffffff)
         {

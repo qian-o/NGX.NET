@@ -51,7 +51,7 @@ float3 skyLighting(Surface s, float3 p, float3 view, float2 u, bool separateLobe
     float3 direction = sampleSkyPortal(p, u, lightPdf);
     float nl = dot(s.normal, direction);
     if (lightPdf <= 0 || nl <= 0) return 0;
-    if (trace(p + s.normal * g.scene.z, direction, g.scene.w * 4, true).triangle != 0xffffffff) return 0;
+    if (occluded(p + s.normal * g.scene.z, direction, g.scene.w * 4)) return 0;
     float2 pdf = bsdfPdfs(s, view, direction);
     float3 contribution;
     if (separateLobes)
