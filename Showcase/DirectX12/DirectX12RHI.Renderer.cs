@@ -125,7 +125,13 @@ internal sealed unsafe partial class DirectX12RHI
             PixelShader = Compile(fragment, "fragment"),
             BlendState = ui ? new(Blend.One, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha) : BlendDescription.Opaque,
             RasterizerState = ui ? RasterizerDescription.CullNone : new RasterizerDescription(CullMode.None, FillMode.Solid) { FrontCounterClockwise = true },
-            DepthStencilState = pass == GraphicsPass.Scene ? new(true, DepthWriteMask.Zero, ComparisonFunction.Equal) : ui ? DepthStencilDescription.None : DepthStencilDescription.Default,
+            DepthStencilState = pass switch
+            {
+                GraphicsPass.Scene => new(true, DepthWriteMask.Zero, ComparisonFunction.Equal),
+                GraphicsPass.Depth => new(true, DepthWriteMask.All, ComparisonFunction.Greater),
+                GraphicsPass.Shadow => DepthStencilDescription.Default,
+                _ => DepthStencilDescription.None
+            },
             InputLayout = ui ? new InputLayoutDescription(new InputElementDescription("POSITION", 0, Format.R32G32_Float, 0, 0), new InputElementDescription("TEXCOORD", 0, Format.R32G32_Float, 8, 0), new InputElementDescription("COLOR", 0, Format.R8G8B8A8_UNorm, 16, 0)) : default,
             PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
             RenderTargetFormats = formats,
@@ -318,7 +324,7 @@ internal sealed unsafe partial class DirectX12RHI
         }
         DxImage depth = (DxImage)Image(ImageSlot.Depth);
         Transition(depth, ImageUse.DepthAttachment);
-        commandList.ClearDepthStencilView(depth.Dsv, ClearFlags.Depth, 1, 0);
+        commandList.ClearDepthStencilView(depth.Dsv, ClearFlags.Depth, 0, 0);
         Bind(true, depthPipeline, Constants);
         commandList.OMSetRenderTargets(Array.Empty<CpuDescriptorHandle>(), depth.Dsv);
         commandList.RSSetViewport(0, 0, InputWidth, InputHeight);

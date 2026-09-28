@@ -210,7 +210,7 @@ RasterVertex SceneVS(uint id : SV_VertexID)
 {
     if (g.parameters.w > 0)
     {
-        // Less-depth prepass keeps the first surface at an exactly equal depth.
+        // Strict reverse-depth prepass keeps the first surface at an exactly equal depth.
         // Reverse only triangle order (not winding) so the equal-depth color
         // pass leaves that same first surface last when coplanar faces overlap.
         id = ((uint)g.parameters.w - 1 - id / 3) * 3 + id % 3;
@@ -513,7 +513,7 @@ float ambientVisibility(int2 pixel, float3 p, float3 n)
             int2 samplePixel = pixel + int2(round(direction * radiusPixels * (float(j) / steps)));
             if (any(samplePixel < 0) || any(samplePixel >= int2(g.size.xy)) || all(samplePixel == pixel)) continue;
             float depth = depthImage[samplePixel];
-            if (depth >= 1) continue;
+            if (depth <= 0) continue;
             float3 difference = worldPosition(samplePixel, depth) - p;
             float distanceSquared = dot(difference, difference);
             if (distanceSquared <= g.scene.z * g.scene.z) continue;
@@ -550,7 +550,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     float4 world = mul(float4(uv * float2(2, -2) + float2(-1, 1), depth, 1), g.inverseViewProjection);
     float3 p = world.xyz / world.w;
     float3 view = normalize(g.camera.xyz - p);
-    if (depth >= 1)
+    if (depth <= 0)
     {
         sceneOutput[pixel] = float4(sky(-view), 1);
         if (g.jitter.z > 0)

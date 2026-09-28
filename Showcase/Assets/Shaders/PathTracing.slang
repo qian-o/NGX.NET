@@ -94,7 +94,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
     if (any(pixel >= uint2(g.size.xy)) || id.z >= primarySampleCount * 2) return;
     float depth = depthImage[pixel];
     // Lighting resolves sky and motion directly without reading these samples.
-    if (depth >= 1) return;
+    if (depth <= 0) return;
     float3 p = worldPosition(int2(pixel), depth);
     float3 view = normalize(g.camera.xyz - p);
     Surface s = primarySurface(pixel, view);

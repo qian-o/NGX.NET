@@ -251,7 +251,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
             CameraFar = camera.Far,
             CameraFOV = Camera.FieldOfView,
             CameraAspectRatio = (float)outputWidth / outputHeight,
-            DepthInverted = SLBoolean.False,
+            DepthInverted = SLBoolean.True,
             CameraMotionIncluded = SLBoolean.True,
             MotionVectors3D = SLBoolean.False,
             Reset = reset ? SLBoolean.True : SLBoolean.False,

@@ -98,7 +98,12 @@ internal sealed class Camera
     public void Update(int width, int height, int outputWidth, int outputHeight, uint frame, bool temporal, bool reset)
     {
         View = Matrix4x4.CreateLookAt(Position, Position + Forward, Vector3.UnitY);
-        Projection = Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, (float)outputWidth / outputHeight, Near, Far);
+        Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, (float)outputWidth / outputHeight, Near, Far);
+        // Floating-point reverse Z maps near to 1 and far to 0. Forward Z loses
+        // enough precision at the far wall to reconstruct ray origins inside it.
+        projection.M33 = Near / (Far - Near);
+        projection.M43 = Far * projection.M33;
+        Projection = projection;
         ViewProjection = View * Projection;
         Jitter = temporal ? new(Halton(frame % 32 + 1, 2) - 0.5f, Halton(frame % 32 + 1, 3) - 0.5f) : Vector2.Zero;
         Matrix4x4 jittered = Projection;

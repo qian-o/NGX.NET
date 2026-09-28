@@ -286,7 +286,12 @@ internal sealed unsafe partial class VulkanRHI
             {
                 depthTestEnable = !ui,
                 depthWriteEnable = depthOnly,
-                depthCompareOp = pass == GraphicsPass.Scene ? VkCompareOp.Equal : VkCompareOp.Less,
+                depthCompareOp = pass switch
+                {
+                    GraphicsPass.Scene => VkCompareOp.Equal,
+                    GraphicsPass.Depth => VkCompareOp.Greater,
+                    _ => VkCompareOp.Less
+                },
                 maxDepthBounds = 1
             };
             int targetCount = targets.Length;
@@ -542,7 +547,7 @@ internal sealed unsafe partial class VulkanRHI
             imageLayout = depth.Layout,
             loadOp = VkAttachmentLoadOp.Clear,
             storeOp = VkAttachmentStoreOp.Store,
-            clearValue = new VkClearValue(new VkClearDepthStencilValue(1, 0))
+            clearValue = new VkClearValue(new VkClearDepthStencilValue(0, 0))
         };
         VkRenderingInfo rendering = new()
         {

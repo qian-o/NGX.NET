@@ -67,6 +67,8 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
   and motion references.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
+  Camera depth uses floating-point reverse Z (near = 1, far/clear = 0) to keep
+  reconstructed ray origins accurate at a distance; shadow-map depth remains forward Z.
 - Lighting rays test both sides of opaque surfaces while preserving alpha cutouts.
   Separate geometric normals keep reflected paths above the actual surface and
   offset ray origins independently of normal-map detail.
