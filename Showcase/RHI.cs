@@ -278,10 +278,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
         Vector3 center = (Scene.Minimum + Scene.Maximum) * 0.5f;
-        // Aim daylight along the atrium opening. Cross-courtyard sunlight mostly
-        // hits the upper walls, leaving the floor dependent on exposure lift.
-        const float elevation = 60 * MathF.PI / 180;
-        const float azimuth = 15 * MathF.PI / 180;
+        const float elevation = 50 * MathF.PI / 180;
+        const float azimuth = 65 * MathF.PI / 180;
         Vector3 sun = new(MathF.Cos(elevation) * MathF.Cos(azimuth), MathF.Sin(elevation), MathF.Cos(elevation) * MathF.Sin(azimuth));
         const float solarAngularRadius = 0.2666f * MathF.PI / 180;
         Constants = new()

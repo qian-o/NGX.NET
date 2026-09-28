@@ -53,7 +53,7 @@ struct Globals
 [[vk::binding(22, 0)]] Texture2D<float4> exposureImage : register(t21);
 [[vk::binding(23, 0)]] Texture2D<float4> luminanceImage : register(t22);
 [[vk::binding(24, 0)]] Texture2D<float> filteredLuminanceImage : register(t23);
-[[vk::binding(25, 0)]] Texture2D<float2> geometricNormalImage : register(t24);
+[[vk::binding(25, 0)]] Texture2D<float4> surfaceGeometryImage : register(t24);
 [[vk::binding(26, 0)]] Texture2D<float4> previousExposureImage : register(t25);
 [[vk::binding(27, 0)]] Texture2D<float4> fontImage : register(t26);
 [[vk::binding(28, 0)]] Texture2DArray<float4> lightingSamplesImage : register(t27);
@@ -140,26 +140,56 @@ float4 sampleTextureGrad(int index, float2 uv, float2 dx, float2 dy, float bias,
         result += sampleTexture(index, uv + span * ((i + 0.5) / taps - 0.5), lod, srgb);
     return result / taps;
 }
-// Keep the actual triangle normal separate from interpolated/normal-mapped shading.
-// Reflection must stay above the geometric surface even when a normal map tilts it.
-float2 octahedralSign(float2 v) { return float2(v.x < 0 ? -1 : 1, v.y < 0 ? -1 : 1); }
-float2 encodeGeometricNormal(float3 n)
+// The triangle plane is used for reflection-ray offsets. Smooth mesh normals
+// define the shading surface; normal-map detail must not change that surface.
+struct Surface
 {
-    n /= dot(abs(n), float3(1, 1, 1));
-    return n.z >= 0 ? n.xy : (1 - abs(n.yx)) * octahedralSign(n.xy);
-}
-float3 decodeGeometricNormal(float2 encoded)
-{
-    float3 n = float3(encoded, 1 - abs(encoded.x) - abs(encoded.y));
-    if (n.z < 0) n.xy = (1 - abs(n.yx)) * octahedralSign(n.xy);
-    return normalize(n);
-}
-struct Surface { float3 albedo; float3 normal; float3 geometricNormal; float3 emissive; float metallic; float roughness; float alpha; };
+    float3 albedo;
+    float3 normal;
+    float3 geometricNormal;
+    float3 frameNormal;
+    float3 shadowOffset;
+    float3 emissive;
+    float metallic;
+    float roughness;
+    float alpha;
+};
 bool aboveSurface(Surface s, float3 direction)
 {
     return dot(s.geometricNormal, direction) > 0 && dot(s.normal, direction) > 0;
 }
+bool aboveShadingSurface(Surface s, float3 direction)
+{
+    return dot(s.frameNormal, direction) > 0 && dot(s.normal, direction) > 0;
+}
 float3 rayOrigin(float3 p, Surface s) { return p + s.geometricNormal * g.scene.z; }
+float3 shadowOrigin(float3 p, Surface s) { return rayOrigin(p + s.shadowOffset, s); }
+
+void surfaceGeometry(inout Surface s, Vertex a, Vertex b, Vertex c, float3 weights, float3 view)
+{
+    float3 face = normalize(cross(b.position.xyz - a.position.xyz, c.position.xyz - a.position.xyz));
+    float side = dot(face, view) < 0 ? -1 : 1;
+    s.geometricNormal = face * side;
+    float3 na = a.normal.xyz * side, nb = b.normal.xyz * side, nc = c.normal.xyz * side;
+    s.frameNormal = normalize(na * weights.x + nb * weights.y + nc * weights.z);
+    // Hanika 2021: project onto the vertex tangent planes, only toward the
+    // visible side. The correction vanishes on flat geometry and at vertices.
+    // Use it for visibility rays, not reflection paths or RR hit distances.
+    float3 p = a.position.xyz * weights.x + b.position.xyz * weights.y + c.position.xyz * weights.z;
+    s.shadowOffset = -weights.x * min(dot(p - a.position.xyz, na), 0) * na
+                     -weights.y * min(dot(p - b.position.xyz, nb), 0) * nb
+                     -weights.z * min(dot(p - c.position.xyz, nc), 0) * nc;
+    s.shadowOffset -= s.geometricNormal * min(dot(s.shadowOffset, s.geometricNormal), 0);
+}
+// Chiang et al. 2019: normal-map shadowing approaches zero smoothly at the
+// underlying mesh-normal horizon instead of exposing a hard normal-map cutoff.
+float shadowTerm(Surface s, float3 light)
+{
+    float denominator = dot(s.normal, light) * dot(s.normal, s.frameNormal);
+    if (denominator <= 0) return 0;
+    float ratio = saturate(dot(s.frameNormal, light) / denominator);
+    return ratio + ratio * ratio - ratio * ratio * ratio;
+}
 Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, float4 normalMap, float4 mr, float3 emission)
 {
     Surface s;
@@ -171,6 +201,8 @@ Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, fl
     s.emissive = m.emissiveMetallic.rgb * emission;
     s.normal = normalize(n);
     s.geometricNormal = s.normal;
+    s.frameNormal = s.normal;
+    s.shadowOffset = 0;
     if (m.textures.y >= 0)
     {
         float3 t = tangent.xyz - n * dot(n, tangent.xyz);
@@ -204,6 +236,8 @@ struct RasterVertex
     float4 previous : TEXCOORD2;
     nointerpolation uint material : TEXCOORD3;
     float3 world : TEXCOORD4;
+    nointerpolation uint triangle : TEXCOORD5;
+    float2 barycentric : TEXCOORD6;
 };
 [shader("vertex")]
 RasterVertex SceneVS(uint id : SV_VertexID)
@@ -227,9 +261,11 @@ RasterVertex SceneVS(uint id : SV_VertexID)
     result.tangent = v.tangent;
     result.uv = v.uv.xy;
     result.material = (uint)v.normal.w;
+    result.triangle = id / 3;
+    result.barycentric = float2(id % 3 == 1 ? 1 : 0, id % 3 == 2 ? 1 : 0);
     return result;
 }
-struct GBuffer { float4 albedo : SV_Target0; float4 normal : SV_Target1; float4 emissive : SV_Target2; float2 motion : SV_Target3; float2 geometricNormal : SV_Target4; };
+struct GBuffer { float4 albedo : SV_Target0; float4 normal : SV_Target1; float4 emissive : SV_Target2; float2 motion : SV_Target3; float4 surfaceGeometry : SV_Target4; };
 [shader("fragment")]
 void DepthPS(RasterVertex input, bool front : SV_IsFrontFace)
 {
@@ -257,15 +293,15 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
         sampleTextureGrad((int)m.textures.w, input.uv, uvDx, uvDy, g.jitter.w, true).rgb);
     clip(s.alpha - m.parameters.z);
     if (dot(s.normal, g.camera.xyz - input.world) < 0) s.normal = -s.normal;
-    float3 geometricNormal = normalize(cross(ddx(input.world), ddy(input.world)));
-    if (dot(geometricNormal, g.camera.xyz - input.world) < 0) geometricNormal = -geometricNormal;
     GBuffer output;
     output.albedo = float4(s.albedo, 1);
     output.normal = float4(s.normal, s.roughness);
     output.emissive = float4(s.emissive, s.metallic);
     float2 motion = input.previous.xy / input.previous.w - input.current.xy / input.current.w;
     output.motion = motion * float2(0.5, -0.5) * g.size.xy;
-    output.geometricNormal = encodeGeometricNormal(geometricNormal);
+    // Perspective-correct barycentrics identify the same source triangle in
+    // both the reversed-order color pass and the ray-tracing vertex buffer.
+    output.surfaceGeometry = float4(input.barycentric, float(input.triangle), 0);
     return output;
 }
 
@@ -420,13 +456,13 @@ float smithG1(float nv, float alpha)
 float3 brdf(Surface s, float3 v, float3 l)
 {
     float nv = max(dot(s.normal, v), 1e-4), nl = max(dot(s.normal, l), 0);
-    if (!aboveSurface(s, l)) return 0;
+    if (!aboveShadingSurface(s, l)) return 0;
     float3 h = normalize(v + l);
     float nh = saturate(dot(s.normal, h)), vh = saturate(dot(v, h));
     float alpha = s.roughness * s.roughness;
     float3 f = fresnel(lerp(0.04, s.albedo, s.metallic), vh);
     float3 diffuse = (1 - f) * (1 - s.metallic) * s.albedo / 3.14159265;
-    return (diffuse + f * ggxDistribution(nh, alpha) * smithVisibility(nv, nl, alpha)) * nl;
+    return (diffuse + f * ggxDistribution(nh, alpha) * smithVisibility(nv, nl, alpha)) * nl * shadowTerm(s, l);
 }
 // Heitz 2018, Sampling the GGX Distribution of Visible Normals, JCGT 7(4).
 // Visible-normal sampling avoids the very large grazing-angle weights of NDF sampling.
@@ -460,12 +496,12 @@ float3 specularWeight(float3 f0, float nv, float nl, float vh, float alpha)
 
 float3 directLight(Surface s, float3 p, float3 view, float3 sunDirection)
 {
-    if (!aboveSurface(s, sunDirection)) return 0;
+    if (!aboveShadingSurface(s, sunDirection)) return 0;
     float visibility;
 #if HAS_RAY_QUERY
-    visibility = occluded(rayOrigin(p, s), sunDirection, g.scene.w * 4) ? 0 : 1;
+    visibility = occluded(shadowOrigin(p, s), sunDirection, g.scene.w * 4) ? 0 : 1;
 #else
-    visibility = shadowVisibility(p, s.geometricNormal);
+    visibility = shadowVisibility(p + s.shadowOffset, s.geometricNormal);
 #endif
     float3 color = brdf(s, view, sunDirection) * float3(1, 0.96, 0.88) * g.lighting.x * visibility;
     return color;
@@ -533,7 +569,10 @@ Surface primarySurface(uint2 pixel, float3 view)
 {
     float4 normal = normalImage[pixel], emissive = emissiveImage[pixel];
     Surface s; s.albedo = albedoImage[pixel].rgb; s.normal = normalize(normal.xyz); s.roughness = normal.w;
-    s.geometricNormal = decodeGeometricNormal(geometricNormalImage[pixel]);
+    float3 geometry = surfaceGeometryImage[pixel].xyz;
+    uint first = (uint)geometry.z * 3;
+    surfaceGeometry(s, vertices[first], vertices[first + 1], vertices[first + 2],
+        float3(1 - geometry.x - geometry.y, geometry.xy), view);
     s.emissive = emissive.rgb; s.metallic = emissive.w; s.alpha = 1;
     if (dot(s.normal, view) < 0) s.normal = -s.normal;
     return s;
@@ -580,7 +619,7 @@ void Lighting(uint3 id : SV_DispatchThreadID)
     }
     else
     {
-        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p, s.geometricNormal);
+        color += brdf(s, view, g.sun.xyz) * float3(1, 0.96, 0.88) * g.lighting.x * shadowVisibility(p + s.shadowOffset, s.geometricNormal);
         float visibility = ambientVisibility(int2(pixel), p, s.normal);
         float3 diffuseEnvironment = lerp(sky(float3(0, 1, 0)), sky(s.normal), 0.5);
         color += s.albedo * (1 - s.metallic) * (1 - specularAlbedo) * diffuseEnvironment * visibility;
@@ -605,7 +644,7 @@ float3 sampleDisplay(float2 uv, bool toneMap)
 {
     if (!toneMap) return displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
     float3 hdr = sampleHdr(uv);
-    return linearToSrgb(agxToneMap(hdr * exp2(localExposure(uv, hdr) + g.parameters.y)));
+    return linearToSrgb(displayToneMap(hdr * exp2(localExposure(uv, hdr) + g.parameters.y)));
 }
 float luminance(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
 // FXAA edge filter for the native raster path.

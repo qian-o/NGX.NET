@@ -50,8 +50,8 @@ float3 skyLighting(Surface s, float3 p, float3 view, float2 u, bool separateLobe
     float lightPdf;
     float3 direction = sampleSkyPortal(p, u, lightPdf);
     float nl = dot(s.normal, direction);
-    if (lightPdf <= 0 || !aboveSurface(s, direction)) return 0;
-    if (occluded(rayOrigin(p, s), direction, g.scene.w * 4)) return 0;
+    if (lightPdf <= 0 || !aboveShadingSurface(s, direction)) return 0;
+    if (occluded(shadowOrigin(p, s), direction, g.scene.w * 4)) return 0;
     float2 pdf = bsdfPdfs(s, view, direction);
     float3 contribution;
     if (separateLobes)
@@ -64,7 +64,7 @@ float3 skyLighting(Surface s, float3 p, float3 view, float2 u, bool separateLobe
         float alpha = s.roughness * s.roughness;
         float3 diffuse = (1 - f) * (1 - s.metallic) * s.albedo * nl / 3.14159265;
         float3 specular = f * ggxDistribution(saturate(dot(s.normal, h)), alpha) * smithVisibility(nv, nl, alpha) * nl;
-        contribution = diffuse * powerHeuristic(lightPdf, pdf.x) + specular * powerHeuristic(lightPdf, pdf.y);
+        contribution = (diffuse * powerHeuristic(lightPdf, pdf.x) + specular * powerHeuristic(lightPdf, pdf.y)) * shadowTerm(s, direction);
     }
     else
     {

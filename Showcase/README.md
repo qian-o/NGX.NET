@@ -65,21 +65,23 @@ lighting, runs SR or RR, applies exposure/tone mapping, composites the UI and pr
 - Sponza's hierarchy is baked into static geometry with its authored materials,
   normal maps and alpha masks. Moving metal and ceramic spheres provide reflection
   and motion references.
-- Daylight enters along the atrium opening, giving the floor direct illumination
-  and cast shadows while limiting the exposure needed to reveal the interior.
 - A matching depth prepass and early equal-depth tests reduce hidden material
   shading. Geometry is grouped by opacity and sidedness for hardware ray queries.
   Camera depth uses floating-point reverse Z (near = 1, far/clear = 0) to keep
   reconstructed ray origins accurate at a distance; shadow-map depth remains forward Z.
 - Lighting rays test both sides of opaque surfaces while preserving alpha cutouts.
-  Separate geometric normals keep reflected paths above the actual surface and
-  offset ray origins independently of normal-map detail.
+  Reflection paths remain constrained by the triangle plane. Visibility rays use
+  smooth mesh normals and a tangent-plane origin correction to reduce faceted
+  self-shadowing on cloth folds; normal-map shadowing fades at the mesh horizon.
+  The G-buffer records source triangles and perspective-correct barycentrics so
+  both backends use the same surface geometry.
 - Diffuse and specular paths run independently with importance sampling, temporal
   strata and throughput-based Russian roulette. Filtering uses mipmaps and
   anisotropic texture footprints.
 - Reconstruction receives HDR color, depth and camera/object motion. RR also
   receives diffuse/specular albedo, world normals, roughness and specular hit distance.
-- Global/local exposure and the AgX view transform run after reconstruction. The UI
+- Global/local exposure and neutral highlight compression run after reconstruction.
+  Midtone RGB ratios are preserved; only bright highlights fade toward white. The UI
   is rendered separately with premultiplied alpha at output resolution; FG receives
   HUD-less color and UI resources separately.
 
@@ -132,4 +134,6 @@ an issue. Rendering and native SDK behavior require Windows GPU validation.
 - [Khronos Sponza](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Sponza):
   source attribution and licenses are preserved under `Assets/Scenes/Attribution/`.
 - NVIDIA runtime licenses are copied beside the deployed binaries and under `Licenses/`.
-- AgX attribution is preserved in [LICENSE-AgX.txt](Assets/Shaders/LICENSE-AgX.txt).
+- Tone-mapping attribution is preserved in [LICENSE-ToneMapping.txt](Assets/Shaders/LICENSE-ToneMapping.txt).
+- Shadow handling follows [Hanika's tangent-plane correction](https://jo.dreggn.org/home/2021_terminator.pdf)
+  and [Chiang et al.'s normal-map terminator term](https://blog.yiningkarlli.com/2020/02/shadow-terminator-in-takua.html).

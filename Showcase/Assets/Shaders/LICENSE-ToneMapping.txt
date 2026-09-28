@@ -1,4 +1,4 @@
-AgX tone mapping adapted from three.js:
+Highlight compression adapted from three.js NeutralToneMapping (Khronos PBR Neutral):
 https://github.com/mrdoob/three.js/blob/9b02bfe8671c4dd8c9327c1636edc529b6462812/src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js
 
 The MIT License

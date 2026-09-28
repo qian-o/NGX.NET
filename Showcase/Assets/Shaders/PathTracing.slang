@@ -21,8 +21,7 @@ Surface hitSurface(Hit hit, float3 direction)
     }
     Surface s = surface(material, uv, n, tangent, lod);
     if (dot(s.normal, direction) > 0) s.normal = -s.normal;
-    float3 geometricNormal = normalize(cross(b.position.xyz - a.position.xyz, c.position.xyz - a.position.xyz));
-    s.geometricNormal = dot(geometricNormal, direction) > 0 ? -geometricNormal : geometricNormal;
+    surfaceGeometry(s, a, b, c, weights, -direction);
     return s;
 }
 float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, float3 throughput, bool diffusePath, inout uint rng, out float distance)
@@ -115,7 +114,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         float phi = u.y * 6.2831853;
         float3 direction = basisDirection(s.normal, float3(sqrt(u.x) * cos(phi), sqrt(u.x) * sin(phi), sqrt(1 - u.x)));
         float3 h = normalize(view + direction);
-        float3 weight = s.albedo * (1 - s.metallic) * (1 - fresnel(f0, dot(view, h)));
+        float3 weight = s.albedo * (1 - s.metallic) * (1 - fresnel(f0, dot(view, h))) * shadowTerm(s, direction);
         if (any(weight > 0) && aboveSurface(s, direction))
         {
             float pdf = max(dot(s.normal, direction), 0) / 3.14159265;
@@ -134,7 +133,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         if (aboveSurface(s, direction))
         {
             float nv = max(dot(s.normal, view), 1e-4), vh = saturate(dot(view, halfVector));
-            float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness);
+            float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness) * shadowTerm(s, direction);
             float pdf = bsdfPdfs(s, view, direction).y;
             color = secondaryRadiance(rayOrigin(p, s), direction,
                 powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, distance);
