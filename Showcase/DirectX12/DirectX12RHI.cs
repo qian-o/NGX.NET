@@ -26,15 +26,13 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private ID3D12PipelineState scenePipeline = null!, depthPipeline = null!, uiPipeline = null!, shadowPipeline = null!;
     private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
     private ID3D12DescriptorHeap descriptors = null!, renderTargets = null!, depthViews = null!;
-    private ID3D12QueryHeap queries = null!;
-    private ID3D12Resource queryReadback = null!;
     private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
     private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[4];
     private readonly List<ID3D12Resource> uploads = [];
     private readonly List<ID3D12Resource> backBuffers = [];
     private DxImage font = null!;
     private uint descriptorIncrement, rtvIncrement, dsvIncrement;
-    private ulong fenceValue, timestampFrequency;
+    private ulong fenceValue;
     private int constantIndex;
     private bool recording;
     private readonly AutoResetEvent fenceEvent = new(false);
@@ -48,7 +46,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         public ID3D12Resource? Vertices, Indices;
         public int VertexCapacity, IndexCapacity;
         public ulong Fence;
-        public bool Timestamp;
         public ID3D12Resource? Tlas, RayScratch, RayInstances;
         public bool TlasBuilt;
         public void Dispose()
@@ -133,7 +130,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
         queue = device.CreateCommandQueue(CommandListType.Direct);
         fence = device.CreateFence();
-        queue.GetTimestampFrequency(out timestampFrequency).CheckError();
     }
 
     protected override void InitializeRenderer()
@@ -276,13 +272,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
                 ComputeShader = Compile(pass.ToString(), "compute")
             });
         }
-
-        queries = device.CreateQueryHeap<ID3D12QueryHeap>(new()
-        {
-            Type = QueryHeapType.Timestamp,
-            Count = RenderLayout.FramesInFlight * (int)GpuTimestamp.Count
-        });
-        queryReadback = device.CreateCommittedResource(HeapType.Readback, ResourceDescription.Buffer(RenderLayout.FramesInFlight * (int)GpuTimestamp.Count * sizeof(ulong)), ResourceStates.CopyDest);
     }
 
     private byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false, RayQuerySupported);
@@ -450,24 +439,11 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     {
         DxFrame frame = slots[FrameSlot];
         WaitFence(frame.Fence);
-        if (frame.Timestamp)
-        {
-            Span<ulong> timestamps = stackalloc ulong[(int)GpuTimestamp.Count];
-            ulong* values = queryReadback.Map<ulong>(0);
-            new ReadOnlySpan<ulong>(values + FrameSlot * (int)GpuTimestamp.Count, (int)GpuTimestamp.Count).CopyTo(timestamps);
-            queryReadback.Unmap(0);
-            frame.Timestamp = false;
-            if (timestampFrequency != 0)
-            {
-                RecordGpuTimestamps(timestamps, 1000.0 / timestampFrequency);
-            }
-        }
         frame.Allocator.Reset();
         commandList.Reset(frame.Allocator, null);
         recording = true;
         frame.Objects.SetData<SceneObject>(Scene.Objects);
         constantIndex = 0;
-        WriteTimestamp(GpuTimestamp.Start);
         return true;
     }
     private void Bind(bool graphics, ID3D12PipelineState pipeline, FrameConstants constants)
@@ -543,8 +519,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         Bind(false, pipelines[pass], constants);
         commandList.Dispatch((uint)(width + 7) / 8, (uint)(height + 7) / 8, (uint)groupsZ);
     }
-    protected override void WriteTimestamp(GpuTimestamp timestamp) =>
-        commandList.EndQuery(queries, QueryType.Timestamp, (uint)(FrameSlot * (int)GpuTimestamp.Count + (int)timestamp));
     protected override void DrawUI(ImDrawDataPtr data)
     {
         DxFrame frame = slots[FrameSlot];
@@ -635,13 +609,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         commandList.ResourceBarrierTransition(back, ResourceStates.Present, ResourceStates.CopyDest);
         commandList.CopyResource(back, final.Texture);
         commandList.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
-        WriteTimestamp(GpuTimestamp.End);
-        commandList.ResolveQueryData(queries, QueryType.Timestamp, (uint)(FrameSlot * (int)GpuTimestamp.Count), (uint)GpuTimestamp.Count,
-            queryReadback, (ulong)(FrameSlot * (int)GpuTimestamp.Count * sizeof(ulong)));
         commandList.Close();
         recording = false;
         queue.ExecuteCommandList(commandList);
-        slots[FrameSlot].Timestamp = true;
     }
     protected override bool Present()
     {
@@ -714,8 +684,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         }
 
         font?.Dispose();
-        queryReadback?.Dispose();
-        queries?.Dispose();
         descriptors?.Dispose();
         renderTargets?.Dispose();
         depthViews?.Dispose();

@@ -24,13 +24,7 @@ internal enum ComputePass
 {
     TraceLighting, Lighting, PrepareLuminance, FilterLuminance, MeterExposure, ToneMap, NativeResolve, CopyDisplay, Composite
 }
-internal enum GpuTimestamp
-{
-    Start, Geometry, RayTracing, Lighting, Reconstruction, PostProcessing, End, Count
-}
-
 internal readonly record struct RenderCapabilities(bool Dlss, bool RayReconstruction, bool FrameGeneration);
-internal sealed record RendererState(Scene Scene, Camera Camera, RenderSettings Settings);
 
 internal sealed record RenderSettings
 {
@@ -105,7 +99,19 @@ internal static class RenderLayout
     public const int UavCount = LightingSamplesUav + 1;
     public const int UniformStride = 512;
     public const int UniformSlots = 16;
+    public static readonly ImageSlot[] GeometryOutputs = [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth];
+    public static readonly ImageSlot[] LightingOutputs = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse];
     public static readonly ImageSlot[] StorageImages = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Reconstructed, ImageSlot.DisplayInput, ImageSlot.Hudless, ImageSlot.Final, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Exposure, ImageSlot.Luminance, ImageSlot.FilteredLuminance];
+    public static (int Width, int Height) Size(ImageSlot slot, int inputWidth, int inputHeight, int outputWidth, int outputHeight) => slot switch
+    {
+        ImageSlot.Exposure => (1, 1),
+        ImageSlot.Shadow => (ShadowMapSize, ShadowMapSize),
+        ImageSlot.Luminance or ImageSlot.FilteredLuminance =>
+            ((outputWidth + LuminanceTileSize - 1) / LuminanceTileSize, (outputHeight + LuminanceTileSize - 1) / LuminanceTileSize),
+        ImageSlot.Reconstructed or ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => (outputWidth, outputHeight),
+        _ => (inputWidth, inputHeight)
+    };
+
     public static ImageFormat Format(ImageSlot slot) => slot switch
     {
         ImageSlot.Motion => ImageFormat.Rg16,

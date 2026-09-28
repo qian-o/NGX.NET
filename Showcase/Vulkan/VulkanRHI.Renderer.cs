@@ -229,15 +229,6 @@ internal sealed unsafe partial class VulkanRHI
             }
             finally { api.vkDestroyShaderModule(shader); }
         }
-        if (timestampBits > 0)
-        {
-            VkQueryPoolCreateInfo query = new()
-            {
-                queryType = VkQueryType.Timestamp,
-                queryCount = RenderLayout.FramesInFlight * (uint)GpuTimestamp.Count
-            };
-            Check(api.vkCreateQueryPool(&query, null, out queryPool), "vkCreateQueryPool");
-        }
     }
     private VkShaderModule Shader(string entry, string stage)
     {
@@ -448,15 +439,6 @@ internal sealed unsafe partial class VulkanRHI
         VkFrame frame = slots[FrameSlot];
         VkFence fence = frame.Fence;
         Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(frame)");
-        if (frame.TimestampsPending && !queryPool.IsNull)
-        {
-            ulong* timestamps = stackalloc ulong[(int)GpuTimestamp.Count];
-            Check(api.vkGetQueryPoolResults(queryPool, (uint)(FrameSlot * (int)GpuTimestamp.Count), (uint)GpuTimestamp.Count,
-                (uint)GpuTimestamp.Count * sizeof(ulong), timestamps, sizeof(ulong), VkQueryResultFlags.Bit64), "vkGetQueryPoolResults");
-            ulong mask = timestampBits == 64 ? ulong.MaxValue : (1UL << (int)timestampBits) - 1;
-            RecordGpuTimestamps(new ReadOnlySpan<ulong>(timestamps, (int)GpuTimestamp.Count), timestampPeriod / 1e6, mask);
-            frame.TimestampsPending = false;
-        }
         VkResult acquire = api.vkAcquireNextImageKHR(swapChain, ulong.MaxValue, frame.Acquire, default, out imageIndex);
         if (acquire == VkResult.ErrorOutOfDateKHR)
         {
@@ -479,20 +461,7 @@ internal sealed unsafe partial class VulkanRHI
         recording = true;
         frame.Objects.Write<SceneObject>(Scene.Objects);
         constantIndex = 0;
-        if (!queryPool.IsNull)
-        {
-            api.vkCmdResetQueryPool(commandBuffer, queryPool, (uint)(FrameSlot * (int)GpuTimestamp.Count), (uint)GpuTimestamp.Count);
-            WriteTimestamp(GpuTimestamp.Start);
-        }
         return true;
-    }
-    protected override void WriteTimestamp(GpuTimestamp timestamp)
-    {
-        if (!queryPool.IsNull)
-        {
-            api.vkCmdWriteTimestamp2(commandBuffer, timestamp == GpuTimestamp.Start ? VkPipelineStageFlags2.TopOfPipe : VkPipelineStageFlags2.BottomOfPipe,
-                queryPool, (uint)(FrameSlot * (int)GpuTimestamp.Count + (int)timestamp));
-        }
     }
     private void Bind(VkPipelineBindPoint point, VkPipeline pipeline, FrameConstants constants)
     {
@@ -730,7 +699,6 @@ internal sealed unsafe partial class VulkanRHI
         api.vkCmdBlitImage(commandBuffer, final.Texture, VkImageLayout.TransferSrcOptimal, backBuffers[imageIndex], VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Nearest);
         Barrier(backBuffers[imageIndex], VkImageLayout.TransferDstOptimal, VkImageLayout.PresentSrcKHR, Range(ImageFormat.Rgba8));
         backLayouts[imageIndex] = VkImageLayout.PresentSrcKHR;
-        WriteTimestamp(GpuTimestamp.End);
 
         Check(api.vkEndCommandBuffer(commandBuffer), "vkEndCommandBuffer");
         recording = false;
@@ -749,8 +717,6 @@ internal sealed unsafe partial class VulkanRHI
             pSignalSemaphores = &present
         };
         Check(api.vkQueueSubmit(queue, 1, &submit, frame.Fence), "vkQueueSubmit(frame)");
-        frame.Submitted = true;
-        frame.TimestampsPending = !queryPool.IsNull;
     }
     protected override bool Present()
     {
@@ -836,11 +802,6 @@ internal sealed unsafe partial class VulkanRHI
             if (!sampler.IsNull)
             {
                 api.vkDestroySampler(sampler);
-            }
-
-            if (!queryPool.IsNull)
-            {
-                api.vkDestroyQueryPool(queryPool);
             }
 
             foreach (VkFrame? frame in slots)

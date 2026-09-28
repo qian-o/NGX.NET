@@ -19,26 +19,11 @@ internal static class Program
             bool vulkan = choice?.Trim() == "2";
             using UserInterface ui = new();
             using Window window = new();
-            RHI CreateRenderer() => vulkan ? new VulkanRHI(window, ui) : new DirectX12RHI(window, ui);
-            RHI rhi = CreateRenderer();
-            try
+            using RHI rhi = vulkan ? new VulkanRHI(window, ui) : new DirectX12RHI(window, ui);
+            rhi.Initialize();
+            while (!window.Closed)
             {
-                rhi.Initialize();
-                while (!window.Closed)
-                {
-                    rhi.RenderFrame();
-                    if (rhi.RestartRequired && !window.Closed)
-                    {
-                        RendererState state = rhi.CaptureState();
-                        rhi.Dispose();
-                        rhi = CreateRenderer();
-                        rhi.Initialize(state);
-                    }
-                }
-            }
-            finally
-            {
-                rhi.Dispose();
+                rhi.RenderFrame();
             }
 
             return 0;

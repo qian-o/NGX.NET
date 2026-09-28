@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Text.Json;
 using ImGuiNET;
 using Streamline.NET;
 
@@ -24,10 +23,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public Window Window { get; } = window;
     public UserInterface UI { get; } = ui;
     public StreamlineSession Streamline { get; } = new();
-    public RenderSettings Settings { get; private set; } = new();
-    // Streamline 2.14.1 shares NGX parameters between SR and RR. RR's matrix
-    // pointers outlive its freed viewport; SR does not replace those parameters.
-    public bool RestartRequired => applied is { RayReconstruction: true } && !Settings.RayReconstruction;
+    public RenderSettings Settings { get; } = new();
     public abstract string BackendName
     {
         get;
@@ -41,15 +37,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     {
         get; private set;
     }
-    public double CpuMilliseconds => statistics.CpuMilliseconds;
-    public double? RenderFps => statistics.RenderFps;
     public double? PresentedFps => statistics.PresentedFps;
-    public double? GpuMilliseconds
-    {
-        get; protected set;
-    }
     protected Scene Scene = null!;
-    protected Camera Camera { get; private set; } = new();
+    protected Camera Camera { get; } = new();
     protected readonly GpuImage[][] Frames = new GpuImage[RenderLayout.FramesInFlight][];
     // Scratch data is consumed entirely on the graphics queue before the next
     // frame writes it. One shared allocation avoids multiplying it by frame slots.
@@ -64,16 +54,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private int outputWidth, outputHeight;
     private uint frameNumber;
     private bool reset = true;
-    private bool rebuild;
+    private bool recreateSwapChain;
     private bool ready;
     private bool disposed;
     private long previousTick = Stopwatch.GetTimestamp();
     private readonly FrameStatistics statistics = new();
-    private readonly GpuProfile gpuProfile = new();
 
-    public RendererState CaptureState() => new(Scene, Camera, Settings with { });
-
-    public void Initialize(RendererState? state = null)
+    public void Initialize()
     {
         Streamline.Initialize(BackendName == "Vulkan");
         InitializeDevice();
@@ -83,84 +70,99 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Streamline.Unavailable[SL.FeatureDLSSRR] = RayQueryStatus;
         }
         Window.LatencyPingMessage = Streamline.LatencyPingMessage;
-        if (state is null)
-        {
-            Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
-            Camera.Reset(Scene);
-            Settings.Reset(Capabilities);
-        }
-        else
-        {
-            Scene = state.Scene;
-            Camera = state.Camera;
-            Settings = state.Settings;
-        }
+        Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
+        Camera.Reset(Scene);
+        Settings.Reset(Capabilities);
         InitializeRenderer();
         ready = true;
         Window.BeforeWindowChange = SuspendFrameGeneration;
-        Resize();
+        ApplySettings();
         previousTick = Stopwatch.GetTimestamp();
     }
 
-    public void Resize()
+    private void ApplySettings()
     {
-        if (Window.Width <= 0 || Window.Height <= 0)
-        {
-            return;
-        }
-
-        WaitIdle();
-        Streamline.SetFrameGeneration(0);
-        Streamline.ReleaseFeatureResources();
-        ReleaseTargets();
-        DestroySwapChain();
-        outputWidth = Window.Width;
-        outputHeight = Window.Height;
-        if (Math.Min(outputWidth, outputHeight) < Streamline.MinimumFGDimension)
+        if (Math.Min(Window.Width, Window.Height) < Streamline.MinimumFGDimension)
         {
             Settings.FrameGeneration = false;
         }
+        bool outputChanged = outputWidth != Window.Width || outputHeight != Window.Height;
+        bool swapChainChanged = applied is null || recreateSwapChain || outputChanged || applied.FrameGeneration != Settings.FrameGeneration;
+        bool reconstructionChanged = applied is null || outputChanged || applied.Quality != Settings.Quality || applied.RayReconstruction != Settings.RayReconstruction;
 
-        Streamline.LoadFrameGeneration(Settings.FrameGeneration);
-        (InputWidth, InputHeight) = Streamline.Configure(Settings, outputWidth, outputHeight);
-        if (InputWidth <= 0 || InputHeight <= 0)
+        WaitIdle();
+        if (swapChainChanged)
         {
-            throw new InvalidOperationException("The SDK returned an invalid input resolution.");
+            Streamline.SetFrameGeneration(0);
         }
-
-        CreateSwapChain();
-        for (int frame = 0; frame < Frames.Length; frame++)
+        if (reconstructionChanged)
         {
-            Frames[frame] = new GpuImage[(int)ImageSlot.Count];
-            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
+            Streamline.ReleaseReconstruction();
+        }
+        Streamline.ClearResourceTags();
+        if (swapChainChanged)
+        {
+            DestroySwapChain();
+            Streamline.LoadFrameGeneration(Settings.FrameGeneration);
+        }
+        outputWidth = Window.Width;
+        outputHeight = Window.Height;
+        if (reconstructionChanged)
+        {
+            (InputWidth, InputHeight) = Streamline.Configure(Settings, outputWidth, outputHeight);
+            if (InputWidth <= 0 || InputHeight <= 0)
             {
-                bool output = slot is ImageSlot.Reconstructed or ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final;
-                int width = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputWidth : InputWidth;
-                int height = slot == ImageSlot.Exposure ? 1 : slot == ImageSlot.Shadow ? RenderLayout.ShadowMapSize : output ? outputHeight : InputHeight;
-                if (slot is ImageSlot.Luminance or ImageSlot.FilteredLuminance)
-                {
-                    width = (outputWidth + RenderLayout.LuminanceTileSize - 1) / RenderLayout.LuminanceTileSize;
-                    height = (outputHeight + RenderLayout.LuminanceTileSize - 1) / RenderLayout.LuminanceTileSize;
-                }
-                Frames[frame][(int)slot] = CreateImage(width, height, RenderLayout.Format(slot));
+                throw new InvalidOperationException("The SDK returned an invalid input resolution.");
             }
         }
-        LightingSamples = CreateImage(RayQuerySupported ? InputWidth : 1, RayQuerySupported ? InputHeight : 1,
-            ImageFormat.Rgba32, RenderLayout.LightingPaths);
-        UpdateDescriptors();
-        Streamline.SetFrameGeneration(Settings.FrameGeneration ? 1u : 0);
-        // Discard counts from initialization or the old swap chain. Mode changes
-        // begin a fresh measurement interval after resource recreation has finished.
-        _ = Streamline.ReadPresentedFrameCount();
-        applied = Settings with
+        if (swapChainChanged)
         {
-        };
+            CreateSwapChain();
+        }
+        EnsureTargets();
+        if (swapChainChanged)
+        {
+            Streamline.SetFrameGeneration(Settings.FrameGeneration ? 1u : 0);
+        }
+        // Discard presentation counts from before the configuration change.
+        _ = Streamline.ReadPresentedFrameCount();
+        applied = Settings with { };
         reset = true;
-        rebuild = false;
+        recreateSwapChain = false;
         Scene.CommitHistory();
-        Console.WriteLine($"{BackendName}: {InputWidth}x{InputHeight} -> {outputWidth}x{outputHeight}, {Settings.Reconstruction}, FG={(Settings.FrameGeneration ? "On" : "Off")}");
         statistics.Reset(Stopwatch.GetTimestamp());
-        gpuProfile.Reset();
+    }
+
+    private void EnsureTargets()
+    {
+        bool changed = false;
+        for (int frame = 0; frame < Frames.Length; frame++)
+        {
+            Frames[frame] ??= new GpuImage[(int)ImageSlot.Count];
+            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
+            {
+                (int width, int height) = RenderLayout.Size(slot, InputWidth, InputHeight, outputWidth, outputHeight);
+                changed |= ResizeImage(ref Frames[frame][(int)slot], width, height, RenderLayout.Format(slot));
+            }
+        }
+        changed |= ResizeImage(ref LightingSamples, RayQuerySupported ? InputWidth : 1, RayQuerySupported ? InputHeight : 1,
+            ImageFormat.Rgba32, RenderLayout.LightingPaths);
+        if (changed)
+        {
+            UpdateDescriptors();
+        }
+    }
+
+    private bool ResizeImage(ref GpuImage image, int width, int height, ImageFormat format, int layers = 1)
+    {
+        if (image is not null && image.Width == width && image.Height == height && image.Format == format && image.Layers == layers)
+        {
+            return false;
+        }
+        image?.Dispose();
+        image = null!;
+        image = CreateImage(width, height, format, layers);
+        return true;
     }
 
     private void SuspendFrameGeneration()
@@ -169,7 +171,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             Streamline.SetFrameGeneration(0);
             statistics.Reset(Stopwatch.GetTimestamp());
-            rebuild = true;
+            recreateSwapChain = true;
         }
     }
 
@@ -201,24 +203,75 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
         previousTick = start;
         UI.Build(this, delta);
-        if (RestartRequired)
+        if (recreateSwapChain || outputWidth != Window.Width || outputHeight != Window.Height || applied != Settings)
         {
-            // Finish the CPU marker before Program recreates the SDK/device at
-            // a GPU-idle boundary. No new GPU commands reference the old session.
-            Streamline.Marker(PCLMarker.SimulationEnd);
-            return;
-        }
-        if (rebuild || outputWidth != Window.Width || outputHeight != Window.Height || ResourcesChanged())
-        {
-            Resize();
-            // A modal window resize or pipeline rebuild is not simulation time.
+            ApplySettings();
+            // A modal window resize or settings change is not simulation time.
             delta = 0;
             previousTick = Stopwatch.GetTimestamp();
-            start = previousTick;
         }
+        UpdateScene(delta);
+        Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
+
+        Streamline.Marker(PCLMarker.SimulationEnd);
+        FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
+        if (!BeginCommands())
+        {
+            recreateSwapChain = true;
+            return;
+        }
+        Streamline.Marker(PCLMarker.RenderSubmitStart);
+        RenderLighting();
+        Reconstruct();
+        PostProcess();
+        DrawUI(ImGui.GetDrawData());
+        Transition(Image(ImageSlot.UI), ImageUse.ShaderRead);
+        Transition(Image(ImageSlot.Final), ImageUse.Storage);
+        Dispatch(ComputePass.Composite, outputWidth, outputHeight, Constants);
+        if (Settings.FrameGeneration)
+        {
+            Streamline.Tags(FrameSlot, Command,
+                [(SL.BufferTypeDepth, ImageSlot.Depth), (SL.BufferTypeMotionVectors, ImageSlot.Motion), (SL.BufferTypeHUDLessColor, ImageSlot.Hudless), (SL.BufferTypeUIColorAndAlpha, ImageSlot.UI)], Frames[FrameSlot], true);
+        }
+        SubmitFrame();
+        Streamline.Marker(PCLMarker.RenderSubmitEnd);
+        Streamline.Marker(PCLMarker.PresentStart);
+        bool presented = Present();
+        if (!presented)
+        {
+            recreateSwapChain = true;
+        }
+
+        Streamline.Marker(PCLMarker.PresentEnd);
+        FinishFrame();
+        uint? presentedFrames = presented ? Streamline.ReadPresentedFrameCount() : null;
+        if (Settings.FrameGeneration && Streamline.FrameGenerationFailed)
+        {
+            // Do not leave a failed FG mode enabled and silently pay its overhead.
+            // The SDK error is recorded by the presentation-state query above.
+            Settings.FrameGeneration = false;
+            recreateSwapChain = true;
+        }
+        Camera.CommitHistory();
+        Scene.CommitHistory();
+        reset = false;
+        frameNumber++;
+        long timestamp = Stopwatch.GetTimestamp();
+        if (!presented)
+        {
+            statistics.Reset(timestamp);
+        }
+        else
+        {
+            statistics.RecordFrame(timestamp, presentedFrames);
+        }
+    }
+
+    private void UpdateScene(float delta)
+    {
         Camera.Move(Window, delta);
 
-        Scene.Update(delta, false);
+        Scene.Update(delta);
         bool temporal = Settings.Reconstruction != Reconstruction.Native;
         Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
         Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
@@ -247,32 +300,26 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             EnvironmentMinimum = new(Scene.Minimum, 0),
             EnvironmentMaximum = new(Scene.Maximum, 0)
         };
-        Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
-        Streamline.Marker(PCLMarker.SimulationEnd);
-        FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
-        if (!BeginCommands())
-        {
-            rebuild = true;
-            return;
-        }
-        Streamline.Marker(PCLMarker.RenderSubmitStart);
+    }
+
+    private void RenderLighting()
+    {
         if (RayQuerySupported)
         {
             UpdateRayTracingScene();
         }
-        if (!RayQuerySupported)
+        else
         {
             DrawShadow();
         }
         Transition(Image(ImageSlot.Shadow), ImageUse.ShaderRead);
         DrawScene();
-        foreach (ImageSlot slot in new[] { ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth })
+        foreach (ImageSlot slot in RenderLayout.GeometryOutputs)
         {
             Transition(Image(slot), ImageUse.ShaderRead);
         }
-        WriteTimestamp(GpuTimestamp.Geometry);
 
-        foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse })
+        foreach (ImageSlot slot in RenderLayout.LightingOutputs)
         {
             Transition(Image(slot), ImageUse.Storage);
         }
@@ -283,35 +330,36 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Dispatch(ComputePass.TraceLighting, InputWidth, InputHeight, Constants, RenderLayout.LightingPaths);
         }
         Transition(LightingSamples, ImageUse.ShaderRead);
-        WriteTimestamp(GpuTimestamp.RayTracing);
         Dispatch(ComputePass.Lighting, InputWidth, InputHeight, Constants);
-        foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Specular, ImageSlot.HitDistance, ImageSlot.Motion, ImageSlot.Diffuse })
+        foreach (ImageSlot slot in RenderLayout.LightingOutputs)
         {
             Transition(Image(slot), ImageUse.ShaderRead);
         }
-        WriteTimestamp(GpuTimestamp.Lighting);
+    }
 
+    private void Reconstruct()
+    {
         uint? reconstruction = Feature(Settings.Reconstruction);
-        bool hdrReconstruction = reconstruction.HasValue;
-        if (hdrReconstruction)
+        if (reconstruction is uint feature)
         {
             Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);
-            List<(uint, ImageSlot, GpuImage)> tags =
+            ReadOnlySpan<(uint, ImageSlot)> tags =
             [
-                Tag(SL.BufferTypeScalingInputColor, ImageSlot.Scene), Tag(SL.BufferTypeScalingOutputColor, ImageSlot.Reconstructed),
-                Tag(SL.BufferTypeDepth, ImageSlot.Depth), Tag(SL.BufferTypeMotionVectors, ImageSlot.Motion)
+                (SL.BufferTypeScalingInputColor, ImageSlot.Scene), (SL.BufferTypeScalingOutputColor, ImageSlot.Reconstructed),
+                (SL.BufferTypeDepth, ImageSlot.Depth), (SL.BufferTypeMotionVectors, ImageSlot.Motion),
+                (SL.BufferTypeAlbedo, ImageSlot.Diffuse), (SL.BufferTypeSpecularAlbedo, ImageSlot.Specular),
+                (SL.BufferTypeNormalRoughness, ImageSlot.Normal), (SL.BufferTypeSpecularHitDistance, ImageSlot.HitDistance)
             ];
-            if (Settings.Reconstruction == Reconstruction.RayReconstruction)
-            {
-                tags.AddRange([Tag(SL.BufferTypeAlbedo, ImageSlot.Diffuse), Tag(SL.BufferTypeSpecularAlbedo, ImageSlot.Specular), Tag(SL.BufferTypeNormalRoughness, ImageSlot.Normal), Tag(SL.BufferTypeSpecularHitDistance, ImageSlot.HitDistance)]);
-            }
-            Streamline.Tags(FrameSlot, Command, tags.ToArray());
-            Streamline.Evaluate(reconstruction!.Value, Command);
+            Streamline.Tags(FrameSlot, Command, feature == SL.FeatureDLSSRR ? tags : tags[..4], Frames[FrameSlot]);
+            Streamline.Evaluate(feature, Command);
             Transition(Image(ImageSlot.Reconstructed), ImageUse.ShaderRead);
         }
-        WriteTimestamp(GpuTimestamp.Reconstruction);
+    }
+
+    private void PostProcess()
+    {
         FrameConstants post = Constants;
-        post.Parameters.Z = hdrReconstruction ? 1 : 0;
+        post.Parameters.Z = Settings.Reconstruction != Reconstruction.Native ? 1 : 0;
         Transition(Image(ImageSlot.Luminance), ImageUse.Storage);
         // PrepareLuminance uses one 8x8 group per tile, rather than per 8x8 tiles.
         Dispatch(ComputePass.PrepareLuminance, Image(ImageSlot.Luminance).Width * 8, Image(ImageSlot.Luminance).Height * 8, post);
@@ -333,80 +381,10 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         // Keep native, un-reconstructed RT samples intact for the RR comparison.
         Dispatch(Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay, outputWidth, outputHeight, post);
         Transition(Image(ImageSlot.Hudless), ImageUse.ShaderRead);
-        WriteTimestamp(GpuTimestamp.PostProcessing);
-        DrawUI(ImGui.GetDrawData());
-        Transition(Image(ImageSlot.UI), ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.Final), ImageUse.Storage);
-        Dispatch(ComputePass.Composite, outputWidth, outputHeight, Constants);
-        if (Settings.FrameGeneration)
-        {
-            Streamline.Tags(FrameSlot, Command,
-                [Tag(SL.BufferTypeDepth, ImageSlot.Depth), Tag(SL.BufferTypeMotionVectors, ImageSlot.Motion), Tag(SL.BufferTypeHUDLessColor, ImageSlot.Hudless), Tag(SL.BufferTypeUIColorAndAlpha, ImageSlot.UI)], true);
-        }
-        SubmitFrame();
-        Streamline.Marker(PCLMarker.RenderSubmitEnd);
-        Streamline.Marker(PCLMarker.PresentStart);
-        bool presented = Present();
-        if (!presented)
-        {
-            rebuild = true;
-        }
-
-        Streamline.Marker(PCLMarker.PresentEnd);
-        FinishFrame();
-        uint? presentedFrames = presented ? Streamline.ReadPresentedFrameCount() : null;
-        if (Settings.FrameGeneration && Streamline.FrameGenerationFailed)
-        {
-            // Do not leave a failed FG mode enabled and silently pay its overhead.
-            // The SDK error is recorded by the presentation-state query above.
-            Settings.FrameGeneration = false;
-            rebuild = true;
-        }
-        Camera.CommitHistory();
-        Scene.CommitHistory();
-        reset = false;
-        frameNumber++;
-        long timestamp = Stopwatch.GetTimestamp();
-        if (!presented)
-        {
-            statistics.Reset(timestamp);
-        }
-        else if (statistics.RecordFrame(timestamp, presentedFrames, Stopwatch.GetElapsedTime(start, timestamp).TotalMilliseconds))
-        {
-            Streamline.ReadLatencyStatistics();
-        }
     }
 
-    private bool ResourcesChanged() => applied is null || applied.Quality != Settings.Quality ||
-        applied.FrameGeneration != Settings.FrameGeneration || applied.RayReconstruction != Settings.RayReconstruction;
-    protected void RecordGpuTimestamps(ReadOnlySpan<ulong> timestamps, double millisecondsPerTick, ulong mask = ulong.MaxValue)
-    {
-        double[]? average = gpuProfile.Add(timestamps, millisecondsPerTick, mask);
-        GpuMilliseconds = gpuProfile.LastMilliseconds;
-        if (average is null)
-        {
-            return;
-        }
-        // One capture per configuration, never per-frame console output or UI clutter.
-        string path = Path.Combine(AppContext.BaseDirectory, "Logs", "performance.jsonl");
-        File.AppendAllText(path, JsonSerializer.Serialize(new
-        {
-            Timestamp = DateTimeOffset.UtcNow,
-            Backend = BackendName,
-            GPU = AdapterName,
-            InputWidth, InputHeight, OutputWidth = outputWidth, OutputHeight = outputHeight,
-            Mode = Settings.Quality.ToString(), Settings.RayReconstruction, Settings.FrameGeneration,
-            PrimarySamplesPerLobe = RenderLayout.PrimarySamples,
-            Samples = GpuProfile.SampleCount,
-            GeometryMs = average[0], LightingMs = average[1] + average[2],
-            RayTracingMs = average[1], LightingResolveMs = average[2], ReconstructionMs = average[3],
-            PostProcessingMs = average[4], CompositionAndCopyMs = average[5],
-            TotalGpuMs = average.Sum(), RenderFps
-        }) + Environment.NewLine);
-    }
     protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];
-    private (uint, ImageSlot, GpuImage) Tag(uint type, ImageSlot slot) => (type, slot, Image(slot));
-    public static uint? Feature(Reconstruction method) => method switch
+    private static uint? Feature(Reconstruction method) => method switch
     {
         Reconstruction.DLSS => SL.FeatureDLSS,
         Reconstruction.RayReconstruction => SL.FeatureDLSSRR,
@@ -441,7 +419,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected abstract void DrawScene();
     protected abstract void DrawUI(ImDrawDataPtr data);
     protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1);
-    protected abstract void WriteTimestamp(GpuTimestamp timestamp);
     protected abstract void Transition(GpuImage image, ImageUse use);
     protected abstract void SubmitFrame();
     protected abstract bool Present();
@@ -463,15 +440,22 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             if (ready)
             {
                 Streamline.SetFrameGeneration(0);
-                Streamline.ReleaseFeatureResources(reload: false);
+                Streamline.ReleaseReconstruction();
+                Streamline.ClearResourceTags();
             }
         }
         finally
         {
             // Keep device, proxy swap chain and callbacks alive through shutdown.
-            Streamline.Dispose();
-            ReleaseTargets();
-            DisposeDevice();
+            try
+            {
+                Streamline.Dispose();
+            }
+            finally
+            {
+                ReleaseTargets();
+                DisposeDevice();
+            }
         }
     }
 }

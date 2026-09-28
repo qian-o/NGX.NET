@@ -25,7 +25,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         get; private set;
     }
-    public string RuntimeVersion { get; private set; } = "Unknown";
     public uint LatencyPingMessage
     {
         get; private set;
@@ -38,18 +37,9 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         get; private set;
     }
-    public string FrameGenerationStatus { get; private set; } = "Off";
-    public DLSSGStatus? FrameGenerationIssue
-    {
-        get; private set;
-    }
-    private uint requestedGeneratedFrames;
+    private DLSSGStatus? frameGenerationIssue;
     private SLResult lastStateResult = SLResult.Ok;
-    public bool FrameGenerationFailed => lastStateResult != SLResult.Ok || FrameGenerationIssue is not null;
-    public double? LatencyMilliseconds
-    {
-        get; private set;
-    }
+    public bool FrameGenerationFailed => lastStateResult != SLResult.Ok || frameGenerationIssue is not null;
     public bool FrameGenerationLoaded
     {
         get; private set;
@@ -58,10 +48,12 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private readonly List<nint> allocations = [];
     private readonly Resource* descriptions = (Resource*)NativeMemory.AllocZeroed(RenderLayout.FramesInFlight * (uint)ImageSlot.Count, (nuint)sizeof(Resource));
     private readonly HashSet<uint> taggedTypes = [];
-    private readonly HashSet<uint> evaluatedFeatures = [];
+    private Reconstruction reconstruction;
+    private uint? evaluatedFeature;
+    private DLSSOptions dlssOptions = new();
+    private DLSSDOptions rayOptions = new();
     private static readonly ConcurrentQueue<string> messages = new();
     private static int apiError;
-    private static bool libraryConfigured;
 
     public bool Available(uint feature) => !Unavailable.ContainsKey(feature);
     public static void Check(SLResult result, string operation)
@@ -93,14 +85,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
             throw new InvalidDataException($"The NVIDIA production interposer signature could not be verified: {path}");
         }
 
-        RuntimeVersion = FileVersionInfo.GetVersionInfo(path).FileVersion ?? "Unknown";
-        // The wrapper owns its module for process lifetime; subsequent SDK
-        // sessions reuse it and must not attempt to configure its path again.
-        if (!libraryConfigured)
-        {
-            SL.SetLibraryPath(path);
-            libraryConfigured = true;
-        }
+        SL.SetLibraryPath(path);
         char** plugins = (char**)Keep(Marshal.AllocCoTaskMem(sizeof(nint)));
         *plugins = Utf16(AppContext.BaseDirectory);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
@@ -127,7 +112,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         initialized = true;
         // This reference belongs to the sample; the wrapper retains its separate reference.
         Module = NativeLibrary.Load(path);
-        Console.WriteLine($"Streamline runtime: {RuntimeVersion}");
+        Console.WriteLine($"Streamline runtime: {FileVersionInfo.GetVersionInfo(path).FileVersion ?? "Unknown"}");
     }
 
     public void QueryFeatures(AdapterInfo adapter)
@@ -166,6 +151,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
             Check(SL.PCL.SetOptions(in options), "slPCLSetOptions");
             LatencyPingMessage = SL.PCL.GetState().StatsWindowMessage;
         }
+        SetLowLatency();
     }
 
     private void SetLowLatency()
@@ -183,12 +169,11 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     public (int Width, int Height) Configure(RenderSettings settings, int width, int height)
     {
-        SetLowLatency();
         uint w = (uint)width, h = (uint)height;
         switch (settings.Reconstruction)
         {
             case Reconstruction.DLSS:
-                DLSSOptions dlss = new()
+                dlssOptions = new()
                 {
                     Mode = settings.ReconstructionQuality,
                     OutputWidth = w,
@@ -197,13 +182,15 @@ internal sealed unsafe class StreamlineSession : IDisposable
                     PreExposure = 1,
                     ExposureScale = 1
                 };
-                Check(SL.DLSS.SetOptions(in Viewport, in dlss), "slDLSSSetOptions");
-                DLSSOptimalSettings optimal = SL.DLSS.GetOptimalSettings(in dlss);
+                Check(SL.DLSS.SetOptions(in Viewport, in dlssOptions), "slDLSSSetOptions");
+                reconstruction = Reconstruction.DLSS;
+                DLSSOptimalSettings optimal = SL.DLSS.GetOptimalSettings(in dlssOptions);
                 return ((int)optimal.OptimalRenderWidth, (int)optimal.OptimalRenderHeight);
             case Reconstruction.RayReconstruction:
-                DLSSDOptions rr = RayOptions(settings, width, height, null);
-                Check(SL.DLSSD.SetOptions(in Viewport, in rr), "slDLSSDSetOptions");
-                DLSSDOptimalSettings rrOptimal = SL.DLSSD.GetOptimalSettings(in rr);
+                rayOptions = RayOptions(settings, width, height, null);
+                Check(SL.DLSSD.SetOptions(in Viewport, in rayOptions), "slDLSSDSetOptions");
+                reconstruction = Reconstruction.RayReconstruction;
+                DLSSDOptimalSettings rrOptimal = SL.DLSSD.GetOptimalSettings(in rayOptions);
                 return ((int)rrOptimal.OptimalRenderWidth, (int)rrOptimal.OptimalRenderHeight);
             default:
                 return (width, height);
@@ -238,8 +225,8 @@ internal sealed unsafe class StreamlineSession : IDisposable
         Check(SL.SetConstants(in constants, Frame, in Viewport), "slSetConstants");
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
-            DLSSDOptions options = RayOptions(settings, outputWidth, outputHeight, camera);
-            Check(SL.DLSSD.SetOptions(in Viewport, in options), "slDLSSDSetOptions(camera)");
+            rayOptions = RayOptions(settings, outputWidth, outputHeight, camera);
+            Check(SL.DLSSD.SetOptions(in Viewport, in rayOptions), "slDLSSDSetOptions(camera)");
         }
     }
 
@@ -298,12 +285,13 @@ internal sealed unsafe class StreamlineSession : IDisposable
         };
     }
 
-    public void Tags(int frameSlot, nint command, ReadOnlySpan<(uint Type, ImageSlot Slot, GpuImage Image)> resources, bool present = false)
+    public void Tags(int frameSlot, nint command, ReadOnlySpan<(uint Type, ImageSlot Slot)> resources, ReadOnlySpan<GpuImage> images, bool present = false)
     {
         Span<ResourceTag> tags = stackalloc ResourceTag[resources.Length];
         for (int i = 0; i < resources.Length; i++)
         {
-            (uint type, ImageSlot slot, GpuImage image) = resources[i];
+            (uint type, ImageSlot slot) = resources[i];
+            GpuImage image = images[(int)slot];
             Resource* description = descriptions + frameSlot * (int)ImageSlot.Count + (int)slot;
             *description = image.Describe();
             tags[i] = new()
@@ -327,7 +315,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
         ViewportHandle viewport = Viewport;
         BaseStructure* input = (BaseStructure*)&viewport;
         Check(SL.EvaluateFeature(feature, Frame, &input, 1, (void*)command), $"slEvaluateFeature({feature})");
-        evaluatedFeatures.Add(feature);
+        evaluatedFeature = feature;
     }
 
     public void SetFrameGeneration(uint frames)
@@ -345,10 +333,8 @@ internal sealed unsafe class StreamlineSession : IDisposable
             EnableUserInterfaceRecomposition = SLBoolean.True
         };
         Check(SL.DLSSG.SetOptions(in Viewport, in options), "slDLSSGSetOptions");
-        requestedGeneratedFrames = frames;
         lastStateResult = SLResult.Ok;
-        FrameGenerationIssue = null;
-        FrameGenerationStatus = frames == 0 ? "Off" : $"On ({frames + 1}x)";
+        frameGenerationIssue = null;
     }
 
     public void LoadFrameGeneration(bool load)
@@ -383,39 +369,39 @@ internal sealed unsafe class StreamlineSession : IDisposable
             return null;
         }
         lastStateResult = SLResult.Ok;
-        DLSSGStatus? previousIssue = FrameGenerationIssue;
-        FrameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
-        FrameGenerationStatus = FrameGenerationIssue is not null ? state.Status.ToString() :
-            requestedGeneratedFrames == 0 ? "Off" : $"On ({requestedGeneratedFrames + 1}x)";
-        if (previousIssue != FrameGenerationIssue)
+        DLSSGStatus? previousIssue = frameGenerationIssue;
+        frameGenerationIssue = state.Status == DLSSGStatus.Ok ? null : state.Status;
+        if (previousIssue != frameGenerationIssue)
         {
-            Console.WriteLine($"DLSS Frame Generation: {FrameGenerationStatus}");
+            Console.WriteLine($"DLSS Frame Generation: {state.Status}");
         }
         return state.NumFramesActuallyPresented;
     }
 
-    public void ReadLatencyStatistics()
+    // The caller must finish GPU work before releasing feature resources or tags.
+    // Off stops the feature; slFreeResources separately releases its viewport.
+    public void ReleaseReconstruction()
     {
-        if (Available(SL.FeatureReflex))
+        switch (reconstruction)
         {
-            ReflexState state = SL.Reflex.GetState();
-            LatencyMilliseconds = null;
-            if (state.LatencyReportAvailable)
-            {
-                for (int i = 63; i >= 0; i--)
-                {
-                    ReflexReport report = state.FrameReport[i];
-                    if (report.GpuRenderEndTime > report.SimStartTime && report.SimStartTime != 0)
-                    {
-                        LatencyMilliseconds = (report.GpuRenderEndTime - report.SimStartTime) / 1000.0;
-                        break;
-                    }
-                }
-            }
+            case Reconstruction.DLSS:
+                dlssOptions.Mode = DLSSMode.Off;
+                Check(SL.DLSS.SetOptions(in Viewport, in dlssOptions), "slDLSSSetOptions(Off)");
+                break;
+            case Reconstruction.RayReconstruction:
+                rayOptions.Mode = DLSSMode.Off;
+                Check(SL.DLSSD.SetOptions(in Viewport, in rayOptions), "slDLSSDSetOptions(Off)");
+                break;
         }
+        if (evaluatedFeature is uint feature)
+        {
+            Check(SL.FreeResources(feature, in Viewport), $"slFreeResources({feature})");
+            evaluatedFeature = null;
+        }
+        reconstruction = Reconstruction.Native;
     }
 
-    public void ReleaseFeatureResources(bool reload = true)
+    public void ClearResourceTags()
     {
         if (Frame.Handle != 0 && taggedTypes.Count > 0)
         {
@@ -423,23 +409,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
             Check(SL.SetTagForFrame(Frame, in Viewport, tags, null), "slSetTagForFrame(clear)");
             taggedTypes.Clear();
         }
-        foreach (uint id in evaluatedFeatures)
-        {
-            SLResult result = SL.FreeResources(id, in Viewport);
-            if (result == SLResult.ErrorMissingOrInvalidAPI)
-            {
-                Check(SL.SetFeatureLoaded(id, false), $"slSetFeatureLoaded({id}, false)");
-                if (reload)
-                {
-                    Check(SL.SetFeatureLoaded(id, true), $"slSetFeatureLoaded({id}, true)");
-                }
-            }
-            else
-            {
-                Check(result, $"slFreeResources({id})");
-            }
-        }
-        evaluatedFeatures.Clear();
     }
 
     public static Float4x4 Matrix(Matrix4x4 matrix) => Unsafe.BitCast<Matrix4x4, Float4x4>(matrix);

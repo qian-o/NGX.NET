@@ -250,7 +250,7 @@ internal sealed class Scene
         scene.Texels = [.. texels];
         scene.TextureInfo = [.. textureInfo];
         scene.GroundHeight = scene.FindGroundHeight();
-        scene.Update(0, false);
+        scene.Update(0);
         scene.CommitHistory();
         Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Count * 4L / 1048576} MiB texels.");
         return scene;
@@ -263,12 +263,9 @@ internal sealed class Scene
         return view * Matrix4x4.CreateOrthographic(Scale, Scale, RayEpsilon, Scale * 2);
     }
 
-    public void Update(double delta, bool paused)
+    public void Update(double delta)
     {
-        if (!paused)
-        {
-            animationTime += delta;
-        }
+        animationTime += delta;
         Vector3 center = (Minimum + Maximum) * 0.5f;
         for (int i = staticObjectCount; i < Objects.Length; i++)
         {

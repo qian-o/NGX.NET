@@ -37,9 +37,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private VkPipeline scenePipeline, depthPipeline, uiPipeline, shadowPipeline;
     private readonly Dictionary<ComputePass, VkPipeline> pipelines = [];
     private VkSampler sampler;
-    private VkQueryPool queryPool;
-    private double timestampPeriod;
-    private uint timestampBits;
     private int uniformStride = RenderLayout.UniformStride;
     private int constantIndex;
     private bool recording;
@@ -104,8 +101,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         public required VkBufferResource Constants;
         public required VkBufferResource Objects;
         public VkBufferResource? Vertices, Indices;
-        public bool Submitted;
-        public bool TimestampsPending;
         public VkAcceleration? Tlas;
         public VkBufferResource? RayScratch, RayInstances;
         public bool TlasBuilt;
@@ -229,8 +224,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
                 AdapterName = Marshal.PtrToStringUTF8((nint)properties.deviceName) ?? "Vulkan GPU";
-                timestampPeriod = properties.limits.timestampPeriod;
-                timestampBits = families[i].timestampValidBits;
                 ulong alignment = properties.limits.minUniformBufferOffsetAlignment;
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
             }
