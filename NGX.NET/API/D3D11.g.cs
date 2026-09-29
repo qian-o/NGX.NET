@@ -18,26 +18,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLISPExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PDlispCreateParams);
+        public static partial NGXResult CreateDLISPExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_CREATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLISPExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXFeatureCreateParams PDlispCreateParams)
+        public static NGXResult CreateDLISPExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXFeatureCreateParams pDlispCreateParams)
         {
-            fixed (global::NGX.NET.NGXFeatureCreateParams* pointer0 = &PDlispCreateParams)
+            fixed (NGXFeatureCreateParams* pointer0 = &pDlispCreateParams)
             {
-                return CreateDLISPExt(PInCtx, PpOutHandle, PInParams, pointer0);
+                return CreateDLISPExt(pInCtx, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_D3D11_CREATE_DLISP_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLISPExt(nint PInCtx, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PDlispCreateParams)
+        public static NGXHandle* CreateDLISPExt(nint pInCtx, NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLISPExt(PInCtx, &value, PInParams, PDlispCreateParams), "NGX_D3D11_CREATE_DLISP_EXT");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLISPExt(pInCtx, &value, pInParams, pDlispCreateParams), "NGX_D3D11_CREATE_DLISP_EXT");
 
             return value;
         }
@@ -45,13 +45,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_D3D11_CREATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLISPExt(nint PInCtx, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PDlispCreateParams)
+        public static NGXResult CreateDLISPExt(nint pInCtx, out NGXHandle* value, NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLISPExt(PInCtx, pointer, PInParams, PDlispCreateParams);
+                return CreateDLISPExt(pInCtx, pointer, pInParams, pDlispCreateParams);
             }
         }
 
@@ -60,26 +60,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSSD_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSDExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams);
+        public static partial NGXResult CreateDLSSDExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_CREATE_DLSSD_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSDExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSDCreateParams PInDlssDCreateParams)
+        public static NGXResult CreateDLSSDExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSDCreateParams pInDlssDCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSDCreateParams* pointer0 = &PInDlssDCreateParams)
+            fixed (NGXDLSSDCreateParams* pointer0 = &pInDlssDCreateParams)
             {
-                return CreateDLSSDExt(PInCtx, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSDExt(pInCtx, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_D3D11_CREATE_DLSSD_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSDExt(nint PInCtx, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams)
+        public static NGXHandle* CreateDLSSDExt(nint pInCtx, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSDExt(PInCtx, &value, PInParams, PInDlssDCreateParams), "NGX_D3D11_CREATE_DLSSD_EXT");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSDExt(pInCtx, &value, pInParams, pInDlssDCreateParams), "NGX_D3D11_CREATE_DLSSD_EXT");
 
             return value;
         }
@@ -87,13 +87,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_D3D11_CREATE_DLSSD_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSDExt(nint PInCtx, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams)
+        public static NGXResult CreateDLSSDExt(nint pInCtx, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSDExt(PInCtx, pointer, PInParams, PInDlssDCreateParams);
+                return CreateDLSSDExt(pInCtx, pointer, pInParams, pInDlssDCreateParams);
             }
         }
 
@@ -102,26 +102,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSS_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams);
+        public static partial NGXResult CreateDLSSExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_CREATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt(nint PInCtx, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSCreateParams PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt(nint pInCtx, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSCreateParams pInDlssCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSCreateParams* pointer0 = &PInDlssCreateParams)
+            fixed (NGXDLSSCreateParams* pointer0 = &pInDlssCreateParams)
             {
-                return CreateDLSSExt(PInCtx, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSExt(pInCtx, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_D3D11_CREATE_DLSS_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSExt(nint PInCtx, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXHandle* CreateDLSSExt(nint pInCtx, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSExt(PInCtx, &value, PInParams, PInDlssCreateParams), "NGX_D3D11_CREATE_DLSS_EXT");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSExt(pInCtx, &value, pInParams, pInDlssCreateParams), "NGX_D3D11_CREATE_DLSS_EXT");
 
             return value;
         }
@@ -129,13 +129,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_D3D11_CREATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt(nint PInCtx, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt(nint pInCtx, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSExt(PInCtx, pointer, PInParams, PInDlssCreateParams);
+                return CreateDLSSExt(pInCtx, pointer, pInParams, pInDlssCreateParams);
             }
         }
 
@@ -144,16 +144,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLISPExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXD3D11DLISPEvalParams* PDlispEvalParams);
+        public static partial NGXResult EvaluateDLISPExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, NGXD3D11DLISPEvalParams* pDlispEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_EVALUATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLISPExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXD3D11DLISPEvalParams PDlispEvalParams)
+        public static NGXResult EvaluateDLISPExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXD3D11DLISPEvalParams pDlispEvalParams)
         {
-            fixed (global::NGX.NET.NGXD3D11DLISPEvalParams* pointer0 = &PDlispEvalParams)
+            fixed (NGXD3D11DLISPEvalParams* pointer0 = &pDlispEvalParams)
             {
-                return EvaluateDLISPExt(PInCtx, PInHandle, PInParams, pointer0);
+                return EvaluateDLISPExt(pInCtx, pInHandle, pInParams, pointer0);
             }
         }
 
@@ -162,16 +162,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSSD_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLSSDExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXD3D11DLSSDEvalParams* PInDlssDEvalParams);
+        public static partial NGXResult EvaluateDLSSDExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, NGXD3D11DLSSDEvalParams* pInDlssDEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_EVALUATE_DLSSD_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLSSDExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXD3D11DLSSDEvalParams PInDlssDEvalParams)
+        public static NGXResult EvaluateDLSSDExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXD3D11DLSSDEvalParams pInDlssDEvalParams)
         {
-            fixed (global::NGX.NET.NGXD3D11DLSSDEvalParams* pointer0 = &PInDlssDEvalParams)
+            fixed (NGXD3D11DLSSDEvalParams* pointer0 = &pInDlssDEvalParams)
             {
-                return EvaluateDLSSDExt(PInCtx, PInHandle, PInParams, pointer0);
+                return EvaluateDLSSDExt(pInCtx, pInHandle, pInParams, pointer0);
             }
         }
 
@@ -180,16 +180,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSS_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLSSExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXD3D11DLSSEvalParams* PInDlssEvalParams);
+        public static partial NGXResult EvaluateDLSSExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, NGXD3D11DLSSEvalParams* pInDlssEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_D3D11_EVALUATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLSSExt(nint PInCtx, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXD3D11DLSSEvalParams PInDlssEvalParams)
+        public static NGXResult EvaluateDLSSExt(nint pInCtx, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXD3D11DLSSEvalParams pInDlssEvalParams)
         {
-            fixed (global::NGX.NET.NGXD3D11DLSSEvalParams* pointer0 = &PInDlssEvalParams)
+            fixed (NGXD3D11DLSSEvalParams* pointer0 = &pInDlssEvalParams)
             {
-                return EvaluateDLSSExt(PInCtx, PInHandle, PInParams, pointer0);
+                return EvaluateDLSSExt(pInCtx, pInHandle, pInParams, pointer0);
             }
         }
 
@@ -198,14 +198,14 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_AllocateParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult AllocateParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult AllocateParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_D3D11_AllocateParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXParameter* AllocateParameters()
+        public static NGXParameter* AllocateParameters()
         {
-            global::NGX.NET.NGXParameter* value = default;
+            NGXParameter* value = default;
             ThrowIfFailed(AllocateParameters(&value), "NVSDK_NGX_D3D11_AllocateParameters");
 
             return value;
@@ -214,11 +214,11 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_D3D11_AllocateParameters.
         /// </summary>
-        public static global::NGX.NET.NGXResult AllocateParameters(out global::NGX.NET.NGXParameter* value)
+        public static NGXResult AllocateParameters(out NGXParameter* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXParameter** pointer = &value)
+            fixed (NGXParameter** pointer = &value)
             {
                 return AllocateParameters(pointer);
             }
@@ -229,15 +229,15 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_CreateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateFeature(nint InDevCtx, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, global::NGX.NET.NGXHandle** OutHandle);
+        public static partial NGXResult CreateFeature(nint inDevCtx, NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_D3D11_CreateFeature; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateFeature(nint InDevCtx, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters)
+        public static NGXHandle* CreateFeature(nint inDevCtx, NGXFeature inFeatureID, NGXParameter* inParameters)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateFeature(InDevCtx, InFeatureID, InParameters, &value), "NVSDK_NGX_D3D11_CreateFeature");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateFeature(inDevCtx, inFeatureID, inParameters, &value), "NVSDK_NGX_D3D11_CreateFeature");
 
             return value;
         }
@@ -245,13 +245,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_D3D11_CreateFeature.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateFeature(nint InDevCtx, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, out global::NGX.NET.NGXHandle* value)
+        public static NGXResult CreateFeature(nint inDevCtx, NGXFeature inFeatureID, NGXParameter* inParameters, out NGXHandle* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateFeature(InDevCtx, InFeatureID, InParameters, pointer);
+                return CreateFeature(inDevCtx, inFeatureID, inParameters, pointer);
             }
         }
 
@@ -260,35 +260,35 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_DestroyParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult DestroyParameters(global::NGX.NET.NGXParameter* InParameters);
+        public static partial NGXResult DestroyParameters(NGXParameter* inParameters);
 
         /// <summary>
         /// NVSDK_NGX_D3D11_EvaluateFeature. Source: nvsdk_ngx.h:683.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateFeature(nint InDevCtx, global::NGX.NET.NGXHandle* InFeatureHandle, global::NGX.NET.NGXParameter* InParameters, delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> InCallback);
+        public static partial NGXResult EvaluateFeature(nint inDevCtx, NGXHandle* inFeatureHandle, NGXParameter* inParameters, delegate* unmanaged[Cdecl]<float, NGXBool8*, void> inCallback);
 
         /// <summary>
         /// NVSDK_NGX_D3D11_EvaluateFeature_C. Source: nvsdk_ngx.h:688.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature_C")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateFeatureC(nint InDevCtx, global::NGX.NET.NGXHandle* InFeatureHandle, global::NGX.NET.NGXParameter* InParameters, delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> InCallback);
+        public static partial NGXResult EvaluateFeatureC(nint inDevCtx, NGXHandle* inFeatureHandle, NGXParameter* inParameters, delegate* unmanaged[Cdecl]<float, NGXBool8*, void> inCallback);
 
         /// <summary>
         /// NVSDK_NGX_D3D11_GetCapabilityParameters. Source: nvsdk_ngx.h:422.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetCapabilityParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetCapabilityParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult GetCapabilityParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_D3D11_GetCapabilityParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXParameter* GetCapabilityParameters()
+        public static NGXParameter* GetCapabilityParameters()
         {
-            global::NGX.NET.NGXParameter* value = default;
+            NGXParameter* value = default;
             ThrowIfFailed(GetCapabilityParameters(&value), "NVSDK_NGX_D3D11_GetCapabilityParameters");
 
             return value;
@@ -297,11 +297,11 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_D3D11_GetCapabilityParameters.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetCapabilityParameters(out global::NGX.NET.NGXParameter* value)
+        public static NGXResult GetCapabilityParameters(out NGXParameter* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXParameter** pointer = &value)
+            fixed (NGXParameter** pointer = &value)
             {
                 return GetCapabilityParameters(pointer);
             }
@@ -312,17 +312,17 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetFeatureRequirements")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetFeatureRequirements(nint Adapter, global::NGX.NET.NGXFeatureDiscoveryInfo* FeatureDiscoveryInfo, global::NGX.NET.NGXFeatureRequirement* OutSupported);
+        public static partial NGXResult GetFeatureRequirements(nint adapter, NGXFeatureDiscoveryInfo* featureDiscoveryInfo, NGXFeatureRequirement* outSupported);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_D3D11_GetFeatureRequirements.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetFeatureRequirements(nint Adapter, ref global::NGX.NET.NGXFeatureDiscoveryInfo FeatureDiscoveryInfo, ref global::NGX.NET.NGXFeatureRequirement OutSupported)
+        public static NGXResult GetFeatureRequirements(nint adapter, ref NGXFeatureDiscoveryInfo featureDiscoveryInfo, ref NGXFeatureRequirement outSupported)
         {
-            fixed (global::NGX.NET.NGXFeatureDiscoveryInfo* pointer0 = &FeatureDiscoveryInfo)
-            fixed (global::NGX.NET.NGXFeatureRequirement* pointer1 = &OutSupported)
+            fixed (NGXFeatureDiscoveryInfo* pointer0 = &featureDiscoveryInfo)
+            fixed (NGXFeatureRequirement* pointer1 = &outSupported)
             {
-                return GetFeatureRequirements(Adapter, pointer0, pointer1);
+                return GetFeatureRequirements(adapter, pointer0, pointer1);
             }
         }
 
@@ -331,22 +331,22 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult GetParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// NVSDK_NGX_D3D11_GetScratchBufferSize. Source: nvsdk_ngx.h:483.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetScratchBufferSize")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters, nuint* OutSizeInBytes);
+        public static partial NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, nuint* outSizeInBytes);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_D3D11_GetScratchBufferSize; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static nuint GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters)
+        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters)
         {
             nuint value = default;
-            ThrowIfFailed(GetScratchBufferSize(InFeatureId, InParameters, &value), "NVSDK_NGX_D3D11_GetScratchBufferSize");
+            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, &value), "NVSDK_NGX_D3D11_GetScratchBufferSize");
 
             return value;
         }
@@ -354,13 +354,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_D3D11_GetScratchBufferSize.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters, out nuint value)
+        public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, out nuint value)
         {
             value = default;
 
             fixed (nuint* pointer = &value)
             {
-                return GetScratchBufferSize(InFeatureId, InParameters, pointer);
+                return GetScratchBufferSize(inFeatureId, inParameters, pointer);
             }
         }
 
@@ -369,16 +369,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Init(ulong InApplicationId, void* InApplicationDataPath, nint InDevice, global::NGX.NET.NGXFeatureCommonInfo* InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion);
+        public static partial NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_D3D11_Init.
         /// </summary>
-        public static global::NGX.NET.NGXResult Init(ulong InApplicationId, void* InApplicationDataPath, nint InDevice, ref global::NGX.NET.NGXFeatureCommonInfo InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion)
+        public static NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, nint inDevice, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
         {
-            fixed (global::NGX.NET.NGXFeatureCommonInfo* pointer0 = &InFeatureInfo)
+            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
             {
-                return Init(InApplicationId, InApplicationDataPath, InDevice, pointer0, InSDKVersion);
+                return Init(inApplicationId, inApplicationDataPath, inDevice, pointer0, inSDKVersion);
             }
         }
 
@@ -387,16 +387,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult InitWithProjectID(sbyte* InProjectId, global::NGX.NET.NGXEngineType InEngineType, sbyte* InEngineVersion, void* InApplicationDataPath, nint InDevice, global::NGX.NET.NGXFeatureCommonInfo* InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion);
+        public static partial NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_D3D11_Init_with_ProjectID.
         /// </summary>
-        public static global::NGX.NET.NGXResult InitWithProjectID(sbyte* InProjectId, global::NGX.NET.NGXEngineType InEngineType, sbyte* InEngineVersion, void* InApplicationDataPath, nint InDevice, ref global::NGX.NET.NGXFeatureCommonInfo InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion)
+        public static NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inDevice, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
         {
-            fixed (global::NGX.NET.NGXFeatureCommonInfo* pointer0 = &InFeatureInfo)
+            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
             {
-                return InitWithProjectID(InProjectId, InEngineType, InEngineVersion, InApplicationDataPath, InDevice, pointer0, InSDKVersion);
+                return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, inDevice, pointer0, inSDKVersion);
             }
         }
 
@@ -405,21 +405,21 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult ReleaseFeature(global::NGX.NET.NGXHandle* InHandle);
+        public static partial NGXResult ReleaseFeature(NGXHandle* inHandle);
 
         /// <summary>
         /// NVSDK_NGX_D3D11_Shutdown. Source: nvsdk_ngx.h:278.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Shutdown")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Shutdown();
+        public static partial NGXResult Shutdown();
 
         /// <summary>
         /// NVSDK_NGX_D3D11_Shutdown1. Source: nvsdk_ngx.h:281.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Shutdown1(nint InDevice);
+        public static partial NGXResult Shutdown1(nint inDevice);
 
     }
 }

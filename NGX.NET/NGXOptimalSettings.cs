@@ -12,7 +12,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Queries optimal render dimensions and throws if the SDK reports failure.
         /// </summary>
-        public static NGXOptimalSettings GetOptimalSettings(global::NGX.NET.NGXParameter* parameters, uint width, uint height, NGXPerfQualityValue quality)
+        public static NGXOptimalSettings GetOptimalSettings(NGXParameter* parameters, uint width, uint height, NGXPerfQualityValue quality)
         {
             uint renderWidth = 0, renderHeight = 0, maxWidth = 0, maxHeight = 0, minWidth = 0, minHeight = 0;
             float sharpness = 0;
@@ -27,7 +27,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Queries optimal ray reconstruction dimensions and throws on failure.
         /// </summary>
-        public static NGXOptimalSettings GetOptimalSettings(global::NGX.NET.NGXParameter* parameters, uint width, uint height, NGXPerfQualityValue quality)
+        public static NGXOptimalSettings GetOptimalSettings(NGXParameter* parameters, uint width, uint height, NGXPerfQualityValue quality)
         {
             uint renderWidth = 0, renderHeight = 0, maxWidth = 0, maxHeight = 0, minWidth = 0, minHeight = 0;
             float sharpness = 0;

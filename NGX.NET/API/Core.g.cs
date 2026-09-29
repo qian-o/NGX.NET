@@ -13,37 +13,37 @@ public static unsafe partial class NGX
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "GetNGXResultAsString")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void* GetResultAsString(global::NGX.NET.NGXResult InNGXResult);
+    public static partial void* GetResultAsString(NGXResult inNGXResult);
 
     /// <summary>
     /// NVSDK_NGX_Create_Buffer_Resource_VK. Source: nvsdk_ngx_helpers_vk.h:35.
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_Buffer_Resource_VK")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial global::NGX.NET.NGXResourceVK CreateBufferResourceVK(nint Buffer, uint SizeInBytes, global::NGX.NET.NGXBool8 ReadWrite);
+    public static partial NGXResourceVK CreateBufferResourceVK(nint buffer, uint sizeInBytes, NGXBool8 readWrite);
 
     /// <summary>
     /// NVSDK_NGX_Create_ImageView_Resource_VK. Source: nvsdk_ngx_helpers_vk.h:21.
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_ImageView_Resource_VK")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial global::NGX.NET.NGXResourceVK CreateImageViewResourceVK(nint ImageView, nint Image, global::NGX.NET.NGXVkImageSubresourceRange SubresourceRange, global::NGX.NET.NGXVkFormat Format, uint Width, uint Height, global::NGX.NET.NGXBool8 ReadWrite);
+    public static partial NGXResourceVK CreateImageViewResourceVK(nint imageView, nint image, NGXVkImageSubresourceRange subresourceRange, NGXVkFormat format, uint width, uint height, NGXBool8 readWrite);
 
     /// <summary>
     /// NVSDK_NGX_UpdateFeature. Source: nvsdk_ngx.h:695.
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_UpdateFeature")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial global::NGX.NET.NGXResult UpdateFeature(global::NGX.NET.NGXApplicationIdentifier* ApplicationId, global::NGX.NET.NGXFeature FeatureID);
+    public static partial NGXResult UpdateFeature(NGXApplicationIdentifier* applicationId, NGXFeature featureID);
 
     /// <summary>
     /// Pins native structures for NVSDK_NGX_UpdateFeature.
     /// </summary>
-    public static global::NGX.NET.NGXResult UpdateFeature(ref global::NGX.NET.NGXApplicationIdentifier ApplicationId, global::NGX.NET.NGXFeature FeatureID)
+    public static NGXResult UpdateFeature(ref NGXApplicationIdentifier applicationId, NGXFeature featureID)
     {
-        fixed (global::NGX.NET.NGXApplicationIdentifier* pointer0 = &ApplicationId)
+        fixed (NGXApplicationIdentifier* pointer0 = &applicationId)
         {
-            return UpdateFeature(pointer0, FeatureID);
+            return UpdateFeature(pointer0, featureID);
         }
     }
 

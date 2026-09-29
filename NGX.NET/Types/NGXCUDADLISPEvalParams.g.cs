@@ -18,7 +18,7 @@ public unsafe partial struct NGXCUDADLISPEvalParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXCUDAFeatureEvalParams Feature;
+    public NGXCUDAFeatureEvalParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLISP_Eval_Params::InRectX

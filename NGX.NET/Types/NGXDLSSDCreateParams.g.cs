@@ -18,21 +18,21 @@ public unsafe partial struct NGXDLSSDCreateParams
     /// </summary>
     [NGXNativeName("InDenoiseMode")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXDLSSDenoiseMode InDenoiseMode;
+    public NGXDLSSDenoiseMode InDenoiseMode;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InRoughnessMode
     /// </summary>
     [NGXNativeName("InRoughnessMode")]
     [FieldOffset(4)]
-    public global::NGX.NET.NGXDLSSRoughnessMode InRoughnessMode;
+    public NGXDLSSRoughnessMode InRoughnessMode;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InUseHWDepth
     /// </summary>
     [NGXNativeName("InUseHWDepth")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXDLSSDepthType InUseHWDepth;
+    public NGXDLSSDepthType InUseHWDepth;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InWidth
@@ -67,7 +67,7 @@ public unsafe partial struct NGXDLSSDCreateParams
     /// </summary>
     [NGXNativeName("InPerfQualityValue")]
     [FieldOffset(28)]
-    public global::NGX.NET.NGXPerfQualityValue InPerfQualityValue;
+    public NGXPerfQualityValue InPerfQualityValue;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InFeatureCreateFlags
@@ -81,6 +81,6 @@ public unsafe partial struct NGXDLSSDCreateParams
     /// </summary>
     [NGXNativeName("InEnableOutputSubrects")]
     [FieldOffset(36)]
-    public global::NGX.NET.NGXBool8 InEnableOutputSubrects;
+    public NGXBool8 InEnableOutputSubrects;
 
 }

@@ -86,6 +86,6 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void Reset(global::NGX.NET.NGXParameter* parameters);
+        public static partial void Reset(NGXParameter* parameters);
     }
 }

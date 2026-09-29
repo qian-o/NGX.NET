@@ -18,7 +18,7 @@ public unsafe partial struct NGXD3D12DLISPEvalParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXD3D12FeatureEvalParams Feature;
+    public NGXD3D12FeatureEvalParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLISP_Eval_Params::InRectX

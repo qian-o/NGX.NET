@@ -18,13 +18,13 @@ public unsafe partial struct NGXApplicationIdentifier
     /// </summary>
     [NGXNativeName("IdentifierType")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXApplicationIdentifierType IdentifierType;
+    public NGXApplicationIdentifierType IdentifierType;
 
     /// <summary>
     /// NVSDK_NGX_Application_Identifier::v
     /// </summary>
     [NGXNativeName("v")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXApplicationIdentifierUnion V;
+    public NGXApplicationIdentifierUnion V;
 
 }

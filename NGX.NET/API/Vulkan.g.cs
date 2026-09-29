@@ -18,26 +18,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_CREATE_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSG(nint PInCmdBuf, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSGCreateParams* PInDlssgCreateParams);
+        public static partial NGXResult CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSGCreateParams* pInDlssgCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_VK_CREATE_DLSSG.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSG(nint PInCmdBuf, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSGCreateParams PInDlssgCreateParams)
+        public static NGXResult CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSGCreateParams pInDlssgCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSGCreateParams* pointer0 = &PInDlssgCreateParams)
+            fixed (NGXDLSSGCreateParams* pointer0 = &pInDlssgCreateParams)
             {
-                return CreateDLSSG(PInCmdBuf, InCreationNodeMask, InVisibilityNodeMask, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_VK_CREATE_DLSSG; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSG(nint PInCmdBuf, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSGCreateParams* PInDlssgCreateParams)
+        public static NGXHandle* CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter* pInParams, NGXDLSSGCreateParams* pInDlssgCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSG(PInCmdBuf, InCreationNodeMask, InVisibilityNodeMask, &value, PInParams, PInDlssgCreateParams), "NGX_VK_CREATE_DLSSG");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, &value, pInParams, pInDlssgCreateParams), "NGX_VK_CREATE_DLSSG");
 
             return value;
         }
@@ -45,13 +45,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_VK_CREATE_DLSSG.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSG(nint PInCmdBuf, uint InCreationNodeMask, uint InVisibilityNodeMask, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSGCreateParams* PInDlssgCreateParams)
+        public static NGXResult CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSGCreateParams* pInDlssgCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSG(PInCmdBuf, InCreationNodeMask, InVisibilityNodeMask, pointer, PInParams, PInDlssgCreateParams);
+                return CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, pointer, pInParams, pInDlssgCreateParams);
             }
         }
 
@@ -60,24 +60,24 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EstimateVRAMDLSSG(global::NGX.NET.NGXParameter* InParams, uint MvecDepthWidth, uint MvecDepthHeight, uint ColorWidth, uint ColorHeight, uint ColorBufferFormat, uint MvecBufferFormat, uint DepthBufferFormat, uint HudLessBufferFormat, uint UiBufferFormat, nuint* EstimatedVRAMInBytes);
+        public static partial NGXResult EstimateVRAMDLSSG(NGXParameter* inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
 
         /// <summary>
         /// NGX_VK_EVALUATE_DLSSG. Source: nvsdk_ngx_helpers_dlssg_vk.h:62.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLSSG(nint PInCmdBuf, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXVKDLSSGEvalParams* PInDlssgEvalParams, global::NGX.NET.NGXDLSSGOptEvalParams* PInDlssgOptEvalParams);
+        public static partial NGXResult EvaluateDLSSG(nint pInCmdBuf, NGXHandle* pInHandle, NGXParameter* pInParams, NGXVKDLSSGEvalParams* pInDlssgEvalParams, NGXDLSSGOptEvalParams* pInDlssgOptEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_VK_EVALUATE_DLSSG.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLSSG(nint PInCmdBuf, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXVKDLSSGEvalParams PInDlssgEvalParams, ref global::NGX.NET.NGXDLSSGOptEvalParams PInDlssgOptEvalParams)
+        public static NGXResult EvaluateDLSSG(nint pInCmdBuf, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXVKDLSSGEvalParams pInDlssgEvalParams, ref NGXDLSSGOptEvalParams pInDlssgOptEvalParams)
         {
-            fixed (global::NGX.NET.NGXVKDLSSGEvalParams* pointer0 = &PInDlssgEvalParams)
-            fixed (global::NGX.NET.NGXDLSSGOptEvalParams* pointer1 = &PInDlssgOptEvalParams)
+            fixed (NGXVKDLSSGEvalParams* pointer0 = &pInDlssgEvalParams)
+            fixed (NGXDLSSGOptEvalParams* pointer1 = &pInDlssgOptEvalParams)
             {
-                return EvaluateDLSSG(PInCmdBuf, PInHandle, PInParams, pointer0, pointer1);
+                return EvaluateDLSSG(pInCmdBuf, pInHandle, pInParams, pointer0, pointer1);
             }
         }
 
@@ -86,26 +86,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLISPExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PInDlispCreateParams);
+        public static partial NGXResult CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXFeatureCreateParams* pInDlispCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_CREATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLISPExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXFeatureCreateParams PInDlispCreateParams)
+        public static NGXResult CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXFeatureCreateParams pInDlispCreateParams)
         {
-            fixed (global::NGX.NET.NGXFeatureCreateParams* pointer0 = &PInDlispCreateParams)
+            fixed (NGXFeatureCreateParams* pointer0 = &pInDlispCreateParams)
             {
-                return CreateDLISPExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, PpOutHandle, PInParams, pointer0);
+                return CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_VULKAN_CREATE_DLISP_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLISPExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PInDlispCreateParams)
+        public static NGXHandle* CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter* pInParams, NGXFeatureCreateParams* pInDlispCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLISPExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, &value, PInParams, PInDlispCreateParams), "NGX_VULKAN_CREATE_DLISP_EXT");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &value, pInParams, pInDlispCreateParams), "NGX_VULKAN_CREATE_DLISP_EXT");
 
             return value;
         }
@@ -113,13 +113,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLISPExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXFeatureCreateParams* PInDlispCreateParams)
+        public static NGXResult CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle* value, NGXParameter* pInParams, NGXFeatureCreateParams* pInDlispCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLISPExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, pointer, PInParams, PInDlispCreateParams);
+                return CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, pointer, pInParams, pInDlispCreateParams);
             }
         }
 
@@ -128,26 +128,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSDExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams);
+        public static partial NGXResult CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_CREATE_DLSSD_EXT1.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSDExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSDCreateParams PInDlssDCreateParams)
+        public static NGXResult CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSDCreateParams pInDlssDCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSDCreateParams* pointer0 = &PInDlssDCreateParams)
+            fixed (NGXDLSSDCreateParams* pointer0 = &pInDlssDCreateParams)
             {
-                return CreateDLSSDExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_VULKAN_CREATE_DLSSD_EXT1; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSDExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams)
+        public static NGXHandle* CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSDExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, &value, PInParams, PInDlssDCreateParams), "NGX_VULKAN_CREATE_DLSSD_EXT1");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &value, pInParams, pInDlssDCreateParams), "NGX_VULKAN_CREATE_DLSSD_EXT1");
 
             return value;
         }
@@ -155,13 +155,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLSSD_EXT1.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSDExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSDCreateParams* PInDlssDCreateParams)
+        public static NGXResult CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSDCreateParams* pInDlssDCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSDExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, pointer, PInParams, PInDlssDCreateParams);
+                return CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, pointer, pInParams, pInDlssDCreateParams);
             }
         }
 
@@ -170,26 +170,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams);
+        public static partial NGXResult CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_CREATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSCreateParams PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSCreateParams pInDlssCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSCreateParams* pointer0 = &PInDlssCreateParams)
+            fixed (NGXDLSSCreateParams* pointer0 = &pInDlssCreateParams)
             {
-                return CreateDLSSExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_VULKAN_CREATE_DLSS_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXHandle* CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, &value, PInParams, PInDlssCreateParams), "NGX_VULKAN_CREATE_DLSS_EXT");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &value, pInParams, pInDlssCreateParams), "NGX_VULKAN_CREATE_DLSS_EXT");
 
             return value;
         }
@@ -197,13 +197,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt(nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSExt(InCmdList, InCreationNodeMask, InVisibilityNodeMask, pointer, PInParams, PInDlssCreateParams);
+                return CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, pointer, pInParams, pInDlssCreateParams);
             }
         }
 
@@ -212,26 +212,26 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateDLSSExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams);
+        public static partial NGXResult CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_CREATE_DLSS_EXT1.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXHandle** PpOutHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXDLSSCreateParams PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXDLSSCreateParams pInDlssCreateParams)
         {
-            fixed (global::NGX.NET.NGXDLSSCreateParams* pointer0 = &PInDlssCreateParams)
+            fixed (NGXDLSSCreateParams* pointer0 = &pInDlssCreateParams)
             {
-                return CreateDLSSExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, PpOutHandle, PInParams, pointer0);
+                return CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, ppOutHandle, pInParams, pointer0);
             }
         }
 
         /// <summary>
         /// Returns the reviewed output of NGX_VULKAN_CREATE_DLSS_EXT1; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateDLSSExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXHandle* CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, &value, PInParams, PInDlssCreateParams), "NGX_VULKAN_CREATE_DLSS_EXT1");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &value, pInParams, pInDlssCreateParams), "NGX_VULKAN_CREATE_DLSS_EXT1");
 
             return value;
         }
@@ -239,13 +239,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLSS_EXT1.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateDLSSExt1(nint InDevice, nint InCmdList, uint InCreationNodeMask, uint InVisibilityNodeMask, out global::NGX.NET.NGXHandle* value, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXDLSSCreateParams* PInDlssCreateParams)
+        public static NGXResult CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle* value, NGXParameter* pInParams, NGXDLSSCreateParams* pInDlssCreateParams)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateDLSSExt1(InDevice, InCmdList, InCreationNodeMask, InVisibilityNodeMask, pointer, PInParams, PInDlssCreateParams);
+                return CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, pointer, pInParams, pInDlssCreateParams);
             }
         }
 
@@ -254,16 +254,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLISPExt(nint InCmdList, global::NGX.NET.NGXHandle* InHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXVKDLISPEvalParams* PInDlispEvalParams);
+        public static partial NGXResult EvaluateDLISPExt(nint inCmdList, NGXHandle* inHandle, NGXParameter* pInParams, NGXVKDLISPEvalParams* pInDlispEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_EVALUATE_DLISP_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLISPExt(nint InCmdList, global::NGX.NET.NGXHandle* InHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXVKDLISPEvalParams PInDlispEvalParams)
+        public static NGXResult EvaluateDLISPExt(nint inCmdList, NGXHandle* inHandle, NGXParameter* pInParams, ref NGXVKDLISPEvalParams pInDlispEvalParams)
         {
-            fixed (global::NGX.NET.NGXVKDLISPEvalParams* pointer0 = &PInDlispEvalParams)
+            fixed (NGXVKDLISPEvalParams* pointer0 = &pInDlispEvalParams)
             {
-                return EvaluateDLISPExt(InCmdList, InHandle, PInParams, pointer0);
+                return EvaluateDLISPExt(inCmdList, inHandle, pInParams, pointer0);
             }
         }
 
@@ -272,16 +272,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLSSDExt(nint InCmdList, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXVKDLSSDEvalParams* PInDlssDEvalParams);
+        public static partial NGXResult EvaluateDLSSDExt(nint inCmdList, NGXHandle* pInHandle, NGXParameter* pInParams, NGXVKDLSSDEvalParams* pInDlssDEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_EVALUATE_DLSSD_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLSSDExt(nint InCmdList, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXVKDLSSDEvalParams PInDlssDEvalParams)
+        public static NGXResult EvaluateDLSSDExt(nint inCmdList, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXVKDLSSDEvalParams pInDlssDEvalParams)
         {
-            fixed (global::NGX.NET.NGXVKDLSSDEvalParams* pointer0 = &PInDlssDEvalParams)
+            fixed (NGXVKDLSSDEvalParams* pointer0 = &pInDlssDEvalParams)
             {
-                return EvaluateDLSSDExt(InCmdList, PInHandle, PInParams, pointer0);
+                return EvaluateDLSSDExt(inCmdList, pInHandle, pInParams, pointer0);
             }
         }
 
@@ -290,16 +290,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateDLSSExt(nint InCmdList, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, global::NGX.NET.NGXVKDLSSEvalParams* PInDlssEvalParams);
+        public static partial NGXResult EvaluateDLSSExt(nint inCmdList, NGXHandle* pInHandle, NGXParameter* pInParams, NGXVKDLSSEvalParams* pInDlssEvalParams);
 
         /// <summary>
         /// Pins native structures for NGX_VULKAN_EVALUATE_DLSS_EXT.
         /// </summary>
-        public static global::NGX.NET.NGXResult EvaluateDLSSExt(nint InCmdList, global::NGX.NET.NGXHandle* PInHandle, global::NGX.NET.NGXParameter* PInParams, ref global::NGX.NET.NGXVKDLSSEvalParams PInDlssEvalParams)
+        public static NGXResult EvaluateDLSSExt(nint inCmdList, NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXVKDLSSEvalParams pInDlssEvalParams)
         {
-            fixed (global::NGX.NET.NGXVKDLSSEvalParams* pointer0 = &PInDlssEvalParams)
+            fixed (NGXVKDLSSEvalParams* pointer0 = &pInDlssEvalParams)
             {
-                return EvaluateDLSSExt(InCmdList, PInHandle, PInParams, pointer0);
+                return EvaluateDLSSExt(inCmdList, pInHandle, pInParams, pointer0);
             }
         }
 
@@ -308,14 +308,14 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_AllocateParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult AllocateParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult AllocateParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_VULKAN_AllocateParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXParameter* AllocateParameters()
+        public static NGXParameter* AllocateParameters()
         {
-            global::NGX.NET.NGXParameter* value = default;
+            NGXParameter* value = default;
             ThrowIfFailed(AllocateParameters(&value), "NVSDK_NGX_VULKAN_AllocateParameters");
 
             return value;
@@ -324,11 +324,11 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_VULKAN_AllocateParameters.
         /// </summary>
-        public static global::NGX.NET.NGXResult AllocateParameters(out global::NGX.NET.NGXParameter* value)
+        public static NGXResult AllocateParameters(out NGXParameter* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXParameter** pointer = &value)
+            fixed (NGXParameter** pointer = &value)
             {
                 return AllocateParameters(pointer);
             }
@@ -339,15 +339,15 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateFeature(nint InCmdBuffer, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, global::NGX.NET.NGXHandle** OutHandle);
+        public static partial NGXResult CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_VULKAN_CreateFeature; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateFeature(nint InCmdBuffer, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters)
+        public static NGXHandle* CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter* inParameters)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateFeature(InCmdBuffer, InFeatureID, InParameters, &value), "NVSDK_NGX_VULKAN_CreateFeature");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateFeature(inCmdBuffer, inFeatureID, inParameters, &value), "NVSDK_NGX_VULKAN_CreateFeature");
 
             return value;
         }
@@ -355,13 +355,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_VULKAN_CreateFeature.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateFeature(nint InCmdBuffer, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, out global::NGX.NET.NGXHandle* value)
+        public static NGXResult CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter* inParameters, out NGXHandle* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateFeature(InCmdBuffer, InFeatureID, InParameters, pointer);
+                return CreateFeature(inCmdBuffer, inFeatureID, inParameters, pointer);
             }
         }
 
@@ -370,15 +370,15 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult CreateFeature1(nint InDevice, nint InCmdList, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, global::NGX.NET.NGXHandle** OutHandle);
+        public static partial NGXResult CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_VULKAN_CreateFeature1; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXHandle* CreateFeature1(nint InDevice, nint InCmdList, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters)
+        public static NGXHandle* CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter* inParameters)
         {
-            global::NGX.NET.NGXHandle* value = default;
-            ThrowIfFailed(CreateFeature1(InDevice, InCmdList, InFeatureID, InParameters, &value), "NVSDK_NGX_VULKAN_CreateFeature1");
+            NGXHandle* value = default;
+            ThrowIfFailed(CreateFeature1(inDevice, inCmdList, inFeatureID, inParameters, &value), "NVSDK_NGX_VULKAN_CreateFeature1");
 
             return value;
         }
@@ -386,13 +386,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_VULKAN_CreateFeature1.
         /// </summary>
-        public static global::NGX.NET.NGXResult CreateFeature1(nint InDevice, nint InCmdList, global::NGX.NET.NGXFeature InFeatureID, global::NGX.NET.NGXParameter* InParameters, out global::NGX.NET.NGXHandle* value)
+        public static NGXResult CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter* inParameters, out NGXHandle* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXHandle** pointer = &value)
+            fixed (NGXHandle** pointer = &value)
             {
-                return CreateFeature1(InDevice, InCmdList, InFeatureID, InParameters, pointer);
+                return CreateFeature1(inDevice, inCmdList, inFeatureID, inParameters, pointer);
             }
         }
 
@@ -401,35 +401,35 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_DestroyParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult DestroyParameters(global::NGX.NET.NGXParameter* InParameters);
+        public static partial NGXResult DestroyParameters(NGXParameter* inParameters);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_EvaluateFeature. Source: nvsdk_ngx_vk.h:753.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateFeature(nint InCmdList, global::NGX.NET.NGXHandle* InFeatureHandle, global::NGX.NET.NGXParameter* InParameters, delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> InCallback);
+        public static partial NGXResult EvaluateFeature(nint inCmdList, NGXHandle* inFeatureHandle, NGXParameter* inParameters, delegate* unmanaged[Cdecl]<float, NGXBool8*, void> inCallback);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_EvaluateFeature_C. Source: nvsdk_ngx_vk.h:755.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult EvaluateFeatureC(nint InCmdList, global::NGX.NET.NGXHandle* InFeatureHandle, global::NGX.NET.NGXParameter* InParameters, delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> InCallback);
+        public static partial NGXResult EvaluateFeatureC(nint inCmdList, NGXHandle* inFeatureHandle, NGXParameter* inParameters, delegate* unmanaged[Cdecl]<float, NGXBool8*, void> inCallback);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_GetCapabilityParameters. Source: nvsdk_ngx_vk.h:422.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetCapabilityParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult GetCapabilityParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_VULKAN_GetCapabilityParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static global::NGX.NET.NGXParameter* GetCapabilityParameters()
+        public static NGXParameter* GetCapabilityParameters()
         {
-            global::NGX.NET.NGXParameter* value = default;
+            NGXParameter* value = default;
             ThrowIfFailed(GetCapabilityParameters(&value), "NVSDK_NGX_VULKAN_GetCapabilityParameters");
 
             return value;
@@ -438,11 +438,11 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_VULKAN_GetCapabilityParameters.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetCapabilityParameters(out global::NGX.NET.NGXParameter* value)
+        public static NGXResult GetCapabilityParameters(out NGXParameter* value)
         {
             value = default;
 
-            fixed (global::NGX.NET.NGXParameter** pointer = &value)
+            fixed (NGXParameter** pointer = &value)
             {
                 return GetCapabilityParameters(pointer);
             }
@@ -453,16 +453,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetFeatureDeviceExtensionRequirements(nint Instance, nint PhysicalDevice, global::NGX.NET.NGXFeatureDiscoveryInfo* FeatureDiscoveryInfo, uint* OutExtensionCount, global::NGX.NET.NGXVkExtensionProperties** OutExtensionProperties);
+        public static partial NGXResult GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfo* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionProperties** outExtensionProperties);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetFeatureDeviceExtensionRequirements(nint Instance, nint PhysicalDevice, ref global::NGX.NET.NGXFeatureDiscoveryInfo FeatureDiscoveryInfo, uint* OutExtensionCount, global::NGX.NET.NGXVkExtensionProperties** OutExtensionProperties)
+        public static NGXResult GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, ref NGXFeatureDiscoveryInfo featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionProperties** outExtensionProperties)
         {
-            fixed (global::NGX.NET.NGXFeatureDiscoveryInfo* pointer0 = &FeatureDiscoveryInfo)
+            fixed (NGXFeatureDiscoveryInfo* pointer0 = &featureDiscoveryInfo)
             {
-                return GetFeatureDeviceExtensionRequirements(Instance, PhysicalDevice, pointer0, OutExtensionCount, OutExtensionProperties);
+                return GetFeatureDeviceExtensionRequirements(instance, physicalDevice, pointer0, outExtensionCount, outExtensionProperties);
             }
         }
 
@@ -471,16 +471,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetFeatureInstanceExtensionRequirements(global::NGX.NET.NGXFeatureDiscoveryInfo* FeatureDiscoveryInfo, uint* OutExtensionCount, global::NGX.NET.NGXVkExtensionProperties** OutExtensionProperties);
+        public static partial NGXResult GetFeatureInstanceExtensionRequirements(NGXFeatureDiscoveryInfo* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionProperties** outExtensionProperties);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetFeatureInstanceExtensionRequirements(ref global::NGX.NET.NGXFeatureDiscoveryInfo FeatureDiscoveryInfo, uint* OutExtensionCount, global::NGX.NET.NGXVkExtensionProperties** OutExtensionProperties)
+        public static NGXResult GetFeatureInstanceExtensionRequirements(ref NGXFeatureDiscoveryInfo featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionProperties** outExtensionProperties)
         {
-            fixed (global::NGX.NET.NGXFeatureDiscoveryInfo* pointer0 = &FeatureDiscoveryInfo)
+            fixed (NGXFeatureDiscoveryInfo* pointer0 = &featureDiscoveryInfo)
             {
-                return GetFeatureInstanceExtensionRequirements(pointer0, OutExtensionCount, OutExtensionProperties);
+                return GetFeatureInstanceExtensionRequirements(pointer0, outExtensionCount, outExtensionProperties);
             }
         }
 
@@ -489,17 +489,17 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureRequirements")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetFeatureRequirements(nint Instance, nint PhysicalDevice, global::NGX.NET.NGXFeatureDiscoveryInfo* FeatureDiscoveryInfo, global::NGX.NET.NGXFeatureRequirement* OutSupported);
+        public static partial NGXResult GetFeatureRequirements(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfo* featureDiscoveryInfo, NGXFeatureRequirement* outSupported);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_VULKAN_GetFeatureRequirements.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetFeatureRequirements(nint Instance, nint PhysicalDevice, ref global::NGX.NET.NGXFeatureDiscoveryInfo FeatureDiscoveryInfo, ref global::NGX.NET.NGXFeatureRequirement OutSupported)
+        public static NGXResult GetFeatureRequirements(nint instance, nint physicalDevice, ref NGXFeatureDiscoveryInfo featureDiscoveryInfo, ref NGXFeatureRequirement outSupported)
         {
-            fixed (global::NGX.NET.NGXFeatureDiscoveryInfo* pointer0 = &FeatureDiscoveryInfo)
-            fixed (global::NGX.NET.NGXFeatureRequirement* pointer1 = &OutSupported)
+            fixed (NGXFeatureDiscoveryInfo* pointer0 = &featureDiscoveryInfo)
+            fixed (NGXFeatureRequirement* pointer1 = &outSupported)
             {
-                return GetFeatureRequirements(Instance, PhysicalDevice, pointer0, pointer1);
+                return GetFeatureRequirements(instance, physicalDevice, pointer0, pointer1);
             }
         }
 
@@ -508,22 +508,22 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetParameters(global::NGX.NET.NGXParameter** OutParameters);
+        public static partial NGXResult GetParameters(NGXParameter** outParameters);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_GetScratchBufferSize. Source: nvsdk_ngx_vk.h:479.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters, nuint* OutSizeInBytes);
+        public static partial NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, nuint* outSizeInBytes);
 
         /// <summary>
         /// Returns the reviewed output of NVSDK_NGX_VULKAN_GetScratchBufferSize; throws on NGX failure. The caller owns any returned handle or parameter map.
         /// </summary>
-        public static nuint GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters)
+        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters)
         {
             nuint value = default;
-            ThrowIfFailed(GetScratchBufferSize(InFeatureId, InParameters, &value), "NVSDK_NGX_VULKAN_GetScratchBufferSize");
+            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, &value), "NVSDK_NGX_VULKAN_GetScratchBufferSize");
 
             return value;
         }
@@ -531,13 +531,13 @@ public static unsafe partial class NGX
         /// <summary>
         /// Preserves the native result and writes the output of NVSDK_NGX_VULKAN_GetScratchBufferSize.
         /// </summary>
-        public static global::NGX.NET.NGXResult GetScratchBufferSize(global::NGX.NET.NGXFeature InFeatureId, global::NGX.NET.NGXParameter* InParameters, out nuint value)
+        public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, out nuint value)
         {
             value = default;
 
             fixed (nuint* pointer = &value)
             {
-                return GetScratchBufferSize(InFeatureId, InParameters, pointer);
+                return GetScratchBufferSize(inFeatureId, inParameters, pointer);
             }
         }
 
@@ -546,16 +546,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Init(ulong InApplicationId, void* InApplicationDataPath, nint InInstance, nint InPD, nint InDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGDPA, global::NGX.NET.NGXFeatureCommonInfo* InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion);
+        public static partial NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGDPA, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_VULKAN_Init.
         /// </summary>
-        public static global::NGX.NET.NGXResult Init(ulong InApplicationId, void* InApplicationDataPath, nint InInstance, nint InPD, nint InDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGDPA, ref global::NGX.NET.NGXFeatureCommonInfo InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion)
+        public static NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGDPA, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
         {
-            fixed (global::NGX.NET.NGXFeatureCommonInfo* pointer0 = &InFeatureInfo)
+            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
             {
-                return Init(InApplicationId, InApplicationDataPath, InInstance, InPD, InDevice, InGIPA, InGDPA, pointer0, InSDKVersion);
+                return Init(inApplicationId, inApplicationDataPath, inInstance, inPD, inDevice, inGIPA, inGDPA, pointer0, inSDKVersion);
             }
         }
 
@@ -564,16 +564,16 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult InitWithProjectID(sbyte* InProjectId, global::NGX.NET.NGXEngineType InEngineType, sbyte* InEngineVersion, void* InApplicationDataPath, nint InInstance, nint InPD, nint InDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGDPA, global::NGX.NET.NGXFeatureCommonInfo* InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion);
+        public static partial NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGDPA, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
 
         /// <summary>
         /// Pins native structures for NVSDK_NGX_VULKAN_Init_with_ProjectID.
         /// </summary>
-        public static global::NGX.NET.NGXResult InitWithProjectID(sbyte* InProjectId, global::NGX.NET.NGXEngineType InEngineType, sbyte* InEngineVersion, void* InApplicationDataPath, nint InInstance, nint InPD, nint InDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> InGDPA, ref global::NGX.NET.NGXFeatureCommonInfo InFeatureInfo, global::NGX.NET.NGXVersion InSDKVersion)
+        public static NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGIPA, delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>> inGDPA, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
         {
-            fixed (global::NGX.NET.NGXFeatureCommonInfo* pointer0 = &InFeatureInfo)
+            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
             {
-                return InitWithProjectID(InProjectId, InEngineType, InEngineVersion, InApplicationDataPath, InInstance, InPD, InDevice, InGIPA, InGDPA, pointer0, InSDKVersion);
+                return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, inInstance, inPD, inDevice, inGIPA, inGDPA, pointer0, inSDKVersion);
             }
         }
 
@@ -582,28 +582,28 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult ReleaseFeature(global::NGX.NET.NGXHandle* InHandle);
+        public static partial NGXResult ReleaseFeature(NGXHandle* inHandle);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_RequiredExtensions. Source: nvsdk_ngx_vk.h:114.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_RequiredExtensions")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult RequiredExtensions(uint* OutInstanceExtCount, sbyte*** OutInstanceExts, uint* OutDeviceExtCount, sbyte*** OutDeviceExts);
+        public static partial NGXResult RequiredExtensions(uint* outInstanceExtCount, sbyte*** outInstanceExts, uint* outDeviceExtCount, sbyte*** outDeviceExts);
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_Shutdown. Source: nvsdk_ngx_vk.h:286.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Shutdown();
+        public static partial NGXResult Shutdown();
 
         /// <summary>
         /// NVSDK_NGX_VULKAN_Shutdown1. Source: nvsdk_ngx_vk.h:288.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult Shutdown1(nint InDevice);
+        public static partial NGXResult Shutdown1(nint inDevice);
 
     }
 }

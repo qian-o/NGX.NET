@@ -46,6 +46,6 @@ public unsafe partial struct NGXFeatureCreateParams
     /// </summary>
     [NGXNativeName("InPerfQualityValue")]
     [FieldOffset(16)]
-    public global::NGX.NET.NGXPerfQualityValue InPerfQualityValue;
+    public NGXPerfQualityValue InPerfQualityValue;
 
 }

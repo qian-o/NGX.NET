@@ -18,7 +18,7 @@ public unsafe partial struct NGXDLDenoiseCreateParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXFeatureCreateParams Feature;
+    public NGXFeatureCreateParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_DLDenoise_Create_Params::InFeatureCreateFlags

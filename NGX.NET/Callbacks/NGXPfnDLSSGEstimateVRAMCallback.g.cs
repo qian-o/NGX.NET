@@ -10,10 +10,10 @@ namespace NGX.NET;
 /// </summary>
 [NGXNativeName("PFN_NVSDK_NGX_DLSSG_EstimateVRAMCallback")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct NGXPfnDLSSGEstimateVRAMCallback(delegate* unmanaged[Cdecl]<uint, uint, uint, uint, uint, uint, uint, uint, uint, ulong*, global::NGX.NET.NGXResult> pointer)
+public readonly unsafe struct NGXPfnDLSSGEstimateVRAMCallback(delegate* unmanaged[Cdecl]<uint, uint, uint, uint, uint, uint, uint, uint, uint, ulong*, NGXResult> pointer)
 {
     /// <summary>
     /// Native C callback pointer. C++ reference parameters use their pointer ABI.
     /// </summary>
-    public readonly delegate* unmanaged[Cdecl]<uint, uint, uint, uint, uint, uint, uint, uint, uint, ulong*, global::NGX.NET.NGXResult> Pointer = pointer;
+    public readonly delegate* unmanaged[Cdecl]<uint, uint, uint, uint, uint, uint, uint, uint, uint, ulong*, NGXResult> Pointer = pointer;
 }

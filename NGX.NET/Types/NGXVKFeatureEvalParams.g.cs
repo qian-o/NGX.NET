@@ -18,14 +18,14 @@ public unsafe partial struct NGXVKFeatureEvalParams
     /// </summary>
     [NGXNativeName("pInColor")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXResourceVK* PInColor;
+    public NGXResourceVK* PInColor;
 
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::pInOutput
     /// </summary>
     [NGXNativeName("pInOutput")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXResourceVK* PInOutput;
+    public NGXResourceVK* PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::InSharpness

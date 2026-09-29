@@ -26,7 +26,7 @@ public unsafe partial struct NGXVKGBuffer
     [InlineArray(17)]
     public struct NGXPInAttribBuffer
     {
-        private global::NGX.NET.NGXPointer<global::NGX.NET.NGXResourceVK> element;
+        private NGXPointer<NGXResourceVK> element;
     }
 
 }

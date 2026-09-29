@@ -25,7 +25,7 @@ public unsafe partial struct NGXProjectIdDescription
     /// </summary>
     [NGXNativeName("EngineType")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXEngineType EngineType;
+    public NGXEngineType EngineType;
 
     /// <summary>
     /// NVSDK_NGX_ProjectIdDescription::EngineVersion

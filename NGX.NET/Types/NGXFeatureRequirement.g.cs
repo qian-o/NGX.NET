@@ -18,7 +18,7 @@ public unsafe partial struct NGXFeatureRequirement
     /// </summary>
     [NGXNativeName("FeatureSupported")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXFeatureSupportResult FeatureSupported;
+    public NGXFeatureSupportResult FeatureSupported;
 
     /// <summary>
     /// NVSDK_NGX_FeatureRequirement::MinHWArchitecture

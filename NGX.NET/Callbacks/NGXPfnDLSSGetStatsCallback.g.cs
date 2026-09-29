@@ -10,10 +10,10 @@ namespace NGX.NET;
 /// </summary>
 [NGXNativeName("PFN_NVSDK_NGX_DLSS_GetStatsCallback")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct NGXPfnDLSSGetStatsCallback(delegate* unmanaged[Cdecl]<global::NGX.NET.NGXParameter*, global::NGX.NET.NGXResult> pointer)
+public readonly unsafe struct NGXPfnDLSSGetStatsCallback(delegate* unmanaged[Cdecl]<NGXParameter*, NGXResult> pointer)
 {
     /// <summary>
     /// Native C callback pointer. C++ reference parameters use their pointer ABI.
     /// </summary>
-    public readonly delegate* unmanaged[Cdecl]<global::NGX.NET.NGXParameter*, global::NGX.NET.NGXResult> Pointer = pointer;
+    public readonly delegate* unmanaged[Cdecl]<NGXParameter*, NGXResult> Pointer = pointer;
 }

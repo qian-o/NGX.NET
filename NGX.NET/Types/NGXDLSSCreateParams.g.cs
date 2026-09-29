@@ -18,7 +18,7 @@ public unsafe partial struct NGXDLSSCreateParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXFeatureCreateParams Feature;
+    public NGXFeatureCreateParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Create_Params::InFeatureCreateFlags
@@ -32,6 +32,6 @@ public unsafe partial struct NGXDLSSCreateParams
     /// </summary>
     [NGXNativeName("InEnableOutputSubrects")]
     [FieldOffset(24)]
-    public global::NGX.NET.NGXBool8 InEnableOutputSubrects;
+    public NGXBool8 InEnableOutputSubrects;
 
 }

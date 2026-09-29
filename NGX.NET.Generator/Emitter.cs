@@ -177,6 +177,26 @@ internal sealed partial class Emitter
     // PascalCase names cannot collide with C#'s lowercase keywords.
     private static string FieldName(string name) => name == "v" ? "V" : Name(name);
 
+    private static string ParameterName(string native)
+    {
+        string name = Name(native);
+        // Preserve existing camelCase prefixes, such as pVRAMAllocatedBytes.
+        name = char.IsLower(native[0]) ? char.ToLowerInvariant(name[0]) + name[1..] : JsonNamingPolicy.CamelCase.ConvertName(name);
+
+        return name switch
+        {
+            "abstract" or "as" or "base" or "bool" or "break" or "byte" or "case" or "catch" or "char" or "checked" or
+            "class" or "const" or "continue" or "decimal" or "default" or "delegate" or "do" or "double" or "else" or "enum" or
+            "event" or "explicit" or "extern" or "false" or "finally" or "fixed" or "float" or "for" or "foreach" or "goto" or
+            "if" or "implicit" or "in" or "int" or "interface" or "internal" or "is" or "lock" or "long" or "namespace" or
+            "new" or "null" or "object" or "operator" or "out" or "override" or "params" or "private" or "protected" or "public" or
+            "readonly" or "ref" or "return" or "sbyte" or "sealed" or "short" or "sizeof" or "stackalloc" or "static" or "string" or
+            "struct" or "switch" or "this" or "throw" or "true" or "try" or "typeof" or "uint" or "ulong" or "unchecked" or
+            "unsafe" or "ushort" or "using" or "virtual" or "void" or "volatile" or "while" => "@" + name,
+            _ => name
+        };
+    }
+
     private static (string Group, string Method) FunctionName(string native)
     {
         if (native == "GetNGXResultAsString")
@@ -232,13 +252,13 @@ internal sealed partial class Emitter
 
         if (kind is "ENUM" or "RECORD")
         {
-            return "global::NGX.NET." + unionNames.GetValueOrDefault(type.Text("name"), TypeName(type.Text("name")));
+            return unionNames.GetValueOrDefault(type.Text("name"), TypeName(type.Text("name")));
         }
 
         return kind switch
         {
             "VOID" => "void",
-            "BOOL" => "global::NGX.NET.NGXBool8",
+            "BOOL" => "NGXBool8",
             "CHAR_S" or "CHAR_U" or "SCHAR" => "sbyte",
             "UCHAR" => "byte",
             "SHORT" => "short",
@@ -337,7 +357,7 @@ internal sealed partial class Emitter
                 {
                     if (element.EndsWith('*'))
                     {
-                        element = "global::NGX.NET.NGXPointer<" + element[..^1] + ">";
+                        element = "NGXPointer<" + element[..^1] + ">";
                     }
 
                     string arrayName = TypeName(fieldName) + "Buffer";
@@ -408,7 +428,7 @@ internal sealed partial class Emitter
             string method = FunctionName(native).Method;
             string result = Type(function.GetProperty("result"));
             JsonElement[] parameters = [.. function.Items("parameters")];
-            string args = string.Join(", ", parameters.Select(p => Type(p.GetProperty("type")) + " " + FieldName(p.Text("name"))));
+            string args = string.Join(", ", parameters.Select(p => Type(p.GetProperty("type")) + " " + ParameterName(p.Text("name"))));
             text.Append(Summary($"{native}. Source: {function.Text("header")}:{function.Number("line")}.", indent));
             text.AppendLine($"{spaces}[LibraryImport(LibraryName, EntryPoint = \"{function.Text("export")}\")]");
             text.AppendLine($"{spaces}[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
@@ -436,7 +456,7 @@ internal sealed partial class Emitter
         foreach (JsonElement parameter in parameters)
         {
             JsonElement type = parameter.GetProperty("type");
-            string name = FieldName(parameter.Text("name"));
+            string name = ParameterName(parameter.Text("name"));
             string mapped = Type(type);
 
             if (type.Text("kind") == "POINTER" && type.GetProperty("element").Text("kind") == "RECORD" && !records[type.GetProperty("element").Text("name")].GetProperty("opaque").GetBoolean())
@@ -472,7 +492,7 @@ internal sealed partial class Emitter
             string valueType = Type(parameters[2].GetProperty("type"));
             string valueName = getter ? "out " + valueType[..^1] + " value" : valueType + " value";
             text.Append(Summary("Uses a UTF-8 parameter name with " + native + ".", indent));
-            text.AppendLine($"{spaces}public static {result} {method}(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, {valueName})\n{spaces}{{");
+            text.AppendLine($"{spaces}public static {result} {method}(NGXParameter* parameters, ReadOnlySpan<byte> name, {valueName})\n{spaces}{{");
             text.AppendLine($"{spaces}    byte[] terminated = new byte[name.Length + 1];\n{spaces}    name.CopyTo(terminated);\n{spaces}    terminated[^1] = 0;");
 
             if (getter)
@@ -486,7 +506,7 @@ internal sealed partial class Emitter
             if (getter)
             {
                 text.Append(Summary("Returns a typed parameter value and throws on NGX failure.", indent));
-                text.AppendLine($"{spaces}public static {valueType[..^1]} {method}(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)\n{spaces}{{\n{spaces}    ThrowIfFailed({method}(parameters, name, out {valueType[..^1]} value), \"{native}\");\n\n{spaces}    return value;\n{spaces}}}\n");
+                text.AppendLine($"{spaces}public static {valueType[..^1]} {method}(NGXParameter* parameters, ReadOnlySpan<byte> name)\n{spaces}{{\n{spaces}    ThrowIfFailed({method}(parameters, name, out {valueType[..^1]} value), \"{native}\");\n\n{spaces}    return value;\n{spaces}}}\n");
             }
         }
 
@@ -495,14 +515,14 @@ internal sealed partial class Emitter
         int output = Array.FindIndex(parameters, p => p.Text("name") is "OutParameters" or "OutHandle" or "ppOutHandle" or "OutSizeInBytes");
         bool reviewed = OutputContracts.Contains(native);
 
-        if (reviewed && output >= 0 && result == "global::NGX.NET.NGXResult")
+        if (reviewed && output >= 0 && result == "NGXResult")
         {
             string outputType = Type(parameters[output].GetProperty("type"))[..^1];
-            string args = string.Join(", ", parameters.Where((_, i) => i != output).Select(p => Type(p.GetProperty("type")) + " " + FieldName(p.Text("name"))));
-            string call = string.Join(", ", parameters.Select((p, i) => i == output ? "&value" : FieldName(p.Text("name"))));
+            string args = string.Join(", ", parameters.Where((_, i) => i != output).Select(p => Type(p.GetProperty("type")) + " " + ParameterName(p.Text("name"))));
+            string call = string.Join(", ", parameters.Select((p, i) => i == output ? "&value" : ParameterName(p.Text("name"))));
             text.Append(Summary("Returns the reviewed output of " + native + "; throws on NGX failure. The caller owns any returned handle or parameter map.", indent));
             text.AppendLine($"{spaces}public static {outputType} {method}({args})\n{spaces}{{\n{spaces}    {outputType} value = default;\n{spaces}    ThrowIfFailed({method}({call}), \"{native}\");\n\n{spaces}    return value;\n{spaces}}}\n");
-            string outArgs = string.Join(", ", parameters.Select((p, i) => i == output ? "out " + outputType + " value" : Type(p.GetProperty("type")) + " " + FieldName(p.Text("name"))));
+            string outArgs = string.Join(", ", parameters.Select((p, i) => i == output ? "out " + outputType + " value" : Type(p.GetProperty("type")) + " " + ParameterName(p.Text("name"))));
             text.Append(Summary("Preserves the native result and writes the output of " + native + ".", indent));
             text.AppendLine($"{spaces}public static {result} {method}({outArgs})\n{spaces}{{\n{spaces}    value = default;\n\n{spaces}    fixed ({outputType}* pointer = &value)\n{spaces}    {{\n{spaces}        return {method}({call.Replace("&value", "pointer", StringComparison.Ordinal)});\n{spaces}    }}\n{spaces}}}\n");
         }

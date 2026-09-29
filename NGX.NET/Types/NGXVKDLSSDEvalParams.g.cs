@@ -18,70 +18,70 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("pInDiffuseAlbedo")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXResourceVK* PInDiffuseAlbedo;
+    public NGXResourceVK* PInDiffuseAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInSpecularAlbedo
     /// </summary>
     [NGXNativeName("pInSpecularAlbedo")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXResourceVK* PInSpecularAlbedo;
+    public NGXResourceVK* PInSpecularAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInNormals
     /// </summary>
     [NGXNativeName("pInNormals")]
     [FieldOffset(16)]
-    public global::NGX.NET.NGXResourceVK* PInNormals;
+    public NGXResourceVK* PInNormals;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInRoughness
     /// </summary>
     [NGXNativeName("pInRoughness")]
     [FieldOffset(24)]
-    public global::NGX.NET.NGXResourceVK* PInRoughness;
+    public NGXResourceVK* PInRoughness;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColor
     /// </summary>
     [NGXNativeName("pInColor")]
     [FieldOffset(32)]
-    public global::NGX.NET.NGXResourceVK* PInColor;
+    public NGXResourceVK* PInColor;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInAlpha
     /// </summary>
     [NGXNativeName("pInAlpha")]
     [FieldOffset(40)]
-    public global::NGX.NET.NGXResourceVK* PInAlpha;
+    public NGXResourceVK* PInAlpha;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInOutput
     /// </summary>
     [NGXNativeName("pInOutput")]
     [FieldOffset(48)]
-    public global::NGX.NET.NGXResourceVK* PInOutput;
+    public NGXResourceVK* PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInOutputAlpha
     /// </summary>
     [NGXNativeName("pInOutputAlpha")]
     [FieldOffset(56)]
-    public global::NGX.NET.NGXResourceVK* PInOutputAlpha;
+    public NGXResourceVK* PInOutputAlpha;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDepth
     /// </summary>
     [NGXNativeName("pInDepth")]
     [FieldOffset(64)]
-    public global::NGX.NET.NGXResourceVK* PInDepth;
+    public NGXResourceVK* PInDepth;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInMotionVectors
     /// </summary>
     [NGXNativeName("pInMotionVectors")]
     [FieldOffset(72)]
-    public global::NGX.NET.NGXResourceVK* PInMotionVectors;
+    public NGXResourceVK* PInMotionVectors;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InJitterOffsetX
@@ -102,7 +102,7 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("InRenderSubrectDimensions")]
     [FieldOffset(88)]
-    public global::NGX.NET.NGXDimensions InRenderSubrectDimensions;
+    public NGXDimensions InRenderSubrectDimensions;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InReset
@@ -130,105 +130,105 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("pInTransparencyMask")]
     [FieldOffset(112)]
-    public global::NGX.NET.NGXResourceVK* PInTransparencyMask;
+    public NGXResourceVK* PInTransparencyMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInExposureTexture
     /// </summary>
     [NGXNativeName("pInExposureTexture")]
     [FieldOffset(120)]
-    public global::NGX.NET.NGXResourceVK* PInExposureTexture;
+    public NGXResourceVK* PInExposureTexture;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInBiasCurrentColorMask
     /// </summary>
     [NGXNativeName("pInBiasCurrentColorMask")]
     [FieldOffset(128)]
-    public global::NGX.NET.NGXResourceVK* PInBiasCurrentColorMask;
+    public NGXResourceVK* PInBiasCurrentColorMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InAlphaSubrectBase
     /// </summary>
     [NGXNativeName("InAlphaSubrectBase")]
     [FieldOffset(136)]
-    public global::NGX.NET.NGXCoordinates InAlphaSubrectBase;
+    public NGXCoordinates InAlphaSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InOutputAlphaSubrectBase
     /// </summary>
     [NGXNativeName("InOutputAlphaSubrectBase")]
     [FieldOffset(144)]
-    public global::NGX.NET.NGXCoordinates InOutputAlphaSubrectBase;
+    public NGXCoordinates InOutputAlphaSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDiffuseAlbedoSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseAlbedoSubrectBase")]
     [FieldOffset(152)]
-    public global::NGX.NET.NGXCoordinates InDiffuseAlbedoSubrectBase;
+    public NGXCoordinates InDiffuseAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InSpecularAlbedoSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularAlbedoSubrectBase")]
     [FieldOffset(160)]
-    public global::NGX.NET.NGXCoordinates InSpecularAlbedoSubrectBase;
+    public NGXCoordinates InSpecularAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InNormalsSubrectBase
     /// </summary>
     [NGXNativeName("InNormalsSubrectBase")]
     [FieldOffset(168)]
-    public global::NGX.NET.NGXCoordinates InNormalsSubrectBase;
+    public NGXCoordinates InNormalsSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InRoughnessSubrectBase
     /// </summary>
     [NGXNativeName("InRoughnessSubrectBase")]
     [FieldOffset(176)]
-    public global::NGX.NET.NGXCoordinates InRoughnessSubrectBase;
+    public NGXCoordinates InRoughnessSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorSubrectBase
     /// </summary>
     [NGXNativeName("InColorSubrectBase")]
     [FieldOffset(184)]
-    public global::NGX.NET.NGXCoordinates InColorSubrectBase;
+    public NGXCoordinates InColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDepthSubrectBase
     /// </summary>
     [NGXNativeName("InDepthSubrectBase")]
     [FieldOffset(192)]
-    public global::NGX.NET.NGXCoordinates InDepthSubrectBase;
+    public NGXCoordinates InDepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InMVSubrectBase
     /// </summary>
     [NGXNativeName("InMVSubrectBase")]
     [FieldOffset(200)]
-    public global::NGX.NET.NGXCoordinates InMVSubrectBase;
+    public NGXCoordinates InMVSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InTranslucencySubrectBase
     /// </summary>
     [NGXNativeName("InTranslucencySubrectBase")]
     [FieldOffset(208)]
-    public global::NGX.NET.NGXCoordinates InTranslucencySubrectBase;
+    public NGXCoordinates InTranslucencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InBiasCurrentColorSubrectBase
     /// </summary>
     [NGXNativeName("InBiasCurrentColorSubrectBase")]
     [FieldOffset(216)]
-    public global::NGX.NET.NGXCoordinates InBiasCurrentColorSubrectBase;
+    public NGXCoordinates InBiasCurrentColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InOutputSubrectBase
     /// </summary>
     [NGXNativeName("InOutputSubrectBase")]
     [FieldOffset(224)]
-    public global::NGX.NET.NGXCoordinates InOutputSubrectBase;
+    public NGXCoordinates InOutputSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InPreExposure
@@ -263,308 +263,308 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("pInReflectedAlbedo")]
     [FieldOffset(248)]
-    public global::NGX.NET.NGXResourceVK* PInReflectedAlbedo;
+    public NGXResourceVK* PInReflectedAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeParticles
     /// </summary>
     [NGXNativeName("pInColorBeforeParticles")]
     [FieldOffset(256)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeParticles;
+    public NGXResourceVK* PInColorBeforeParticles;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterParticles
     /// </summary>
     [NGXNativeName("pInColorAfterParticles")]
     [FieldOffset(264)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterParticles;
+    public NGXResourceVK* PInColorAfterParticles;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeTransparency
     /// </summary>
     [NGXNativeName("pInColorBeforeTransparency")]
     [FieldOffset(272)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeTransparency;
+    public NGXResourceVK* PInColorBeforeTransparency;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterTransparency
     /// </summary>
     [NGXNativeName("pInColorAfterTransparency")]
     [FieldOffset(280)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterTransparency;
+    public NGXResourceVK* PInColorAfterTransparency;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeFog
     /// </summary>
     [NGXNativeName("pInColorBeforeFog")]
     [FieldOffset(288)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeFog;
+    public NGXResourceVK* PInColorBeforeFog;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterFog
     /// </summary>
     [NGXNativeName("pInColorAfterFog")]
     [FieldOffset(296)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterFog;
+    public NGXResourceVK* PInColorAfterFog;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInScreenSpaceSubsurfaceScatteringGuide
     /// </summary>
     [NGXNativeName("pInScreenSpaceSubsurfaceScatteringGuide")]
     [FieldOffset(304)]
-    public global::NGX.NET.NGXResourceVK* PInScreenSpaceSubsurfaceScatteringGuide;
+    public NGXResourceVK* PInScreenSpaceSubsurfaceScatteringGuide;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeScreenSpaceSubsurfaceScattering
     /// </summary>
     [NGXNativeName("pInColorBeforeScreenSpaceSubsurfaceScattering")]
     [FieldOffset(312)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeScreenSpaceSubsurfaceScattering;
+    public NGXResourceVK* PInColorBeforeScreenSpaceSubsurfaceScattering;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterScreenSpaceSubsurfaceScattering
     /// </summary>
     [NGXNativeName("pInColorAfterScreenSpaceSubsurfaceScattering")]
     [FieldOffset(320)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterScreenSpaceSubsurfaceScattering;
+    public NGXResourceVK* PInColorAfterScreenSpaceSubsurfaceScattering;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInScreenSpaceRefractionGuide
     /// </summary>
     [NGXNativeName("pInScreenSpaceRefractionGuide")]
     [FieldOffset(328)]
-    public global::NGX.NET.NGXResourceVK* PInScreenSpaceRefractionGuide;
+    public NGXResourceVK* PInScreenSpaceRefractionGuide;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeScreenSpaceRefraction
     /// </summary>
     [NGXNativeName("pInColorBeforeScreenSpaceRefraction")]
     [FieldOffset(336)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeScreenSpaceRefraction;
+    public NGXResourceVK* PInColorBeforeScreenSpaceRefraction;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterScreenSpaceRefraction
     /// </summary>
     [NGXNativeName("pInColorAfterScreenSpaceRefraction")]
     [FieldOffset(344)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterScreenSpaceRefraction;
+    public NGXResourceVK* PInColorAfterScreenSpaceRefraction;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDepthOfFieldGuide
     /// </summary>
     [NGXNativeName("pInDepthOfFieldGuide")]
     [FieldOffset(352)]
-    public global::NGX.NET.NGXResourceVK* PInDepthOfFieldGuide;
+    public NGXResourceVK* PInDepthOfFieldGuide;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorBeforeDepthOfField
     /// </summary>
     [NGXNativeName("pInColorBeforeDepthOfField")]
     [FieldOffset(360)]
-    public global::NGX.NET.NGXResourceVK* PInColorBeforeDepthOfField;
+    public NGXResourceVK* PInColorBeforeDepthOfField;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInColorAfterDepthOfField
     /// </summary>
     [NGXNativeName("pInColorAfterDepthOfField")]
     [FieldOffset(368)]
-    public global::NGX.NET.NGXResourceVK* PInColorAfterDepthOfField;
+    public NGXResourceVK* PInColorAfterDepthOfField;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDiffuseHitDistance
     /// </summary>
     [NGXNativeName("pInDiffuseHitDistance")]
     [FieldOffset(376)]
-    public global::NGX.NET.NGXResourceVK* PInDiffuseHitDistance;
+    public NGXResourceVK* PInDiffuseHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInSpecularHitDistance
     /// </summary>
     [NGXNativeName("pInSpecularHitDistance")]
     [FieldOffset(384)]
-    public global::NGX.NET.NGXResourceVK* PInSpecularHitDistance;
+    public NGXResourceVK* PInSpecularHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDiffuseRayDirection
     /// </summary>
     [NGXNativeName("pInDiffuseRayDirection")]
     [FieldOffset(392)]
-    public global::NGX.NET.NGXResourceVK* PInDiffuseRayDirection;
+    public NGXResourceVK* PInDiffuseRayDirection;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInSpecularRayDirection
     /// </summary>
     [NGXNativeName("pInSpecularRayDirection")]
     [FieldOffset(400)]
-    public global::NGX.NET.NGXResourceVK* PInSpecularRayDirection;
+    public NGXResourceVK* PInSpecularRayDirection;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDiffuseRayDirectionHitDistance
     /// </summary>
     [NGXNativeName("pInDiffuseRayDirectionHitDistance")]
     [FieldOffset(408)]
-    public global::NGX.NET.NGXResourceVK* PInDiffuseRayDirectionHitDistance;
+    public NGXResourceVK* PInDiffuseRayDirectionHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInSpecularRayDirectionHitDistance
     /// </summary>
     [NGXNativeName("pInSpecularRayDirectionHitDistance")]
     [FieldOffset(416)]
-    public global::NGX.NET.NGXResourceVK* PInSpecularRayDirectionHitDistance;
+    public NGXResourceVK* PInSpecularRayDirectionHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InReflectedAlbedoSubrectBase
     /// </summary>
     [NGXNativeName("InReflectedAlbedoSubrectBase")]
     [FieldOffset(424)]
-    public global::NGX.NET.NGXCoordinates InReflectedAlbedoSubrectBase;
+    public NGXCoordinates InReflectedAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeParticlesSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeParticlesSubrectBase")]
     [FieldOffset(432)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeParticlesSubrectBase;
+    public NGXCoordinates InColorBeforeParticlesSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterParticlesSubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterParticlesSubrectBase")]
     [FieldOffset(440)]
-    public global::NGX.NET.NGXCoordinates InColorAfterParticlesSubrectBase;
+    public NGXCoordinates InColorAfterParticlesSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeTransparencySubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeTransparencySubrectBase")]
     [FieldOffset(448)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeTransparencySubrectBase;
+    public NGXCoordinates InColorBeforeTransparencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterTransparencySubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterTransparencySubrectBase")]
     [FieldOffset(456)]
-    public global::NGX.NET.NGXCoordinates InColorAfterTransparencySubrectBase;
+    public NGXCoordinates InColorAfterTransparencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeFogSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeFogSubrectBase")]
     [FieldOffset(464)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeFogSubrectBase;
+    public NGXCoordinates InColorBeforeFogSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterFogSubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterFogSubrectBase")]
     [FieldOffset(472)]
-    public global::NGX.NET.NGXCoordinates InColorAfterFogSubrectBase;
+    public NGXCoordinates InColorAfterFogSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InScreenSpaceSubsurfaceScatteringGuideSubrectBase
     /// </summary>
     [NGXNativeName("InScreenSpaceSubsurfaceScatteringGuideSubrectBase")]
     [FieldOffset(480)]
-    public global::NGX.NET.NGXCoordinates InScreenSpaceSubsurfaceScatteringGuideSubrectBase;
+    public NGXCoordinates InScreenSpaceSubsurfaceScatteringGuideSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase")]
     [FieldOffset(488)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase;
+    public NGXCoordinates InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase")]
     [FieldOffset(496)]
-    public global::NGX.NET.NGXCoordinates InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase;
+    public NGXCoordinates InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InScreenSpaceRefractionGuideSubrectBase
     /// </summary>
     [NGXNativeName("InScreenSpaceRefractionGuideSubrectBase")]
     [FieldOffset(504)]
-    public global::NGX.NET.NGXCoordinates InScreenSpaceRefractionGuideSubrectBase;
+    public NGXCoordinates InScreenSpaceRefractionGuideSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeScreenSpaceRefractionSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeScreenSpaceRefractionSubrectBase")]
     [FieldOffset(512)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeScreenSpaceRefractionSubrectBase;
+    public NGXCoordinates InColorBeforeScreenSpaceRefractionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterScreenSpaceRefractionSubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterScreenSpaceRefractionSubrectBase")]
     [FieldOffset(520)]
-    public global::NGX.NET.NGXCoordinates InColorAfterScreenSpaceRefractionSubrectBase;
+    public NGXCoordinates InColorAfterScreenSpaceRefractionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDepthOfFieldGuideSubrectBase
     /// </summary>
     [NGXNativeName("InDepthOfFieldGuideSubrectBase")]
     [FieldOffset(528)]
-    public global::NGX.NET.NGXCoordinates InDepthOfFieldGuideSubrectBase;
+    public NGXCoordinates InDepthOfFieldGuideSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorBeforeDepthOfFieldSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeDepthOfFieldSubrectBase")]
     [FieldOffset(536)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeDepthOfFieldSubrectBase;
+    public NGXCoordinates InColorBeforeDepthOfFieldSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InColorAfterDepthOfFieldSubrectBase
     /// </summary>
     [NGXNativeName("InColorAfterDepthOfFieldSubrectBase")]
     [FieldOffset(544)]
-    public global::NGX.NET.NGXCoordinates InColorAfterDepthOfFieldSubrectBase;
+    public NGXCoordinates InColorAfterDepthOfFieldSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDiffuseHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseHitDistanceSubrectBase")]
     [FieldOffset(552)]
-    public global::NGX.NET.NGXCoordinates InDiffuseHitDistanceSubrectBase;
+    public NGXCoordinates InDiffuseHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InSpecularHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularHitDistanceSubrectBase")]
     [FieldOffset(560)]
-    public global::NGX.NET.NGXCoordinates InSpecularHitDistanceSubrectBase;
+    public NGXCoordinates InSpecularHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDiffuseRayDirectionSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseRayDirectionSubrectBase")]
     [FieldOffset(568)]
-    public global::NGX.NET.NGXCoordinates InDiffuseRayDirectionSubrectBase;
+    public NGXCoordinates InDiffuseRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InSpecularRayDirectionSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularRayDirectionSubrectBase")]
     [FieldOffset(576)]
-    public global::NGX.NET.NGXCoordinates InSpecularRayDirectionSubrectBase;
+    public NGXCoordinates InSpecularRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDiffuseRayDirectionHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(584)]
-    public global::NGX.NET.NGXCoordinates InDiffuseRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinates InDiffuseRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InSpecularRayDirectionHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(592)]
-    public global::NGX.NET.NGXCoordinates InSpecularRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinates InSpecularRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInWorldToViewMatrix
@@ -585,49 +585,49 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("GBufferSurface")]
     [FieldOffset(616)]
-    public global::NGX.NET.NGXVKGBuffer GBufferSurface;
+    public NGXVKGBuffer GBufferSurface;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InToneMapperType
     /// </summary>
     [NGXNativeName("InToneMapperType")]
     [FieldOffset(752)]
-    public global::NGX.NET.NGXToneMapperType InToneMapperType;
+    public NGXToneMapperType InToneMapperType;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInMotionVectors3D
     /// </summary>
     [NGXNativeName("pInMotionVectors3D")]
     [FieldOffset(760)]
-    public global::NGX.NET.NGXResourceVK* PInMotionVectors3D;
+    public NGXResourceVK* PInMotionVectors3D;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInIsParticleMask
     /// </summary>
     [NGXNativeName("pInIsParticleMask")]
     [FieldOffset(768)]
-    public global::NGX.NET.NGXResourceVK* PInIsParticleMask;
+    public NGXResourceVK* PInIsParticleMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInAnimatedTextureMask
     /// </summary>
     [NGXNativeName("pInAnimatedTextureMask")]
     [FieldOffset(776)]
-    public global::NGX.NET.NGXResourceVK* PInAnimatedTextureMask;
+    public NGXResourceVK* PInAnimatedTextureMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDepthHighRes
     /// </summary>
     [NGXNativeName("pInDepthHighRes")]
     [FieldOffset(784)]
-    public global::NGX.NET.NGXResourceVK* PInDepthHighRes;
+    public NGXResourceVK* PInDepthHighRes;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInPositionViewSpace
     /// </summary>
     [NGXNativeName("pInPositionViewSpace")]
     [FieldOffset(792)]
-    public global::NGX.NET.NGXResourceVK* PInPositionViewSpace;
+    public NGXResourceVK* PInPositionViewSpace;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InFrameTimeDeltaInMsec
@@ -641,83 +641,83 @@ public unsafe partial struct NGXVKDLSSDEvalParams
     /// </summary>
     [NGXNativeName("pInRayTracingHitDistance")]
     [FieldOffset(808)]
-    public global::NGX.NET.NGXResourceVK* PInRayTracingHitDistance;
+    public NGXResourceVK* PInRayTracingHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInMotionVectorsReflections
     /// </summary>
     [NGXNativeName("pInMotionVectorsReflections")]
     [FieldOffset(816)]
-    public global::NGX.NET.NGXResourceVK* PInMotionVectorsReflections;
+    public NGXResourceVK* PInMotionVectorsReflections;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInTransparencyLayer
     /// </summary>
     [NGXNativeName("pInTransparencyLayer")]
     [FieldOffset(824)]
-    public global::NGX.NET.NGXResourceVK* PInTransparencyLayer;
+    public NGXResourceVK* PInTransparencyLayer;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InTransparencyLayerSubrectBase
     /// </summary>
     [NGXNativeName("InTransparencyLayerSubrectBase")]
     [FieldOffset(832)]
-    public global::NGX.NET.NGXCoordinates InTransparencyLayerSubrectBase;
+    public NGXCoordinates InTransparencyLayerSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInTransparencyLayerOpacity
     /// </summary>
     [NGXNativeName("pInTransparencyLayerOpacity")]
     [FieldOffset(840)]
-    public global::NGX.NET.NGXResourceVK* PInTransparencyLayerOpacity;
+    public NGXResourceVK* PInTransparencyLayerOpacity;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InTransparencyLayerOpacitySubrectBase
     /// </summary>
     [NGXNativeName("InTransparencyLayerOpacitySubrectBase")]
     [FieldOffset(848)]
-    public global::NGX.NET.NGXCoordinates InTransparencyLayerOpacitySubrectBase;
+    public NGXCoordinates InTransparencyLayerOpacitySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInTransparencyLayerMvecs
     /// </summary>
     [NGXNativeName("pInTransparencyLayerMvecs")]
     [FieldOffset(856)]
-    public global::NGX.NET.NGXResourceVK* PInTransparencyLayerMvecs;
+    public NGXResourceVK* PInTransparencyLayerMvecs;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InTransparencyLayerMvecsSubrectBase
     /// </summary>
     [NGXNativeName("InTransparencyLayerMvecsSubrectBase")]
     [FieldOffset(864)]
-    public global::NGX.NET.NGXCoordinates InTransparencyLayerMvecsSubrectBase;
+    public NGXCoordinates InTransparencyLayerMvecsSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDisocclusionMask
     /// </summary>
     [NGXNativeName("pInDisocclusionMask")]
     [FieldOffset(872)]
-    public global::NGX.NET.NGXResourceVK* PInDisocclusionMask;
+    public NGXResourceVK* PInDisocclusionMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InDisocclusionMaskSubrectBase
     /// </summary>
     [NGXNativeName("InDisocclusionMaskSubrectBase")]
     [FieldOffset(880)]
-    public global::NGX.NET.NGXCoordinates InDisocclusionMaskSubrectBase;
+    public NGXCoordinates InDisocclusionMaskSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInResponsivityMask
     /// </summary>
     [NGXNativeName("pInResponsivityMask")]
     [FieldOffset(888)]
-    public global::NGX.NET.NGXResourceVK* PInResponsivityMask;
+    public NGXResourceVK* PInResponsivityMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::InResponsivityMaskSubrectBase
     /// </summary>
     [NGXNativeName("InResponsivityMaskSubrectBase")]
     [FieldOffset(896)]
-    public global::NGX.NET.NGXCoordinates InResponsivityMaskSubrectBase;
+    public NGXCoordinates InResponsivityMaskSubrectBase;
 
 }

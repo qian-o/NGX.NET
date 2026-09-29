@@ -53,6 +53,6 @@ public unsafe partial struct NGXDLSSGCreateParams
     /// </summary>
     [NGXNativeName("DynamicResolutionScaling")]
     [FieldOffset(20)]
-    public global::NGX.NET.NGXBool8 DynamicResolutionScaling;
+    public NGXBool8 DynamicResolutionScaling;
 
 }

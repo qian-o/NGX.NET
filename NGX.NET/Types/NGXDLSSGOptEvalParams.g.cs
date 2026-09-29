@@ -144,49 +144,49 @@ public unsafe partial struct NGXDLSSGOptEvalParams
     /// </summary>
     [NGXNativeName("colorBuffersHDR")]
     [FieldOffset(416)]
-    public global::NGX.NET.NGXBool8 ColorBuffersHDR;
+    public NGXBool8 ColorBuffersHDR;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::depthInverted
     /// </summary>
     [NGXNativeName("depthInverted")]
     [FieldOffset(417)]
-    public global::NGX.NET.NGXBool8 DepthInverted;
+    public NGXBool8 DepthInverted;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::cameraMotionIncluded
     /// </summary>
     [NGXNativeName("cameraMotionIncluded")]
     [FieldOffset(418)]
-    public global::NGX.NET.NGXBool8 CameraMotionIncluded;
+    public NGXBool8 CameraMotionIncluded;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::reset
     /// </summary>
     [NGXNativeName("reset")]
     [FieldOffset(419)]
-    public global::NGX.NET.NGXBool8 Reset;
+    public NGXBool8 Reset;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::automodeOverrideReset
     /// </summary>
     [NGXNativeName("automodeOverrideReset")]
     [FieldOffset(420)]
-    public global::NGX.NET.NGXBool8 AutomodeOverrideReset;
+    public NGXBool8 AutomodeOverrideReset;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::notRenderingGameFrames
     /// </summary>
     [NGXNativeName("notRenderingGameFrames")]
     [FieldOffset(421)]
-    public global::NGX.NET.NGXBool8 NotRenderingGameFrames;
+    public NGXBool8 NotRenderingGameFrames;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::orthoProjection
     /// </summary>
     [NGXNativeName("orthoProjection")]
     [FieldOffset(422)]
-    public global::NGX.NET.NGXBool8 OrthoProjection;
+    public NGXBool8 OrthoProjection;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::motionVectorsInvalidValue
@@ -200,105 +200,105 @@ public unsafe partial struct NGXDLSSGOptEvalParams
     /// </summary>
     [NGXNativeName("motionVectorsDilated")]
     [FieldOffset(428)]
-    public global::NGX.NET.NGXBool8 MotionVectorsDilated;
+    public NGXBool8 MotionVectorsDilated;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::menuDetectionEnabled
     /// </summary>
     [NGXNativeName("menuDetectionEnabled")]
     [FieldOffset(429)]
-    public global::NGX.NET.NGXBool8 MenuDetectionEnabled;
+    public NGXBool8 MenuDetectionEnabled;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::mvecsSubrectBase
     /// </summary>
     [NGXNativeName("mvecsSubrectBase")]
     [FieldOffset(432)]
-    public global::NGX.NET.NGXCoordinates MvecsSubrectBase;
+    public NGXCoordinates MvecsSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::mvecsSubrectSize
     /// </summary>
     [NGXNativeName("mvecsSubrectSize")]
     [FieldOffset(440)]
-    public global::NGX.NET.NGXDimensions MvecsSubrectSize;
+    public NGXDimensions MvecsSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::depthSubrectBase
     /// </summary>
     [NGXNativeName("depthSubrectBase")]
     [FieldOffset(448)]
-    public global::NGX.NET.NGXCoordinates DepthSubrectBase;
+    public NGXCoordinates DepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::depthSubrectSize
     /// </summary>
     [NGXNativeName("depthSubrectSize")]
     [FieldOffset(456)]
-    public global::NGX.NET.NGXDimensions DepthSubrectSize;
+    public NGXDimensions DepthSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::hudLessSubrectBase
     /// </summary>
     [NGXNativeName("hudLessSubrectBase")]
     [FieldOffset(464)]
-    public global::NGX.NET.NGXCoordinates HudLessSubrectBase;
+    public NGXCoordinates HudLessSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::hudLessSubrectSize
     /// </summary>
     [NGXNativeName("hudLessSubrectSize")]
     [FieldOffset(472)]
-    public global::NGX.NET.NGXDimensions HudLessSubrectSize;
+    public NGXDimensions HudLessSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::uiSubrectBase
     /// </summary>
     [NGXNativeName("uiSubrectBase")]
     [FieldOffset(480)]
-    public global::NGX.NET.NGXCoordinates UiSubrectBase;
+    public NGXCoordinates UiSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::uiSubrectSize
     /// </summary>
     [NGXNativeName("uiSubrectSize")]
     [FieldOffset(488)]
-    public global::NGX.NET.NGXDimensions UiSubrectSize;
+    public NGXDimensions UiSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::uiAlphaSubrectBase
     /// </summary>
     [NGXNativeName("uiAlphaSubrectBase")]
     [FieldOffset(496)]
-    public global::NGX.NET.NGXCoordinates UiAlphaSubrectBase;
+    public NGXCoordinates UiAlphaSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::uiAlphaSubrectSize
     /// </summary>
     [NGXNativeName("uiAlphaSubrectSize")]
     [FieldOffset(504)]
-    public global::NGX.NET.NGXDimensions UiAlphaSubrectSize;
+    public NGXDimensions UiAlphaSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::bidirectionalDistFieldSubrectBase
     /// </summary>
     [NGXNativeName("bidirectionalDistFieldSubrectBase")]
     [FieldOffset(512)]
-    public global::NGX.NET.NGXCoordinates BidirectionalDistFieldSubrectBase;
+    public NGXCoordinates BidirectionalDistFieldSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::bidirectionalDistFieldSubrectSize
     /// </summary>
     [NGXNativeName("bidirectionalDistFieldSubrectSize")]
     [FieldOffset(520)]
-    public global::NGX.NET.NGXDimensions BidirectionalDistFieldSubrectSize;
+    public NGXDimensions BidirectionalDistFieldSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::bidirectionalDistFieldPrecisionInfo
     /// </summary>
     [NGXNativeName("bidirectionalDistFieldPrecisionInfo")]
     [FieldOffset(528)]
-    public global::NGX.NET.NGXPrecisionInfo BidirectionalDistFieldPrecisionInfo;
+    public NGXPrecisionInfo BidirectionalDistFieldPrecisionInfo;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::minRelativeLinearDepthObjectSeparation
@@ -312,42 +312,42 @@ public unsafe partial struct NGXDLSSGOptEvalParams
     /// </summary>
     [NGXNativeName("backbufferSubrectBase")]
     [FieldOffset(544)]
-    public global::NGX.NET.NGXCoordinates BackbufferSubrectBase;
+    public NGXCoordinates BackbufferSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::backbufferSubrectSize
     /// </summary>
     [NGXNativeName("backbufferSubrectSize")]
     [FieldOffset(552)]
-    public global::NGX.NET.NGXDimensions BackbufferSubrectSize;
+    public NGXDimensions BackbufferSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::outputInterpSubrectBase
     /// </summary>
     [NGXNativeName("outputInterpSubrectBase")]
     [FieldOffset(560)]
-    public global::NGX.NET.NGXCoordinates OutputInterpSubrectBase;
+    public NGXCoordinates OutputInterpSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::outputInterpSubrectSize
     /// </summary>
     [NGXNativeName("outputInterpSubrectSize")]
     [FieldOffset(568)]
-    public global::NGX.NET.NGXDimensions OutputInterpSubrectSize;
+    public NGXDimensions OutputInterpSubrectSize;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::outputRealSubrectBase
     /// </summary>
     [NGXNativeName("outputRealSubrectBase")]
     [FieldOffset(576)]
-    public global::NGX.NET.NGXCoordinates OutputRealSubrectBase;
+    public NGXCoordinates OutputRealSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::outputRealSubrectSize
     /// </summary>
     [NGXNativeName("outputRealSubrectSize")]
     [FieldOffset(584)]
-    public global::NGX.NET.NGXDimensions OutputRealSubrectSize;
+    public NGXDimensions OutputRealSubrectSize;
 
     /// <summary>
     /// Initializes the defaults declared by the native SDK.

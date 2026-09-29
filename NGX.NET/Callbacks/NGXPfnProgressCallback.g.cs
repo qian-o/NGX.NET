@@ -10,10 +10,10 @@ namespace NGX.NET;
 /// </summary>
 [NGXNativeName("PFN_NVSDK_NGX_ProgressCallback")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct NGXPfnProgressCallback(delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> pointer)
+public readonly unsafe struct NGXPfnProgressCallback(delegate* unmanaged[Cdecl]<float, NGXBool8*, void> pointer)
 {
     /// <summary>
     /// Native C callback pointer. C++ reference parameters use their pointer ABI.
     /// </summary>
-    public readonly delegate* unmanaged[Cdecl]<float, global::NGX.NET.NGXBool8*, void> Pointer = pointer;
+    public readonly delegate* unmanaged[Cdecl]<float, NGXBool8*, void> Pointer = pointer;
 }

@@ -18,7 +18,7 @@ public unsafe partial struct NGXD3D12DLSSEvalParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXD3D12FeatureEvalParams Feature;
+    public NGXD3D12FeatureEvalParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::pInDepth
@@ -53,7 +53,7 @@ public unsafe partial struct NGXD3D12DLSSEvalParams
     /// </summary>
     [NGXNativeName("InRenderSubrectDimensions")]
     [FieldOffset(48)]
-    public global::NGX.NET.NGXDimensions InRenderSubrectDimensions;
+    public NGXDimensions InRenderSubrectDimensions;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InReset
@@ -102,42 +102,42 @@ public unsafe partial struct NGXD3D12DLSSEvalParams
     /// </summary>
     [NGXNativeName("InColorSubrectBase")]
     [FieldOffset(96)]
-    public global::NGX.NET.NGXCoordinates InColorSubrectBase;
+    public NGXCoordinates InColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InDepthSubrectBase
     /// </summary>
     [NGXNativeName("InDepthSubrectBase")]
     [FieldOffset(104)]
-    public global::NGX.NET.NGXCoordinates InDepthSubrectBase;
+    public NGXCoordinates InDepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InMVSubrectBase
     /// </summary>
     [NGXNativeName("InMVSubrectBase")]
     [FieldOffset(112)]
-    public global::NGX.NET.NGXCoordinates InMVSubrectBase;
+    public NGXCoordinates InMVSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InTranslucencySubrectBase
     /// </summary>
     [NGXNativeName("InTranslucencySubrectBase")]
     [FieldOffset(120)]
-    public global::NGX.NET.NGXCoordinates InTranslucencySubrectBase;
+    public NGXCoordinates InTranslucencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InBiasCurrentColorSubrectBase
     /// </summary>
     [NGXNativeName("InBiasCurrentColorSubrectBase")]
     [FieldOffset(128)]
-    public global::NGX.NET.NGXCoordinates InBiasCurrentColorSubrectBase;
+    public NGXCoordinates InBiasCurrentColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InOutputSubrectBase
     /// </summary>
     [NGXNativeName("InOutputSubrectBase")]
     [FieldOffset(136)]
-    public global::NGX.NET.NGXCoordinates InOutputSubrectBase;
+    public NGXCoordinates InOutputSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InPreExposure
@@ -172,14 +172,14 @@ public unsafe partial struct NGXD3D12DLSSEvalParams
     /// </summary>
     [NGXNativeName("GBufferSurface")]
     [FieldOffset(160)]
-    public global::NGX.NET.NGXD3D12GBuffer GBufferSurface;
+    public NGXD3D12GBuffer GBufferSurface;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::InToneMapperType
     /// </summary>
     [NGXNativeName("InToneMapperType")]
     [FieldOffset(296)]
-    public global::NGX.NET.NGXToneMapperType InToneMapperType;
+    public NGXToneMapperType InToneMapperType;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSS_Eval_Params::pInMotionVectors3D

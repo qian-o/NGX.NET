@@ -32,14 +32,14 @@ public unsafe partial struct NGXImageViewInfoVK
     /// </summary>
     [NGXNativeName("SubresourceRange")]
     [FieldOffset(16)]
-    public global::NGX.NET.NGXVkImageSubresourceRange SubresourceRange;
+    public NGXVkImageSubresourceRange SubresourceRange;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Format
     /// </summary>
     [NGXNativeName("Format")]
     [FieldOffset(36)]
-    public global::NGX.NET.NGXVkFormat Format;
+    public NGXVkFormat Format;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Width

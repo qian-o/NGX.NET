@@ -18,13 +18,13 @@ public unsafe partial struct NGXResourceVKUnion
     /// </summary>
     [NGXNativeName("ImageViewInfo")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXImageViewInfoVK ImageViewInfo;
+    public NGXImageViewInfoVK ImageViewInfo;
 
     /// <summary>
     /// Anonymous_94_5::BufferInfo
     /// </summary>
     [NGXNativeName("BufferInfo")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXBufferInfoVK BufferInfo;
+    public NGXBufferInfoVK BufferInfo;
 
 }

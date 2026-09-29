@@ -18,21 +18,21 @@ public unsafe partial struct NGXFeatureDiscoveryInfo
     /// </summary>
     [NGXNativeName("SDKVersion")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXVersion SDKVersion;
+    public NGXVersion SDKVersion;
 
     /// <summary>
     /// NVSDK_NGX_FeatureDiscoveryInfo::FeatureID
     /// </summary>
     [NGXNativeName("FeatureID")]
     [FieldOffset(4)]
-    public global::NGX.NET.NGXFeature FeatureID;
+    public NGXFeature FeatureID;
 
     /// <summary>
     /// NVSDK_NGX_FeatureDiscoveryInfo::Identifier
     /// </summary>
     [NGXNativeName("Identifier")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXApplicationIdentifier Identifier;
+    public NGXApplicationIdentifier Identifier;
 
     /// <summary>
     /// NVSDK_NGX_FeatureDiscoveryInfo::ApplicationDataPath
@@ -46,6 +46,6 @@ public unsafe partial struct NGXFeatureDiscoveryInfo
     /// </summary>
     [NGXNativeName("FeatureInfo")]
     [FieldOffset(48)]
-    public global::NGX.NET.NGXFeatureCommonInfo* FeatureInfo;
+    public NGXFeatureCommonInfo* FeatureInfo;
 
 }

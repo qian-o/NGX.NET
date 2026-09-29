@@ -18,20 +18,20 @@ public unsafe partial struct NGXResourceVK
     /// </summary>
     [NGXNativeName("Resource")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXResourceVKUnion Resource;
+    public NGXResourceVKUnion Resource;
 
     /// <summary>
     /// NVSDK_NGX_Resource_VK::Type
     /// </summary>
     [NGXNativeName("Type")]
     [FieldOffset(48)]
-    public global::NGX.NET.NGXResourceVKType Type;
+    public NGXResourceVKType Type;
 
     /// <summary>
     /// NVSDK_NGX_Resource_VK::ReadWrite
     /// </summary>
     [NGXNativeName("ReadWrite")]
     [FieldOffset(52)]
-    public global::NGX.NET.NGXBool8 ReadWrite;
+    public NGXBool8 ReadWrite;
 
 }

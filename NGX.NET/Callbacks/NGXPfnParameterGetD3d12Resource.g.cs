@@ -10,10 +10,10 @@ namespace NGX.NET;
 /// </summary>
 [NGXNativeName("PFN_NVSDK_NGX_Parameter_GetD3d12Resource")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct NGXPfnParameterGetD3d12Resource(delegate* unmanaged[Cdecl]<global::NGX.NET.NGXParameter*, sbyte*, nint*, global::NGX.NET.NGXResult> pointer)
+public readonly unsafe struct NGXPfnParameterGetD3d12Resource(delegate* unmanaged[Cdecl]<NGXParameter*, sbyte*, nint*, NGXResult> pointer)
 {
     /// <summary>
     /// Native C callback pointer. C++ reference parameters use their pointer ABI.
     /// </summary>
-    public readonly delegate* unmanaged[Cdecl]<global::NGX.NET.NGXParameter*, sbyte*, nint*, global::NGX.NET.NGXResult> Pointer = pointer;
+    public readonly delegate* unmanaged[Cdecl]<NGXParameter*, sbyte*, nint*, NGXResult> Pointer = pointer;
 }

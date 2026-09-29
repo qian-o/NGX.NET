@@ -18,28 +18,28 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_OPTIMAL_SETTINGS")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetOptimalSettings(global::NGX.NET.NGXParameter* PInParams, uint InUserSelectedWidth, uint InUserSelectedHeight, global::NGX.NET.NGXPerfQualityValue InPerfQualityValue, uint* POutRenderOptimalWidth, uint* POutRenderOptimalHeight, uint* POutRenderMaxWidth, uint* POutRenderMaxHeight, uint* POutRenderMinWidth, uint* POutRenderMinHeight, float* POutSharpness);
+        public static partial NGXResult GetOptimalSettings(NGXParameter* pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, uint* pOutRenderOptimalWidth, uint* pOutRenderOptimalHeight, uint* pOutRenderMaxWidth, uint* pOutRenderMaxHeight, uint* pOutRenderMinWidth, uint* pOutRenderMinHeight, float* pOutSharpness);
 
         /// <summary>
         /// NGX_DLSSD_GET_STATS. Source: nvsdk_ngx_helpers_dlssd_d3d.h:58.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetStats(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes);
+        public static partial NGXResult GetStats(NGXParameter* pInParams, ulong* pVRAMAllocatedBytes);
 
         /// <summary>
         /// NGX_DLSSD_GET_STATS_1. Source: nvsdk_ngx_helpers_dlssd_d3d.h:49.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS_1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetStats1(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes, uint* POptLevel);
+        public static partial NGXResult GetStats1(NGXParameter* pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel);
 
         /// <summary>
         /// NGX_DLSSD_GET_STATS_2. Source: nvsdk_ngx_helpers_dlssd_d3d.h:21.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS_2")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.NGXResult GetStats2(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes, uint* POptLevel, uint* IsDevSnippetBranch);
+        public static partial NGXResult GetStats2(NGXParameter* pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel, uint* isDevSnippetBranch);
 
     }
 }

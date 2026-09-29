@@ -88,7 +88,7 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("InRenderSubrectDimensions")]
     [FieldOffset(72)]
-    public global::NGX.NET.NGXDimensions InRenderSubrectDimensions;
+    public NGXDimensions InRenderSubrectDimensions;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InReset
@@ -137,70 +137,70 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("InDiffuseAlbedoSubrectBase")]
     [FieldOffset(120)]
-    public global::NGX.NET.NGXCoordinates InDiffuseAlbedoSubrectBase;
+    public NGXCoordinates InDiffuseAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularAlbedoSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularAlbedoSubrectBase")]
     [FieldOffset(128)]
-    public global::NGX.NET.NGXCoordinates InSpecularAlbedoSubrectBase;
+    public NGXCoordinates InSpecularAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InNormalsSubrectBase
     /// </summary>
     [NGXNativeName("InNormalsSubrectBase")]
     [FieldOffset(136)]
-    public global::NGX.NET.NGXCoordinates InNormalsSubrectBase;
+    public NGXCoordinates InNormalsSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InRoughnessSubrectBase
     /// </summary>
     [NGXNativeName("InRoughnessSubrectBase")]
     [FieldOffset(144)]
-    public global::NGX.NET.NGXCoordinates InRoughnessSubrectBase;
+    public NGXCoordinates InRoughnessSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorSubrectBase
     /// </summary>
     [NGXNativeName("InColorSubrectBase")]
     [FieldOffset(152)]
-    public global::NGX.NET.NGXCoordinates InColorSubrectBase;
+    public NGXCoordinates InColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDepthSubrectBase
     /// </summary>
     [NGXNativeName("InDepthSubrectBase")]
     [FieldOffset(160)]
-    public global::NGX.NET.NGXCoordinates InDepthSubrectBase;
+    public NGXCoordinates InDepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InMVSubrectBase
     /// </summary>
     [NGXNativeName("InMVSubrectBase")]
     [FieldOffset(168)]
-    public global::NGX.NET.NGXCoordinates InMVSubrectBase;
+    public NGXCoordinates InMVSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InTranslucencySubrectBase
     /// </summary>
     [NGXNativeName("InTranslucencySubrectBase")]
     [FieldOffset(176)]
-    public global::NGX.NET.NGXCoordinates InTranslucencySubrectBase;
+    public NGXCoordinates InTranslucencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InBiasCurrentColorSubrectBase
     /// </summary>
     [NGXNativeName("InBiasCurrentColorSubrectBase")]
     [FieldOffset(184)]
-    public global::NGX.NET.NGXCoordinates InBiasCurrentColorSubrectBase;
+    public NGXCoordinates InBiasCurrentColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InOutputSubrectBase
     /// </summary>
     [NGXNativeName("InOutputSubrectBase")]
     [FieldOffset(192)]
-    public global::NGX.NET.NGXCoordinates InOutputSubrectBase;
+    public NGXCoordinates InOutputSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInReflectedAlbedo
@@ -277,70 +277,70 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("InReflectedAlbedoSubrectBase")]
     [FieldOffset(280)]
-    public global::NGX.NET.NGXCoordinates InReflectedAlbedoSubrectBase;
+    public NGXCoordinates InReflectedAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeParticlesSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeParticlesSubrectBase")]
     [FieldOffset(288)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeParticlesSubrectBase;
+    public NGXCoordinates InColorBeforeParticlesSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeTransparencySubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeTransparencySubrectBase")]
     [FieldOffset(296)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeTransparencySubrectBase;
+    public NGXCoordinates InColorBeforeTransparencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeFogSubrectBase
     /// </summary>
     [NGXNativeName("InColorBeforeFogSubrectBase")]
     [FieldOffset(304)]
-    public global::NGX.NET.NGXCoordinates InColorBeforeFogSubrectBase;
+    public NGXCoordinates InColorBeforeFogSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseHitDistanceSubrectBase")]
     [FieldOffset(312)]
-    public global::NGX.NET.NGXCoordinates InDiffuseHitDistanceSubrectBase;
+    public NGXCoordinates InDiffuseHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularHitDistanceSubrectBase")]
     [FieldOffset(320)]
-    public global::NGX.NET.NGXCoordinates InSpecularHitDistanceSubrectBase;
+    public NGXCoordinates InSpecularHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseRayDirectionSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseRayDirectionSubrectBase")]
     [FieldOffset(328)]
-    public global::NGX.NET.NGXCoordinates InDiffuseRayDirectionSubrectBase;
+    public NGXCoordinates InDiffuseRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularRayDirectionSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularRayDirectionSubrectBase")]
     [FieldOffset(336)]
-    public global::NGX.NET.NGXCoordinates InSpecularRayDirectionSubrectBase;
+    public NGXCoordinates InSpecularRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseRayDirectionHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InDiffuseRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(344)]
-    public global::NGX.NET.NGXCoordinates InDiffuseRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinates InDiffuseRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularRayDirectionHitDistanceSubrectBase
     /// </summary>
     [NGXNativeName("InSpecularRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(352)]
-    public global::NGX.NET.NGXCoordinates InSpecularRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinates InSpecularRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInWorldToViewMatrix
@@ -389,14 +389,14 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("GBufferSurface")]
     [FieldOffset(392)]
-    public global::NGX.NET.NGXCUDAGBuffer GBufferSurface;
+    public NGXCUDAGBuffer GBufferSurface;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InToneMapperType
     /// </summary>
     [NGXNativeName("InToneMapperType")]
     [FieldOffset(528)]
-    public global::NGX.NET.NGXToneMapperType InToneMapperType;
+    public NGXToneMapperType InToneMapperType;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInMotionVectors3D
@@ -466,7 +466,7 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("InTransparencyLayerSubrectBase")]
     [FieldOffset(608)]
-    public global::NGX.NET.NGXCoordinates InTransparencyLayerSubrectBase;
+    public NGXCoordinates InTransparencyLayerSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInTransparencyLayerOpacity
@@ -480,6 +480,6 @@ public unsafe partial struct NGXCUDADLSSDEvalParams
     /// </summary>
     [NGXNativeName("InTransparencyLayerOpacitySubrectBase")]
     [FieldOffset(624)]
-    public global::NGX.NET.NGXCoordinates InTransparencyLayerOpacitySubrectBase;
+    public NGXCoordinates InTransparencyLayerOpacitySubrectBase;
 
 }

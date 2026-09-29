@@ -18,7 +18,7 @@ public unsafe partial struct NGXCUDADLSSDCreateParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXDLSSDCreateParams Feature;
+    public NGXDLSSDCreateParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Create_Params::InCUContext

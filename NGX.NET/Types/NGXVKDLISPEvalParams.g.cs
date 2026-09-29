@@ -18,7 +18,7 @@ public unsafe partial struct NGXVKDLISPEvalParams
     /// </summary>
     [NGXNativeName("Feature")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXVKFeatureEvalParams Feature;
+    public NGXVKFeatureEvalParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InRectX

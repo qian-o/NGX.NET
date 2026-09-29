@@ -18,20 +18,20 @@ public unsafe partial struct NGXLoggingInfo
     /// </summary>
     [NGXNativeName("LoggingCallback")]
     [FieldOffset(0)]
-    public delegate* unmanaged[Cdecl]<sbyte*, global::NGX.NET.NGXLoggingLevel, global::NGX.NET.NGXFeature, void> LoggingCallback;
+    public delegate* unmanaged[Cdecl]<sbyte*, NGXLoggingLevel, NGXFeature, void> LoggingCallback;
 
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::MinimumLoggingLevel
     /// </summary>
     [NGXNativeName("MinimumLoggingLevel")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXLoggingLevel MinimumLoggingLevel;
+    public NGXLoggingLevel MinimumLoggingLevel;
 
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::DisableOtherLoggingSinks
     /// </summary>
     [NGXNativeName("DisableOtherLoggingSinks")]
     [FieldOffset(12)]
-    public global::NGX.NET.NGXBool8 DisableOtherLoggingSinks;
+    public NGXBool8 DisableOtherLoggingSinks;
 
 }

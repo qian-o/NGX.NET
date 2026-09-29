@@ -18,7 +18,7 @@ public unsafe partial struct NGXApplicationIdentifierUnion
     /// </summary>
     [NGXNativeName("ProjectDesc")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXProjectIdDescription ProjectDesc;
+    public NGXProjectIdDescription ProjectDesc;
 
     /// <summary>
     /// v::ApplicationId

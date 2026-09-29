@@ -26,7 +26,7 @@ public unsafe partial struct NGXCUDAGBuffer
     [InlineArray(17)]
     public struct NGXPInAttribBuffer
     {
-        private global::NGX.NET.NGXPointer<ulong> element;
+        private NGXPointer<ulong> element;
     }
 
 }

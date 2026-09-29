@@ -10,10 +10,10 @@ namespace NGX.NET;
 /// </summary>
 [NGXNativeName("NVSDK_NGX_AppLogCallback")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct NGXAppLogCallback(delegate* unmanaged[Cdecl]<sbyte*, global::NGX.NET.NGXLoggingLevel, global::NGX.NET.NGXFeature, void> pointer)
+public readonly unsafe struct NGXAppLogCallback(delegate* unmanaged[Cdecl]<sbyte*, NGXLoggingLevel, NGXFeature, void> pointer)
 {
     /// <summary>
     /// Native C callback pointer. C++ reference parameters use their pointer ABI.
     /// </summary>
-    public readonly delegate* unmanaged[Cdecl]<sbyte*, global::NGX.NET.NGXLoggingLevel, global::NGX.NET.NGXFeature, void> Pointer = pointer;
+    public readonly delegate* unmanaged[Cdecl]<sbyte*, NGXLoggingLevel, NGXFeature, void> Pointer = pointer;
 }

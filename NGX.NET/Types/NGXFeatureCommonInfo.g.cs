@@ -18,20 +18,20 @@ public unsafe partial struct NGXFeatureCommonInfo
     /// </summary>
     [NGXNativeName("PathListInfo")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXPathListInfo PathListInfo;
+    public NGXPathListInfo PathListInfo;
 
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::InternalData
     /// </summary>
     [NGXNativeName("InternalData")]
     [FieldOffset(16)]
-    public global::NGX.NET.NGXFeatureCommonInfoInternal* InternalData;
+    public NGXFeatureCommonInfoInternal* InternalData;
 
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::LoggingInfo
     /// </summary>
     [NGXNativeName("LoggingInfo")]
     [FieldOffset(24)]
-    public global::NGX.NET.NGXLoggingInfo LoggingInfo;
+    public NGXLoggingInfo LoggingInfo;
 
 }

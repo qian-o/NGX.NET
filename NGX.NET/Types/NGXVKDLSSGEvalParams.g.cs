@@ -18,69 +18,69 @@ public unsafe partial struct NGXVKDLSSGEvalParams
     /// </summary>
     [NGXNativeName("pBackbuffer")]
     [FieldOffset(0)]
-    public global::NGX.NET.NGXResourceVK* PBackbuffer;
+    public NGXResourceVK* PBackbuffer;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pDepth
     /// </summary>
     [NGXNativeName("pDepth")]
     [FieldOffset(8)]
-    public global::NGX.NET.NGXResourceVK* PDepth;
+    public NGXResourceVK* PDepth;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pMVecs
     /// </summary>
     [NGXNativeName("pMVecs")]
     [FieldOffset(16)]
-    public global::NGX.NET.NGXResourceVK* PMVecs;
+    public NGXResourceVK* PMVecs;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pHudless
     /// </summary>
     [NGXNativeName("pHudless")]
     [FieldOffset(24)]
-    public global::NGX.NET.NGXResourceVK* PHudless;
+    public NGXResourceVK* PHudless;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pUI
     /// </summary>
     [NGXNativeName("pUI")]
     [FieldOffset(32)]
-    public global::NGX.NET.NGXResourceVK* PUI;
+    public NGXResourceVK* PUI;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pUIAlpha
     /// </summary>
     [NGXNativeName("pUIAlpha")]
     [FieldOffset(40)]
-    public global::NGX.NET.NGXResourceVK* PUIAlpha;
+    public NGXResourceVK* PUIAlpha;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pBidirectionalDistortionField
     /// </summary>
     [NGXNativeName("pBidirectionalDistortionField")]
     [FieldOffset(48)]
-    public global::NGX.NET.NGXResourceVK* PBidirectionalDistortionField;
+    public NGXResourceVK* PBidirectionalDistortionField;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputInterpFrame
     /// </summary>
     [NGXNativeName("pOutputInterpFrame")]
     [FieldOffset(56)]
-    public global::NGX.NET.NGXResourceVK* POutputInterpFrame;
+    public NGXResourceVK* POutputInterpFrame;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputRealFrame
     /// </summary>
     [NGXNativeName("pOutputRealFrame")]
     [FieldOffset(64)]
-    public global::NGX.NET.NGXResourceVK* POutputRealFrame;
+    public NGXResourceVK* POutputRealFrame;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputDisableInterpolation
     /// </summary>
     [NGXNativeName("pOutputDisableInterpolation")]
     [FieldOffset(72)]
-    public global::NGX.NET.NGXResourceVK* POutputDisableInterpolation;
+    public NGXResourceVK* POutputDisableInterpolation;
 
 }
