@@ -1,4 +1,4 @@
-# Streamline.NET
+﻿# Streamline.NET
 
 C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), covering DLSS Super Resolution, Ray Reconstruction, Frame Generation, Reflex and the other public SDK APIs. The bindings follow official Streamline releases.
 
