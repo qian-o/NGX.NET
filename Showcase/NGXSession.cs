@@ -176,7 +176,8 @@ internal sealed unsafe class NGXSession : IDisposable
     private void CreateReconstruction(nint command)
     {
         Ngx.Parameter.Reset(parameters);
-        int flags = (int)(DLSSFeatureFlags.IsHDR | DLSSFeatureFlags.MVLowRes | DLSSFeatureFlags.AutoExposure);
+        // Camera.Projection maps the near plane to 1 and the far plane to 0.
+        int flags = (int)(DLSSFeatureFlags.IsHDR | DLSSFeatureFlags.MVLowRes | DLSSFeatureFlags.AutoExposure | DLSSFeatureFlags.DepthInverted);
 
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
@@ -376,6 +377,7 @@ internal sealed unsafe class NGXSession : IDisposable
             CameraFOV = Camera.FieldOfView,
             CameraAspectRatio = (float)outputWidth / outputHeight,
             CameraMotionIncluded = true,
+            DepthInverted = true,
             Reset = reset
         };
         *(Matrix4x4*)options.CameraViewToClip = camera.Projection;
