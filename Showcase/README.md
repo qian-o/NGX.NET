@@ -49,7 +49,8 @@ at native resolution.
 ## Sources and licenses
 
 - [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline): runtime licenses
-  are included beside the deployed binaries and under `Licenses/`.
+  are included beside the binaries in `Assets/Streamline/` and under
+  `Assets/Streamline/Licenses/`.
 - [Khronos Sponza](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Sponza):
   attribution and licenses are preserved under `Assets/Scenes/Attribution/`.
 - Tone-mapping attribution: [LICENSE-ToneMapping.txt](Assets/Shaders/LICENSE-ToneMapping.txt).

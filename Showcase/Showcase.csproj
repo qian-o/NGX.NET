@@ -20,9 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="Assets\Shaders\**;Assets\Scenes\**" CopyToOutputDirectory="PreserveNewest" />
-        <None Remove="Assets\Streamline\**" />
-        <Content Include="Assets\Streamline\**" CopyToOutputDirectory="PreserveNewest" TargetPath="%(RecursiveDir)%(Filename)%(Extension)" />
+        <None Update="Assets\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

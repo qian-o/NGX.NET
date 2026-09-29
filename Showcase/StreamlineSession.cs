@@ -25,6 +25,8 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     public nint Module { get; private set; }
 
+    public string InterposerPath { get; } = Path.Combine(AppContext.BaseDirectory, "Assets", "Streamline", "sl.interposer.dll");
+
     public uint LatencyPingMessage { get; private set; }
 
     public uint MaximumGeneratedFrames { get; private set; }
@@ -72,7 +74,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     public void Initialize(RenderAPI api)
     {
-        string path = Path.Combine(AppContext.BaseDirectory, "sl.interposer.dll");
+        string path = InterposerPath;
 
         if (!File.Exists(path))
         {
@@ -86,7 +88,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
         SL.SetLibraryPath(path);
         char** plugins = (char**)Keep(Marshal.AllocCoTaskMem(sizeof(nint)));
-        *plugins = Utf16(AppContext.BaseDirectory);
+        *plugins = Utf16(Path.GetDirectoryName(path)!);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
         Directory.CreateDirectory(logs);
         uint[] features = Features.Select(x => x.Id).ToArray();

@@ -9,6 +9,7 @@ C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), c
 ## Usage
 
 Your application supplies the NVIDIA runtime and plugins. Follow the [official integration guide](https://github.com/NVIDIA-RTX/Streamline/blob/main/docs/ProgrammingGuide.md) for SDK initialization and graphics-device setup.
+See the [native runtime setup notes](Streamline.NET/readme.txt) for downloads and deployment paths.
 
 ```csharp
 using Streamline.NET;
@@ -34,4 +35,4 @@ Direct-return overloads throw `SLException` on non-success results. Pointer and 
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Third-party attributions are listed in [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).

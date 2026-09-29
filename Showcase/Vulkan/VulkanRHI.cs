@@ -58,7 +58,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     {
         NativeLibrary.GetExport(Streamline.Module, "vkGetInstanceProcAddr");
         NativeLibrary.GetExport(Streamline.Module, "vkGetDeviceProcAddr");
-        Check(vkInitialize(Path.Combine(AppContext.BaseDirectory, "sl.interposer.dll")), "vkInitialize(interposer)");
+        Check(vkInitialize(Streamline.InterposerPath), "vkInitialize(interposer)");
         VkApplicationInfo application = new()
         {
             apiVersion = VkVersion.Version_1_3
