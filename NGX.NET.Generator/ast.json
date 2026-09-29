@@ -16771,7 +16771,77 @@
           "size": 8,
           "align": 8,
           "opaque": true,
-          "fields": []
+          "fields": [],
+          "members": [
+            {
+              "name": "Set(const char *, unsigned long long)",
+              "binding": "NVSDK_NGX_Parameter_SetULL"
+            },
+            {
+              "name": "Set(const char *, float)",
+              "binding": "NVSDK_NGX_Parameter_SetF"
+            },
+            {
+              "name": "Set(const char *, double)",
+              "binding": "NVSDK_NGX_Parameter_SetD"
+            },
+            {
+              "name": "Set(const char *, unsigned int)",
+              "binding": "NVSDK_NGX_Parameter_SetUI"
+            },
+            {
+              "name": "Set(const char *, int)",
+              "binding": "NVSDK_NGX_Parameter_SetI"
+            },
+            {
+              "name": "Set(const char *, ID3D11Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+            },
+            {
+              "name": "Set(const char *, ID3D12Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+            },
+            {
+              "name": "Set(const char *, void *)",
+              "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+            },
+            {
+              "name": "Get(const char *, unsigned long long *)",
+              "binding": "NVSDK_NGX_Parameter_GetULL"
+            },
+            {
+              "name": "Get(const char *, float *)",
+              "binding": "NVSDK_NGX_Parameter_GetF"
+            },
+            {
+              "name": "Get(const char *, double *)",
+              "binding": "NVSDK_NGX_Parameter_GetD"
+            },
+            {
+              "name": "Get(const char *, unsigned int *)",
+              "binding": "NVSDK_NGX_Parameter_GetUI"
+            },
+            {
+              "name": "Get(const char *, int *)",
+              "binding": "NVSDK_NGX_Parameter_GetI"
+            },
+            {
+              "name": "Get(const char *, ID3D11Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+            },
+            {
+              "name": "Get(const char *, ID3D12Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+            },
+            {
+              "name": "Get(const char *, void **)",
+              "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+            },
+            {
+              "name": "Reset()",
+              "binding": "NGX_Bridge_Parameter_Reset"
+            }
+          ]
         },
         {
           "name": "NVSDK_NGX_PathListInfo",
@@ -41318,6 +41388,142 @@
         },
         {
           "header": "nvsdk_ngx_params.h",
+          "line": 55,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned long long)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 56,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, float)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 57,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, double)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 58,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 59,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 60,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D11Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 61,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D12Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 62,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, void *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 64,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned long long *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 65,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, float *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 66,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, double *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 67,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 68,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 69,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D11Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 70,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D12Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 71,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, void **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 73,
+          "kind": "CXX_METHOD",
+          "name": "Reset()",
+          "classification": "C-ABI-adapter",
+          "binding": "NGX_Bridge_Parameter_Reset"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
           "line": 74,
           "kind": "TYPEDEF_DECL",
           "name": "NVSDK_NGX_Parameter"
@@ -42619,7 +42825,7 @@
       "binaries": [
         {
           "name": "ngx-bridge.dll",
-          "sha256": "2b947d384fddf0f2614f814e0c77649c04b64e6f7fb8daccc175fe70431d7505"
+          "sha256": "c905050a54a45796332f976b2d3f446eebd4be17f99a6912ce7f9a17368141f9"
         },
         {
           "name": "nvngx_dlss.dll",
@@ -59163,7 +59369,77 @@
           "size": 8,
           "align": 8,
           "opaque": true,
-          "fields": []
+          "fields": [],
+          "members": [
+            {
+              "name": "Set(const char *, unsigned long long)",
+              "binding": "NVSDK_NGX_Parameter_SetULL"
+            },
+            {
+              "name": "Set(const char *, float)",
+              "binding": "NVSDK_NGX_Parameter_SetF"
+            },
+            {
+              "name": "Set(const char *, double)",
+              "binding": "NVSDK_NGX_Parameter_SetD"
+            },
+            {
+              "name": "Set(const char *, unsigned int)",
+              "binding": "NVSDK_NGX_Parameter_SetUI"
+            },
+            {
+              "name": "Set(const char *, int)",
+              "binding": "NVSDK_NGX_Parameter_SetI"
+            },
+            {
+              "name": "Set(const char *, ID3D11Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+            },
+            {
+              "name": "Set(const char *, ID3D12Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+            },
+            {
+              "name": "Set(const char *, void *)",
+              "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+            },
+            {
+              "name": "Get(const char *, unsigned long long *)",
+              "binding": "NVSDK_NGX_Parameter_GetULL"
+            },
+            {
+              "name": "Get(const char *, float *)",
+              "binding": "NVSDK_NGX_Parameter_GetF"
+            },
+            {
+              "name": "Get(const char *, double *)",
+              "binding": "NVSDK_NGX_Parameter_GetD"
+            },
+            {
+              "name": "Get(const char *, unsigned int *)",
+              "binding": "NVSDK_NGX_Parameter_GetUI"
+            },
+            {
+              "name": "Get(const char *, int *)",
+              "binding": "NVSDK_NGX_Parameter_GetI"
+            },
+            {
+              "name": "Get(const char *, ID3D11Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+            },
+            {
+              "name": "Get(const char *, ID3D12Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+            },
+            {
+              "name": "Get(const char *, void **)",
+              "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+            },
+            {
+              "name": "Reset()",
+              "binding": "NGX_Bridge_Parameter_Reset"
+            }
+          ]
         },
         {
           "name": "NVSDK_NGX_PathListInfo",
@@ -83710,6 +83986,142 @@
         },
         {
           "header": "nvsdk_ngx_params.h",
+          "line": 55,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned long long)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 56,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, float)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 57,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, double)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 58,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 59,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 60,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D11Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 61,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D12Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 62,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, void *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 64,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned long long *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 65,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, float *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 66,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, double *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 67,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 68,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 69,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D11Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 70,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D12Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 71,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, void **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 73,
+          "kind": "CXX_METHOD",
+          "name": "Reset()",
+          "classification": "C-ABI-adapter",
+          "binding": "NGX_Bridge_Parameter_Reset"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
           "line": 74,
           "kind": "TYPEDEF_DECL",
           "name": "NVSDK_NGX_Parameter"
@@ -85011,7 +85423,7 @@
       "binaries": [
         {
           "name": "ngx-bridge.dll",
-          "sha256": "c349759f27bc1d5e48acb5868f56519bf1c80ba432f5045c87ab536f707b0f94"
+          "sha256": "26394e9875a06dbf6a8643aa26336b7762ea9b284d1323265d3631eeafb107d0"
         },
         {
           "name": "nvngx_dlss.dll",
@@ -95184,7 +95596,77 @@
           "size": 8,
           "align": 8,
           "opaque": true,
-          "fields": []
+          "fields": [],
+          "members": [
+            {
+              "name": "Set(const char *, unsigned long long)",
+              "binding": "NVSDK_NGX_Parameter_SetULL"
+            },
+            {
+              "name": "Set(const char *, float)",
+              "binding": "NVSDK_NGX_Parameter_SetF"
+            },
+            {
+              "name": "Set(const char *, double)",
+              "binding": "NVSDK_NGX_Parameter_SetD"
+            },
+            {
+              "name": "Set(const char *, unsigned int)",
+              "binding": "NVSDK_NGX_Parameter_SetUI"
+            },
+            {
+              "name": "Set(const char *, int)",
+              "binding": "NVSDK_NGX_Parameter_SetI"
+            },
+            {
+              "name": "Set(const char *, ID3D11Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+            },
+            {
+              "name": "Set(const char *, ID3D12Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+            },
+            {
+              "name": "Set(const char *, void *)",
+              "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+            },
+            {
+              "name": "Get(const char *, unsigned long long *)",
+              "binding": "NVSDK_NGX_Parameter_GetULL"
+            },
+            {
+              "name": "Get(const char *, float *)",
+              "binding": "NVSDK_NGX_Parameter_GetF"
+            },
+            {
+              "name": "Get(const char *, double *)",
+              "binding": "NVSDK_NGX_Parameter_GetD"
+            },
+            {
+              "name": "Get(const char *, unsigned int *)",
+              "binding": "NVSDK_NGX_Parameter_GetUI"
+            },
+            {
+              "name": "Get(const char *, int *)",
+              "binding": "NVSDK_NGX_Parameter_GetI"
+            },
+            {
+              "name": "Get(const char *, ID3D11Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+            },
+            {
+              "name": "Get(const char *, ID3D12Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+            },
+            {
+              "name": "Get(const char *, void **)",
+              "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+            },
+            {
+              "name": "Reset()",
+              "binding": "NGX_Bridge_Parameter_Reset"
+            }
+          ]
         },
         {
           "name": "NVSDK_NGX_PathListInfo",
@@ -116825,6 +117307,142 @@
           "line": 53,
           "kind": "STRUCT_DECL",
           "name": "NVSDK_NGX_Parameter"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 55,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned long long)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 56,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, float)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 57,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, double)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 58,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 59,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 60,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D11Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 61,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D12Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 62,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, void *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 64,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned long long *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 65,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, float *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 66,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, double *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 67,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 68,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 69,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D11Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 70,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D12Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 71,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, void **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 73,
+          "kind": "CXX_METHOD",
+          "name": "Reset()",
+          "classification": "C-ABI-adapter",
+          "binding": "NGX_Bridge_Parameter_Reset"
         },
         {
           "header": "nvsdk_ngx_params.h",
@@ -128259,7 +128877,77 @@
           "size": 8,
           "align": 8,
           "opaque": true,
-          "fields": []
+          "fields": [],
+          "members": [
+            {
+              "name": "Set(const char *, unsigned long long)",
+              "binding": "NVSDK_NGX_Parameter_SetULL"
+            },
+            {
+              "name": "Set(const char *, float)",
+              "binding": "NVSDK_NGX_Parameter_SetF"
+            },
+            {
+              "name": "Set(const char *, double)",
+              "binding": "NVSDK_NGX_Parameter_SetD"
+            },
+            {
+              "name": "Set(const char *, unsigned int)",
+              "binding": "NVSDK_NGX_Parameter_SetUI"
+            },
+            {
+              "name": "Set(const char *, int)",
+              "binding": "NVSDK_NGX_Parameter_SetI"
+            },
+            {
+              "name": "Set(const char *, ID3D11Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+            },
+            {
+              "name": "Set(const char *, ID3D12Resource *)",
+              "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+            },
+            {
+              "name": "Set(const char *, void *)",
+              "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+            },
+            {
+              "name": "Get(const char *, unsigned long long *)",
+              "binding": "NVSDK_NGX_Parameter_GetULL"
+            },
+            {
+              "name": "Get(const char *, float *)",
+              "binding": "NVSDK_NGX_Parameter_GetF"
+            },
+            {
+              "name": "Get(const char *, double *)",
+              "binding": "NVSDK_NGX_Parameter_GetD"
+            },
+            {
+              "name": "Get(const char *, unsigned int *)",
+              "binding": "NVSDK_NGX_Parameter_GetUI"
+            },
+            {
+              "name": "Get(const char *, int *)",
+              "binding": "NVSDK_NGX_Parameter_GetI"
+            },
+            {
+              "name": "Get(const char *, ID3D11Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+            },
+            {
+              "name": "Get(const char *, ID3D12Resource **)",
+              "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+            },
+            {
+              "name": "Get(const char *, void **)",
+              "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+            },
+            {
+              "name": "Reset()",
+              "binding": "NGX_Bridge_Parameter_Reset"
+            }
+          ]
         },
         {
           "name": "NVSDK_NGX_PathListInfo",
@@ -149900,6 +150588,142 @@
           "line": 53,
           "kind": "STRUCT_DECL",
           "name": "NVSDK_NGX_Parameter"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 55,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned long long)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 56,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, float)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 57,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, double)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 58,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, unsigned int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 59,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, int)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 60,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D11Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 61,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, ID3D12Resource *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 62,
+          "kind": "CXX_METHOD",
+          "name": "Set(const char *, void *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_SetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 64,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned long long *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetULL"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 65,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, float *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetF"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 66,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, double *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 67,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, unsigned int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetUI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 68,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, int *)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetI"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 69,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D11Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d11Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 70,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, ID3D12Resource **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetD3d12Resource"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 71,
+          "kind": "CXX_METHOD",
+          "name": "Get(const char *, void **)",
+          "classification": "C-ABI-adapter",
+          "binding": "NVSDK_NGX_Parameter_GetVoidPointer"
+        },
+        {
+          "header": "nvsdk_ngx_params.h",
+          "line": 73,
+          "kind": "CXX_METHOD",
+          "name": "Reset()",
+          "classification": "C-ABI-adapter",
+          "binding": "NGX_Bridge_Parameter_Reset"
         },
         {
           "header": "nvsdk_ngx_params.h",
