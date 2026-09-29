@@ -7,6 +7,8 @@ internal static class StreamlineLibrary
 {
     internal const string ImportName = "Streamline.NET.Native";
 
+    private const string InterposerName = "sl.interposer.dll";
+
     private static readonly object sync = new();
 
     private static string? libraryDirectory;
@@ -44,6 +46,14 @@ internal static class StreamlineLibrary
                 throw new InvalidOperationException("The Streamline library has already been loaded.");
             }
 
+            if (!File.Exists(Path.Combine(path, InterposerName)))
+            {
+                throw new DllNotFoundException(
+                    $"The Streamline runtime directory '{path}' does not contain {InterposerName}. " +
+                    "Download the SDK from https://github.com/NVIDIA-RTX/Streamline/releases " +
+                    "and copy its runtime libraries into this directory.");
+            }
+
             libraryDirectory = path;
         }
     }
@@ -72,7 +82,7 @@ internal static class StreamlineLibrary
                 throw new InvalidOperationException("Call SL.SetLibraryPath before invoking the Streamline SDK.");
             }
 
-            module = NativeLibrary.Load(Path.Combine(libraryDirectory, "sl.interposer.dll"));
+            module = NativeLibrary.Load(Path.Combine(libraryDirectory, InterposerName));
 
             return module;
         }
