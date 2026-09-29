@@ -1,25 +1,24 @@
 Streamline.NET - native runtime setup
 =====================================
 
-Your application supplies NVIDIA's native runtime and plugins. This NuGet
-package contains the managed bindings and does not download native files.
+This NuGet package contains managed bindings only. The native Streamline
+libraries must be supplied separately.
 
-1. Download a compatible SDK from the official releases:
+1. Download the native libraries from NVIDIA's official Streamline SDK releases:
    https://github.com/NVIDIA-RTX/Streamline/releases
 
-   Deploy the interposer, required plugins, dependencies and accompanying license
-   files in any directory you choose. No particular folder layout is required.
+   Keep the interposer, required plugins and their dependencies together in a
+   directory of your choice, along with the accompanying license files.
 
-2. Before any SDK call, pass the absolute filename of sl.interposer.dll to
-   SL.SetLibraryPath. This configures the entry library, not the plugin paths.
+2. Set the interposer's absolute file path before calling the SDK:
 
-3. Create Preferences with new(). Set PathsToPlugins to an array of absolute
-   plugin directory paths (UTF-16 strings), and set NumPathsToPlugins. Select
-   features with FeaturesToLoad and NumFeaturesToLoad. Keep these arrays and
-   strings pinned or in unmanaged memory for the lifetime required by the SDK.
-   Streamline loads the plugins; do not call SetLibraryPath for each DLL.
+   Streamline.NET.SL.SetLibraryPath(@"C:\Path\To\sl.interposer.dll");
 
-4. Follow NVIDIA's SDK initialization and graphics-device setup sequence:
+   Replace the example path with the actual location on your machine.
+   This selects the library; SDK initialization is still required.
+
+3. Follow NVIDIA's integration guide to initialize Streamline and connect it
+   to your graphics device:
    https://github.com/NVIDIA-RTX/Streamline/blob/main/docs/ProgrammingGuide.md
 
    Complete DirectX 12 and Vulkan example:
