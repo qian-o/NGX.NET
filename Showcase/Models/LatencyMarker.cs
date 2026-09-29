@@ -10,10 +10,6 @@ internal enum LatencyMarker
     PresentStart = 4,
     PresentEnd = 5,
     InputSample = 6,
-    TriggerFlash = 7,
-    PCLatencyPing = 8,
-    OutOfBandRenderSubmitStart = 9,
-    OutOfBandRenderSubmitEnd = 10,
     OutOfBandPresentStart = 11,
     OutOfBandPresentEnd = 12
 }

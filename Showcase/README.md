@@ -10,4 +10,4 @@ Choose a backend at startup. The settings panel provides DLSS quality, ray recon
 
 The sample calls NGX on the real device and command buffer. It retains each rendered frame while a separate presenter submits the generated frame, then the real frame at the intermediate interval. GPU fences and per-slot presentation completion protect resources through reuse and resizing.
 
-Reflex and latency markers use NVAPI for DirectX 12 and `VK_NV_low_latency2` for Vulkan. Frame generation requires that low-latency integration to be available. There is no Streamline interposer or separate PCL ETW channel.
+Reflex and latency markers use NVAPI for DirectX 12 and `VK_NV_low_latency2` for Vulkan. Frame generation requires that low-latency integration to be available.
