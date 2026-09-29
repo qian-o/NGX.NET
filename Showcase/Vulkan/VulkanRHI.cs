@@ -182,18 +182,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             supportedNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
         }
 
-        VkPhysicalDevicePresentIdFeaturesKHR presentIdFeatures = new();
-        VkPhysicalDeviceVulkan12Features latencyFeatures = new()
-        {
-            pNext = &presentIdFeatures
-        };
-        VkPhysicalDeviceFeatures2 presentFeatures = new()
-        {
-            pNext = &latencyFeatures
-        };
-        instanceApi.vkGetPhysicalDeviceFeatures2(physical, &presentFeatures);
-        lowLatency = separatePresentQueue && supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId && latencyFeatures.timelineSemaphore;
-        presentIdFeatures.presentId = lowLatency;
         float* priorities = stackalloc float[] { 1, 1 };
         VkDeviceQueueCreateInfo queueInfo = new()
         {
@@ -219,7 +207,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         Vortice.Vulkan.VkPhysicalDeviceVulkan12Features enabled12 = new()
         {
             pNext = &enabled13,
-            timelineSemaphore = lowLatency,
             bufferDeviceAddress = RayQuerySupported
         };
         VkPhysicalDeviceVulkan11Features enabled11 = new()
@@ -227,8 +214,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             pNext = &enabled12,
             shaderDrawParameters = true
         };
-        enabled13.pNext = RayQuerySupported ? &enabledAcceleration : lowLatency ? &presentIdFeatures : null;
-        enabledRayQuery.pNext = lowLatency ? &presentIdFeatures : null;
         VkPhysicalDeviceFeatures2 enabled = new()
         {
             pNext = &enabled11,
@@ -271,12 +256,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             {
                 requestedExtensions.Add(extension);
             }
-        }
-
-        if (lowLatency)
-        {
-            requestedExtensions.Add("VK_NV_low_latency2");
-            requestedExtensions.Add("VK_KHR_present_id");
         }
 
         using NativeNames deviceExtensions = new([.. requestedExtensions.Distinct()]);
@@ -467,13 +446,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             imageCount = Math.Min(imageCount, capabilities.maxImageCount);
         }
 
-        VkSwapchainLatencyCreateInfoNV latencyCreate = new()
-        {
-            latencyModeEnable = lowLatency
-        };
         VkSwapchainCreateInfoKHR create = new()
         {
-            pNext = lowLatency ? &latencyCreate : null,
             surface = surface,
             minImageCount = imageCount,
             imageFormat = selected.format,
@@ -488,15 +462,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             clipped = true
         };
         Check(api.vkCreateSwapchainKHR(&create, null, out swapChain), "vkCreateSwapchainKHR");
-        if (lowLatency)
-        {
-            VkLatencySleepModeInfoNV mode = new()
-            {
-                lowLatencyMode = true
-            };
-            Check(api.vkSetLatencySleepModeNV(swapChain, &mode), "vkSetLatencySleepModeNV");
-        }
-
         Check(api.vkGetSwapchainImagesKHR(swapChain, out count), "vkGetSwapchainImagesKHR(count)");
         backBuffers = new VkImage[count];
         backLayouts = new VkImageLayout[count];

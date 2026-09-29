@@ -13,18 +13,11 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 {
     protected override nint Command => commandList.NativePointer;
 
-    private NVLowLatency? latency;
     private ID3D12CommandAllocator presentAllocator = null!;
     private ID3D12GraphicsCommandList presentCommands = null!;
     private ID3D12Fence presentFence = null!;
     private ulong presentFenceValue;
     private readonly AutoResetEvent presentEvent = new(false);
-
-    protected override bool LowLatencyAvailable => latency?.Available == true;
-
-    protected override void BeginLatency(ulong frame) => latency?.Sleep();
-
-    protected override void Marker(LatencyMarker marker, ulong frame) => latency?.Marker(marker, frame);
 
     private ID3D12Device device = null!;
     private IDXGIFactory4 factory = null!;
@@ -97,7 +90,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
         queue = device.CreateCommandQueue(CommandListType.Direct);
         presentQueue = device.CreateCommandQueue(CommandListType.Direct);
-        latency = new(device.NativePointer, presentQueue.NativePointer);
         fence = device.CreateFence();
         presentAllocator = device.CreateCommandAllocator(CommandListType.Direct);
         presentCommands = device.CreateCommandList<ID3D12GraphicsCommandList>(0, CommandListType.Direct, presentAllocator);

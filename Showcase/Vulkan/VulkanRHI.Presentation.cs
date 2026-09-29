@@ -6,16 +6,12 @@ namespace Showcase.Vulkan;
 internal sealed unsafe partial class VulkanRHI
 {
     private readonly object queueSync = new();
-    private readonly object latencySync = new();
     private nint vulkanModule;
-    private bool lowLatency;
-    private VkSemaphore sleepSemaphore;
     private VkCommandPool presentPool;
     private VkCommandBuffer presentCommand;
     private VkFence presentFence;
     private VkSemaphore presentAcquire;
-
-    protected override bool LowLatencyAvailable => lowLatency;
+    private bool presentationPending;
 
     private void InitializePresentation()
     {
@@ -37,64 +33,6 @@ internal sealed unsafe partial class VulkanRHI
         Check(api.vkCreateFence(&fenceInfo, null, out presentFence), "vkCreateFence(present)");
         VkSemaphoreCreateInfo semaphoreInfo = new();
         Check(api.vkCreateSemaphore(&semaphoreInfo, null, out presentAcquire), "vkCreateSemaphore(acquire)");
-
-        if (lowLatency)
-        {
-            VkOutOfBandQueueTypeInfoNV outOfBand = new()
-            {
-                queueType = VkOutOfBandQueueTypeNV.Present
-            };
-            api.vkQueueNotifyOutOfBandNV(presentQueue, &outOfBand);
-            VkSemaphoreTypeCreateInfo timeline = new()
-            {
-                semaphoreType = VkSemaphoreType.Timeline
-            };
-            semaphoreInfo.pNext = &timeline;
-            Check(api.vkCreateSemaphore(&semaphoreInfo, null, out sleepSemaphore), "vkCreateSemaphore(Reflex)");
-        }
-
-        Console.WriteLine($"Reflex (VK_NV_low_latency2): {(lowLatency ? "Available" : "Unavailable")}");
-    }
-
-    protected override void BeginLatency(ulong frame)
-    {
-        if (lowLatency && !swapChain.IsNull)
-        {
-            VkSemaphore semaphore = sleepSemaphore;
-            VkLatencySleepInfoNV sleep = new()
-            {
-                signalSemaphore = semaphore,
-                value = frame
-            };
-            lock (latencySync)
-            {
-                Check(api.vkLatencySleepNV(swapChain, &sleep), "vkLatencySleepNV");
-            }
-
-            VkSemaphoreWaitInfo wait = new()
-            {
-                semaphoreCount = 1,
-                pSemaphores = &semaphore,
-                pValues = &frame
-            };
-            Check(api.vkWaitSemaphores(&wait, ulong.MaxValue), "vkWaitSemaphores(Reflex)");
-        }
-    }
-
-    protected override void Marker(LatencyMarker marker, ulong frame)
-    {
-        if (lowLatency && !swapChain.IsNull)
-        {
-            VkSetLatencyMarkerInfoNV info = new()
-            {
-                presentID = frame,
-                marker = (VkLatencyMarkerNV)marker
-            };
-            lock (latencySync)
-            {
-                api.vkSetLatencyMarkerNV(swapChain, &info);
-            }
-        }
     }
 
     protected override void WaitRenderedFrame(int slot)
@@ -116,8 +54,9 @@ internal sealed unsafe partial class VulkanRHI
         }
     }
 
-    protected override bool PresentImage(GpuImage image, ulong frame, bool generated)
+    protected override bool PresentImage(GpuImage image)
     {
+        WaitPresentation();
         VkResult acquire = api.vkAcquireNextImageKHR(swapChain, ulong.MaxValue, presentAcquire, default, out uint index);
 
         if (acquire == VkResult.ErrorOutOfDateKHR)
@@ -164,15 +103,8 @@ internal sealed unsafe partial class VulkanRHI
             pSignalSemaphores = &complete
         };
         VkSwapchainKHR swap = swapChain;
-        ulong presentId = generated ? frame - 1 : frame;
-        VkPresentIdKHR id = new()
-        {
-            swapchainCount = 1,
-            pPresentIds = &presentId
-        };
         VkPresentInfoKHR present = new()
         {
-            pNext = lowLatency ? &id : null,
             waitSemaphoreCount = 1,
             pWaitSemaphores = &complete,
             swapchainCount = 1,
@@ -180,15 +112,12 @@ internal sealed unsafe partial class VulkanRHI
             pImageIndices = &index
         };
         VkResult result;
-        Marker(LatencyMarker.OutOfBandPresentStart, frame);
         lock (queueSync)
         {
             Check(api.vkQueueSubmit(presentQueue, 1, &submit, fence), "vkQueueSubmit(present)");
+            presentationPending = true;
             result = api.vkQueuePresentKHR(presentQueue, &present);
         }
-
-        Marker(LatencyMarker.OutOfBandPresentEnd, frame);
-        Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(present copy)");
 
         if (result is VkResult.ErrorOutOfDateKHR or VkResult.SuboptimalKHR)
         {
@@ -200,13 +129,18 @@ internal sealed unsafe partial class VulkanRHI
         return true;
     }
 
+    protected override void WaitPresentation()
+    {
+        if (presentationPending)
+        {
+            VkFence fence = presentFence;
+            Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(present copy)");
+            presentationPending = false;
+        }
+    }
+
     private void DisposePresentation()
     {
-        if (!sleepSemaphore.IsNull)
-        {
-            api.vkDestroySemaphore(sleepSemaphore);
-        }
-
         if (!presentAcquire.IsNull)
         {
             api.vkDestroySemaphore(presentAcquire);

@@ -24,7 +24,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public RenderCapabilities Capabilities => new(
         NGX.Available(Feature.SuperSampling),
         RayQuerySupported && NGX.Available(Feature.RayReconstruction),
-        NGX.Available(Feature.FrameGeneration) && LowLatencyAvailable);
+        NGX.Available(Feature.FrameGeneration));
 
     public Window Window { get; } = window;
 
@@ -34,7 +34,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     protected FramePresenter Presenter = null!;
     protected readonly GpuImage[] GeneratedFrames = new GpuImage[RenderLayout.FramesInFlight];
-    protected virtual bool LowLatencyAvailable => false;
 
     public RenderSettings Settings { get; } = new();
 
@@ -75,7 +74,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private int outputWidth;
     private int outputHeight;
     private uint frameNumber;
-    private ulong latencySequence;
     private bool reset = true;
     private bool recreateSwapChain;
     private bool ready;
@@ -97,7 +95,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Camera.Reset(Scene);
         Settings.Reset(Capabilities);
         InitializeRenderer();
-        Presenter = new(WaitRenderedFrame, PresentImage);
+        Presenter = new(WaitRenderedFrame, PresentImage, WaitPresentation);
         ready = true;
         Window.BeforeWindowChange = SuspendFrameGeneration;
         ApplySettings();
@@ -219,16 +217,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
         Presenter.WaitSlot(FrameSlot);
-        ulong latencyFrame = ++latencySequence * 2;
-        BeginLatency(latencyFrame);
-        Marker(LatencyMarker.SimulationStart, latencyFrame);
-        Marker(LatencyMarker.InputSample, latencyFrame);
         Window.Pump();
 
         if (Window.Closed || Window.Width == 0 || Window.Height == 0)
         {
             statistics.Reset(Stopwatch.GetTimestamp());
-            Marker(LatencyMarker.SimulationEnd, latencyFrame);
 
             return;
         }
@@ -250,7 +243,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
 
         UpdateScene(delta);
-        Marker(LatencyMarker.SimulationEnd, latencyFrame);
         if (!BeginCommands())
         {
             recreateSwapChain = true;
@@ -258,7 +250,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
 
-        Marker(LatencyMarker.RenderSubmitStart, latencyFrame);
         RenderLighting();
         Reconstruct();
         PostProcess();
@@ -283,11 +274,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         Transition(Image(ImageSlot.Final), ImageUse.CopySource);
         SubmitFrame();
-        Marker(LatencyMarker.RenderSubmitEnd, latencyFrame);
         FinishFrame();
-        Marker(LatencyMarker.PresentStart, latencyFrame);
-        Presenter.Enqueue(FrameSlot, latencyFrame, Image(ImageSlot.Final), generated ? GeneratedFrames[FrameSlot] : null, TimeSpan.FromSeconds(delta));
-        Marker(LatencyMarker.PresentEnd, latencyFrame);
+        Presenter.Enqueue(FrameSlot, Image(ImageSlot.Final), generated ? GeneratedFrames[FrameSlot] : null, TimeSpan.FromSeconds(delta));
         uint presentedFrames = Presenter.ReadPresentedCount();
 
         Camera.CommitHistory();
@@ -472,13 +460,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     protected abstract void SubmitFrame();
 
-    protected abstract bool PresentImage(GpuImage image, ulong frame, bool generated);
+    protected abstract bool PresentImage(GpuImage image);
 
     protected abstract void WaitRenderedFrame(int slot);
 
-    protected abstract void BeginLatency(ulong frame);
-
-    protected abstract void Marker(LatencyMarker marker, ulong frame);
+    protected abstract void WaitPresentation();
 
     protected abstract void FinishFrame();
 

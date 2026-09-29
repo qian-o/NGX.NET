@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using Showcase.Models;
 
@@ -7,12 +6,19 @@ namespace Showcase.Helpers;
 
 // The presenter owns all swap-chain operations. Per-slot completion prevents
 // rendering from overwriting either retained real frames or generated frames.
-internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, ulong, bool, bool> present) : IDisposable
+internal sealed class FramePresenter(
+    Action<int> waitRendering,
+    Func<GpuImage, bool> present,
+    Action waitPresentation,
+    TimeProvider? timeProvider = null,
+    Action<long>? waitUntil = null) : IDisposable
 {
-    private sealed record Batch(int Slot, ulong Frame, GpuImage Real, GpuImage? Generated, TimeSpan Interval, TaskCompletionSource Completion);
+    private sealed record Batch(int Slot, GpuImage Real, GpuImage? Generated, TimeSpan Interval, TaskCompletionSource Completion);
 
     private readonly BlockingCollection<Batch> queue = new(RenderLayout.FramesInFlight);
     private readonly Task[] slots = Enumerable.Repeat(Task.CompletedTask, RenderLayout.FramesInFlight).ToArray();
+    private readonly TimeProvider time = timeProvider ?? TimeProvider.System;
+    private PresentationTimer? timer;
     private Thread? thread;
     private ExceptionDispatchInfo? failure;
     private int presented;
@@ -28,13 +34,13 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, u
         failure?.Throw();
     }
 
-    public void Enqueue(int slot, ulong frame, GpuImage real, GpuImage? generated, TimeSpan interval)
+    public void Enqueue(int slot, GpuImage real, GpuImage? generated, TimeSpan interval)
     {
         failure?.Throw();
         TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
         slots[slot] = completion.Task;
         thread ??= Start();
-        queue.Add(new(slot, frame, real, generated, interval, completion));
+        queue.Add(new(slot, real, generated, interval, completion));
     }
 
     private Thread Start()
@@ -58,28 +64,41 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, u
                 failure?.Throw();
                 waitRendering(batch.Slot);
 
-                if (batch.Generated is not null)
+                try
                 {
-                    if (!Present(batch.Generated, batch.Frame, true))
+                    bool presentReal = true;
+
+                    if (batch.Generated is not null)
                     {
-                        batch.Completion.SetResult();
-                        continue;
-                    }
+                        // Copy/Present time belongs inside the half-frame interval.
+                        long deadline = time.GetTimestamp() + (long)(batch.Interval.TotalSeconds * time.TimestampFrequency / 2);
+                        presentReal = Present(batch.Generated);
 
-                    long deadline = Stopwatch.GetTimestamp() + (long)(batch.Interval.TotalSeconds * Stopwatch.Frequency / 2);
-
-                    while (Stopwatch.GetTimestamp() < deadline)
-                    {
-                        TimeSpan remaining = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), deadline);
-
-                        if (remaining > TimeSpan.Zero)
+                        if (presentReal && time.GetTimestamp() < deadline)
                         {
-                            Thread.Sleep(remaining);
+                            if (waitUntil is not null)
+                            {
+                                waitUntil(deadline);
+                            }
+                            else
+                            {
+                                (timer ??= new()).WaitUntil(deadline, time);
+                            }
                         }
                     }
+
+                    if (presentReal)
+                    {
+                        Present(batch.Real);
+                    }
+                }
+                finally
+                {
+                    // Present can return before its GPU copy finishes. Retain the
+                    // frame slot until every copy has finished reading its images.
+                    waitPresentation();
                 }
 
-                Present(batch.Real, batch.Frame, false);
                 batch.Completion.SetResult();
             }
             catch (Exception exception)
@@ -90,9 +109,9 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, u
         }
     }
 
-    private bool Present(GpuImage image, ulong frame, bool generated)
+    private bool Present(GpuImage image)
     {
-        bool success = present(image, frame, generated);
+        bool success = present(image);
 
         if (success)
         {
@@ -112,6 +131,7 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, u
     {
         queue.CompleteAdding();
         thread?.Join();
+        timer?.Dispose();
         queue.Dispose();
     }
 }

@@ -32,6 +32,6 @@ unsafe
 
 Serialize NGX calls and release features only after their GPU work completes. Use `NGX.Succeeded` / `NGX.Failed` for native results. `NativeWideString` handles Windows UTF-16 and Linux UTF-32 `wchar_t` strings.
 
-[Showcase](Showcase) demonstrates DirectX 12 and Vulkan with Sponza, SR, RR, frame generation and native Reflex integration. The manual **Update NGX** workflow rebuilds all four native targets and refreshes the checked-in AST and binaries together.
+[Showcase](Showcase) demonstrates DirectX 12 and Vulkan with Sponza, SR, RR and frame generation. The manual **Update NGX** workflow rebuilds all four native targets and refreshes the checked-in AST and binaries together.
 
 The C# bindings and bridge source use the repository's MIT license. Bundled NVIDIA SDK code and runtime libraries retain their NVIDIA terms.

@@ -34,8 +34,8 @@ internal sealed class FrameStatistics
             return;
         }
 
-        // Sum SDK-reported presentation counts, including dropped/zero-frame
-        // samples. The configured FG multiplier is never used to estimate FPS.
+        // Count successful presentation calls, including zero-frame samples.
+        // The configured FG multiplier is never used to estimate FPS.
         PresentedFps = presentationKnown ? presentedFrames / seconds : null;
         StartInterval(timestamp);
     }

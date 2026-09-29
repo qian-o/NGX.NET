@@ -506,8 +506,9 @@ internal sealed unsafe partial class DirectX12RHI
         presentQueue.Wait(fence, value).CheckError();
     }
 
-    protected override bool PresentImage(GpuImage image, ulong frame, bool generated)
+    protected override bool PresentImage(GpuImage image)
     {
+        WaitPresentation();
         presentAllocator.Reset();
         presentCommands.Reset(presentAllocator);
         ID3D12Resource back = backBuffers[(int)swapChain!.CurrentBackBufferIndex];
@@ -516,14 +517,21 @@ internal sealed unsafe partial class DirectX12RHI
         presentCommands.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
         presentCommands.Close();
         presentQueue.ExecuteCommandList(presentCommands);
-        Marker(LatencyMarker.OutOfBandPresentStart, frame);
-        swapChain.Present(0, PresentFlags.None).CheckError();
-        Marker(LatencyMarker.OutOfBandPresentEnd, frame);
+        // The fence protects the copy's command allocator and source texture.
+        // Signal before Present so it does not wait for DXGI presentation work.
         presentQueue.Signal(presentFence, ++presentFenceValue).CheckError();
-        presentFence.SetEventOnCompletion(presentFenceValue, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
-        presentEvent.WaitOne();
+        swapChain.Present(0, PresentFlags.None).CheckError();
 
         return true;
+    }
+
+    protected override void WaitPresentation()
+    {
+        if (presentFence.CompletedValue < presentFenceValue)
+        {
+            presentFence.SetEventOnCompletion(presentFenceValue, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
+            presentEvent.WaitOne();
+        }
     }
 
     protected override void FinishFrame()
@@ -601,7 +609,6 @@ internal sealed unsafe partial class DirectX12RHI
         descriptors?.Dispose();
         renderTargets?.Dispose();
         depthViews?.Dispose();
-        latency?.Dispose();
         presentCommands?.Dispose();
         presentAllocator?.Dispose();
         presentFence?.Dispose();
