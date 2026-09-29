@@ -3,26 +3,26 @@
     <PropertyGroup>
         <TargetFramework>$(StandardTargetFramework)</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
-        <IsTrimmable>true</IsTrimmable>
         <NoWarn>IDE0130</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <Version>0.1.0</Version>
+        <Version>2.14.1-alpha</Version>
         <Authors>qian-o</Authors>
         <Copyright>Copyright (c) 2026 qian-o</Copyright>
         <Description>C# bindings for NVIDIA Streamline.</Description>
+
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
+
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>Streamline;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
+        <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
 
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
-        <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
