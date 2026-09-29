@@ -9,7 +9,7 @@ C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), w
 ```csharp
 using Streamline.NET;
 
-SL.SetLibraryPath(@"C:\Path\To\Streamline");
+SL.SetLibraryPath(Path.Combine(AppContext.BaseDirectory, "Streamline"));
 
 DLSSOptions options = new()
 {
