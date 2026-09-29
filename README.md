@@ -11,7 +11,6 @@ using Streamline.NET;
 
 SL.SetLibraryPath(@"C:\Path\To\sl.interposer.dll");
 
-// After SDK initialization and graphics-device setup:
 DLSSOptions options = new()
 {
     Mode = DLSSMode.MaxQuality,
