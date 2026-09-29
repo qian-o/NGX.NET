@@ -122,9 +122,13 @@ def extract(sdk: Path, scratch: Path, rid: str):
         if not windows and ("_d3d" in header or header in ("nvsdk_ngx_helpers_dlssd.h", "nvsdk_ngx_helpers_dlssg.h")):
             continue
         unit = scratch / (header + ".cpp")
-        prologue = "#include <cstdint>\n#include <cstddef>\n#include <cwchar>\n#include <cstring>\n#include <algorithm>\n#include <vulkan/vulkan.h>\n#include \"nvsdk_ngx.h\"\n"
-        if windows:
-            prologue = "#define NOMINMAX\n#include <windows.h>\n#include <d3d11.h>\n#include <d3d12.h>\n" + prologue
+        prologue = "#include <stdint.h>\n#include <stddef.h>\n#include <wchar.h>\n#include <string.h>\n#include <vulkan/vulkan.h>\n#include \"nvsdk_ngx.h\"\n"
+        if "dlssd_vk" in header:
+            prologue += '#include "nvsdk_ngx_helpers_vk.h"\n'
+        if "dlssd_d3d" in header or header == "nvsdk_ngx_helpers_dlssd.h":
+            prologue += '#include "nvsdk_ngx_helpers_d3d.h"\n'
+        if "dlssd_cuda" in header:
+            prologue += '#include "nvsdk_ngx_helpers_cuda.h"\n'
         unit.write_text(prologue + '#include "' + header + '"\n')
         tu = cx.Index.create().parse(str(unit), args=flags, options=cx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
         errors = [str(d) for d in tu.diagnostics if d.severity >= cx.Diagnostic.Error]
