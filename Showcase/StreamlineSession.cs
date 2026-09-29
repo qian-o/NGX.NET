@@ -41,7 +41,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private SLResult lastStateResult = SLResult.Ok;
     private bool frameGenerationLoaded;
     private bool initialized;
-    private uint[] features = [];
     private readonly List<nint> allocations = [];
     private readonly Resource* descriptions = (Resource*)NativeMemory.AllocZeroed(RenderLayout.FramesInFlight * (uint)ImageSlot.Count, (nuint)sizeof(Resource));
     private readonly HashSet<uint> taggedTypes = [];
@@ -52,7 +51,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
     private static readonly ConcurrentQueue<string> messages = new();
     private static int apiError;
 
-    public bool Available(uint feature) => features.Contains(feature) && !Unavailable.ContainsKey(feature);
+    public bool Available(uint feature) => !Unavailable.ContainsKey(feature);
 
     public static void Check(SLResult result, string operation)
     {
@@ -73,14 +72,9 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
     private char* Utf16(string value) => (char*)Keep(Marshal.StringToCoTaskMemUni(value));
 
-    public void Initialize(RuntimeOptions runtime)
+    public void Initialize(RenderAPI renderAPI)
     {
         string path = InterposerPath;
-
-        if (!File.Exists(path))
-        {
-            throw new FileNotFoundException("The Streamline interposer was not found.", path);
-        }
 
         if (!SL.VerifyEmbeddedSignature(path))
         {
@@ -93,12 +87,12 @@ internal sealed unsafe class StreamlineSession : IDisposable
         *plugins = Utf16(directory);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
         Directory.CreateDirectory(logs);
-        features = runtime.GetFeatures();
+        uint[] features = [.. Features.Select(feature => feature.Id)];
         uint* requested = (uint*)Keep(Marshal.AllocCoTaskMem(features.Length * sizeof(uint)));
         features.CopyTo(new Span<uint>(requested, features.Length));
         Preferences preferences = new()
         {
-            RenderAPI = runtime.RenderAPI,
+            RenderAPI = renderAPI,
             Engine = EngineType.Custom,
             EngineVersion = Utf8("Streamline.NET.Showcase.1.0"),
             ProjectId = Utf8("fc6ac847-10b0-48e1-842d-1bc819f8d2f4"),
@@ -123,11 +117,6 @@ internal sealed unsafe class StreamlineSession : IDisposable
     {
         foreach ((uint id, string name) in Features)
         {
-            if (!features.Contains(id))
-            {
-                continue;
-            }
-
             SLResult support = SL.IsFeatureSupported(id, in adapter);
             SLResult loadedResult = SL.IsFeatureLoaded(id, out Bool8 loaded);
 

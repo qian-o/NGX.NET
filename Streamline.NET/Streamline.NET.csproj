@@ -10,7 +10,7 @@
         <Version>2.14.1-alpha</Version>
         <Authors>qian-o</Authors>
         <Copyright>Copyright (c) 2026 qian-o</Copyright>
-        <Description>C# bindings for NVIDIA Streamline, with helpers that download missing native runtime files for selected features.</Description>
+        <Description>C# bindings for NVIDIA Streamline.</Description>
 
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>

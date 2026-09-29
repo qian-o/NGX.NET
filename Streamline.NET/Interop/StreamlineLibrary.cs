@@ -34,24 +34,11 @@ internal static class StreamlineLibrary
             throw new ArgumentException("The Streamline library path must be an absolute directory path.", nameof(path));
         }
 
-        if (File.Exists(path))
-        {
-            throw new ArgumentException("The Streamline library path must be a directory, not a file.", nameof(path));
-        }
-
         lock (sync)
         {
             if (module != 0)
             {
                 throw new InvalidOperationException("The Streamline library has already been loaded.");
-            }
-
-            if (!File.Exists(Path.Combine(path, InterposerName)))
-            {
-                throw new DllNotFoundException(
-                    $"The Streamline runtime directory '{path}' does not contain {InterposerName}. " +
-                    "Download the SDK from https://github.com/NVIDIA-RTX/Streamline/releases " +
-                    "and copy its runtime libraries into this directory.");
             }
 
             libraryDirectory = path;
@@ -61,31 +48,6 @@ internal static class StreamlineLibrary
     internal static nint GetExport(string name)
     {
         return NativeLibrary.GetExport(Load(), name);
-    }
-
-    internal static void CheckRuntimeUpdate()
-    {
-        lock (sync)
-        {
-            ThrowIfRuntimeLoaded();
-        }
-    }
-
-    internal static void PublishRuntime(Action publish)
-    {
-        lock (sync)
-        {
-            ThrowIfRuntimeLoaded();
-            publish();
-        }
-    }
-
-    private static void ThrowIfRuntimeLoaded()
-    {
-        if (module != 0)
-        {
-            throw new InvalidOperationException("The Streamline library has already been loaded; its runtime installation cannot be changed.");
-        }
     }
 
     private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)

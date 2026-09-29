@@ -436,5 +436,5 @@ FodyWeavers.xsd
 ## DocFX generated files
 _site/
 
-# Showcase downloads the Streamline runtime on startup.
+# Local Showcase runtime libraries.
 Showcase/Assets/Streamline/

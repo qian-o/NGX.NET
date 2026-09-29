@@ -17,9 +17,7 @@ dotnet run --project Showcase -c Release
 ```
 
 Choose DirectX 12 or Vulkan in the startup console. Sponza is included in the
-repository. Startup checks the selected Streamline features in `Assets/Streamline/`
-beside the executable and downloads missing files from NVIDIA's official SDK.
-Existing libraries are preserved; a complete directory needs no network access.
+repository.
 
 Supported DLSS features are enabled by default; unavailable controls are disabled.
 Frame Generation requires Windows Hardware-accelerated GPU scheduling.
@@ -49,9 +47,7 @@ at native resolution.
 
 ## Sources and licenses
 
-- [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline): runtime licenses
-  are included beside the binaries in `Assets/Streamline/` and under
-  `Assets/Streamline/Licenses/`.
+- [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline).
 - [Khronos Sponza](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Sponza):
   attribution and licenses are preserved under `Assets/Scenes/Attribution/`.
 - Tone-mapping attribution: [LICENSE-ToneMapping.txt](Assets/Shaders/LICENSE-ToneMapping.txt).
