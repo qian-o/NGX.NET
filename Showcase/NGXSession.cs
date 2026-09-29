@@ -300,8 +300,8 @@ internal sealed unsafe class NGXSession : IDisposable
                     PInSpecularAlbedo = images[(int)ImageSlot.Specular].DirectX,
                     PInNormals = images[(int)ImageSlot.Normal].DirectX,
                     PInMotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].DirectX,
-                    PInWorldToViewMatrix = (float*)&view,
-                    PInViewToClipMatrix = (float*)&projection,
+                    PInWorldToViewMatrix = &view,
+                    PInViewToClipMatrix = &projection,
                     PInDepth = images[(int)ImageSlot.Depth].DirectX,
                     PInMotionVectors = images[(int)ImageSlot.Motion].DirectX,
                     InJitterOffsetX = camera.Jitter.X,
@@ -352,8 +352,8 @@ internal sealed unsafe class NGXSession : IDisposable
                     PInSpecularAlbedo = &images[(int)ImageSlot.Specular].Vulkan,
                     PInNormals = &images[(int)ImageSlot.Normal].Vulkan,
                     PInMotionVectorsReflections = &images[(int)ImageSlot.SpecularMotion].Vulkan,
-                    PInWorldToViewMatrix = (float*)&view,
-                    PInViewToClipMatrix = (float*)&projection,
+                    PInWorldToViewMatrix = &view,
+                    PInViewToClipMatrix = &projection,
                     PInDepth = &images[(int)ImageSlot.Depth].Vulkan,
                     PInMotionVectors = &images[(int)ImageSlot.Motion].Vulkan,
                     InJitterOffsetX = camera.Jitter.X,
@@ -425,6 +425,17 @@ internal sealed unsafe class NGXSession : IDisposable
         Vector3 up = Vector3.Cross(right, forward);
         NGXDLSSGOptEvalParams options = new()
         {
+            CameraViewToClip = camera.Projection,
+            ClipToCameraView = inverseProjection,
+            ClipToLensClip = Matrix4x4.Identity,
+            ClipToPrevClip = clipToPrevious,
+            PrevClipToClip = previousToClip,
+            JitterOffset = camera.Jitter,
+            MvecScale = Vector2.One,
+            CameraPos = camera.Position,
+            CameraUp = up,
+            CameraRight = right,
+            CameraFwd = forward,
             CameraNear = camera.Near,
             CameraFar = camera.Far,
             CameraFOV = Camera.FieldOfView,
@@ -433,19 +444,6 @@ internal sealed unsafe class NGXSession : IDisposable
             DepthInverted = true,
             Reset = reset
         };
-        *(Matrix4x4*)options.CameraViewToClip = camera.Projection;
-        *(Matrix4x4*)options.ClipToCameraView = inverseProjection;
-        *(Matrix4x4*)options.ClipToLensClip = Matrix4x4.Identity;
-        *(Matrix4x4*)options.ClipToPrevClip = clipToPrevious;
-        *(Matrix4x4*)options.PrevClipToClip = previousToClip;
-        *(Vector3*)options.CameraPos = camera.Position;
-        *(Vector3*)options.CameraFwd = forward;
-        *(Vector3*)options.CameraRight = right;
-        *(Vector3*)options.CameraUp = up;
-        options.JitterOffset[0] = camera.Jitter.X;
-        options.JitterOffset[1] = camera.Jitter.Y;
-        options.MvecScale[0] = 1;
-        options.MvecScale[1] = 1;
         NativeImage back = images[(int)ImageSlot.Final].Describe();
         NativeImage depth = images[(int)ImageSlot.Depth].Describe();
         NativeImage motion = images[(int)ImageSlot.Motion].Describe();

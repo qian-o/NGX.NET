@@ -5,6 +5,7 @@
 #:property EnableAotAnalyzer=false
 #:property AllowUnsafeBlocks=true
 
+using System.Numerics;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
@@ -135,9 +136,63 @@ void VerifyType(JsonElement native, Type managed, string context, bool behindPoi
     }
 }
 
+// Reviewed SDK fields only: unrelated float arrays and pointers remain strict.
+Dictionary<string, (Type Type, int[] Shape)> frameMathFields = new()
+{
+    ["cameraViewToClip"] = (typeof(Matrix4x4), [4, 4]),
+    ["clipToCameraView"] = (typeof(Matrix4x4), [4, 4]),
+    ["clipToLensClip"] = (typeof(Matrix4x4), [4, 4]),
+    ["clipToPrevClip"] = (typeof(Matrix4x4), [4, 4]),
+    ["prevClipToClip"] = (typeof(Matrix4x4), [4, 4]),
+    ["jitterOffset"] = (typeof(Vector2), [2]),
+    ["mvecScale"] = (typeof(Vector2), [2]),
+    ["cameraPinholeOffset"] = (typeof(Vector2), [2]),
+    ["cameraPos"] = (typeof(Vector3), [3]),
+    ["cameraUp"] = (typeof(Vector3), [3]),
+    ["cameraRight"] = (typeof(Vector3), [3]),
+    ["cameraFwd"] = (typeof(Vector3), [3])
+};
+HashSet<string> reconstructionMathRecords =
+[
+    "NVSDK_NGX_D3D11_DLSSD_Eval_Params", "NVSDK_NGX_D3D12_DLSSD_Eval_Params",
+    "NVSDK_NGX_CUDA_DLSSD_Eval_Params", "NVSDK_NGX_VK_DLSSD_Eval_Params"
+];
+
+bool VerifyMathField(JsonElement native, Type managed, string record, string field)
+{
+    string context = record + "::" + field;
+    if (record == "NVSDK_NGX_DLSSG_Opt_Eval_Params" && frameMathFields.TryGetValue(field, out var math))
+    {
+        Require(managed == math.Type, context + " typed math field");
+        Require(Size(managed) == native.GetProperty("size").GetInt32(), context + " math storage size");
+        foreach (int length in math.Shape)
+        {
+            Require(native.GetProperty("kind").GetString() == "CONSTANTARRAY", context + " native array rank");
+            Require(native.GetProperty("count").GetInt32() == length, context + " native array dimension");
+            native = native.GetProperty("element");
+        }
+        Require(native.GetProperty("kind").GetString() == "FLOAT" && native.GetProperty("size").GetInt32() == sizeof(float), context + " native float element");
+        return true;
+    }
+
+    if (reconstructionMathRecords.Contains(record) && field is "pInWorldToViewMatrix" or "pInViewToClipMatrix")
+    {
+        Require(managed == typeof(Matrix4x4).MakePointerType(), context + " reviewed matrix pointer");
+        Require(native.GetProperty("kind").GetString() == "POINTER" && native.GetProperty("size").GetInt32() == IntPtr.Size, context + " native pointer size");
+        JsonElement element = native.GetProperty("element");
+        Require(element.GetProperty("kind").GetString() == "FLOAT" && element.GetProperty("size").GetInt32() == sizeof(float), context + " native float pointer");
+        return true;
+    }
+
+    return false;
+}
+
+MathAbiChecks.Verify(Require);
+
 foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").EnumerateObject())
 {
     string rid = platform.Name;
+    int mathFields = 0;
     foreach (JsonElement record in platform.Value.GetProperty("records").EnumerateArray())
     {
         if (record.GetProperty("opaque").GetBoolean()) continue;
@@ -152,10 +207,13 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
             Require(fields.TryGetValue(fieldName, out FieldInfo? managed), rid + " missing field " + name + "::" + fieldName);
             Require(Marshal.OffsetOf(type, managed!.Name).ToInt64() * 8 == field.GetProperty("offset").GetInt64(), rid + " offsetof " + name + "::" + fieldName);
             JsonElement nativeType = field.GetProperty("type");
-            if (nativeType.GetProperty("kind").GetString() != "CONSTANTARRAY") VerifyType(nativeType, managed.FieldType, name + "::" + fieldName);
+            if (VerifyMathField(nativeType, managed.FieldType, name, fieldName)) mathFields++;
+            else if (nativeType.GetProperty("kind").GetString() != "CONSTANTARRAY") VerifyType(nativeType, managed.FieldType, name + "::" + fieldName);
             else Require(Size(managed.FieldType) == nativeType.GetProperty("size").GetInt32(), rid + " array storage " + name + "::" + fieldName);
         }
     }
+
+    Require(mathFields == (rid.StartsWith("win-", StringComparison.Ordinal) ? 20 : 16), rid + " reviewed math field coverage");
 
     foreach (JsonElement enumeration in platform.Value.GetProperty("enums").EnumerateArray())
     {
@@ -374,3 +432,71 @@ Require(defaults.MultiFrameCount == 1 && defaults.MultiFrameIndex == 1 && defaul
 Console.WriteLine($"Verified {checks} compiled API/ABI checks across four RIDs; {imports.Count} imports.");
 
 delegate ReadOnlySpan<byte> SpanGetter();
+
+// Shared verbatim with the NativeAOT smoke so each RID exercises the same bytes.
+static unsafe class MathAbiChecks
+{
+    public static void Verify(Action<bool, string> require)
+    {
+        require(sizeof(Matrix4x4) == 64 && sizeof(Vector2) == 8 && sizeof(Vector3) == 12, "System.Numerics sizes");
+        require(!RuntimeHelpers.IsReferenceOrContainsReferences<Matrix4x4>() && !RuntimeHelpers.IsReferenceOrContainsReferences<Vector2>() && !RuntimeHelpers.IsReferenceOrContainsReferences<Vector3>(), "System.Numerics contains no GC references");
+        require(sizeof(NGXDLSSGOptEvalParams) == 592 && !RuntimeHelpers.IsReferenceOrContainsReferences<NGXDLSSGOptEvalParams>(), "FG outer native layout");
+        Matrix4x4 matrix = new(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+        Matrix4x4 negativeMatrix = Matrix4x4.Negate(matrix);
+        Vector2 vector2 = new(17, 18);
+        Vector3 vector3 = new(19, 20, 21);
+        ReadOnlySpan<float> matrixValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+        ReadOnlySpan<nint> matrixComponents = [(nint)(&matrix.M11), (nint)(&matrix.M12), (nint)(&matrix.M13), (nint)(&matrix.M14), (nint)(&matrix.M21), (nint)(&matrix.M22), (nint)(&matrix.M23), (nint)(&matrix.M24), (nint)(&matrix.M31), (nint)(&matrix.M32), (nint)(&matrix.M33), (nint)(&matrix.M34), (nint)(&matrix.M41), (nint)(&matrix.M42), (nint)(&matrix.M43), (nint)(&matrix.M44)];
+        for (int i = 0; i < matrixComponents.Length; i++) require(matrixComponents[i] - (nint)(&matrix) == i * sizeof(float), "Matrix4x4 row-major component " + i);
+        require((byte*)&vector2.X == (byte*)&vector2 && (byte*)&vector2.Y - (byte*)&vector2 == sizeof(float), "Vector2 component offsets");
+        require((byte*)&vector3.X == (byte*)&vector3 && (byte*)&vector3.Y - (byte*)&vector3 == sizeof(float) && (byte*)&vector3.Z - (byte*)&vector3 == 2 * sizeof(float), "Vector3 component offsets");
+        NGXDLSSGOptEvalParams options = new();
+
+        void Field<T>(ref T field, void* owner, int offset, T value, T negative, ReadOnlySpan<float> expected) where T : unmanaged, IEquatable<T>
+        {
+            require((byte*)Unsafe.AsPointer(ref field) - (byte*)owner == offset, "FG math field offset " + offset);
+            field = value;
+            float* native = (float*)((byte*)owner + offset);
+            require(new ReadOnlySpan<float>(native, expected.Length).SequenceEqual(expected), "typed write/native read " + offset);
+            for (int i = 0; i < expected.Length; i++) native[i] = -expected[i];
+            require(field.Equals(negative), "native write/typed read " + offset);
+        }
+
+        Field(ref options.CameraViewToClip, &options, 8, matrix, negativeMatrix, matrixValues);
+        Field(ref options.ClipToCameraView, &options, 72, matrix, negativeMatrix, matrixValues);
+        Field(ref options.ClipToLensClip, &options, 136, matrix, negativeMatrix, matrixValues);
+        Field(ref options.ClipToPrevClip, &options, 200, matrix, negativeMatrix, matrixValues);
+        Field(ref options.PrevClipToClip, &options, 264, matrix, negativeMatrix, matrixValues);
+        Field(ref options.JitterOffset, &options, 328, vector2, -vector2, [17, 18]);
+        Field(ref options.MvecScale, &options, 336, vector2, -vector2, [17, 18]);
+        Field(ref options.CameraPinholeOffset, &options, 344, vector2, -vector2, [17, 18]);
+        Field(ref options.CameraPos, &options, 352, vector3, -vector3, [19, 20, 21]);
+        Field(ref options.CameraUp, &options, 364, vector3, -vector3, [19, 20, 21]);
+        Field(ref options.CameraRight, &options, 376, vector3, -vector3, [19, 20, 21]);
+        Field(ref options.CameraFwd, &options, 388, vector3, -vector3, [19, 20, 21]);
+        require(options.MultiFrameCount == 1 && options.MultiFrameIndex == 1 && options.CameraNear == 0 && options.MinRelativeLinearDepthObjectSeparation == 40, "FG neighboring fields preserved");
+
+        void Pointers<T>(ref T parameters, int size, int offset, Matrix4x4* view, Matrix4x4* clip, ReadOnlySpan<float> expected) where T : unmanaged
+        {
+            require(sizeof(T) == size && !RuntimeHelpers.IsReferenceOrContainsReferences<T>(), typeof(T).Name + " native layout without GC references");
+            Matrix4x4** native = (Matrix4x4**)((byte*)Unsafe.AsPointer(ref parameters) + offset);
+            require(native[0] == view && native[1] == clip, typeof(T).Name + " native matrix pointer offsets");
+            for (int i = 0; i < expected.Length; i++) require(((float*)native[0])[i] == expected[i] && ((float*)native[1])[i] == -expected[i], typeof(T).Name + " native matrix element " + i);
+            native[0] = clip;
+            native[1] = view;
+        }
+
+        NGXD3D11DLSSDEvalParams d3d11 = new() { PInWorldToViewMatrix = &matrix, PInViewToClipMatrix = &negativeMatrix };
+        NGXD3D12DLSSDEvalParams d3d12 = new() { PInWorldToViewMatrix = &matrix, PInViewToClipMatrix = &negativeMatrix };
+        NGXCUDADLSSDEvalParams cuda = new() { PInWorldToViewMatrix = &matrix, PInViewToClipMatrix = &negativeMatrix };
+        NGXVKDLSSDEvalParams vulkan = new() { PInWorldToViewMatrix = &matrix, PInViewToClipMatrix = &negativeMatrix };
+        Pointers(ref d3d11, 904, 584, &matrix, &negativeMatrix, matrixValues);
+        Pointers(ref d3d12, 904, 584, &matrix, &negativeMatrix, matrixValues);
+        Pointers(ref cuda, 632, 360, &matrix, &negativeMatrix, matrixValues);
+        Pointers(ref vulkan, 904, 600, &matrix, &negativeMatrix, matrixValues);
+        require(d3d11.PInWorldToViewMatrix == &negativeMatrix && d3d11.PInViewToClipMatrix == &matrix, "D3D11 native pointer write/typed read");
+        require(d3d12.PInWorldToViewMatrix == &negativeMatrix && d3d12.PInViewToClipMatrix == &matrix, "D3D12 native pointer write/typed read");
+        require(cuda.PInWorldToViewMatrix == &negativeMatrix && cuda.PInViewToClipMatrix == &matrix, "CUDA native pointer write/typed read");
+        require(vulkan.PInWorldToViewMatrix == &negativeMatrix && vulkan.PInViewToClipMatrix == &matrix, "Vulkan native pointer write/typed read");
+    }
+}

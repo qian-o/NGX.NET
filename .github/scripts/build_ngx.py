@@ -264,7 +264,10 @@ def smoke(root, scratch, output, rid):
     root, scratch, output = root.resolve(), scratch.resolve(), output.resolve()
     scratch.mkdir(parents=True, exist_ok=True)
     source = scratch / "Smoke.cs"
+    # Reuse the verifier's CPU byte/layout checks under NativeAOT on each RID.
+    math_checks = "static unsafe class MathAbiChecks" + (root / ".github/scripts/verify_ngx.cs").read_text(encoding="utf-8-sig").split("static unsafe class MathAbiChecks", 1)[1]
     source.write_text(f"#:project {root / 'NGX.NET/NGX.NET.csproj'}\n#:property PublishAot=true\n#:property AllowUnsafeBlocks=true\n" + r"""
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NGX.NET;
@@ -273,6 +276,7 @@ unsafe
 {
     if (!Ngx.Succeeded(NGXResult.Success) || !Ngx.Failed(NGXResult.Fail)) throw new Exception("Result predicates");
     if (sizeof(NGXBool8) != 1 || sizeof(nuint) != sizeof(void*)) throw new Exception("ABI widths");
+    MathAbiChecks.Verify((condition, message) => { if (!condition) throw new Exception(message); });
     NGXDLSSGOptEvalParams options = new();
     if (options.MultiFrameCount != 1 || options.MultiFrameIndex != 1 || options.MinRelativeLinearDepthObjectSeparation != 40) throw new Exception("SDK defaults");
     const string value = "NGX \U0001F680";
@@ -314,7 +318,7 @@ static unsafe class Callbacks
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     public static void Progress(float progress, NGXBool8* cancelled) => *cancelled = progress == 1;
 }
-""")
+""" + "\n" + math_checks)
     published = scratch / "published"
     print(run(["dotnet", "publish", source, "-r", rid, "-c", "Release", "-o", published, "-p:GeneratePackageOnBuild=false"], root))
     destination = published / "runtimes" / rid / "native"

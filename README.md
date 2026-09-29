@@ -10,6 +10,8 @@ Public types use the `NGX` prefix, such as `NGXResult`, `NGXParameter` and `NGXD
 
 Use `NGX.D3D11`, `NGX.D3D12`, `NGX.Vulkan`, `NGX.CUDA` and `NGX.Parameter` for the application API. `NGX.DLSS` and `NGX.DLSSD` expose shared helpers. Each native entry point has one unsafe signature, without managed `ref`/`out`, `Span` or direct-return convenience overloads. Native helpers that return structures by value retain their original signatures.
 
+Explicitly mapped mathematical fields use `System.Numerics.Vector2`, `Vector3` and `Matrix4x4` with the native memory layout preserved. These .NET types retain their original names without an `NGX` prefix. RR world-to-view and view-to-clip fields use `Matrix4x4*` for their homogeneous transform semantics; they remain nullable, borrowed pointers. Matrix values are passed as supplied; the bindings do not transpose them or change coordinate conventions.
+
 After initializing NGX with your graphics device and `NGX.RuntimeDirectory` in the feature search paths:
 
 ```csharp
