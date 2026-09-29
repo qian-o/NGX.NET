@@ -42825,7 +42825,7 @@
       "binaries": [
         {
           "name": "ngx-bridge.dll",
-          "sha256": "eade0a5463a4ac0732dabe1190fd1d27c1d4ec79d5a6ae81c1f9947cb20ca242"
+          "sha256": "1d5a8f98763857be24c7a2beacdf95e97ffca6d50fe7b052e667febad7c32003"
         },
         {
           "name": "nvngx_dlss.dll",
@@ -85423,7 +85423,7 @@
       "binaries": [
         {
           "name": "ngx-bridge.dll",
-          "sha256": "fb9f463cdd418e89e91051aad992321af42175aae5e338771b783fbaef6242be"
+          "sha256": "34b0f49db0649a30c242d08d10584dace49a22f8112e98aa62ed8c21c4fa09f3"
         },
         {
           "name": "nvngx_dlss.dll",
