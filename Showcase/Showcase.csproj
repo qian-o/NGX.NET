@@ -20,20 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="Assets\Shaders\**;Assets\Scenes\**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        <None Update="Assets\Shaders\**;Assets\Scenes\**" CopyToOutputDirectory="PreserveNewest" />
         <None Remove="Assets\Streamline\**" />
-        <Content Include="Assets\Streamline\sl.interposer.*;Assets\Streamline\sl.common.*;Assets\Streamline\sl.dlss*;Assets\Streamline\sl.reflex.*;Assets\Streamline\sl.pcl.*;Assets\Streamline\nvngx_dlss*;Assets\Streamline\NvLowLatencyVk.*;Assets\Streamline\reflex.license.*;Assets\Streamline\streamline-runtime.*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <TargetPath>%(Filename)%(Extension)</TargetPath>
-        </Content>
-        <Content Include="Assets\Streamline\Licenses\**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <TargetPath>Licenses\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
-        </Content>
+        <Content Include="Assets\Streamline\**" CopyToOutputDirectory="PreserveNewest" TargetPath="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
 </Project>
