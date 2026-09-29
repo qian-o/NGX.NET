@@ -7,7 +7,19 @@ C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), w
 ## Usage
 
 ```csharp
+using Streamline.NET;
+
 SL.SetLibraryPath(@"C:\Path\To\sl.interposer.dll");
+
+// After SDK initialization and graphics-device setup:
+DLSSOptions options = new()
+{
+    Mode = DLSSMode.MaxQuality,
+    OutputWidth = 1920,
+    OutputHeight = 1080
+};
+
+DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
 ```
 
 ## Showcase
