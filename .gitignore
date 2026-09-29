@@ -436,6 +436,5 @@ FodyWeavers.xsd
 ## DocFX generated files
 _site/
 
-# Showcase assets are acquired by Assets/UpdateAssets.ps1.
-Showcase/Assets/Scenes/
+# Showcase downloads the Streamline runtime on startup.
 Showcase/Assets/Streamline/

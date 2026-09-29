@@ -13,12 +13,12 @@ Showcase executable. Slang uses DXC to compile DXIL shaders.
 Run from the repository root in PowerShell:
 
 ```powershell
-./Showcase/Assets/UpdateAssets.ps1
 dotnet run --project Showcase -c Release
 ```
 
-Choose DirectX 12 or Vulkan in the startup console. The asset script downloads
-Sponza and NVIDIA's Streamline runtime.
+Choose DirectX 12 or Vulkan in the startup console. Sponza is included in the
+repository. The first launch downloads NVIDIA's official Streamline runtime to
+`Assets/Streamline/` beside the executable; later launches reuse the verified cache.
 
 Supported DLSS features are enabled by default; unavailable controls are disabled.
 Frame Generation requires Windows Hardware-accelerated GPU scheduling.

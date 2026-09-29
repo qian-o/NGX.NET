@@ -63,6 +63,19 @@ internal static class StreamlineLibrary
         return NativeLibrary.GetExport(Load(), name);
     }
 
+    internal static void PublishRuntime(Action publish)
+    {
+        lock (sync)
+        {
+            if (module != 0)
+            {
+                throw new InvalidOperationException("The Streamline library has already been loaded; its runtime installation cannot be changed.");
+            }
+
+            publish();
+        }
+    }
+
     private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)
     {
         return name == ImportName ? Load() : 0;

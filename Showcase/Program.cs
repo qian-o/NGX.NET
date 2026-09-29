@@ -2,12 +2,13 @@
 using Showcase.DirectX12;
 using Showcase.Handlers;
 using Showcase.Vulkan;
+using Streamline.NET;
 
 namespace Showcase;
 
 internal static class Program
 {
-    private static int Main()
+    private static async Task<int> Main()
     {
         try
         {
@@ -20,6 +21,10 @@ internal static class Program
             Console.Write("Select backend [1]: ");
             string? choice = Console.ReadLine();
             bool vulkan = choice?.Trim() == "2";
+
+            Console.WriteLine("Preparing Streamline runtime...");
+            await SL.DownloadRuntimeAsync(Path.Combine(AppContext.BaseDirectory, "Assets", "Streamline"));
+
             using UserInterface ui = new();
             using Window window = new();
             using RHI rhi = vulkan ? new VulkanRHI(window, ui) : new DirectX12RHI(window, ui);

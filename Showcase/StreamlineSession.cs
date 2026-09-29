@@ -78,7 +78,7 @@ internal sealed unsafe class StreamlineSession : IDisposable
 
         if (!File.Exists(path))
         {
-            throw new FileNotFoundException("Run Showcase/Assets/UpdateAssets.ps1, then rebuild Showcase.", path);
+            throw new FileNotFoundException("The Streamline interposer was not found.", path);
         }
 
         if (!SL.VerifyEmbeddedSignature(path))
