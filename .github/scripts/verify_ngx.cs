@@ -40,6 +40,31 @@ foreach (Type type in assembly.GetExportedTypes().Where(t => !t.IsDefined(typeof
     Require(!type.Name.StartsWith("NGXNGX", StringComparison.Ordinal), "Repeated NGX type prefix: " + type.FullName);
 }
 
+// Each native entry point has one public signature. Check the compiled surface
+// rather than relying on the generator to avoid emitting convenience overloads.
+const BindingFlags publicDeclaredMethods = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+foreach (MethodInfo method in imports.Values)
+{
+    string context = method.DeclaringType!.FullName + "." + method.Name;
+    Require(method.DeclaringType.GetMethods(publicDeclaredMethods).Count(m => m.Name == method.Name) == 1, "Managed overload for native entry point " + context);
+    foreach (Type signatureType in method.GetParameters().Select(p => p.ParameterType).Prepend(method.ReturnType))
+    {
+        Require(!signatureType.IsByRef && !signatureType.IsByRefLike, "Managed reference or span in native signature " + context);
+    }
+}
+
+// Constants are exposed as properties, and top-level macro/runtime helpers are
+// independent of SDK entry points. All other API-group methods must be imports.
+HashSet<string> standaloneHelpers = [nameof(Ngx.Succeeded), nameof(Ngx.Failed), nameof(Ngx.ThrowIfFailed), nameof(Ngx.ArrayLength)];
+foreach (Type type in assembly.GetExportedTypes().Where(t => t == typeof(Ngx) || t.DeclaringType == typeof(Ngx) && t.IsAbstract && t.IsSealed))
+{
+    foreach (MethodInfo method in type.GetMethods(publicDeclaredMethods).Where(m => !m.IsSpecialName))
+    {
+        if (type == typeof(Ngx) && standaloneHelpers.Contains(method.Name)) continue;
+        Require(method.GetCustomAttribute<LibraryImportAttribute>() is not null, "Managed wrapper in SDK API group " + type.FullName + "." + method.Name);
+    }
+}
+
 int Size(Type type) => type.IsEnum ? Marshal.SizeOf(Enum.GetUnderlyingType(type)) : type.IsPointer || type.IsFunctionPointer || type == typeof(nint) || type == typeof(nuint) ? IntPtr.Size : Marshal.SizeOf(type);
 
 void VerifyType(JsonElement native, Type managed, string context, bool behindPointer = false)

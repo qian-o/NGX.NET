@@ -21,63 +21,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetD(NGXParameter* inParameter, sbyte* inName, double* outValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD.
-        /// </summary>
-        public static NGXResult GetD(NGXParameter* parameters, ReadOnlySpan<byte> name, out double value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (double* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetD(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static double GetD(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetD(parameters, name, out double value), "NVSDK_NGX_Parameter_GetD");
-
-            return value;
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_GetD3d11Resource. Source: nvsdk_ngx_params.h:106.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetD3d11Resource(NGXParameter* inParameter, sbyte* inName, nint* outValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD3d11Resource.
-        /// </summary>
-        public static NGXResult GetD3d11Resource(NGXParameter* parameters, ReadOnlySpan<byte> name, out nint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (nint* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetD3d11Resource(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static nint GetD3d11Resource(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetD3d11Resource(parameters, name, out nint value), "NVSDK_NGX_Parameter_GetD3d11Resource");
-
-            return value;
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_GetD3d12Resource. Source: nvsdk_ngx_params.h:108.
@@ -87,63 +35,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetD3d12Resource(NGXParameter* inParameter, sbyte* inName, nint* outValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD3d12Resource.
-        /// </summary>
-        public static NGXResult GetD3d12Resource(NGXParameter* parameters, ReadOnlySpan<byte> name, out nint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (nint* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetD3d12Resource(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static nint GetD3d12Resource(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetD3d12Resource(parameters, name, out nint value), "NVSDK_NGX_Parameter_GetD3d12Resource");
-
-            return value;
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_GetF. Source: nvsdk_ngx_params.h:98.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetF(NGXParameter* inParameter, sbyte* inName, float* outValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetF.
-        /// </summary>
-        public static NGXResult GetF(NGXParameter* parameters, ReadOnlySpan<byte> name, out float value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (float* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetF(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static float GetF(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetF(parameters, name, out float value), "NVSDK_NGX_Parameter_GetF");
-
-            return value;
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_GetI. Source: nvsdk_ngx_params.h:104.
@@ -153,63 +49,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetI(NGXParameter* inParameter, sbyte* inName, int* outValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetI.
-        /// </summary>
-        public static NGXResult GetI(NGXParameter* parameters, ReadOnlySpan<byte> name, out int value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (int* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetI(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static int GetI(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetI(parameters, name, out int value), "NVSDK_NGX_Parameter_GetI");
-
-            return value;
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_GetUI. Source: nvsdk_ngx_params.h:102.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetUI(NGXParameter* inParameter, sbyte* inName, uint* outValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetUI.
-        /// </summary>
-        public static NGXResult GetUI(NGXParameter* parameters, ReadOnlySpan<byte> name, out uint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (uint* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetUI(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static uint GetUI(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetUI(parameters, name, out uint value), "NVSDK_NGX_Parameter_GetUI");
-
-            return value;
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_GetULL. Source: nvsdk_ngx_params.h:96.
@@ -219,63 +63,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetULL(NGXParameter* inParameter, sbyte* inName, ulong* outValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetULL.
-        /// </summary>
-        public static NGXResult GetULL(NGXParameter* parameters, ReadOnlySpan<byte> name, out ulong value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (ulong* output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetULL(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static ulong GetULL(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetULL(parameters, name, out ulong value), "NVSDK_NGX_Parameter_GetULL");
-
-            return value;
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_GetVoidPointer. Source: nvsdk_ngx_params.h:110.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetVoidPointer(NGXParameter* inParameter, sbyte* inName, void** outValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetVoidPointer.
-        /// </summary>
-        public static NGXResult GetVoidPointer(NGXParameter* parameters, ReadOnlySpan<byte> name, out void* value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            value = default;
-            fixed (void** output = &value)
-            fixed (byte* key = terminated)
-            {
-                return GetVoidPointer(parameters, (sbyte*)key, output);
-            }
-        }
-
-        /// <summary>
-        /// Returns a typed parameter value and throws on NGX failure.
-        /// </summary>
-        public static void* GetVoidPointer(NGXParameter* parameters, ReadOnlySpan<byte> name)
-        {
-            ThrowIfFailed(GetVoidPointer(parameters, name, out void* value), "NVSDK_NGX_Parameter_GetVoidPointer");
-
-            return value;
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_SetD. Source: nvsdk_ngx_params.h:84.
@@ -285,39 +77,11 @@ public static unsafe partial class NGX
         public static partial void SetD(NGXParameter* inParameter, sbyte* inName, double inValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD.
-        /// </summary>
-        public static void SetD(NGXParameter* parameters, ReadOnlySpan<byte> name, double value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetD(parameters, (sbyte*)key, value);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_SetD3d11Resource. Source: nvsdk_ngx_params.h:90.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void SetD3d11Resource(NGXParameter* inParameter, sbyte* inName, nint inValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD3d11Resource.
-        /// </summary>
-        public static void SetD3d11Resource(NGXParameter* parameters, ReadOnlySpan<byte> name, nint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetD3d11Resource(parameters, (sbyte*)key, value);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_SetD3d12Resource. Source: nvsdk_ngx_params.h:92.
@@ -327,39 +91,11 @@ public static unsafe partial class NGX
         public static partial void SetD3d12Resource(NGXParameter* inParameter, sbyte* inName, nint inValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD3d12Resource.
-        /// </summary>
-        public static void SetD3d12Resource(NGXParameter* parameters, ReadOnlySpan<byte> name, nint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetD3d12Resource(parameters, (sbyte*)key, value);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_SetF. Source: nvsdk_ngx_params.h:82.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void SetF(NGXParameter* inParameter, sbyte* inName, float inValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetF.
-        /// </summary>
-        public static void SetF(NGXParameter* parameters, ReadOnlySpan<byte> name, float value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetF(parameters, (sbyte*)key, value);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_SetI. Source: nvsdk_ngx_params.h:88.
@@ -369,39 +105,11 @@ public static unsafe partial class NGX
         public static partial void SetI(NGXParameter* inParameter, sbyte* inName, int inValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetI.
-        /// </summary>
-        public static void SetI(NGXParameter* parameters, ReadOnlySpan<byte> name, int value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetI(parameters, (sbyte*)key, value);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_SetUI. Source: nvsdk_ngx_params.h:86.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void SetUI(NGXParameter* inParameter, sbyte* inName, uint inValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetUI.
-        /// </summary>
-        public static void SetUI(NGXParameter* parameters, ReadOnlySpan<byte> name, uint value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetUI(parameters, (sbyte*)key, value);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_Parameter_SetULL. Source: nvsdk_ngx_params.h:80.
@@ -411,39 +119,11 @@ public static unsafe partial class NGX
         public static partial void SetULL(NGXParameter* inParameter, sbyte* inName, ulong inValue);
 
         /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetULL.
-        /// </summary>
-        public static void SetULL(NGXParameter* parameters, ReadOnlySpan<byte> name, ulong value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetULL(parameters, (sbyte*)key, value);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_Parameter_SetVoidPointer. Source: nvsdk_ngx_params.h:94.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void SetVoidPointer(NGXParameter* inParameter, sbyte* inName, void* inValue);
-
-        /// <summary>
-        /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetVoidPointer.
-        /// </summary>
-        public static void SetVoidPointer(NGXParameter* parameters, ReadOnlySpan<byte> name, void* value)
-        {
-            byte[] terminated = new byte[name.Length + 1];
-            name.CopyTo(terminated);
-            terminated[^1] = 0;
-            fixed (byte* key = terminated)
-            {
-                SetVoidPointer(parameters, (sbyte*)key, value);
-            }
-        }
 
     }
 }

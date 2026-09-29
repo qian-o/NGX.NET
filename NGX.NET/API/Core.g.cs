@@ -36,15 +36,4 @@ public static unsafe partial class NGX
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial NGXResult UpdateFeature(NGXApplicationIdentifier* applicationId, NGXFeature featureID);
 
-    /// <summary>
-    /// Pins native structures for NVSDK_NGX_UpdateFeature.
-    /// </summary>
-    public static NGXResult UpdateFeature(ref NGXApplicationIdentifier applicationId, NGXFeature featureID)
-    {
-        fixed (NGXApplicationIdentifier* pointer0 = &applicationId)
-        {
-            return UpdateFeature(pointer0, featureID);
-        }
-    }
-
 }

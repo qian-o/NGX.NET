@@ -21,81 +21,11 @@ public static unsafe partial class NGX
         public static partial NGXResult CreateDLISPExt(NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams);
 
         /// <summary>
-        /// Pins native structures for NGX_CUDA_CREATE_DLISP_EXT.
-        /// </summary>
-        public static NGXResult CreateDLISPExt(NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXFeatureCreateParams pDlispCreateParams)
-        {
-            fixed (NGXFeatureCreateParams* pointer0 = &pDlispCreateParams)
-            {
-                return CreateDLISPExt(ppOutHandle, pInParams, pointer0);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NGX_CUDA_CREATE_DLISP_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXHandle* CreateDLISPExt(NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams)
-        {
-            NGXHandle* value = default;
-            ThrowIfFailed(CreateDLISPExt(&value, pInParams, pDlispCreateParams), "NGX_CUDA_CREATE_DLISP_EXT");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NGX_CUDA_CREATE_DLISP_EXT.
-        /// </summary>
-        public static NGXResult CreateDLISPExt(out NGXHandle* value, NGXParameter* pInParams, NGXFeatureCreateParams* pDlispCreateParams)
-        {
-            value = default;
-
-            fixed (NGXHandle** pointer = &value)
-            {
-                return CreateDLISPExt(pointer, pInParams, pDlispCreateParams);
-            }
-        }
-
-        /// <summary>
         /// NGX_CUDA_CREATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_cuda.h:130.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult CreateDLSSDExt(NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_CUDA_CREATE_DLSSD_EXT.
-        /// </summary>
-        public static NGXResult CreateDLSSDExt(NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXCUDADLSSDCreateParams pInDlssDCreateParams)
-        {
-            fixed (NGXCUDADLSSDCreateParams* pointer0 = &pInDlssDCreateParams)
-            {
-                return CreateDLSSDExt(ppOutHandle, pInParams, pointer0);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NGX_CUDA_CREATE_DLSSD_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXHandle* CreateDLSSDExt(NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams)
-        {
-            NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSDExt(&value, pInParams, pInDlssDCreateParams), "NGX_CUDA_CREATE_DLSSD_EXT");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NGX_CUDA_CREATE_DLSSD_EXT.
-        /// </summary>
-        public static NGXResult CreateDLSSDExt(out NGXHandle* value, NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams)
-        {
-            value = default;
-
-            fixed (NGXHandle** pointer = &value)
-            {
-                return CreateDLSSDExt(pointer, pInParams, pInDlssDCreateParams);
-            }
-        }
 
         /// <summary>
         /// NGX_CUDA_CREATE_DLSSD_EXT1. Source: nvsdk_ngx_helpers_dlssd_cuda.h:150.
@@ -105,58 +35,11 @@ public static unsafe partial class NGX
         public static partial NGXResult CreateDLSSDExt1(NGXCUDADevice* inDevice, NGXHandle** ppOutHandle, NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams);
 
         /// <summary>
-        /// Pins native structures for NGX_CUDA_CREATE_DLSSD_EXT1.
-        /// </summary>
-        public static NGXResult CreateDLSSDExt1(ref NGXCUDADevice inDevice, NGXHandle** ppOutHandle, NGXParameter* pInParams, ref NGXCUDADLSSDCreateParams pInDlssDCreateParams)
-        {
-            fixed (NGXCUDADevice* pointer0 = &inDevice)
-            fixed (NGXCUDADLSSDCreateParams* pointer1 = &pInDlssDCreateParams)
-            {
-                return CreateDLSSDExt1(pointer0, ppOutHandle, pInParams, pointer1);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NGX_CUDA_CREATE_DLSSD_EXT1; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXHandle* CreateDLSSDExt1(NGXCUDADevice* inDevice, NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams)
-        {
-            NGXHandle* value = default;
-            ThrowIfFailed(CreateDLSSDExt1(inDevice, &value, pInParams, pInDlssDCreateParams), "NGX_CUDA_CREATE_DLSSD_EXT1");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NGX_CUDA_CREATE_DLSSD_EXT1.
-        /// </summary>
-        public static NGXResult CreateDLSSDExt1(NGXCUDADevice* inDevice, out NGXHandle* value, NGXParameter* pInParams, NGXCUDADLSSDCreateParams* pInDlssDCreateParams)
-        {
-            value = default;
-
-            fixed (NGXHandle** pointer = &value)
-            {
-                return CreateDLSSDExt1(inDevice, pointer, pInParams, pInDlssDCreateParams);
-            }
-        }
-
-        /// <summary>
         /// NGX_CUDA_EVALUATE_DLISP_EXT. Source: nvsdk_ngx_helpers_cuda.h:50.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult EvaluateDLISPExt(NGXHandle* pInHandle, NGXParameter* pInParams, NGXCUDADLISPEvalParams* pDlispEvalParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_CUDA_EVALUATE_DLISP_EXT.
-        /// </summary>
-        public static NGXResult EvaluateDLISPExt(NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXCUDADLISPEvalParams pDlispEvalParams)
-        {
-            fixed (NGXCUDADLISPEvalParams* pointer0 = &pDlispEvalParams)
-            {
-                return EvaluateDLISPExt(pInHandle, pInParams, pointer0);
-            }
-        }
 
         /// <summary>
         /// NGX_CUDA_EVALUATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_cuda.h:247.
@@ -166,46 +49,11 @@ public static unsafe partial class NGX
         public static partial NGXResult EvaluateDLSSDExt(NGXHandle* pInHandle, NGXParameter* pInParams, NGXCUDADLSSDEvalParams* pInDlssDEvalParams);
 
         /// <summary>
-        /// Pins native structures for NGX_CUDA_EVALUATE_DLSSD_EXT.
-        /// </summary>
-        public static NGXResult EvaluateDLSSDExt(NGXHandle* pInHandle, NGXParameter* pInParams, ref NGXCUDADLSSDEvalParams pInDlssDEvalParams)
-        {
-            fixed (NGXCUDADLSSDEvalParams* pointer0 = &pInDlssDEvalParams)
-            {
-                return EvaluateDLSSDExt(pInHandle, pInParams, pointer0);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_AllocateParameters. Source: nvsdk_ngx.h:382.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_AllocateParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult AllocateParameters(NGXParameter** outParameters);
-
-        /// <summary>
-        /// Returns the reviewed output of NVSDK_NGX_CUDA_AllocateParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXParameter* AllocateParameters()
-        {
-            NGXParameter* value = default;
-            ThrowIfFailed(AllocateParameters(&value), "NVSDK_NGX_CUDA_AllocateParameters");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NVSDK_NGX_CUDA_AllocateParameters.
-        /// </summary>
-        public static NGXResult AllocateParameters(out NGXParameter* value)
-        {
-            value = default;
-
-            fixed (NGXParameter** pointer = &value)
-            {
-                return AllocateParameters(pointer);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_CUDA_CreateFeature. Source: nvsdk_ngx.h:551.
@@ -215,70 +63,11 @@ public static unsafe partial class NGX
         public static partial NGXResult CreateFeature(NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle);
 
         /// <summary>
-        /// Returns the reviewed output of NVSDK_NGX_CUDA_CreateFeature; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXHandle* CreateFeature(NGXFeature inFeatureID, NGXParameter* inParameters)
-        {
-            NGXHandle* value = default;
-            ThrowIfFailed(CreateFeature(inFeatureID, inParameters, &value), "NVSDK_NGX_CUDA_CreateFeature");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NVSDK_NGX_CUDA_CreateFeature.
-        /// </summary>
-        public static NGXResult CreateFeature(NGXFeature inFeatureID, NGXParameter* inParameters, out NGXHandle* value)
-        {
-            value = default;
-
-            fixed (NGXHandle** pointer = &value)
-            {
-                return CreateFeature(inFeatureID, inParameters, pointer);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_CreateFeature1. Source: nvsdk_ngx.h:552.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult CreateFeature1(NGXCUDADevice* inDevice, NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_CreateFeature1.
-        /// </summary>
-        public static NGXResult CreateFeature1(ref NGXCUDADevice inDevice, NGXFeature inFeatureID, NGXParameter* inParameters, NGXHandle** outHandle)
-        {
-            fixed (NGXCUDADevice* pointer0 = &inDevice)
-            {
-                return CreateFeature1(pointer0, inFeatureID, inParameters, outHandle);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NVSDK_NGX_CUDA_CreateFeature1; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXHandle* CreateFeature1(NGXCUDADevice* inDevice, NGXFeature inFeatureID, NGXParameter* inParameters)
-        {
-            NGXHandle* value = default;
-            ThrowIfFailed(CreateFeature1(inDevice, inFeatureID, inParameters, &value), "NVSDK_NGX_CUDA_CreateFeature1");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NVSDK_NGX_CUDA_CreateFeature1.
-        /// </summary>
-        public static NGXResult CreateFeature1(NGXCUDADevice* inDevice, NGXFeature inFeatureID, NGXParameter* inParameters, out NGXHandle* value)
-        {
-            value = default;
-
-            fixed (NGXHandle** pointer = &value)
-            {
-                return CreateFeature1(inDevice, inFeatureID, inParameters, pointer);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_CUDA_DestroyParameters. Source: nvsdk_ngx.h:451.
@@ -309,47 +98,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetCapabilityParameters(NGXParameter** outParameters);
 
         /// <summary>
-        /// Returns the reviewed output of NVSDK_NGX_CUDA_GetCapabilityParameters; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static NGXParameter* GetCapabilityParameters()
-        {
-            NGXParameter* value = default;
-            ThrowIfFailed(GetCapabilityParameters(&value), "NVSDK_NGX_CUDA_GetCapabilityParameters");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NVSDK_NGX_CUDA_GetCapabilityParameters.
-        /// </summary>
-        public static NGXResult GetCapabilityParameters(out NGXParameter* value)
-        {
-            value = default;
-
-            fixed (NGXParameter** pointer = &value)
-            {
-                return GetCapabilityParameters(pointer);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_GetFeatureRequirements. Source: nvsdk_ngx.h:625.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetFeatureRequirements")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetFeatureRequirements(int cudaDevice, NGXFeatureDiscoveryInfo* featureDiscoveryInfo, NGXFeatureRequirement* outSupported);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_GetFeatureRequirements.
-        /// </summary>
-        public static NGXResult GetFeatureRequirements(int cudaDevice, ref NGXFeatureDiscoveryInfo featureDiscoveryInfo, ref NGXFeatureRequirement outSupported)
-        {
-            fixed (NGXFeatureDiscoveryInfo* pointer0 = &featureDiscoveryInfo)
-            fixed (NGXFeatureRequirement* pointer1 = &outSupported)
-            {
-                return GetFeatureRequirements(cudaDevice, pointer0, pointer1);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_CUDA_GetParameters. Source: nvsdk_ngx.h:334.
@@ -366,46 +119,11 @@ public static unsafe partial class NGX
         public static partial NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, nuint* outSizeInBytes);
 
         /// <summary>
-        /// Returns the reviewed output of NVSDK_NGX_CUDA_GetScratchBufferSize; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters)
-        {
-            nuint value = default;
-            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, &value), "NVSDK_NGX_CUDA_GetScratchBufferSize");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NVSDK_NGX_CUDA_GetScratchBufferSize.
-        /// </summary>
-        public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter* inParameters, out nuint value)
-        {
-            value = default;
-
-            fixed (nuint* pointer = &value)
-            {
-                return GetScratchBufferSize(inFeatureId, inParameters, pointer);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_Init. Source: nvsdk_ngx.h:170.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_Init.
-        /// </summary>
-        public static NGXResult Init(ulong inApplicationId, void* inApplicationDataPath, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
-        {
-            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
-            {
-                return Init(inApplicationId, inApplicationDataPath, pointer0, inSDKVersion);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_CUDA_Init1. Source: nvsdk_ngx.h:171.
@@ -415,34 +133,11 @@ public static unsafe partial class NGX
         public static partial NGXResult Init1(ulong inApplicationId, void* inApplicationDataPath, NGXCUDADevice* inDevice, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
 
         /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_Init1.
-        /// </summary>
-        public static NGXResult Init1(ulong inApplicationId, void* inApplicationDataPath, ref NGXCUDADevice inDevice, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
-        {
-            fixed (NGXCUDADevice* pointer0 = &inDevice)
-            fixed (NGXFeatureCommonInfo* pointer1 = &inFeatureInfo)
-            {
-                return Init1(inApplicationId, inApplicationDataPath, pointer0, pointer1, inSDKVersion);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_Init_with_ProjectID. Source: nvsdk_ngx.h:248.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, NGXFeatureCommonInfo* inFeatureInfo, NGXVersion inSDKVersion);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_Init_with_ProjectID.
-        /// </summary>
-        public static NGXResult InitWithProjectID(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, ref NGXFeatureCommonInfo inFeatureInfo, NGXVersion inSDKVersion)
-        {
-            fixed (NGXFeatureCommonInfo* pointer0 = &inFeatureInfo)
-            {
-                return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, pointer0, inSDKVersion);
-            }
-        }
 
         /// <summary>
         /// NVSDK_NGX_CUDA_ReleaseFeature. Source: nvsdk_ngx.h:575.
@@ -464,17 +159,6 @@ public static unsafe partial class NGX
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult Shutdown1(NGXCUDADevice* inDevice);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_Shutdown1.
-        /// </summary>
-        public static NGXResult Shutdown1(ref NGXCUDADevice inDevice)
-        {
-            fixed (NGXCUDADevice* pointer0 = &inDevice)
-            {
-                return Shutdown1(pointer0);
-            }
-        }
 
     }
 }

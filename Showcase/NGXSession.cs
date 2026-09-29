@@ -73,12 +73,24 @@ internal sealed unsafe class NGXSession : IDisposable
         }
 
         initialized = true;
-        capabilities = IsVulkan ? Ngx.Vulkan.GetCapabilityParameters() : Ngx.D3D12.GetCapabilityParameters();
-        parameters = IsVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
-        frameParameters = IsVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
-        Query(NGXFeature.SuperSampling, Ngx.ParameterSuperSamplingAvailable);
-        Query(NGXFeature.RayReconstruction, Ngx.ParameterSuperSamplingDenoisingAvailable);
-        Query(NGXFeature.FrameGeneration, Ngx.ParameterFrameGenerationAvailable);
+        NGXParameter* allocated = null;
+        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.GetCapabilityParameters(&allocated) : Ngx.D3D12.GetCapabilityParameters(&allocated));
+        capabilities = allocated;
+        allocated = null;
+        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
+        parameters = allocated;
+        allocated = null;
+        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
+        frameParameters = allocated;
+
+        fixed (byte* superSampling = Ngx.ParameterSuperSamplingAvailable)
+        fixed (byte* rayReconstruction = Ngx.ParameterSuperSamplingDenoisingAvailable)
+        fixed (byte* frameGeneration = Ngx.ParameterFrameGenerationAvailable)
+        {
+            Query(NGXFeature.SuperSampling, (sbyte*)superSampling);
+            Query(NGXFeature.RayReconstruction, (sbyte*)rayReconstruction);
+            Query(NGXFeature.FrameGeneration, (sbyte*)frameGeneration);
+        }
     }
 
     public string[] VulkanExtensions(nint instance = 0, nint physical = 0)
@@ -141,9 +153,10 @@ internal sealed unsafe class NGXSession : IDisposable
         return [.. extensions];
     }
 
-    private void Query(NGXFeature feature, ReadOnlySpan<byte> name)
+    private void Query(NGXFeature feature, sbyte* name)
     {
-        NGXResult result = Ngx.Parameter.GetI(capabilities, name, out int available);
+        int available = 0;
+        NGXResult result = Ngx.Parameter.GetI(capabilities, name, &available);
 
         if (Ngx.Failed(result) || available == 0)
         {
@@ -160,14 +173,27 @@ internal sealed unsafe class NGXSession : IDisposable
         };
         outputWidth = width;
         outputHeight = height;
-        NGXOptimalSettings optimal = value.Reconstruction switch
+        uint renderWidth = 0, renderHeight = 0;
+
+        if (value.Reconstruction is Reconstruction.DLSS or Reconstruction.RayReconstruction)
         {
-            Reconstruction.DLSS => Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality),
-            Reconstruction.RayReconstruction => Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality),
-            _ => new((uint)width, (uint)height, (uint)width, (uint)height, (uint)width, (uint)height, 0)
-        };
-        inputWidth = (int)optimal.RenderWidth;
-        inputHeight = (int)optimal.RenderHeight;
+            uint maxWidth = 0, maxHeight = 0, minWidth = 0, minHeight = 0;
+            float sharpness = 0;
+            NGXResult result = value.Reconstruction == Reconstruction.DLSS
+                ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality,
+                    &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness)
+                : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality,
+                    &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness);
+            Ngx.ThrowIfFailed(result);
+        }
+        else
+        {
+            renderWidth = (uint)width;
+            renderHeight = (uint)height;
+        }
+
+        inputWidth = (int)renderWidth;
+        inputHeight = (int)renderHeight;
 
         return (inputWidth, inputHeight);
     }
@@ -177,6 +203,8 @@ internal sealed unsafe class NGXSession : IDisposable
         Ngx.Parameter.Reset(parameters);
         // Camera.Projection maps the near plane to 1 and the far plane to 0.
         int flags = (int)(NGXDLSSFeatureFlags.IsHDR | NGXDLSSFeatureFlags.MVLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
+        NGXHandle* created = null;
+        NGXResult result;
 
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
@@ -192,7 +220,9 @@ internal sealed unsafe class NGXSession : IDisposable
                 InPerfQualityValue = settings.ReconstructionQuality,
                 InFeatureCreateFlags = flags
             };
-            reconstruction = IsVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, parameters, &create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, parameters, &create);
+            result = IsVulkan
+                ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, &created, parameters, &create)
+                : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, &created, parameters, &create);
         }
         else
         {
@@ -208,8 +238,13 @@ internal sealed unsafe class NGXSession : IDisposable
                 },
                 InFeatureCreateFlags = flags
             };
-            reconstruction = IsVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, parameters, &create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, parameters, &create);
+            result = IsVulkan
+                ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, &created, parameters, &create)
+                : Ngx.D3D12.CreateDLSSExt(command, 1, 1, &created, parameters, &create);
         }
+
+        Ngx.ThrowIfFailed(result);
+        reconstruction = created;
     }
 
     public void Evaluate(nint command, GpuImage[] images, Camera camera, bool reset, float delta)
@@ -358,7 +393,11 @@ internal sealed unsafe class NGXSession : IDisposable
                 RenderHeight = (uint)inputHeight,
                 NativeBackbufferFormat = IsVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Vortice.DXGI.Format.R8G8B8A8_UNorm
             };
-            generation = IsVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, frameParameters, &create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, frameParameters, &create);
+            NGXHandle* created = null;
+            Ngx.ThrowIfFailed(IsVulkan
+                ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, &created, frameParameters, &create)
+                : Ngx.D3D12.CreateDLSSG(command, 1, 1, &created, frameParameters, &create));
+            generation = created;
             reset = true;
         }
 

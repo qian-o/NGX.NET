@@ -8,7 +8,7 @@ Windows x64/arm64 supports Direct3D 11, Direct3D 12, Vulkan and CUDA. Linux x64/
 
 Public types use the `NGX` prefix, such as `NGXResult`, `NGXParameter` and `NGXDLSSCreateParams`. Fields and enum members do not repeat the prefix. API method parameters use camelCase while preserving native prefixes and abbreviations.
 
-Use `NGX.D3D11`, `NGX.D3D12`, `NGX.Vulkan`, `NGX.CUDA` and `NGX.Parameter` for the application API. `NGX.DLSS` and `NGX.DLSSD` expose shared helpers. Native pointers remain available alongside `ref`/`out` and reviewed result-returning overloads.
+Use `NGX.D3D11`, `NGX.D3D12`, `NGX.Vulkan`, `NGX.CUDA` and `NGX.Parameter` for the application API. `NGX.DLSS` and `NGX.DLSSD` expose shared helpers. Each native entry point has one unsafe signature, without managed `ref`/`out`, `Span` or direct-return convenience overloads. Native helpers that return structures by value retain their original signatures.
 
 After initializing NGX with your graphics device and `NGX.RuntimeDirectory` in the feature search paths:
 
@@ -18,12 +18,17 @@ using Ngx = NGX.NET.NGX;
 
 unsafe
 {
-    NGXParameter* capabilities = Ngx.D3D12.GetCapabilityParameters();
+    NGXParameter* capabilities = null;
+    Ngx.ThrowIfFailed(Ngx.D3D12.GetCapabilityParameters(&capabilities));
 
     try
     {
-        NGXOptimalSettings settings = Ngx.DLSS.GetOptimalSettings(
-            capabilities, 2560, 1440, NGXPerfQualityValue.MaxQuality);
+        uint optimalWidth, optimalHeight, maxWidth, maxHeight, minWidth, minHeight;
+        float sharpness;
+        Ngx.ThrowIfFailed(Ngx.DLSS.GetOptimalSettings(
+            capabilities, 2560, 1440, NGXPerfQualityValue.MaxQuality,
+            &optimalWidth, &optimalHeight, &maxWidth, &maxHeight,
+            &minWidth, &minHeight, &sharpness));
     }
     finally
     {
