@@ -6,7 +6,7 @@ C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), w
 
 ## Usage
 
-See the [native runtime setup notes](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET/readme.txt) for downloads and initialization.
+See the [native runtime setup guide](https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET/GettingStarted.md) for downloads and initialization.
 
 ```csharp
 using Streamline.NET;

@@ -1,28 +1,9 @@
-Streamline.NET - native runtime setup
-=====================================
+Streamline.NET requires NVIDIA's native runtime.
 
-This NuGet package contains managed bindings only. The native Streamline
-libraries must be supplied separately.
+For Windows x64, download streamline-sdk-<release-tag>.zip from the matching
+NVIDIA Streamline release, then copy the files directly inside bin/x64/.
 
-1. Download the native libraries from NVIDIA's official Streamline SDK releases:
-   https://github.com/NVIDIA-RTX/Streamline/releases
+The full Markdown guide explains which download to choose and how to load it:
+https://github.com/qian-o/Streamline.NET/blob/master/Streamline.NET/GettingStarted.md
 
-   Keep the interposer, required plugins and their dependencies together in a
-   directory of your choice, along with the accompanying license files.
-
-2. Set the interposer's absolute file path before calling the SDK:
-
-   Streamline.NET.SL.SetLibraryPath(@"C:\Path\To\sl.interposer.dll");
-
-   Replace the example path with the actual location on your machine.
-   This selects the library; SDK initialization is still required.
-
-3. Follow NVIDIA's integration guide to initialize Streamline and connect it
-   to your graphics device:
-   https://github.com/NVIDIA-RTX/Streamline/blob/main/docs/ProgrammingGuide.md
-
-   Complete DirectX 12 and Vulkan example:
-   https://github.com/qian-o/Streamline.NET/tree/master/Showcase
-
-Project license: LICENSE
-Third-party attributions and license text: THIRD-PARTY-NOTICES
+GettingStarted.md is also included in this package and shown in its Readme page.

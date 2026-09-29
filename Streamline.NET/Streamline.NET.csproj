@@ -16,7 +16,7 @@
         <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReadmeFile>GettingStarted.md</PackageReadmeFile>
         <PackageTags>Streamline;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
         <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
 
@@ -30,7 +30,7 @@
     <ItemGroup Condition="'$(Configuration)' == 'Release'">
         <None Include="..\LICENSE" Pack="true" PackagePath="\" />
         <None Include="..\THIRD-PARTY-NOTICES" Pack="true" PackagePath="\" />
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <None Update="GettingStarted.md" Pack="true" PackagePath="\" />
         <None Update="readme.txt" Pack="true" PackagePath="\" />
     </ItemGroup>
 
