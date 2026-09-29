@@ -26,14 +26,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetOptimalSettings(DirectSROptions* options, DirectSROptimalSettings* settings)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetOptimalSettings", "slDirectSRGetOptimalSettings"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDirectSRGetOptimalSettings(out delegate* unmanaged[Cdecl]<DirectSROptions*, DirectSROptimalSettings*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<DirectSROptions*, DirectSROptimalSettings*, SLResult>)address)(options, settings);
+            return function(options, settings);
         }
 
         /// <summary>
@@ -100,14 +100,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetVariantInfo(uint* numVariants, DirectSRVariantInfo* variantInfo)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRGetVariantInfo", "slDirectSRGetVariantInfo"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDirectSRGetVariantInfo(out delegate* unmanaged[Cdecl]<uint*, DirectSRVariantInfo*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<uint*, DirectSRVariantInfo*, SLResult>)address)(numVariants, variantInfo);
+            return function(numVariants, variantInfo);
         }
 
         /// <summary>
@@ -150,14 +150,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ViewportHandle* viewport, DirectSROptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDirectSR, "slDirectSRSetOptions", "slDirectSRSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDirectSRSetOptions(out delegate* unmanaged[Cdecl]<ViewportHandle*, DirectSROptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DirectSROptions*, SLResult>)address)(viewport, options);
+            return function(viewport, options);
         }
 
         /// <summary>

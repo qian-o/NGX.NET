@@ -25,14 +25,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(ReflexState* state)
         {
-            SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetState", "slReflexGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveReflexGetState(out delegate* unmanaged[Cdecl]<ReflexState*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ReflexState*, SLResult>)address)(state);
+            return function(state);
         }
 
         /// <summary>
@@ -103,14 +103,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult Sleep(nint frame)
         {
-            SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSleep", "slReflexSleep"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveReflexSleep(out delegate* unmanaged[Cdecl]<nint, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<nint, SLResult>)address)(frame);
+            return function(frame);
         }
 
         /// <summary>
@@ -146,14 +146,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ReflexOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetOptions", "slReflexSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveReflexSetOptions(out delegate* unmanaged[Cdecl]<ReflexOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ReflexOptions*, SLResult>)address)(options);
+            return function(options);
         }
 
         /// <summary>
@@ -194,14 +194,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetCameraData(ViewportHandle* viewport, nint frame, ReflexCameraData* inCameraData)
         {
-            SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexSetCameraData", "slReflexSetCameraData"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveReflexSetCameraData(out delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexCameraData*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexCameraData*, SLResult>)address)(viewport, frame, inCameraData);
+            return function(viewport, frame, inCameraData);
         }
 
         /// <summary>
@@ -245,14 +245,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetPredictedCameraData(ViewportHandle* viewport, nint frame, ReflexPredictedCameraData* outCameraData)
         {
-            SLResult result = FeatureFunctions.Get(FeatureReflex, "slReflexGetPredictedCameraData", "slReflexGetPredictedCameraData"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveReflexGetPredictedCameraData(out delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexPredictedCameraData*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, nint, ReflexPredictedCameraData*, SLResult>)address)(viewport, frame, outCameraData);
+            return function(viewport, frame, outCameraData);
         }
 
         /// <summary>

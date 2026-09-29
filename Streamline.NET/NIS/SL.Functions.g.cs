@@ -26,14 +26,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ViewportHandle* viewport, NISOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISSetOptions", "slNISSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveNISSetOptions(out delegate* unmanaged[Cdecl]<ViewportHandle*, NISOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, NISOptions*, SLResult>)address)(viewport, options);
+            return function(viewport, options);
         }
 
         /// <summary>
@@ -75,14 +75,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(ViewportHandle* viewport, NISState* state)
         {
-            SLResult result = FeatureFunctions.Get(FeatureNIS, "slNISGetState", "slNISGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveNISGetState(out delegate* unmanaged[Cdecl]<ViewportHandle*, NISState*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, NISState*, SLResult>)address)(viewport, state);
+            return function(viewport, state);
         }
 
         /// <summary>

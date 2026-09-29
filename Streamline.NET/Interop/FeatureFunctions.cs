@@ -1,26 +1,18 @@
 ﻿namespace Streamline.NET;
 
-internal static unsafe class FeatureFunctions
+internal sealed unsafe partial class FeatureFunctions
 {
-    private static readonly object sync = new();
+    private static FeatureFunctions current = new();
 
-    private static readonly Dictionary<(uint Feature, string Name), nint> addresses = [];
+    internal static FeatureFunctions Current => Volatile.Read(ref current);
 
-    private static ulong generation;
-
-    internal static SLResult Get(uint feature, string name, ReadOnlySpan<byte> encodedName, out nint address)
+    private static SLResult Resolve(ref nint slot, uint feature, ReadOnlySpan<byte> encodedName, out nint address)
     {
-        (uint, string) key = (feature, name);
-        ulong queriedGeneration;
+        address = Volatile.Read(ref slot);
 
-        lock (sync)
+        if (address != 0)
         {
-            if (addresses.TryGetValue(key, out address))
-            {
-                return SLResult.Ok;
-            }
-
-            queriedGeneration = generation;
+            return SLResult.Ok;
         }
 
         // All callers supply compiler-emitted, null-terminated UTF-8 literals.
@@ -36,12 +28,11 @@ internal static unsafe class FeatureFunctions
 
         if (result == SLResult.Ok)
         {
-            lock (sync)
+            nint cached = Interlocked.CompareExchange(ref slot, function, 0);
+
+            if (cached != 0)
             {
-                if (generation == queriedGeneration)
-                {
-                    addresses[key] = function;
-                }
+                address = cached;
             }
         }
 
@@ -50,10 +41,8 @@ internal static unsafe class FeatureFunctions
 
     internal static void Invalidate()
     {
-        lock (sync)
-        {
-            generation++;
-            addresses.Clear();
-        }
+        // In-flight resolutions may populate the old table, never the replacement.
+        // Native calls must still obey the SDK's shutdown and feature-change sequencing.
+        Interlocked.Exchange(ref current, new());
     }
 }

@@ -34,10 +34,15 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
             builder.AppendLine();
             builder.AppendLine("namespace Streamline.NET;");
 
-            if (name.StartsWith("SL.", StringComparison.Ordinal) || name == "SLNative")
+            if (name.StartsWith("SL.", StringComparison.Ordinal) || name is "SLNative" or "FeatureFunctions")
             {
                 builder.AppendLine();
-                builder.AppendLine(name == "SLNative" ? "internal static unsafe partial class SLNative" : "public static unsafe partial class SL");
+                builder.AppendLine(name switch
+                {
+                    "SLNative" => "internal static unsafe partial class SLNative",
+                    "FeatureFunctions" => "internal sealed unsafe partial class FeatureFunctions",
+                    _ => "public static unsafe partial class SL"
+                });
                 builder.AppendLine("{");
 
                 if (featureGroups.Contains(group) && name is "SL.Functions" or "SL.Strings" or "SL.Presets" or "SL.Flags")
@@ -212,7 +217,7 @@ internal sealed partial class CSharpEmitter(InterfaceSnapshot snapshot, TypeMapp
             text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
             string fileName = Path.GetFileName(relativePath);
 
-            if (fileName.StartsWith("SL.", StringComparison.Ordinal) || fileName == "SLNative.g.cs")
+            if (fileName.StartsWith("SL.", StringComparison.Ordinal) || fileName is "SLNative.g.cs" or "FeatureFunctions.g.cs")
             {
                 text += "}\n";
             }

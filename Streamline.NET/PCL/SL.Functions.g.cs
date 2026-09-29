@@ -25,14 +25,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(PCLState* state)
         {
-            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLGetState", "slPCLGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolvePCLGetState(out delegate* unmanaged[Cdecl]<PCLState*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<PCLState*, SLResult>)address)(state);
+            return function(state);
         }
 
         /// <summary>
@@ -104,14 +104,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetMarker(PCLMarker marker, nint frame)
         {
-            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetMarker", "slPCLSetMarker"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolvePCLSetMarker(out delegate* unmanaged[Cdecl]<PCLMarker, nint, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<PCLMarker, nint, SLResult>)address)(marker, frame);
+            return function(marker, frame);
         }
 
         /// <summary>
@@ -148,14 +148,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(PCLOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeaturePCL, "slPCLSetOptions", "slPCLSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolvePCLSetOptions(out delegate* unmanaged[Cdecl]<PCLOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<PCLOptions*, SLResult>)address)(options);
+            return function(options);
         }
 
         /// <summary>

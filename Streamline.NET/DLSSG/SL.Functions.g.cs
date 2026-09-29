@@ -27,14 +27,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(ViewportHandle* viewport, DLSSGState* state, DLSSGOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDLSSG, "slDLSSGGetState", "slDLSSGGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDLSSGGetState(out delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGState*, DLSSGOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGState*, DLSSGOptions*, SLResult>)address)(viewport, state, options);
+            return function(viewport, state, options);
         }
 
         /// <summary>
@@ -111,14 +111,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ViewportHandle* viewport, DLSSGOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDLSSG, "slDLSSGSetOptions", "slDLSSGSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDLSSGSetOptions(out delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSGOptions*, SLResult>)address)(viewport, options);
+            return function(viewport, options);
         }
 
         /// <summary>

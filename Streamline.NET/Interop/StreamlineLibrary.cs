@@ -9,7 +9,7 @@ internal static class StreamlineLibrary
 
     private static readonly object sync = new();
 
-    private static string? libraryPath;
+    private static string? libraryDirectory;
 
     private static nint module;
 
@@ -29,7 +29,12 @@ internal static class StreamlineLibrary
 
         if (!Path.IsPathFullyQualified(path))
         {
-            throw new ArgumentException("The Streamline library path must be an absolute file path.", nameof(path));
+            throw new ArgumentException("The Streamline library path must be an absolute directory path.", nameof(path));
+        }
+
+        if (File.Exists(path))
+        {
+            throw new ArgumentException("The Streamline library path must be a directory, not a file.", nameof(path));
         }
 
         lock (sync)
@@ -39,7 +44,7 @@ internal static class StreamlineLibrary
                 throw new InvalidOperationException("The Streamline library has already been loaded.");
             }
 
-            libraryPath = path;
+            libraryDirectory = path;
         }
     }
 
@@ -62,12 +67,12 @@ internal static class StreamlineLibrary
                 return module;
             }
 
-            if (libraryPath is null)
+            if (libraryDirectory is null)
             {
                 throw new InvalidOperationException("Call SL.SetLibraryPath before invoking the Streamline SDK.");
             }
 
-            module = NativeLibrary.Load(libraryPath);
+            module = NativeLibrary.Load(Path.Combine(libraryDirectory, "sl.interposer.dll"));
 
             return module;
         }

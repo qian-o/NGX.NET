@@ -86,9 +86,10 @@ internal sealed unsafe class StreamlineSession : IDisposable
             throw new InvalidDataException($"The NVIDIA production interposer signature could not be verified: {path}");
         }
 
-        SL.SetLibraryPath(path);
+        string directory = Path.GetDirectoryName(path)!;
+        SL.SetLibraryPath(directory);
         char** plugins = (char**)Keep(Marshal.AllocCoTaskMem(sizeof(nint)));
-        *plugins = Utf16(Path.GetDirectoryName(path)!);
+        *plugins = Utf16(directory);
         string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
         Directory.CreateDirectory(logs);
         uint[] features = Features.Select(x => x.Id).ToArray();

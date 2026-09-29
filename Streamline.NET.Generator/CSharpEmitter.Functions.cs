@@ -54,12 +54,13 @@ internal sealed partial class CSharpEmitter
                 throw new InvalidDataException($"Unresolved feature entry: {declaration.Name}");
             }
 
-            builder.AppendLine($"        SLResult result = FeatureFunctions.Get({TypeMapper.ConstantName(feature.Groups[1].Value)}, \"{declaration.Name}\", \"{declaration.Name}\"u8, out nint address);");
+            string resolver = EmitFeatureFunctionResolver(declaration, feature.Groups[1].Value, pointerSignature);
+            builder.AppendLine($"        SLResult result = FeatureFunctions.Current.{resolver}(out {pointerSignature} function);");
             builder.AppendLine("        if (result != SLResult.Ok)");
             builder.AppendLine("        {");
             builder.AppendLine("            return result;");
             builder.AppendLine("        }");
-            builder.AppendLine($"        return (({pointerSignature})address)({arguments});");
+            builder.AppendLine($"        return function({arguments});");
         }
 
         builder.AppendLine("    }");

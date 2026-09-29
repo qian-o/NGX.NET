@@ -26,14 +26,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ViewportHandle* viewport, DeepDVCOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCSetOptions", "slDeepDVCSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDeepDVCSetOptions(out delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCOptions*, SLResult>)address)(viewport, options);
+            return function(viewport, options);
         }
 
         /// <summary>
@@ -75,14 +75,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(ViewportHandle* viewport, DeepDVCState* state)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDeepDVC, "slDeepDVCGetState", "slDeepDVCGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDeepDVCGetState(out delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCState*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DeepDVCState*, SLResult>)address)(viewport, state);
+            return function(viewport, state);
         }
 
         /// <summary>

@@ -26,14 +26,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetOptimalSettings(DLSSDOptions* options, DLSSDOptimalSettings* settings)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDLSSRR, "slDLSSDGetOptimalSettings", "slDLSSDGetOptimalSettings"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDLSSDGetOptimalSettings(out delegate* unmanaged[Cdecl]<DLSSDOptions*, DLSSDOptimalSettings*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<DLSSDOptions*, DLSSDOptimalSettings*, SLResult>)address)(options, settings);
+            return function(options, settings);
         }
 
         /// <summary>
@@ -108,14 +108,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult GetState(ViewportHandle* viewport, DLSSDState* state)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDLSSRR, "slDLSSDGetState", "slDLSSDGetState"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDLSSDGetState(out delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSDState*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSDState*, SLResult>)address)(viewport, state);
+            return function(viewport, state);
         }
 
         /// <summary>
@@ -190,14 +190,14 @@ public static unsafe partial class SL
         /// </remarks>
         public static SLResult SetOptions(ViewportHandle* viewport, DLSSDOptions* options)
         {
-            SLResult result = FeatureFunctions.Get(FeatureDLSSRR, "slDLSSDSetOptions", "slDLSSDSetOptions"u8, out nint address);
+            SLResult result = FeatureFunctions.Current.ResolveDLSSDSetOptions(out delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSDOptions*, SLResult> function);
 
             if (result != SLResult.Ok)
             {
                 return result;
             }
 
-            return ((delegate* unmanaged[Cdecl]<ViewportHandle*, DLSSDOptions*, SLResult>)address)(viewport, options);
+            return function(viewport, options);
         }
 
         /// <summary>
