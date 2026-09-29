@@ -9,24 +9,28 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_ProjectIdDescription
 /// </summary>
+[NativeName("NVSDK_NGX_ProjectIdDescription")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct ProjectIdDescription
 {
     /// <summary>
     /// NVSDK_NGX_ProjectIdDescription::ProjectId
     /// </summary>
+    [NativeName("ProjectId")]
     [FieldOffset(0)]
     public sbyte* @ProjectId;
 
     /// <summary>
     /// NVSDK_NGX_ProjectIdDescription::EngineType
     /// </summary>
+    [NativeName("EngineType")]
     [FieldOffset(8)]
     public global::NGX.NET.EngineType @EngineType;
 
     /// <summary>
     /// NVSDK_NGX_ProjectIdDescription::EngineVersion
     /// </summary>
+    [NativeName("EngineVersion")]
     [FieldOffset(16)]
     public sbyte* @EngineVersion;
 

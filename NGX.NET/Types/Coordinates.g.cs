@@ -9,18 +9,21 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Coordinates
 /// </summary>
+[NativeName("NVSDK_NGX_Coordinates")]
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public unsafe partial struct Coordinates
 {
     /// <summary>
     /// NVSDK_NGX_Coordinates::X
     /// </summary>
+    [NativeName("X")]
     [FieldOffset(0)]
     public uint @X;
 
     /// <summary>
     /// NVSDK_NGX_Coordinates::Y
     /// </summary>
+    [NativeName("Y")]
     [FieldOffset(4)]
     public uint @Y;
 

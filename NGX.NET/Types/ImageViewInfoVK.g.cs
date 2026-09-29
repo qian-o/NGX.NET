@@ -9,42 +9,49 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_ImageViewInfo_VK
 /// </summary>
+[NativeName("NVSDK_NGX_ImageViewInfo_VK")]
 [StructLayout(LayoutKind.Explicit, Size = 48)]
 public unsafe partial struct ImageViewInfoVK
 {
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::ImageView
     /// </summary>
+    [NativeName("ImageView")]
     [FieldOffset(0)]
     public nint @ImageView;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Image
     /// </summary>
+    [NativeName("Image")]
     [FieldOffset(8)]
     public nint @Image;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::SubresourceRange
     /// </summary>
+    [NativeName("SubresourceRange")]
     [FieldOffset(16)]
     public global::NGX.NET.VkImageSubresourceRange @SubresourceRange;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Format
     /// </summary>
+    [NativeName("Format")]
     [FieldOffset(36)]
     public global::NGX.NET.VkFormat @Format;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Width
     /// </summary>
+    [NativeName("Width")]
     [FieldOffset(40)]
     public uint @Width;
 
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::Height
     /// </summary>
+    [NativeName("Height")]
     [FieldOffset(44)]
     public uint @Height;
 

@@ -1,4 +1,4 @@
-﻿using Streamline.NET;
+﻿using NGX.NET;
 
 namespace Showcase.Models;
 
@@ -9,7 +9,7 @@ internal abstract class GpuImage : IDisposable
     public required ImageFormat Format;
     public int Layers = 1;
 
-    public abstract Resource Describe();
+    public abstract NativeImage Describe();
 
     public abstract void Dispose();
 }

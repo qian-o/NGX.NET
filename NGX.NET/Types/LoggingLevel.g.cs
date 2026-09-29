@@ -6,26 +6,31 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Logging_Level
 /// </summary>
+[NativeName("NVSDK_NGX_Logging_Level")]
 public enum LoggingLevel : int
 {
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_OFF
     /// </summary>
-    @LoggingLevelOff = 0,
+    [NativeName("NVSDK_NGX_LOGGING_LEVEL_OFF")]
+    @Off = 0,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_ON
     /// </summary>
-    @LoggingLevelOn = 1,
+    [NativeName("NVSDK_NGX_LOGGING_LEVEL_ON")]
+    @On = 1,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_VERBOSE
     /// </summary>
-    @LoggingLevelVerbose = 2,
+    [NativeName("NVSDK_NGX_LOGGING_LEVEL_VERBOSE")]
+    @Verbose = 2,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_NUM
     /// </summary>
-    @LoggingLevelNum = 3,
+    [NativeName("NVSDK_NGX_LOGGING_LEVEL_NUM")]
+    @Num = 3,
 
 }

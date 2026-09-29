@@ -2,7 +2,7 @@
 using System.Numerics;
 using ImGuiNET;
 using Showcase.Models;
-using Streamline.NET;
+using NGX.NET;
 
 namespace Showcase.Handlers;
 
@@ -13,13 +13,13 @@ internal sealed unsafe class UserInterface : IDisposable
     private const float TextSize = 16;
     private const float AtlasTextSize = 32;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
-    private static readonly DLSSMode[] QualityModes =
+    private static readonly QualityMode[] QualityModes =
     [
-        DLSSMode.Off,
-        DLSSMode.MaxQuality,
-        DLSSMode.Balanced,
-        DLSSMode.MaxPerformance,
-        DLSSMode.UltraPerformance
+        QualityMode.Off,
+        QualityMode.MaxQuality,
+        QualityMode.Balanced,
+        QualityMode.MaxPerformance,
+        QualityMode.UltraPerformance
     ];
 
     public byte[] FontPixels { get; }
@@ -139,7 +139,7 @@ internal sealed unsafe class UserInterface : IDisposable
 
         if (ImGui.BeginCombo("##DLSS", QualityLabel(settings.Quality)))
         {
-            foreach (DLSSMode mode in QualityModes)
+            foreach (QualityMode mode in QualityModes)
             {
                 if (ImGui.Selectable(QualityLabel(mode), settings.Quality == mode))
                 {
@@ -158,7 +158,7 @@ internal sealed unsafe class UserInterface : IDisposable
 
         if (ImGui.Checkbox("DLSS Ray Reconstruction", ref settings.RayReconstruction) && !settings.RayReconstruction && !capabilities.Dlss)
         {
-            settings.Quality = DLSSMode.Off;
+            settings.Quality = QualityMode.Off;
         }
 
         ImGui.EndDisabled();
@@ -166,13 +166,13 @@ internal sealed unsafe class UserInterface : IDisposable
 
     private static string Rate(double? fps) => fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
 
-    private static string QualityLabel(DLSSMode mode) => mode switch
+    private static string QualityLabel(QualityMode mode) => mode switch
     {
-        DLSSMode.Off => "Off",
-        DLSSMode.MaxQuality => "Quality",
-        DLSSMode.Balanced => "Balanced",
-        DLSSMode.MaxPerformance => "Performance",
-        DLSSMode.UltraPerformance => "Ultra Performance",
+        QualityMode.Off => "Off",
+        QualityMode.MaxQuality => "Quality",
+        QualityMode.Balanced => "Balanced",
+        QualityMode.MaxPerformance => "Performance",
+        QualityMode.UltraPerformance => "Ultra Performance",
         _ => "Off"
     };
 

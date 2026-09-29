@@ -2,7 +2,7 @@
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Streamline.NET;
+
 using Vortice.Vulkan;
 using static Vortice.Vulkan.Vulkan;
 
@@ -10,8 +10,6 @@ namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) : RHI(window, ui)
 {
-    protected override RenderAPI API => RenderAPI.Vulkan;
-
     protected override nint Command => commandBuffer.Handle;
 
     private VkInstance instance;
@@ -27,7 +25,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private VkImage[] backBuffers = [];
     private VkImageLayout[] backLayouts = [];
     private VkSemaphore[] presentSemaphores = [];
-    private uint imageIndex;
     private VkCommandBuffer commandBuffer;
     private readonly VkFrame[] slots = new VkFrame[RenderLayout.FramesInFlight];
     private readonly VkBufferResource[] sceneBuffers = new VkBufferResource[4];
@@ -56,19 +53,18 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
     protected override void InitializeDevice()
     {
-        NativeLibrary.GetExport(Streamline.Module, "vkGetInstanceProcAddr");
-        NativeLibrary.GetExport(Streamline.Module, "vkGetDeviceProcAddr");
-        Check(vkInitialize(Streamline.InterposerPath), "vkInitialize(interposer)");
+        Check(vkInitialize(), "vkInitialize");
+        vulkanModule = NativeLibrary.Load("vulkan-1.dll", typeof(VulkanRHI).Assembly, DllImportSearchPath.System32);
         VkApplicationInfo application = new()
         {
             apiVersion = VkVersion.Version_1_3
         };
-        using VkStringArray extensions = new(["VK_KHR_surface"u8, "VK_KHR_win32_surface"u8]);
+        using NativeNames extensions = new([.. new[] { "VK_KHR_surface", "VK_KHR_win32_surface" }.Concat(NGX.VulkanExtensions()).Distinct()]);
         VkInstanceCreateInfo create = new()
         {
             pApplicationInfo = &application,
             enabledExtensionCount = extensions.Length,
-            ppEnabledExtensionNames = extensions
+            ppEnabledExtensionNames = extensions.Pointer
         };
         Check(vkCreateInstance(&create, out instance), "vkCreateInstance");
         instanceApi = GetApi(instance);
@@ -172,6 +168,21 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         instanceApi.vkGetPhysicalDeviceMemoryProperties(physical, out memoryProperties);
+        Check(instanceApi.vkEnumerateDeviceExtensionProperties(physical, out uint supportedCount), "vkEnumerateDeviceExtensionProperties");
+        VkExtensionProperties[] supported = new VkExtensionProperties[supportedCount];
+        Check(instanceApi.vkEnumerateDeviceExtensionProperties(physical, supported), "vkEnumerateDeviceExtensionProperties");
+        HashSet<string> supportedNames = [];
+
+        foreach (VkExtensionProperties extension in supported)
+        {
+            supportedNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
+        }
+
+        VkPhysicalDevicePresentIdFeaturesKHR presentIdFeatures = new();
+        VkPhysicalDeviceFeatures2 presentFeatures = new() { pNext = &presentIdFeatures };
+        instanceApi.vkGetPhysicalDeviceFeatures2(physical, &presentFeatures);
+        lowLatency = supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId;
+        presentIdFeatures.presentId = lowLatency;
         float priority = 1;
         VkDeviceQueueCreateInfo queueInfo = new()
         {
@@ -197,6 +208,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         Vortice.Vulkan.VkPhysicalDeviceVulkan12Features enabled12 = new()
         {
             pNext = &enabled13,
+            timelineSemaphore = lowLatency,
             bufferDeviceAddress = RayQuerySupported
         };
         VkPhysicalDeviceVulkan11Features enabled11 = new()
@@ -204,6 +216,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             pNext = &enabled12,
             shaderDrawParameters = true
         };
+        enabled13.pNext = RayQuerySupported ? &enabledAcceleration : lowLatency ? &presentIdFeatures : null;
+        enabledRayQuery.pNext = lowLatency ? &presentIdFeatures : null;
         VkPhysicalDeviceFeatures2 enabled = new()
         {
             pNext = &enabled11,
@@ -214,15 +228,15 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 shaderStorageImageExtendedFormats = true
             }
         };
-        List<VkUtf8String> requestedExtensions = ["VK_KHR_swapchain"u8];
+        List<string> requestedExtensions = ["VK_KHR_swapchain"];
 
         if (RayQuerySupported)
         {
             requestedExtensions.AddRange(
             [
-                "VK_KHR_acceleration_structure"u8,
-                "VK_KHR_ray_query"u8,
-                "VK_KHR_deferred_host_operations"u8
+                "VK_KHR_acceleration_structure",
+                "VK_KHR_ray_query",
+                "VK_KHR_deferred_host_operations"
             ]);
             VkPhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new();
             VkPhysicalDeviceProperties2 properties = new()
@@ -235,25 +249,42 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             maxRayPrimitives = accelerationProperties.maxPrimitiveCount;
         }
 
-        using VkStringArray deviceExtensions = new(requestedExtensions);
+        foreach (string extension in NGX.VulkanExtensions(instance.Handle, physical.Handle))
+        {
+            if (!supportedNames.Contains(extension))
+            {
+                throw new NotSupportedException($"NGX requires Vulkan device extension {extension}.");
+            }
+
+            if (!requestedExtensions.Contains(extension))
+            {
+                requestedExtensions.Add(extension);
+            }
+        }
+
+        if (lowLatency)
+        {
+            requestedExtensions.Add("VK_NV_low_latency2");
+            requestedExtensions.Add("VK_KHR_present_id");
+        }
+
+        using NativeNames deviceExtensions = new([.. requestedExtensions.Distinct()]);
         VkDeviceCreateInfo deviceInfo = new()
         {
             pNext = &enabled,
             queueCreateInfoCount = 1,
             pQueueCreateInfos = &queueInfo,
             enabledExtensionCount = deviceExtensions.Length,
-            ppEnabledExtensionNames = deviceExtensions
+            ppEnabledExtensionNames = deviceExtensions.Pointer
         };
 
-        // The interposer augments its own required features/extensions and registers the device.
         Check(instanceApi.vkCreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
         api = GetApi(instance, device);
         api.vkGetDeviceQueue(queueFamily, 0, out queue);
-        AdapterInfo adapter = new()
-        {
-            VkPhysicalDevice = (void*)physical.Handle
-        };
-        Streamline.QueryFeatures(adapter);
+        NGX.Initialize(device.Handle, instance.Handle, physical.Handle,
+            NativeLibrary.GetExport(vulkanModule, "vkGetInstanceProcAddr"), NativeLibrary.GetExport(vulkanModule, "vkGetDeviceProcAddr"));
+        InitializePresentation();
+
     }
 
     private uint MemoryType(uint bits, VkMemoryPropertyFlags flags)
@@ -424,8 +455,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             imageCount = Math.Min(imageCount, capabilities.maxImageCount);
         }
 
+        VkSwapchainLatencyCreateInfoNV latencyCreate = new() { latencyModeEnable = lowLatency };
         VkSwapchainCreateInfoKHR create = new()
         {
+            pNext = lowLatency ? &latencyCreate : null,
             surface = surface,
             minImageCount = imageCount,
             imageFormat = selected.format,
@@ -440,6 +473,12 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             clipped = true
         };
         Check(api.vkCreateSwapchainKHR(&create, null, out swapChain), "vkCreateSwapchainKHR");
+        if (lowLatency)
+        {
+            VkLatencySleepModeInfoNV mode = new() { lowLatencyMode = true };
+            Check(api.vkSetLatencySleepModeNV(swapChain, &mode), "vkSetLatencySleepModeNV");
+        }
+
         Check(api.vkGetSwapchainImagesKHR(swapChain, out count), "vkGetSwapchainImagesKHR(count)");
         backBuffers = new VkImage[count];
         backLayouts = new VkImageLayout[count];

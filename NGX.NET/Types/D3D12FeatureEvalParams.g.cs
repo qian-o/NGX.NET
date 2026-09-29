@@ -9,24 +9,28 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_D3D12_Feature_Eval_Params
 /// </summary>
+[NativeName("NVSDK_NGX_D3D12_Feature_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct D3D12FeatureEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_D3D12_Feature_Eval_Params::pInColor
     /// </summary>
+    [NativeName("pInColor")]
     [FieldOffset(0)]
     public nint @PInColor;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_Feature_Eval_Params::pInOutput
     /// </summary>
+    [NativeName("pInOutput")]
     [FieldOffset(8)]
     public nint @PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_D3D12_Feature_Eval_Params::InSharpness
     /// </summary>
+    [NativeName("InSharpness")]
     [FieldOffset(16)]
     public float @InSharpness;
 

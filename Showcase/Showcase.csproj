@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Streamline.NET\Streamline.NET.csproj" />
+        <ProjectReference Include="..\NGX.NET\NGX.NET.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -6,26 +6,31 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Opt_Level
 /// </summary>
+[NativeName("NVSDK_NGX_Opt_Level")]
 public enum OptLevel : int
 {
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_UNDEFINED
     /// </summary>
-    @OptLevelUndefined = 0,
+    [NativeName("NVSDK_NGX_OPT_LEVEL_UNDEFINED")]
+    @Undefined = 0,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_DEBUG
     /// </summary>
-    @OptLevelDebug = 20,
+    [NativeName("NVSDK_NGX_OPT_LEVEL_DEBUG")]
+    @Debug = 20,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_DEVELOP
     /// </summary>
-    @OptLevelDevelop = 30,
+    [NativeName("NVSDK_NGX_OPT_LEVEL_DEVELOP")]
+    @Develop = 30,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_RELEASE
     /// </summary>
-    @OptLevelRelease = 40,
+    [NativeName("NVSDK_NGX_OPT_LEVEL_RELEASE")]
+    @Release = 40,
 
 }

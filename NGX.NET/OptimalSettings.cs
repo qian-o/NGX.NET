@@ -1,4 +1,4 @@
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 /// <summary>
 /// Render dimensions and legacy sharpness returned by the official DLSS helpers.

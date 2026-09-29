@@ -6,16 +6,19 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Resource_VK_Type
 /// </summary>
+[NativeName("NVSDK_NGX_Resource_VK_Type")]
 public enum ResourceVKType : int
 {
     /// <summary>
     /// NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW
     /// </summary>
-    @ResourceVKTypeVKImageview = 0,
+    [NativeName("NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW")]
+    @VKImageview = 0,
 
     /// <summary>
     /// NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER
     /// </summary>
-    @ResourceVKTypeVKBuffer = 1,
+    [NativeName("NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER")]
+    @VKBuffer = 1,
 
 }

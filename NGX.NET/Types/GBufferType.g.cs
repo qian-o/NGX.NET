@@ -6,81 +6,97 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_GBufferType
 /// </summary>
+[NativeName("NVSDK_NGX_GBufferType")]
 public enum GBufferType : int
 {
     /// <summary>
     /// NVSDK_NGX_GBUFFER_ALBEDO
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_ALBEDO")]
     @GbufferAlbedo = 0,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_ROUGHNESS
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_ROUGHNESS")]
     @GbufferRoughness = 1,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_METALLIC
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_METALLIC")]
     @GbufferMetallic = 2,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_SPECULAR
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_SPECULAR")]
     @GbufferSpecular = 3,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_SUBSURFACE
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_SUBSURFACE")]
     @GbufferSubsurface = 4,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_NORMALS
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_NORMALS")]
     @GbufferNormals = 5,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_SHADINGMODELID
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_SHADINGMODELID")]
     @GbufferShadingmodelid = 6,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_MATERIALID
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_MATERIALID")]
     @GbufferMaterialid = 7,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_SPECULAR_ALBEDO
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_SPECULAR_ALBEDO")]
     @GbufferSpecularAlbedo = 8,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_INDIRECT_ALBEDO
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_INDIRECT_ALBEDO")]
     @GbufferIndirectAlbedo = 9,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_SPECULAR_MVEC
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_SPECULAR_MVEC")]
     @GbufferSpecularMvec = 10,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_DISOCCL_MASK
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_DISOCCL_MASK")]
     @GbufferDisocclMask = 11,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_EMISSIVE
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_EMISSIVE")]
     @GbufferEmissive = 12,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFER_RESPONSIVITY_MASK
     /// </summary>
+    [NativeName("NVSDK_NGX_GBUFFER_RESPONSIVITY_MASK")]
     @GbufferResponsivityMask = 13,
 
     /// <summary>
     /// NVSDK_NGX_GBUFFERTYPE_NUM
     /// </summary>
-    @GbuffertypeNum = 17,
+    [NativeName("NVSDK_NGX_GBUFFERTYPE_NUM")]
+    @Num = 17,
 
 }

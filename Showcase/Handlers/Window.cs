@@ -28,8 +28,6 @@ internal sealed unsafe partial class Window : IDisposable
     public bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
 
     public Action? BeforeWindowChange;
-    public uint LatencyPingMessage;
-    public bool LatencyPing;
     private readonly bool[] keys = new bool[256];
     private readonly WindowProcedure procedure;
     private Vector2 mouse;
@@ -46,7 +44,7 @@ internal sealed unsafe partial class Window : IDisposable
             Procedure = Marshal.GetFunctionPointerForDelegate(procedure),
             Instance = Instance,
             Cursor = LoadCursorW(0, 32512),
-            Name = "StreamlineShowcase"
+            Name = "NGXShowcase"
         };
 
         if (RegisterClassExW(ref wc) == 0)
@@ -60,7 +58,7 @@ internal sealed unsafe partial class Window : IDisposable
             Bottom = Height
         };
         AdjustWindowRectEx(ref rectangle, 0x00CF0000, false, 0);
-        Handle = CreateWindowExW(0, wc.Name, "Streamline.NET Showcase", 0x10CF0000, unchecked((int)0x80000000), unchecked((int)0x80000000), rectangle.Right - rectangle.Left, rectangle.Bottom - rectangle.Top, 0, 0, Instance, 0);
+        Handle = CreateWindowExW(0, wc.Name, "NGX.NET Showcase", 0x10CF0000, unchecked((int)0x80000000), unchecked((int)0x80000000), rectangle.Right - rectangle.Left, rectangle.Bottom - rectangle.Top, 0, 0, Instance, 0);
 
         if (Handle == 0)
         {
@@ -107,13 +105,6 @@ internal sealed unsafe partial class Window : IDisposable
 
     private nint HandleMessage(nint hwnd, uint message, nuint wparam, nint lparam)
     {
-        if (message == LatencyPingMessage && LatencyPingMessage != 0)
-        {
-            LatencyPing = true;
-
-            return 0;
-        }
-
         ImGuiIOPtr io = ImGui.GetIO();
 
         switch (message)
@@ -228,7 +219,7 @@ internal sealed unsafe partial class Window : IDisposable
             Handle = 0;
         }
 
-        UnregisterClassW("StreamlineShowcase", Instance);
+        UnregisterClassW("NGXShowcase", Instance);
         GC.KeepAlive(procedure);
     }
 }

@@ -6,36 +6,43 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Feature_Support_Result
 /// </summary>
+[NativeName("NVSDK_NGX_Feature_Support_Result")]
 public enum FeatureSupportResult : int
 {
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_Supported
     /// </summary>
-    @FeatureSupportResultSupported = 0,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_Supported")]
+    @Supported = 0,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_CheckNotPresent
     /// </summary>
-    @FeatureSupportResultCheckNotPresent = 1,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_CheckNotPresent")]
+    @CheckNotPresent = 1,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_DriverVersionUnsupported
     /// </summary>
-    @FeatureSupportResultDriverVersionUnsupported = 2,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_DriverVersionUnsupported")]
+    @DriverVersionUnsupported = 2,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_AdapterUnsupported
     /// </summary>
-    @FeatureSupportResultAdapterUnsupported = 4,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_AdapterUnsupported")]
+    @AdapterUnsupported = 4,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_OSVersionBelowMinimumSupported
     /// </summary>
-    @FeatureSupportResultOSVersionBelowMinimumSupported = 8,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_OSVersionBelowMinimumSupported")]
+    @OSVersionBelowMinimumSupported = 8,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_NotImplemented
     /// </summary>
-    @FeatureSupportResultNotImplemented = 16,
+    [NativeName("NVSDK_NGX_FeatureSupportResult_NotImplemented")]
+    @NotImplemented = 16,
 
 }

@@ -2,7 +2,7 @@
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Streamline.NET;
+using NGX.NET;
 using Vortice.DXGI;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
@@ -12,9 +12,20 @@ namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
 {
-    protected override RenderAPI API => RenderAPI.D3D12;
-
     protected override nint Command => commandList.NativePointer;
+
+    private NVLowLatency? latency;
+    private ID3D12CommandAllocator presentAllocator = null!;
+    private ID3D12GraphicsCommandList presentCommands = null!;
+    private ID3D12Fence presentFence = null!;
+    private ulong presentFenceValue;
+    private readonly AutoResetEvent presentEvent = new(false);
+
+    protected override bool LowLatencyAvailable => latency?.Available == true;
+
+    protected override void BeginLatency(ulong frame) => latency?.Sleep();
+
+    protected override void Marker(LatencyMarker marker, ulong frame) => latency?.Marker(marker, frame);
 
     private ID3D12Device device = null!;
     private IDXGIFactory4 factory = null!;
@@ -48,11 +59,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
     protected override void InitializeDevice()
     {
-        Guid iid = typeof(IDXGIFactory4).GUID;
-        nint pointer = 0;
-        delegate* unmanaged[Stdcall]<uint, Guid*, nint*, int> createFactory = (delegate* unmanaged[Stdcall]<uint, Guid*, nint*, int>)NativeLibrary.GetExport(Streamline.Module, "CreateDXGIFactory2");
-        Marshal.ThrowExceptionForHR(createFactory(0, &iid, &pointer));
-        factory = new(pointer);
+        factory = Vortice.DXGI.DXGI.CreateDXGIFactory2<IDXGIFactory4>(false);
         List<IDXGIAdapter1> candidates = [];
 
         for (uint i = 0; factory.EnumAdapters1(i, out IDXGIAdapter1 candidate).Success; i++)
@@ -78,18 +85,9 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         }
 
         AdapterName = adapter.Description1.Description;
-        delegate* unmanaged[Stdcall]<nint, FeatureLevel, Guid*, nint*, int> createDevice = (delegate* unmanaged[Stdcall]<nint, FeatureLevel, Guid*, nint*, int>)NativeLibrary.GetExport(Streamline.Module, "D3D12CreateDevice");
-        iid = typeof(ID3D12Device).GUID;
-        Marshal.ThrowExceptionForHR(createDevice(adapter.NativePointer, FeatureLevel.Level_12_0, &iid, &pointer));
-        device = new(pointer);
-        StreamlineSession.Check(SL.SetD3DDevice((void*)device.NativePointer), "slSetD3DDevice");
-        long luid = device.AdapterLuid;
-        AdapterInfo info = new()
-        {
-            DeviceLUID = (byte*)&luid,
-            DeviceLUIDSizeInBytes = sizeof(long)
-        };
-        Streamline.QueryFeatures(info);
+        device = Vortice.Direct3D12.D3D12.D3D12CreateDevice<ID3D12Device>(adapter.NativePointer, FeatureLevel.Level_12_0);
+        NGX.Initialize(device.NativePointer);
+        latency = new(device.NativePointer);
         RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
 
@@ -100,6 +98,10 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
 
         queue = device.CreateCommandQueue(CommandListType.Direct);
         fence = device.CreateFence();
+        presentAllocator = device.CreateCommandAllocator(CommandListType.Direct);
+        presentCommands = device.CreateCommandList<ID3D12GraphicsCommandList>(0, CommandListType.Direct, presentAllocator);
+        presentCommands.Close();
+        presentFence = device.CreateFence();
     }
 
     private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(HeapType.Upload, ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)), ResourceStates.GenericRead);

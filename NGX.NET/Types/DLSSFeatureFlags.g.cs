@@ -6,61 +6,73 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Feature_Flags
 /// </summary>
+[NativeName("NVSDK_NGX_DLSS_Feature_Flags")]
 public enum DLSSFeatureFlags : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_IsInvalid
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_IsInvalid")]
     @IsInvalid = -2147483648,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_None
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_None")]
     @None = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_IsHDR
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_IsHDR")]
     @IsHDR = 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_MVLowRes
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_MVLowRes")]
     @MVLowRes = 2,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_MVJittered
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_MVJittered")]
     @MVJittered = 4,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_DepthInverted
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_DepthInverted")]
     @DepthInverted = 8,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_Reserved_0
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_Reserved_0")]
     @Reserved0 = 16,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_DoSharpening
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_DoSharpening")]
     @DoSharpening = 32,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_AutoExposure
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_AutoExposure")]
     @AutoExposure = 64,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_AlphaUpscaling
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_AlphaUpscaling")]
     @AlphaUpscaling = 128,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_Reserved_8
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Feature_Flags_Reserved_8")]
     @Reserved8 = 256,
 
 }

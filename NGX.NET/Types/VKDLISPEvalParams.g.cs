@@ -9,42 +9,49 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_VK_DLISP_Eval_Params
 /// </summary>
+[NativeName("NVSDK_NGX_VK_DLISP_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 48)]
 public unsafe partial struct VKDLISPEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::Feature
     /// </summary>
+    [NativeName("Feature")]
     [FieldOffset(0)]
     public global::NGX.NET.VKFeatureEvalParams @Feature;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InRectX
     /// </summary>
+    [NativeName("InRectX")]
     [FieldOffset(24)]
     public uint @InRectX;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InRectY
     /// </summary>
+    [NativeName("InRectY")]
     [FieldOffset(28)]
     public uint @InRectY;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InRectW
     /// </summary>
+    [NativeName("InRectW")]
     [FieldOffset(32)]
     public uint @InRectW;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InRectH
     /// </summary>
+    [NativeName("InRectH")]
     [FieldOffset(36)]
     public uint @InRectH;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLISP_Eval_Params::InDenoise
     /// </summary>
+    [NativeName("InDenoise")]
     [FieldOffset(40)]
     public float @InDenoise;
 

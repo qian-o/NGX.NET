@@ -1,7 +1,6 @@
 ﻿using Showcase.Models;
-using Streamline.NET;
+using NGX.NET;
 using Vortice.Direct3D12;
-using Resource = Streamline.NET.Resource;
 
 namespace Showcase.DirectX12;
 
@@ -42,16 +41,9 @@ internal sealed unsafe partial class DirectX12RHI
         public CpuDescriptorHandle Rtv;
         public CpuDescriptorHandle Dsv;
 
-        public override Resource Describe() => new()
+        public override NativeImage Describe() => new()
         {
-            Type = ResourceType.Tex2d,
-            Native = (void*)Texture.NativePointer,
-            State = (uint)State,
-            Width = (uint)Width,
-            Height = (uint)Height,
-            NativeFormat = (uint)NativeFormat(Format),
-            MipLevels = 1,
-            ArrayLayers = (uint)Layers
+            DirectX = Texture.NativePointer
         };
 
         public override void Dispose() => Texture.Dispose();

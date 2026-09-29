@@ -6,31 +6,37 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_ToneMapperType
 /// </summary>
+[NativeName("NVSDK_NGX_ToneMapperType")]
 public enum ToneMapperType : int
 {
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_STRING
     /// </summary>
+    [NativeName("NVSDK_NGX_TONEMAPPER_STRING")]
     @TonemapperString = 0,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_REINHARD
     /// </summary>
+    [NativeName("NVSDK_NGX_TONEMAPPER_REINHARD")]
     @TonemapperReinhard = 1,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_ONEOVERLUMA
     /// </summary>
+    [NativeName("NVSDK_NGX_TONEMAPPER_ONEOVERLUMA")]
     @TonemapperOneoverluma = 2,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_ACES
     /// </summary>
+    [NativeName("NVSDK_NGX_TONEMAPPER_ACES")]
     @TonemapperAces = 3,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPERTYPE_NUM
     /// </summary>
-    @TonemappertypeNum = 4,
+    [NativeName("NVSDK_NGX_TONEMAPPERTYPE_NUM")]
+    @Num = 4,
 
 }

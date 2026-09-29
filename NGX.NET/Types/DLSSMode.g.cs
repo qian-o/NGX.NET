@@ -6,26 +6,31 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Mode
 /// </summary>
+[NativeName("NVSDK_NGX_DLSS_Mode")]
 public enum DLSSMode : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Mode_Off
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Mode_Off")]
     @Off = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Mode_DLSS_DLISP
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Mode_DLSS_DLISP")]
     @DLSSDLISP = 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Mode_DLISP_Only
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Mode_DLISP_Only")]
     @DLISPOnly = 2,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Mode_DLSS
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Mode_DLSS")]
     @DLSS = 3,
 
 }

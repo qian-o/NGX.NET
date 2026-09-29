@@ -9,12 +9,14 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_VK_GBuffer
 /// </summary>
+[NativeName("NVSDK_NGX_VK_GBuffer")]
 [StructLayout(LayoutKind.Explicit, Size = 136)]
 public unsafe partial struct VKGBuffer
 {
     /// <summary>
     /// NVSDK_NGX_VK_GBuffer::pInAttrib
     /// </summary>
+    [NativeName("pInAttrib")]
     [FieldOffset(0)]
     public PInAttribBuffer @PInAttrib;
 

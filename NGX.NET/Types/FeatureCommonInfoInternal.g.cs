@@ -9,6 +9,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_FeatureCommonInfo_Internal. Opaque native object; pass only pointers returned by NGX.
 /// </summary>
+[NativeName("NVSDK_NGX_FeatureCommonInfo_Internal")]
 [StructLayout(LayoutKind.Sequential)]
 public unsafe partial struct FeatureCommonInfoInternal
 {

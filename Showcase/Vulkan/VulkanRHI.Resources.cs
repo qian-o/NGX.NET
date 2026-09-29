@@ -1,8 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Showcase.Models;
-using Streamline.NET;
+using ResourceVKType = NGX.NET.ResourceVKType;
 using Vortice.Vulkan;
-using Resource = Streamline.NET.Resource;
 
 namespace Showcase.Vulkan;
 
@@ -64,19 +63,30 @@ internal sealed unsafe partial class VulkanRHI
         public VkImageLayout Layout;
         public VkImageUsageFlags Usage;
 
-        public override Resource Describe() => new()
+        public override NativeImage Describe() => new()
         {
-            Type = ResourceType.Tex2d,
-            Native = (void*)Texture.Handle,
-            Memory = (void*)Memory.Handle,
-            View = (void*)View.Handle,
-            State = (uint)Layout,
-            NativeFormat = (uint)NativeFormat(Format),
-            Width = (uint)Width,
-            Height = (uint)Height,
-            MipLevels = 1,
-            ArrayLayers = (uint)Layers,
-            Usage = (uint)Usage
+            Vulkan = new()
+            {
+                Type = ResourceVKType.VKImageview,
+                ReadWrite = (Usage & VkImageUsageFlags.Storage) != 0,
+                Resource = new()
+                {
+                    ImageViewInfo = new()
+                    {
+                        Image = (nint)Texture.Handle,
+                        ImageView = (nint)View.Handle,
+                        Format = (global::NGX.NET.VkFormat)NativeFormat(Format),
+                        Width = (uint)Width,
+                        Height = (uint)Height,
+                        SubresourceRange = new()
+                        {
+                            AspectMask = (uint)(Format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color),
+                            LevelCount = 1,
+                            LayerCount = (uint)Layers
+                        }
+                    }
+                }
+            }
         };
 
         public override void Dispose()

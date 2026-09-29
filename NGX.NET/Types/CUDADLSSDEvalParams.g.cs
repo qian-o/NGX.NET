@@ -9,408 +9,476 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_CUDA_DLSSD_Eval_Params
 /// </summary>
+[NativeName("NVSDK_NGX_CUDA_DLSSD_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 632)]
 public unsafe partial struct CUDADLSSDEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDiffuseAlbedo
     /// </summary>
+    [NativeName("pInDiffuseAlbedo")]
     [FieldOffset(0)]
     public void* @PInDiffuseAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInSpecularAlbedo
     /// </summary>
+    [NativeName("pInSpecularAlbedo")]
     [FieldOffset(8)]
     public void* @PInSpecularAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInNormals
     /// </summary>
+    [NativeName("pInNormals")]
     [FieldOffset(16)]
     public void* @PInNormals;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInRoughness
     /// </summary>
+    [NativeName("pInRoughness")]
     [FieldOffset(24)]
     public void* @PInRoughness;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInColor
     /// </summary>
+    [NativeName("pInColor")]
     [FieldOffset(32)]
     public void* @PInColor;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInOutput
     /// </summary>
+    [NativeName("pInOutput")]
     [FieldOffset(40)]
     public void* @PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDepth
     /// </summary>
+    [NativeName("pInDepth")]
     [FieldOffset(48)]
     public void* @PInDepth;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInMotionVectors
     /// </summary>
+    [NativeName("pInMotionVectors")]
     [FieldOffset(56)]
     public void* @PInMotionVectors;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InJitterOffsetX
     /// </summary>
+    [NativeName("InJitterOffsetX")]
     [FieldOffset(64)]
     public float @InJitterOffsetX;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InJitterOffsetY
     /// </summary>
+    [NativeName("InJitterOffsetY")]
     [FieldOffset(68)]
     public float @InJitterOffsetY;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InRenderSubrectDimensions
     /// </summary>
+    [NativeName("InRenderSubrectDimensions")]
     [FieldOffset(72)]
     public global::NGX.NET.Dimensions @InRenderSubrectDimensions;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InReset
     /// </summary>
+    [NativeName("InReset")]
     [FieldOffset(80)]
     public int @InReset;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InMVScaleX
     /// </summary>
+    [NativeName("InMVScaleX")]
     [FieldOffset(84)]
     public float @InMVScaleX;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InMVScaleY
     /// </summary>
+    [NativeName("InMVScaleY")]
     [FieldOffset(88)]
     public float @InMVScaleY;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInTransparencyMask
     /// </summary>
+    [NativeName("pInTransparencyMask")]
     [FieldOffset(96)]
     public void* @PInTransparencyMask;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInExposureTexture
     /// </summary>
+    [NativeName("pInExposureTexture")]
     [FieldOffset(104)]
     public void* @PInExposureTexture;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInBiasCurrentColorMask
     /// </summary>
+    [NativeName("pInBiasCurrentColorMask")]
     [FieldOffset(112)]
     public void* @PInBiasCurrentColorMask;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseAlbedoSubrectBase
     /// </summary>
+    [NativeName("InDiffuseAlbedoSubrectBase")]
     [FieldOffset(120)]
     public global::NGX.NET.Coordinates @InDiffuseAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularAlbedoSubrectBase
     /// </summary>
+    [NativeName("InSpecularAlbedoSubrectBase")]
     [FieldOffset(128)]
     public global::NGX.NET.Coordinates @InSpecularAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InNormalsSubrectBase
     /// </summary>
+    [NativeName("InNormalsSubrectBase")]
     [FieldOffset(136)]
     public global::NGX.NET.Coordinates @InNormalsSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InRoughnessSubrectBase
     /// </summary>
+    [NativeName("InRoughnessSubrectBase")]
     [FieldOffset(144)]
     public global::NGX.NET.Coordinates @InRoughnessSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorSubrectBase
     /// </summary>
+    [NativeName("InColorSubrectBase")]
     [FieldOffset(152)]
     public global::NGX.NET.Coordinates @InColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDepthSubrectBase
     /// </summary>
+    [NativeName("InDepthSubrectBase")]
     [FieldOffset(160)]
     public global::NGX.NET.Coordinates @InDepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InMVSubrectBase
     /// </summary>
+    [NativeName("InMVSubrectBase")]
     [FieldOffset(168)]
     public global::NGX.NET.Coordinates @InMVSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InTranslucencySubrectBase
     /// </summary>
+    [NativeName("InTranslucencySubrectBase")]
     [FieldOffset(176)]
     public global::NGX.NET.Coordinates @InTranslucencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InBiasCurrentColorSubrectBase
     /// </summary>
+    [NativeName("InBiasCurrentColorSubrectBase")]
     [FieldOffset(184)]
     public global::NGX.NET.Coordinates @InBiasCurrentColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InOutputSubrectBase
     /// </summary>
+    [NativeName("InOutputSubrectBase")]
     [FieldOffset(192)]
     public global::NGX.NET.Coordinates @InOutputSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInReflectedAlbedo
     /// </summary>
+    [NativeName("pInReflectedAlbedo")]
     [FieldOffset(200)]
     public void* @PInReflectedAlbedo;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInColorBeforeParticles
     /// </summary>
+    [NativeName("pInColorBeforeParticles")]
     [FieldOffset(208)]
     public void* @PInColorBeforeParticles;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInColorBeforeTransparency
     /// </summary>
+    [NativeName("pInColorBeforeTransparency")]
     [FieldOffset(216)]
     public void* @PInColorBeforeTransparency;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInColorBeforeFog
     /// </summary>
+    [NativeName("pInColorBeforeFog")]
     [FieldOffset(224)]
     public void* @PInColorBeforeFog;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDiffuseHitDistance
     /// </summary>
+    [NativeName("pInDiffuseHitDistance")]
     [FieldOffset(232)]
     public void* @PInDiffuseHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInSpecularHitDistance
     /// </summary>
+    [NativeName("pInSpecularHitDistance")]
     [FieldOffset(240)]
     public void* @PInSpecularHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDiffuseRayDirection
     /// </summary>
+    [NativeName("pInDiffuseRayDirection")]
     [FieldOffset(248)]
     public void* @PInDiffuseRayDirection;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInSpecularRayDirection
     /// </summary>
+    [NativeName("pInSpecularRayDirection")]
     [FieldOffset(256)]
     public void* @PInSpecularRayDirection;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDiffuseRayDirectionHitDistance
     /// </summary>
+    [NativeName("pInDiffuseRayDirectionHitDistance")]
     [FieldOffset(264)]
     public void* @PInDiffuseRayDirectionHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInSpecularRayDirectionHitDistance
     /// </summary>
+    [NativeName("pInSpecularRayDirectionHitDistance")]
     [FieldOffset(272)]
     public void* @PInSpecularRayDirectionHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InReflectedAlbedoSubrectBase
     /// </summary>
+    [NativeName("InReflectedAlbedoSubrectBase")]
     [FieldOffset(280)]
     public global::NGX.NET.Coordinates @InReflectedAlbedoSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeParticlesSubrectBase
     /// </summary>
+    [NativeName("InColorBeforeParticlesSubrectBase")]
     [FieldOffset(288)]
     public global::NGX.NET.Coordinates @InColorBeforeParticlesSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeTransparencySubrectBase
     /// </summary>
+    [NativeName("InColorBeforeTransparencySubrectBase")]
     [FieldOffset(296)]
     public global::NGX.NET.Coordinates @InColorBeforeTransparencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InColorBeforeFogSubrectBase
     /// </summary>
+    [NativeName("InColorBeforeFogSubrectBase")]
     [FieldOffset(304)]
     public global::NGX.NET.Coordinates @InColorBeforeFogSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseHitDistanceSubrectBase
     /// </summary>
+    [NativeName("InDiffuseHitDistanceSubrectBase")]
     [FieldOffset(312)]
     public global::NGX.NET.Coordinates @InDiffuseHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularHitDistanceSubrectBase
     /// </summary>
+    [NativeName("InSpecularHitDistanceSubrectBase")]
     [FieldOffset(320)]
     public global::NGX.NET.Coordinates @InSpecularHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseRayDirectionSubrectBase
     /// </summary>
+    [NativeName("InDiffuseRayDirectionSubrectBase")]
     [FieldOffset(328)]
     public global::NGX.NET.Coordinates @InDiffuseRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularRayDirectionSubrectBase
     /// </summary>
+    [NativeName("InSpecularRayDirectionSubrectBase")]
     [FieldOffset(336)]
     public global::NGX.NET.Coordinates @InSpecularRayDirectionSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InDiffuseRayDirectionHitDistanceSubrectBase
     /// </summary>
+    [NativeName("InDiffuseRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(344)]
     public global::NGX.NET.Coordinates @InDiffuseRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InSpecularRayDirectionHitDistanceSubrectBase
     /// </summary>
+    [NativeName("InSpecularRayDirectionHitDistanceSubrectBase")]
     [FieldOffset(352)]
     public global::NGX.NET.Coordinates @InSpecularRayDirectionHitDistanceSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInWorldToViewMatrix
     /// </summary>
+    [NativeName("pInWorldToViewMatrix")]
     [FieldOffset(360)]
     public float* @PInWorldToViewMatrix;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInViewToClipMatrix
     /// </summary>
+    [NativeName("pInViewToClipMatrix")]
     [FieldOffset(368)]
     public float* @PInViewToClipMatrix;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InPreExposure
     /// </summary>
+    [NativeName("InPreExposure")]
     [FieldOffset(376)]
     public float @InPreExposure;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InExposureScale
     /// </summary>
+    [NativeName("InExposureScale")]
     [FieldOffset(380)]
     public float @InExposureScale;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InIndicatorInvertXAxis
     /// </summary>
+    [NativeName("InIndicatorInvertXAxis")]
     [FieldOffset(384)]
     public int @InIndicatorInvertXAxis;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InIndicatorInvertYAxis
     /// </summary>
+    [NativeName("InIndicatorInvertYAxis")]
     [FieldOffset(388)]
     public int @InIndicatorInvertYAxis;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::GBufferSurface
     /// </summary>
+    [NativeName("GBufferSurface")]
     [FieldOffset(392)]
     public global::NGX.NET.CUDAGBuffer @GBufferSurface;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InToneMapperType
     /// </summary>
+    [NativeName("InToneMapperType")]
     [FieldOffset(528)]
     public global::NGX.NET.ToneMapperType @InToneMapperType;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInMotionVectors3D
     /// </summary>
+    [NativeName("pInMotionVectors3D")]
     [FieldOffset(536)]
     public void* @PInMotionVectors3D;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInIsParticleMask
     /// </summary>
+    [NativeName("pInIsParticleMask")]
     [FieldOffset(544)]
     public void* @PInIsParticleMask;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInAnimatedTextureMask
     /// </summary>
+    [NativeName("pInAnimatedTextureMask")]
     [FieldOffset(552)]
     public void* @PInAnimatedTextureMask;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDepthHighRes
     /// </summary>
+    [NativeName("pInDepthHighRes")]
     [FieldOffset(560)]
     public void* @PInDepthHighRes;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInPositionViewSpace
     /// </summary>
+    [NativeName("pInPositionViewSpace")]
     [FieldOffset(568)]
     public void* @PInPositionViewSpace;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InFrameTimeDeltaInMsec
     /// </summary>
+    [NativeName("InFrameTimeDeltaInMsec")]
     [FieldOffset(576)]
     public float @InFrameTimeDeltaInMsec;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInRayTracingHitDistance
     /// </summary>
+    [NativeName("pInRayTracingHitDistance")]
     [FieldOffset(584)]
     public void* @PInRayTracingHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInMotionVectorsReflections
     /// </summary>
+    [NativeName("pInMotionVectorsReflections")]
     [FieldOffset(592)]
     public void* @PInMotionVectorsReflections;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInTransparencyLayer
     /// </summary>
+    [NativeName("pInTransparencyLayer")]
     [FieldOffset(600)]
     public void* @PInTransparencyLayer;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InTransparencyLayerSubrectBase
     /// </summary>
+    [NativeName("InTransparencyLayerSubrectBase")]
     [FieldOffset(608)]
     public global::NGX.NET.Coordinates @InTransparencyLayerSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInTransparencyLayerOpacity
     /// </summary>
+    [NativeName("pInTransparencyLayerOpacity")]
     [FieldOffset(616)]
     public void* @PInTransparencyLayerOpacity;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::InTransparencyLayerOpacitySubrectBase
     /// </summary>
+    [NativeName("InTransparencyLayerOpacitySubrectBase")]
     [FieldOffset(624)]
     public global::NGX.NET.Coordinates @InTransparencyLayerOpacitySubrectBase;
 

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using Showcase.Handlers;
 using Showcase.Helpers;
@@ -509,18 +510,6 @@ internal sealed unsafe partial class VulkanRHI
         VkFrame frame = slots[FrameSlot];
         VkFence fence = frame.Fence;
         Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(frame)");
-        VkResult acquire = api.vkAcquireNextImageKHR(swapChain, ulong.MaxValue, frame.Acquire, default, out imageIndex);
-
-        if (acquire == VkResult.ErrorOutOfDateKHR)
-        {
-            return false;
-        }
-
-        if (acquire != VkResult.SuboptimalKHR)
-        {
-            Check(acquire, "vkAcquireNextImageKHR");
-        }
-
         Check(api.vkResetFences(1, &fence), "vkResetFences");
         Check(api.vkResetCommandPool(frame.Pool, 0), "vkResetCommandPool");
         commandBuffer = frame.Command;
@@ -754,7 +743,7 @@ internal sealed unsafe partial class VulkanRHI
         texture.Layout = layout;
     }
 
-    private void Barrier(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageSubresourceRange range)
+    private void Barrier(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageSubresourceRange range, VkCommandBuffer target = default)
     {
         VkImageMemoryBarrier2 barrier = new()
         {
@@ -774,68 +763,26 @@ internal sealed unsafe partial class VulkanRHI
             imageMemoryBarrierCount = 1,
             pImageMemoryBarriers = &barrier
         };
-        api.vkCmdPipelineBarrier2(commandBuffer, &dependency);
+        api.vkCmdPipelineBarrier2(target.IsNull ? commandBuffer : target, &dependency);
     }
 
     protected override void SubmitFrame()
     {
-        VkTexture final = (VkTexture)Image(ImageSlot.Final);
-        Transition(final, ImageUse.CopySource);
-        Barrier(backBuffers[imageIndex], backLayouts[imageIndex], VkImageLayout.TransferDstOptimal, Range(ImageFormat.Rgba8));
-
-        // Blit performs the RGBA/BGRA conversion when the surface only exposes BGRA.
-        VkImageBlit blit = new()
-        {
-            srcSubresource = new(VkImageAspectFlags.Color, 0, 0, 1),
-            dstSubresource = new(VkImageAspectFlags.Color, 0, 0, 1)
-        };
-        blit.srcOffsets[1] = new(Window.Width, Window.Height, 1);
-        blit.dstOffsets[1] = new(Window.Width, Window.Height, 1);
-        api.vkCmdBlitImage(commandBuffer, final.Texture, VkImageLayout.TransferSrcOptimal, backBuffers[imageIndex], VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Nearest);
-        Barrier(backBuffers[imageIndex], VkImageLayout.TransferDstOptimal, VkImageLayout.PresentSrcKHR, Range(ImageFormat.Rgba8));
-        backLayouts[imageIndex] = VkImageLayout.PresentSrcKHR;
         Check(api.vkEndCommandBuffer(commandBuffer), "vkEndCommandBuffer");
         recording = false;
-        VkFrame frame = slots[FrameSlot];
-        VkSemaphore acquire = frame.Acquire, present = presentSemaphores[imageIndex];
-        VkPipelineStageFlags waitStage = VkPipelineStageFlags.AllCommands;
         VkCommandBuffer command = commandBuffer;
+        VkLatencySubmissionPresentIdNV latencyInfo = new() { presentID = latencyFrame };
         VkSubmitInfo submit = new()
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = &acquire,
-            pWaitDstStageMask = &waitStage,
+            pNext = lowLatency ? &latencyInfo : null,
             commandBufferCount = 1,
-            pCommandBuffers = &command,
-            signalSemaphoreCount = 1,
-            pSignalSemaphores = &present
+            pCommandBuffers = &command
         };
-        Check(api.vkQueueSubmit(queue, 1, &submit, frame.Fence), "vkQueueSubmit(frame)");
-    }
 
-    protected override bool Present()
-    {
-        VkSemaphore semaphore = presentSemaphores[imageIndex];
-        VkSwapchainKHR swap = swapChain;
-        uint index = imageIndex;
-        VkPresentInfoKHR present = new()
+        lock (queueSync)
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = &semaphore,
-            swapchainCount = 1,
-            pSwapchains = &swap,
-            pImageIndices = &index
-        };
-        VkResult result = api.vkQueuePresentKHR(queue, &present);
-
-        if (result is VkResult.ErrorOutOfDateKHR or VkResult.SuboptimalKHR)
-        {
-            return false;
+            Check(api.vkQueueSubmit(queue, 1, &submit, slots[FrameSlot].Fence), "vkQueueSubmit(frame)");
         }
-
-        Check(result, "vkQueuePresentKHR");
-
-        return true;
     }
 
     protected override void FinishFrame()
@@ -859,6 +806,7 @@ internal sealed unsafe partial class VulkanRHI
                 api.vkEndCommandBuffer(commandBuffer);
             }
 
+            DisposePresentation();
             DestroySwapChain();
 
             foreach (VkPipeline pipeline in pipelines.Values)
@@ -938,6 +886,7 @@ internal sealed unsafe partial class VulkanRHI
             }
 
             instanceApi.vkDestroyInstance();
+            NativeLibrary.Free(vulkanModule);
         }
         // Vortice owns the module reference acquired by vkInitialize for process lifetime.
     }

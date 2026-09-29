@@ -16,7 +16,7 @@ internal static class Program
                 throw new PlatformNotSupportedException("Showcase requires Windows x64.");
             }
 
-            Console.WriteLine("Streamline.NET Showcase\n1. DirectX 12\n2. Vulkan");
+            Console.WriteLine("NGX.NET Showcase\n1. DirectX 12\n2. Vulkan");
             Console.Write("Select backend [1]: ");
             string? choice = Console.ReadLine();
             bool vulkan = choice?.Trim() == "2";

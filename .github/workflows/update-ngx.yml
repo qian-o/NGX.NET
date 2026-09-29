@@ -2,12 +2,6 @@ name: Update NGX
 
 on:
   workflow_dispatch:
-  push:
-    branches: [codex/ngx-migration]
-    paths:
-      - .github/workflows/update-ngx.yml
-      - .github/scripts/build_ngx.py
-      - .github/scripts/parse_ngx_ast.py
 
 permissions:
   contents: read
@@ -72,8 +66,13 @@ jobs:
           }
       - name: Install extraction dependency
         run: python -m pip install libclang==18.1.1
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
       - name: Extract, link and verify
         run: python .github/scripts/build_ngx.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
+      - name: Publish and exercise the NativeAOT binding
+        run: python .github/scripts/build_ngx.py smoke --root . --scratch "${{ runner.temp }}/aot" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
       - uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
@@ -94,8 +93,11 @@ jobs:
           ref: ${{ github.ref_name }}
       - uses: actions/download-artifact@v5
         with:
-          pattern: ngx-*
+          pattern: ngx-*-*
           path: ${{ runner.temp }}/artifacts
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
       - name: Merge the four verified targets
         shell: bash
         run: |
@@ -103,12 +105,20 @@ jobs:
             mv "${{ runner.temp }}/artifacts/ngx-$rid" "${{ runner.temp }}/artifacts/$rid"
           done
           python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
+      - name: Regenerate and independently verify the compiled API
+        run: |
+          dotnet run --project NGX.NET.Generator -- .
+          dotnet build NGX.NET.slnx -c Release -warnaserror -p:GeneratePackageOnBuild=false
+          dotnet run .github/scripts/verify_ngx.cs -- .
+          dotnet pack NGX.NET -c Release --no-build
+          python .github/scripts/build_ngx.py verify-package --root .
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: ngx-update
           path: |
             native/
             NGX.NET.Generator/ast.json
+            NGX.NET/**/*.g.cs
           compression-level: 0
           retention-days: 7
       - name: Commit the complete update to the triggering branch
@@ -117,7 +127,7 @@ jobs:
           NGX_HEAD: ${{ github.sha }}
         run: |
           test "$(git rev-parse HEAD)" = "$NGX_HEAD"
-          git add native NGX.NET.Generator/ast.json
+          git add native NGX.NET.Generator/ast.json NGX.NET
           if git diff --cached --quiet; then exit 0; fi
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Update NGX SDK and all native runtimes'
           git push origin "HEAD:refs/heads/$NGX_BRANCH"

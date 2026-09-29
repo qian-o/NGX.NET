@@ -4,7 +4,7 @@ using ImGuiNET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Streamline.NET;
+using NGX.NET;
 
 namespace Showcase;
 
@@ -19,23 +19,24 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
     public RenderCapabilities Capabilities => new(
-        Streamline.Available(SL.FeatureDLSS),
-        RayQuerySupported && Streamline.Available(SL.FeatureDLSSRR),
-        Streamline.Available(SL.FeatureDLSSG) && Streamline.MaximumGeneratedFrames >= 1 &&
-        Math.Min(Window.Width, Window.Height) >= Streamline.MinimumFGDimension);
+        NGX.Available(Feature.SuperSampling),
+        RayQuerySupported && NGX.Available(Feature.RayReconstruction),
+        NGX.Available(Feature.FrameGeneration) && LowLatencyAvailable);
 
     public Window Window { get; } = window;
 
     public UserInterface UI { get; } = ui;
 
-    public StreamlineSession Streamline { get; } = new();
+    public NGXSession NGX { get; } = new();
+
+    protected FramePresenter Presenter = null!;
+    protected readonly GpuImage[] GeneratedFrames = new GpuImage[RenderLayout.FramesInFlight];
+    protected virtual bool LowLatencyAvailable => false;
 
     public RenderSettings Settings { get; } = new();
 
     // Simulation state stays outside RenderSettings so pausing never recreates GPU resources.
     public bool AnimationPaused;
-
-    protected abstract RenderAPI API { get; }
 
     public string AdapterName { get; protected set; } = "Unknown";
 
@@ -71,20 +72,19 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     public void Initialize()
     {
-        Streamline.Initialize(API);
         InitializeDevice();
         Console.WriteLine($"Hardware Ray Query: {RayQueryStatus}");
 
         if (!RayQuerySupported)
         {
-            Streamline.Unavailable[SL.FeatureDLSSRR] = RayQueryStatus;
+            NGX.Unavailable[Feature.RayReconstruction] = RayQueryStatus;
         }
 
-        Window.LatencyPingMessage = Streamline.LatencyPingMessage;
         Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
         Camera.Reset(Scene);
         Settings.Reset(Capabilities);
         InitializeRenderer();
+        Presenter = new(WaitRenderedFrame, PresentImage);
         ready = true;
         Window.BeforeWindowChange = SuspendFrameGeneration;
         ApplySettings();
@@ -93,32 +93,20 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     private void ApplySettings()
     {
-        if (Math.Min(Window.Width, Window.Height) < Streamline.MinimumFGDimension)
-        {
-            Settings.FrameGeneration = false;
-        }
-
         bool outputChanged = outputWidth != Window.Width || outputHeight != Window.Height;
         bool swapChainChanged = applied is null || recreateSwapChain || outputChanged || applied.FrameGeneration != Settings.FrameGeneration;
         bool reconstructionChanged = applied is null || outputChanged || applied.Quality != Settings.Quality || applied.RayReconstruction != Settings.RayReconstruction;
+        Presenter.Drain();
         WaitIdle();
-
-        if (swapChainChanged)
-        {
-            Streamline.SetFrameGeneration(0);
-        }
 
         if (reconstructionChanged)
         {
-            Streamline.ReleaseReconstruction();
+            NGX.ReleaseReconstruction();
         }
-
-        Streamline.ClearResourceTags();
 
         if (swapChainChanged)
         {
             DestroySwapChain();
-            Streamline.LoadFrameGeneration(Settings.FrameGeneration);
         }
 
         outputWidth = Window.Width;
@@ -126,7 +114,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         if (reconstructionChanged)
         {
-            (InputWidth, InputHeight) = Streamline.Configure(Settings, outputWidth, outputHeight);
+            (InputWidth, InputHeight) = NGX.Configure(Settings, outputWidth, outputHeight);
 
             if (InputWidth <= 0 || InputHeight <= 0)
             {
@@ -141,13 +129,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         EnsureTargets();
 
-        if (swapChainChanged)
-        {
-            Streamline.SetFrameGeneration(Settings.FrameGeneration ? 1u : 0);
-        }
-
         // Discard presentation counts from before the configuration change.
-        _ = Streamline.ReadPresentedFrameCount();
+        _ = Presenter.ReadPresentedCount();
         applied = Settings with
         {
         };
@@ -170,6 +153,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
                 (int width, int height) = RenderLayout.Size(slot, InputWidth, InputHeight, outputWidth, outputHeight);
                 changed |= ResizeImage(ref Frames[frame][(int)slot], width, height, RenderLayout.Format(slot));
             }
+        }
+
+        for (int frame = 0; frame < GeneratedFrames.Length; frame++)
+        {
+            ResizeImage(ref GeneratedFrames[frame], outputWidth, outputHeight, ImageFormat.Rgba8);
         }
 
         changed |= ResizeImage(ref LightingSamples, RayQuerySupported ? InputWidth : 1, RayQuerySupported ? InputHeight : 1, ImageFormat.Rgba32, RenderLayout.LightingPaths);
@@ -198,7 +186,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     {
         if (ready && !disposed)
         {
-            Streamline.SetFrameGeneration(0);
             statistics.Reset(Stopwatch.GetTimestamp());
             recreateSwapChain = true;
         }
@@ -217,19 +204,16 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
 
-        Streamline.Begin(frameNumber);
+        ulong latencyFrame = ((ulong)frameNumber + 1) * 2;
+        BeginLatency(latencyFrame);
+        Marker(LatencyMarker.SimulationStart, latencyFrame);
+        Marker(LatencyMarker.InputSample, latencyFrame);
         Window.Pump();
-
-        if (Window.LatencyPing)
-        {
-            Streamline.Marker(PCLMarker.PCLatencyPing);
-            Window.LatencyPing = false;
-        }
 
         if (Window.Closed || Window.Width == 0 || Window.Height == 0)
         {
             statistics.Reset(Stopwatch.GetTimestamp());
-            Streamline.Marker(PCLMarker.SimulationEnd);
+            Marker(LatencyMarker.SimulationEnd, latencyFrame);
 
             return;
         }
@@ -238,6 +222,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
         previousTick = start;
         UI.Build(this, delta);
+
+        recreateSwapChain |= Presenter.NeedsRecreation;
 
         if (recreateSwapChain || outputWidth != Window.Width || outputHeight != Window.Height || applied != Settings)
         {
@@ -249,9 +235,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
 
         UpdateScene(delta);
-        Streamline.SetConstants(Camera, Settings, InputWidth, InputHeight, outputWidth, outputHeight, reset);
-        Streamline.Marker(PCLMarker.SimulationEnd);
+        Marker(LatencyMarker.SimulationEnd, latencyFrame);
         FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
+        Presenter.WaitSlot(FrameSlot);
 
         if (!BeginCommands())
         {
@@ -260,7 +246,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
 
-        Streamline.Marker(PCLMarker.RenderSubmitStart);
+        Marker(LatencyMarker.RenderSubmitStart, latencyFrame);
         RenderLighting();
         Reconstruct();
         PostProcess();
@@ -269,38 +255,26 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Transition(Image(ImageSlot.Final), ImageUse.Storage);
         Dispatch(ComputePass.Composite, outputWidth, outputHeight, Constants);
 
+        bool generated = false;
+
         if (Settings.FrameGeneration)
         {
-            Streamline.Tags(FrameSlot, Command,
-            [
-                (SL.BufferTypeDepth, ImageSlot.Depth),
-                (SL.BufferTypeMotionVectors, ImageSlot.Motion),
-                (SL.BufferTypeHUDLessColor, ImageSlot.Hudless),
-                (SL.BufferTypeUIColorAndAlpha, ImageSlot.UI)
-            ], Frames[FrameSlot], true);
+            foreach (ImageSlot slot in new[] { ImageSlot.Final, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Hudless, ImageSlot.UI })
+            {
+                Transition(Image(slot), NGX.IsVulkan ? ImageUse.Storage : ImageUse.ShaderRead);
+            }
+
+            Transition(GeneratedFrames[FrameSlot], ImageUse.Storage);
+            generated = NGX.Generate(Command, Frames[FrameSlot], GeneratedFrames[FrameSlot], Camera, reset);
+            Transition(GeneratedFrames[FrameSlot], ImageUse.CopySource);
         }
 
+        Transition(Image(ImageSlot.Final), ImageUse.CopySource);
         SubmitFrame();
-        Streamline.Marker(PCLMarker.RenderSubmitEnd);
-        Streamline.Marker(PCLMarker.PresentStart);
-        bool presented = Present();
-
-        if (!presented)
-        {
-            recreateSwapChain = true;
-        }
-
-        Streamline.Marker(PCLMarker.PresentEnd);
+        Marker(LatencyMarker.RenderSubmitEnd, latencyFrame);
         FinishFrame();
-        uint? presentedFrames = presented ? Streamline.ReadPresentedFrameCount() : null;
-
-        if (Settings.FrameGeneration && Streamline.FrameGenerationFailed)
-        {
-            // Do not leave a failed FG mode enabled and silently pay its overhead.
-            // The SDK error is recorded by the presentation-state query above.
-            Settings.FrameGeneration = false;
-            recreateSwapChain = true;
-        }
+        Presenter.Enqueue(FrameSlot, latencyFrame, Image(ImageSlot.Final), generated ? GeneratedFrames[FrameSlot] : null, TimeSpan.FromSeconds(delta));
+        uint presentedFrames = Presenter.ReadPresentedCount();
 
         Camera.CommitHistory();
         Scene.CommitHistory();
@@ -308,14 +282,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         frameNumber++;
         long timestamp = Stopwatch.GetTimestamp();
 
-        if (!presented)
-        {
-            statistics.Reset(timestamp);
-        }
-        else
-        {
-            statistics.RecordFrame(timestamp, presentedFrames);
-        }
+        statistics.RecordFrame(timestamp, presentedFrames);
     }
 
     private void UpdateScene(float delta)
@@ -390,26 +357,19 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     private void Reconstruct()
     {
-        uint? reconstruction = Feature(Settings.Reconstruction);
-
-        if (reconstruction is uint feature)
+        if (Settings.Reconstruction == Reconstruction.Native)
         {
-            Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);
-            ReadOnlySpan<(uint, ImageSlot)> tags =
-            [
-                (SL.BufferTypeScalingInputColor, ImageSlot.Scene),
-                (SL.BufferTypeScalingOutputColor, ImageSlot.Reconstructed),
-                (SL.BufferTypeDepth, ImageSlot.Depth),
-                (SL.BufferTypeMotionVectors, ImageSlot.Motion),
-                (SL.BufferTypeAlbedo, ImageSlot.Diffuse),
-                (SL.BufferTypeSpecularAlbedo, ImageSlot.Specular),
-                (SL.BufferTypeNormalRoughness, ImageSlot.Normal),
-                (SL.BufferTypeSpecularMotionVectors, ImageSlot.SpecularMotion)
-            ];
-            Streamline.Tags(FrameSlot, Command, feature == SL.FeatureDLSSRR ? tags : tags[..4], Frames[FrameSlot]);
-            Streamline.Evaluate(feature, Command);
-            Transition(Image(ImageSlot.Reconstructed), ImageUse.ShaderRead);
+            return;
         }
+
+        foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Specular, ImageSlot.Normal, ImageSlot.SpecularMotion })
+        {
+            Transition(Image(slot), NGX.IsVulkan ? ImageUse.Storage : ImageUse.ShaderRead);
+        }
+
+        Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);
+        NGX.Evaluate(Command, Frames[FrameSlot], Camera, reset, Constants.Exposure.Y);
+        Transition(Image(ImageSlot.Reconstructed), ImageUse.ShaderRead);
     }
 
     private void PostProcess()
@@ -444,13 +404,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];
 
-    private static uint? Feature(Reconstruction method) => method switch
-    {
-        Reconstruction.DLSS => SL.FeatureDLSS,
-        Reconstruction.RayReconstruction => SL.FeatureDLSSRR,
-        _ => null
-    };
-
     private void ReleaseTargets()
     {
         LightingSamples?.Dispose();
@@ -468,6 +421,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
 
         Array.Clear(Frames);
+
+        foreach (GpuImage? generated in GeneratedFrames)
+        {
+            generated?.Dispose();
+        }
+
+        Array.Clear(GeneratedFrames);
     }
 
     protected abstract void InitializeDevice();
@@ -498,7 +458,13 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     protected abstract void SubmitFrame();
 
-    protected abstract bool Present();
+    protected abstract bool PresentImage(GpuImage image, ulong frame, bool generated);
+
+    protected abstract void WaitRenderedFrame(int slot);
+
+    protected abstract void BeginLatency(ulong frame);
+
+    protected abstract void Marker(LatencyMarker marker, ulong frame);
 
     protected abstract void FinishFrame();
 
@@ -518,21 +484,27 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         try
         {
-            WaitIdle();
+            try
+            {
+                Presenter?.Drain();
+            }
+            finally
+            {
+                WaitIdle();
+            }
 
             if (ready)
             {
-                Streamline.SetFrameGeneration(0);
-                Streamline.ReleaseReconstruction();
-                Streamline.ClearResourceTags();
+                NGX.ReleaseReconstruction();
             }
         }
         finally
         {
-            // Keep device, proxy swap chain and callbacks alive through shutdown.
+            // Keep the device alive through NGX shutdown.
             try
             {
-                Streamline.Dispose();
+                Presenter?.Dispose();
+                NGX.Dispose();
             }
             finally
             {

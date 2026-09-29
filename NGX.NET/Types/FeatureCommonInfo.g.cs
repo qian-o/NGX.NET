@@ -9,24 +9,28 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_FeatureCommonInfo
 /// </summary>
+[NativeName("NVSDK_NGX_FeatureCommonInfo")]
 [StructLayout(LayoutKind.Explicit, Size = 40)]
 public unsafe partial struct FeatureCommonInfo
 {
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::PathListInfo
     /// </summary>
+    [NativeName("PathListInfo")]
     [FieldOffset(0)]
     public global::NGX.NET.PathListInfo @PathListInfo;
 
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::InternalData
     /// </summary>
+    [NativeName("InternalData")]
     [FieldOffset(16)]
     public global::NGX.NET.FeatureCommonInfoInternal* @InternalData;
 
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::LoggingInfo
     /// </summary>
+    [NativeName("LoggingInfo")]
     [FieldOffset(24)]
     public global::NGX.NET.LoggingInfo @LoggingInfo;
 

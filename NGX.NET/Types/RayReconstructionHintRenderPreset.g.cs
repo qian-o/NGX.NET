@@ -6,71 +6,85 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset
 /// </summary>
+[NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset")]
 public enum RayReconstructionHintRenderPreset : int
 {
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_Default
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_Default")]
     @Default = 0,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_D
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_D")]
     @D = 4,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_E
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_E")]
     @E = 5,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_F
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_F")]
     @F = 6,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_G
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_G")]
     @G = 7,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_H
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_H")]
     @H = 8,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_I
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_I")]
     @I = 9,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_J
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_J")]
     @J = 10,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_K
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_K")]
     @K = 11,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_L
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_L")]
     @L = 12,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_M
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_M")]
     @M = 13,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_N
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_N")]
     @N = 14,
 
     /// <summary>
     /// NVSDK_NGX_RayReconstruction_Hint_Render_Preset_O
     /// </summary>
+    [NativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_O")]
     @O = 15,
 
 }

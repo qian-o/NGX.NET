@@ -6,11 +6,13 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_EvalFlags
 /// </summary>
+[NativeName("NVSDK_NGX_DLSSG_EvalFlags")]
 public enum DLSSGEvalFlags : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_EvalFlags_UpdateOnlyInsideExtents
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_EvalFlags_UpdateOnlyInsideExtents")]
     @UpdateOnlyInsideExtents = 1,
 
 }

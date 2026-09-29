@@ -6,31 +6,37 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_GraphicsAPI
 /// </summary>
+[NativeName("NVSDK_NGX_GraphicsAPI")]
 public enum GraphicsAPI : int
 {
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_CUDA
     /// </summary>
-    @GraphicsAPICUDA = 0,
+    [NativeName("NVSDK_NGX_GRAPHICS_API_CUDA")]
+    @CUDA = 0,
 
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_D3D11
     /// </summary>
-    @GraphicsAPID3D11 = 1,
+    [NativeName("NVSDK_NGX_GRAPHICS_API_D3D11")]
+    @D3D11 = 1,
 
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_D3D12
     /// </summary>
-    @GraphicsAPID3D12 = 2,
+    [NativeName("NVSDK_NGX_GRAPHICS_API_D3D12")]
+    @D3D12 = 2,
 
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_VULKAN
     /// </summary>
-    @GraphicsAPIVulkan = 3,
+    [NativeName("NVSDK_NGX_GRAPHICS_API_VULKAN")]
+    @Vulkan = 3,
 
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_COUNT
     /// </summary>
-    @GraphicsAPICount = 4,
+    [NativeName("NVSDK_NGX_GRAPHICS_API_COUNT")]
+    @Count = 4,
 
 }

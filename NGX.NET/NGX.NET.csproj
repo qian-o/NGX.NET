@@ -33,11 +33,35 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\native\**\*">
-            <Link>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</Link>
+        <None Include="..\native\win-x64\*.dll">
+            <Link>runtimes\win-x64\native\%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PackagePath>runtimes/%(RecursiveDir)native/</PackagePath>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+            <Pack>true</Pack>
+        </None>
+
+        <None Include="..\native\win-arm64\*.dll">
+            <Link>runtimes\win-arm64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <PackagePath>runtimes/win-arm64/native/</PackagePath>
+            <Pack>true</Pack>
+        </None>
+
+        <None Include="..\native\linux-x64\*.so*">
+            <Link>runtimes\linux-x64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <PackagePath>runtimes/linux-x64/native/</PackagePath>
+            <Pack>true</Pack>
+        </None>
+
+        <None Include="..\native\linux-arm64\*.so*">
+            <Link>runtimes\linux-arm64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <PackagePath>runtimes/linux-arm64/native/</PackagePath>
             <Pack>true</Pack>
         </None>
     </ItemGroup>

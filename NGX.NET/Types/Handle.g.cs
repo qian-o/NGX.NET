@@ -9,6 +9,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Handle. Opaque native object; pass only pointers returned by NGX.
 /// </summary>
+[NativeName("NVSDK_NGX_Handle")]
 [StructLayout(LayoutKind.Sequential)]
 public unsafe partial struct Handle
 {

@@ -6,61 +6,73 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_ResourceFlags
 /// </summary>
+[NativeName("NVSDK_NGX_DLSSG_ResourceFlags")]
 public enum DLSSGResourceFlags : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Backbuffer
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_Backbuffer")]
     @Backbuffer = 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_MVecs
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_MVecs")]
     @MVecs = 2,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Depth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_Depth")]
     @Depth = 4,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_HUDLess
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_HUDLess")]
     @HUDLess = 8,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_UI
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_UI")]
     @UI = 16,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_BidirectionalDistortionField
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_BidirectionalDistortionField")]
     @BidirectionalDistortionField = 32,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Reserved6
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_Reserved6")]
     @Reserved6 = 64,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_UIAlpha
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_UIAlpha")]
     @UIAlpha = 128,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputInterpolated
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_OutputInterpolated")]
     @OutputInterpolated = 16777216,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputReal
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_OutputReal")]
     @OutputReal = 33554432,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputDisableInterpolation
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_ResourceFlags_OutputDisableInterpolation")]
     @OutputDisableInterpolation = 67108864,
 
 }

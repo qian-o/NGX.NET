@@ -9,18 +9,21 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Dimensions
 /// </summary>
+[NativeName("NVSDK_NGX_Dimensions")]
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public unsafe partial struct Dimensions
 {
     /// <summary>
     /// NVSDK_NGX_Dimensions::Width
     /// </summary>
+    [NativeName("Width")]
     [FieldOffset(0)]
     public uint @Width;
 
     /// <summary>
     /// NVSDK_NGX_Dimensions::Height
     /// </summary>
+    [NativeName("Height")]
     [FieldOffset(4)]
     public uint @Height;
 

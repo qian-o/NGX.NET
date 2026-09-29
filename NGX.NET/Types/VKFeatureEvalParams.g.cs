@@ -9,24 +9,28 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_VK_Feature_Eval_Params
 /// </summary>
+[NativeName("NVSDK_NGX_VK_Feature_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct VKFeatureEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::pInColor
     /// </summary>
+    [NativeName("pInColor")]
     [FieldOffset(0)]
     public global::NGX.NET.ResourceVK* @PInColor;
 
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::pInOutput
     /// </summary>
+    [NativeName("pInOutput")]
     [FieldOffset(8)]
     public global::NGX.NET.ResourceVK* @PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::InSharpness
     /// </summary>
+    [NativeName("InSharpness")]
     [FieldOffset(16)]
     public float @InSharpness;
 

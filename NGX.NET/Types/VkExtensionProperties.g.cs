@@ -9,18 +9,21 @@ namespace NGX.NET;
 /// <summary>
 /// VkExtensionProperties
 /// </summary>
+[NativeName("VkExtensionProperties")]
 [StructLayout(LayoutKind.Explicit, Size = 260)]
 public unsafe partial struct VkExtensionProperties
 {
     /// <summary>
     /// VkExtensionProperties::extensionName
     /// </summary>
+    [NativeName("extensionName")]
     [FieldOffset(0)]
     public fixed sbyte @ExtensionName[256];
 
     /// <summary>
     /// VkExtensionProperties::specVersion
     /// </summary>
+    [NativeName("specVersion")]
     [FieldOffset(256)]
     public uint @SpecVersion;
 

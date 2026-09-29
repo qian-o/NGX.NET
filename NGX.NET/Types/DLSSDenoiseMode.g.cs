@@ -6,16 +6,19 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Denoise_Mode
 /// </summary>
+[NativeName("NVSDK_NGX_DLSS_Denoise_Mode")]
 public enum DLSSDenoiseMode : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Denoise_Mode_Off
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Denoise_Mode_Off")]
     @Off = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Denoise_Mode_DLUnified
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_Denoise_Mode_DLUnified")]
     @DLUnified = 1,
 
 }

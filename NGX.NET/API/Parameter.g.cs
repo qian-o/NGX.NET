@@ -27,6 +27,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (double* output = &value)
             fixed (byte* key = terminated)
@@ -59,6 +60,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (nint* output = &value)
             fixed (byte* key = terminated)
@@ -91,6 +93,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (nint* output = &value)
             fixed (byte* key = terminated)
@@ -123,6 +126,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (float* output = &value)
             fixed (byte* key = terminated)
@@ -155,6 +159,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (int* output = &value)
             fixed (byte* key = terminated)
@@ -187,6 +192,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (uint* output = &value)
             fixed (byte* key = terminated)
@@ -219,6 +225,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (ulong* output = &value)
             fixed (byte* key = terminated)
@@ -251,6 +258,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             value = default;
             fixed (void** output = &value)
             fixed (byte* key = terminated)
@@ -283,6 +291,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetD(parameters, (sbyte*)key, value);
@@ -303,6 +312,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetD3d11Resource(parameters, (sbyte*)key, value);
@@ -323,6 +333,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetD3d12Resource(parameters, (sbyte*)key, value);
@@ -343,6 +354,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetF(parameters, (sbyte*)key, value);
@@ -363,6 +375,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetI(parameters, (sbyte*)key, value);
@@ -383,6 +396,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetUI(parameters, (sbyte*)key, value);
@@ -403,6 +417,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetULL(parameters, (sbyte*)key, value);
@@ -423,6 +438,7 @@ public static unsafe partial class NGX
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
+            terminated[^1] = 0;
             fixed (byte* key = terminated)
             {
                 SetVoidPointer(parameters, (sbyte*)key, value);

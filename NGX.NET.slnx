@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Showcase/Showcase.csproj" />
+  <Project Path="NGX.NET.Generator/NGX.NET.Generator.csproj" />
+  <Project Path="NGX.NET/NGX.NET.csproj" />
+</Solution>

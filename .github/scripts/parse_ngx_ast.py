@@ -84,6 +84,24 @@ def extract(sdk: Path, scratch: Path, rid: str):
             record = {"name": name, "header": header, "kind": kind, "size": c.type.get_size(),
                       "align": c.type.get_align(), "opaque": not c.is_definition() or name in ("NVSDK_NGX_Handle", "NVSDK_NGX_Parameter"), "fields": []}
             records[name] = record
+            if name == "NVSDK_NGX_Parameter" and c.is_definition():
+                record["members"] = []
+                suffixes = {"unsigned long long": "ULL", "float": "F", "double": "D", "unsigned int": "UI", "int": "I", "ID3D11Resource *": "D3d11Resource", "ID3D12Resource *": "D3d12Resource", "void *": "VoidPointer"}
+                for method in c.get_children():
+                    if method.kind != cx.CursorKind.CXX_METHOD:
+                        continue
+                    parameters = list(method.get_arguments())
+                    if method.spelling == "Reset":
+                        binding = "NGX_Bridge_Parameter_Reset"
+                    elif method.spelling in ("Set", "Get") and len(parameters) == 2:
+                        value = parameters[1].type
+                        if method.spelling == "Get":
+                            value = value.get_pointee()
+                        binding = "NVSDK_NGX_Parameter_" + method.spelling + suffixes[value.get_canonical().spelling]
+                    else:
+                        raise RuntimeError("Unclassified Parameter member: " + method.displayname)
+                    record["members"].append({"name": method.displayname, "binding": binding})
+                    inventory[method.get_usr()] = {"header": header, "line": method.location.line, "kind": "CXX_METHOD", "name": method.displayname, "classification": "C-ABI-adapter", "binding": binding}
             if not record["opaque"]:
                 for field in c.get_children():
                     if field.kind == cx.CursorKind.FIELD_DECL:

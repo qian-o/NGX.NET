@@ -260,11 +260,71 @@ def merge(root, output):
     save(output / "NGX.NET.Generator" / "ast.json", {"schemaVersion": 1, "source": source, "platforms": platforms})
 
 
+def smoke(root, scratch, output, rid):
+    root, scratch, output = root.resolve(), scratch.resolve(), output.resolve()
+    scratch.mkdir(parents=True, exist_ok=True)
+    source = scratch / "Smoke.cs"
+    source.write_text(f"#:project {root / 'NGX.NET/NGX.NET.csproj'}\n#:property PublishAot=true\n#:property AllowUnsafeBlocks=true\n" + r"""
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using NGX.NET;
+using Ngx = NGX.NET.NGX;
+unsafe
+{
+    if (!Ngx.Succeeded(Result.Success) || !Ngx.Failed(Result.Fail)) throw new Exception("Result predicates");
+    if (sizeof(Bool8) != 1 || sizeof(nuint) != sizeof(void*)) throw new Exception("ABI widths");
+    DLSSGOptEvalParams options = new();
+    if (options.MultiFrameCount != 1 || options.MultiFrameIndex != 1 || options.MinRelativeLinearDepthObjectSeparation != 40) throw new Exception("SDK defaults");
+    using NativeWideString wide = new("NGX \U0001F680");
+    if (OperatingSystem.IsWindows())
+    {
+        if (Marshal.PtrToStringUni((nint)wide.Pointer) != "NGX \U0001F680") throw new Exception("Windows wchar_t");
+    }
+    else if (((uint*)wide.Pointer)[4] != 0x1F680 || ((uint*)wide.Pointer)[5] != 0) throw new Exception("Linux wchar_t");
+    void* description = Ngx.GetResultAsString(Result.Success);
+    if (description == null) throw new Exception("Native loader export");
+    delegate* unmanaged[Cdecl]<float, Bool8*, void> callback = &Callbacks.Progress;
+    Bool8 cancelled = false;
+    callback(1, &cancelled);
+    if (!cancelled) throw new Exception("C callback bool pointer");
+}
+Console.WriteLine("NativeAOT NGX loader, wchar_t, callback and defaults passed.");
+static unsafe class Callbacks
+{
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static void Progress(float progress, Bool8* cancelled) => *cancelled = progress == 1;
+}
+""")
+    published = scratch / "published"
+    print(run(["dotnet", "publish", source, "-r", rid, "-c", "Release", "-o", published, "-p:GeneratePackageOnBuild=false"], root))
+    destination = published / "runtimes" / rid / "native"
+    shutil.copytree(output / "native" / rid, destination, dirs_exist_ok=True)
+    if rid != "win-arm64":
+        print(run([published / ("Smoke.exe" if rid.startswith("win-") else "Smoke")], published))
+
+
+def verify_package(root):
+    import zipfile
+    ast = json.loads((root / "NGX.NET.Generator/ast.json").read_text())
+    packages = list((root / "NGX.NET/bin/Release").glob("*.nupkg"))
+    if len(packages) != 1:
+        raise RuntimeError("Expected one freshly built package.")
+    expected = {f"runtimes/{rid}/native/{b['name']}": b["sha256"] for rid, platform in ast["platforms"].items() for b in platform["binaries"]}
+    with zipfile.ZipFile(packages[0]) as package:
+        actual = {n for n in package.namelist() if n.startswith("runtimes/")}
+        if set(expected) != actual:
+            raise RuntimeError("Incomplete NuGet RID mapping.")
+        for path, checksum in expected.items():
+            if hashlib.sha256(package.read(path)).hexdigest() != checksum:
+                raise RuntimeError("Packaged binary changed: " + path)
+    print(f"Verified {len(expected)} native NuGet assets including versioned Linux .so files.")
+
+
 def main():
     if os.environ.get("GITHUB_ACTIONS") != "true":
         raise SystemExit("SDK extraction and native builds run exclusively in GitHub Actions.")
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=("prepare", "build", "merge"))
+    parser.add_argument("operation", choices=("prepare", "build", "merge", "smoke", "verify-package"))
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--scratch", type=Path)
     parser.add_argument("--output", type=Path)
@@ -275,8 +335,12 @@ def main():
             prepare(args.root)
         elif args.operation == "build":
             build(args.root, args.scratch, args.output, args.rid)
-        else:
+        elif args.operation == "merge":
             merge(args.root, args.output)
+        elif args.operation == "smoke":
+            smoke(args.root, args.scratch, args.output, args.rid)
+        else:
+            verify_package(args.root)
     except subprocess.CalledProcessError as error:
         print(error.stdout, flush=True)
         raise

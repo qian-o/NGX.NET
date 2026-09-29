@@ -488,20 +488,48 @@ internal sealed unsafe partial class DirectX12RHI
 
     protected override void SubmitFrame()
     {
-        DxImage final = (DxImage)Image(ImageSlot.Final);
-        Transition(final, ImageUse.CopySource);
-        ID3D12Resource back = backBuffers[(int)swapChain!.CurrentBackBufferIndex];
-        commandList.ResourceBarrierTransition(back, ResourceStates.Present, ResourceStates.CopyDest);
-        commandList.CopyResource(back, final.Texture);
-        commandList.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
         commandList.Close();
         recording = false;
         queue.ExecuteCommandList(commandList);
     }
 
-    protected override bool Present()
+    protected override void WaitRenderedFrame(int slot)
     {
-        swapChain!.Present(0, PresentFlags.None).CheckError();
+        ulong value = slots[slot].Fence;
+
+        if (fence.CompletedValue < value)
+        {
+            fence.SetEventOnCompletion(value, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
+            presentEvent.WaitOne();
+        }
+    }
+
+    protected override bool PresentImage(GpuImage image, ulong frame, bool generated)
+    {
+        presentAllocator.Reset();
+        presentCommands.Reset(presentAllocator);
+        ID3D12Resource back = backBuffers[(int)swapChain!.CurrentBackBufferIndex];
+        presentCommands.ResourceBarrierTransition(back, ResourceStates.Present, ResourceStates.CopyDest);
+        presentCommands.CopyResource(back, ((DxImage)image).Texture);
+        presentCommands.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
+        presentCommands.Close();
+        if (generated)
+        {
+            Marker(LatencyMarker.OutOfBandRenderSubmitStart, frame);
+        }
+
+        queue.ExecuteCommandList(presentCommands);
+
+        if (generated)
+        {
+            Marker(LatencyMarker.OutOfBandRenderSubmitEnd, frame);
+        }
+        Marker(generated ? LatencyMarker.OutOfBandPresentStart : LatencyMarker.PresentStart, frame);
+        swapChain.Present(0, PresentFlags.None).CheckError();
+        Marker(generated ? LatencyMarker.OutOfBandPresentEnd : LatencyMarker.PresentEnd, frame);
+        queue.Signal(presentFence, ++presentFenceValue).CheckError();
+        presentFence.SetEventOnCompletion(presentFenceValue, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
+        presentEvent.WaitOne();
 
         return true;
     }
@@ -581,6 +609,11 @@ internal sealed unsafe partial class DirectX12RHI
         descriptors?.Dispose();
         renderTargets?.Dispose();
         depthViews?.Dispose();
+        latency?.Dispose();
+        presentCommands?.Dispose();
+        presentAllocator?.Dispose();
+        presentFence?.Dispose();
+        presentEvent.Dispose();
         commandList?.Dispose();
         fence?.Dispose();
         queue?.Dispose();

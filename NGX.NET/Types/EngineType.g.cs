@@ -6,31 +6,37 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_EngineType
 /// </summary>
+[NativeName("NVSDK_NGX_EngineType")]
 public enum EngineType : int
 {
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_CUSTOM
     /// </summary>
-    @EngineTypeCustom = 0,
+    [NativeName("NVSDK_NGX_ENGINE_TYPE_CUSTOM")]
+    @Custom = 0,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNREAL
     /// </summary>
-    @EngineTypeUnreal = 1,
+    [NativeName("NVSDK_NGX_ENGINE_TYPE_UNREAL")]
+    @Unreal = 1,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNITY
     /// </summary>
-    @EngineTypeUnity = 2,
+    [NativeName("NVSDK_NGX_ENGINE_TYPE_UNITY")]
+    @Unity = 2,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_OMNIVERSE
     /// </summary>
-    @EngineTypeOmniverse = 3,
+    [NativeName("NVSDK_NGX_ENGINE_TYPE_OMNIVERSE")]
+    @Omniverse = 3,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_COUNT
     /// </summary>
+    [NativeName("NVSDK_NGX_ENGINE_COUNT")]
     @EngineCount = 4,
 
 }

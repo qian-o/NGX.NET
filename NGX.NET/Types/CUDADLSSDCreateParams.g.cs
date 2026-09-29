@@ -9,24 +9,28 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_CUDA_DLSSD_Create_Params
 /// </summary>
+[NativeName("NVSDK_NGX_CUDA_DLSSD_Create_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 56)]
 public unsafe partial struct CUDADLSSDCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Create_Params::Feature
     /// </summary>
+    [NativeName("Feature")]
     [FieldOffset(0)]
     public global::NGX.NET.DLSSDCreateParams @Feature;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Create_Params::InCUContext
     /// </summary>
+    [NativeName("InCUContext")]
     [FieldOffset(40)]
     public void* @InCUContext;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Create_Params::InCUStream
     /// </summary>
+    [NativeName("InCUStream")]
     [FieldOffset(48)]
     public void* @InCUStream;
 

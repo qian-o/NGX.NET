@@ -9,18 +9,21 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLDenoise_Create_Params
 /// </summary>
+[NativeName("NVSDK_NGX_DLDenoise_Create_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct DLDenoiseCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLDenoise_Create_Params::Feature
     /// </summary>
+    [NativeName("Feature")]
     [FieldOffset(0)]
     public global::NGX.NET.FeatureCreateParams @Feature;
 
     /// <summary>
     /// NVSDK_NGX_DLDenoise_Create_Params::InFeatureCreateFlags
     /// </summary>
+    [NativeName("InFeatureCreateFlags")]
     [FieldOffset(20)]
     public int @InFeatureCreateFlags;
 

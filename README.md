@@ -1,30 +1,37 @@
-﻿# Streamline.NET
+﻿# NGX.NET
 
-[![NuGet](https://img.shields.io/nuget/vpre/Streamline.NET)](https://www.nuget.org/packages/Streamline.NET)
+[![NuGet](https://img.shields.io/nuget/vpre/NGX.NET)](https://www.nuget.org/packages/NGX.NET)
 
-C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), with .NET 10 and Native AOT support.
+NativeAOT-compatible .NET 10 bindings for NVIDIA NGX. One package includes the managed API, `ngx-bridge` and the official DLSS Super Resolution, Ray Reconstruction and Frame Generation libraries.
 
-## Usage
+Windows x64/arm64 supports Direct3D 11, Direct3D 12, Vulkan and CUDA. Linux x64/arm64 supports Vulkan and CUDA. NVIDIA hardware and driver requirements still apply to each feature.
+
+Use `NGX.D3D11`, `NGX.D3D12`, `NGX.Vulkan`, `NGX.CUDA` and `NGX.Parameter` for the application API. `NGX.DLSS` and `NGX.DLSSD` expose shared helpers. Native pointers remain available alongside `ref`/`out` and reviewed result-returning overloads.
+
+After initializing NGX with your graphics device and `NGX.RuntimeDirectory` in the feature search paths:
 
 ```csharp
-using Streamline.NET;
+using NGX.NET;
+using Ngx = NGX.NET.NGX;
 
-SL.SetLibraryPath(Path.Combine(AppContext.BaseDirectory, "Streamline"));
-
-DLSSOptions options = new()
+unsafe
 {
-    Mode = DLSSMode.MaxQuality,
-    OutputWidth = 1920,
-    OutputHeight = 1080
-};
+    Parameter* capabilities = Ngx.D3D12.GetCapabilityParameters();
 
-DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
+    try
+    {
+        OptimalSettings settings = Ngx.DLSS.GetOptimalSettings(
+            capabilities, 2560, 1440, PerfQualityValue.MaxQuality);
+    }
+    finally
+    {
+        Ngx.ThrowIfFailed(Ngx.D3D12.DestroyParameters(capabilities));
+    }
+}
 ```
 
-## Showcase
+Serialize NGX calls and release features only after their GPU work completes. Use `NGX.Succeeded` / `NGX.Failed` for native results. `NativeWideString` handles Windows UTF-16 and Linux UTF-32 `wchar_t` strings.
 
-[DirectX 12 and Vulkan sample](https://github.com/qian-o/Streamline.NET/blob/master/Showcase/README.md) with DLSS Super Resolution, Ray Reconstruction and Frame Generation.
+[Showcase](Showcase) demonstrates DirectX 12 and Vulkan with Sponza, SR, RR, frame generation and native Reflex integration. The manual **Update NGX** workflow rebuilds all four native targets and refreshes the checked-in AST and binaries together.
 
-## License
-
-[MIT](https://github.com/qian-o/Streamline.NET/blob/master/LICENSE)
+The C# bindings and bridge source use the repository's MIT license. Bundled NVIDIA components retain their NVIDIA terms. The repository remains [qian-o/Streamline.NET](https://github.com/qian-o/Streamline.NET).
