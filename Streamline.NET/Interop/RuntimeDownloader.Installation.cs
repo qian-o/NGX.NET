@@ -17,65 +17,45 @@ internal sealed partial class RuntimeDownloader
         return workspace;
     }
 
-    private static void Publish(string directory, string staging, string workspace, Installation? previous, Installation installation,
+    private static void Publish(string directory, string staging, string workspace, string[] required, List<string> files,
         CancellationToken cancellationToken, ref bool preserveRecovery)
     {
-        string backup = Path.Combine(workspace, "backup");
-        // A spelling change must also remove the old managed path on case-sensitive hosts.
-        HashSet<string> currentFiles = installation.Files.Select(file => file.Path).ToHashSet(StringComparer.Ordinal);
-        List<string> obsoleteFiles = previous is null ? [] : [.. previous.Files.Select(file => file.Path).Where(path => !currentFiles.Contains(path))];
-        List<Replacement> replacements = [];
+        List<string> installed = [];
         List<string> createdDirectories = [];
 
         try
         {
-            foreach (string path in obsoleteFiles.Concat(installation.Files.Select(file => file.Path)).Append(ManifestName))
+            foreach (string path in files)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 CheckPath(directory, path);
                 string target = Path.Combine(directory, path);
-                string saved = Path.Combine(backup, path);
-                string staged = Path.Combine(staging, path);
-                bool replacing = currentFiles.Contains(path) || path == ManifestName;
-                Replacement replacement = new(target, saved);
-                replacements.Add(replacement);
 
                 if (File.Exists(target))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(saved)!);
-                    File.Move(target, saved);
-                    replacement.OriginalMoved = true;
+                    continue;
                 }
 
-                if (replacing)
-                {
-                    EnsureDirectory(Path.GetDirectoryName(target)!, createdDirectories);
-                    File.Move(staged, target);
-                    replacement.Installed = true;
-                }
+                EnsureDirectory(Path.GetDirectoryName(target)!, createdDirectories);
+                File.Move(Path.Combine(staging, path), target);
+                installed.Add(path);
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            if (GetMissingFiles(directory, required, cancellationToken).Count != 0)
+            {
+                throw new IOException("A required Streamline library disappeared during installation.");
+            }
         }
         catch (Exception failure)
         {
             List<Exception> rollbackFailures = [];
 
-            foreach (Replacement replacement in replacements.AsEnumerable().Reverse())
+            foreach (string path in installed.AsEnumerable().Reverse())
             {
                 try
                 {
-                    CheckPath(directory, Path.GetRelativePath(directory, replacement.Target));
-
-                    if (replacement.Installed)
-                    {
-                        File.Delete(replacement.Target);
-                    }
-
-                    if (replacement.OriginalMoved)
-                    {
-                        File.Move(replacement.Backup, replacement.Target);
-                    }
+                    CheckPath(directory, path);
+                    File.Delete(Path.Combine(directory, path));
                 }
                 catch (Exception rollbackFailure) when (rollbackFailure is IOException or UnauthorizedAccessException)
                 {
@@ -105,7 +85,7 @@ internal sealed partial class RuntimeDownloader
                 preserveRecovery = true;
                 rollbackFailures.Insert(0, failure);
 
-                throw new IOException($"Streamline installation rollback could not finish. Recovery files have been preserved at '{workspace}'.",
+                throw new IOException($"Streamline installation rollback could not finish. Temporary files have been preserved at '{workspace}'.",
                     new AggregateException(rollbackFailures));
             }
 
@@ -123,16 +103,5 @@ internal sealed partial class RuntimeDownloader
         EnsureDirectory(Path.GetDirectoryName(directory) ?? throw new DirectoryNotFoundException(directory), created);
         Directory.CreateDirectory(directory);
         created.Add(directory);
-    }
-
-    private sealed class Replacement(string target, string backup)
-    {
-        internal string Target { get; } = target;
-
-        internal string Backup { get; } = backup;
-
-        internal bool OriginalMoved { get; set; }
-
-        internal bool Installed { get; set; }
     }
 }

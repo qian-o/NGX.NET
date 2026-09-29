@@ -3,31 +3,35 @@
 public static unsafe partial class SL
 {
     /// <summary>
-    /// Downloads the matching Windows x64 runtime from NVIDIA's official Streamline
-    /// release into the specified directory, preserving the downloaded files' licenses.
-    /// An intact matching installation is reused without network access.
+    /// Ensures the selected Windows x64 runtime files exist, downloading missing files
+    /// from NVIDIA's official Streamline release. Existing files are preserved.
     /// </summary>
     /// <remarks>
+    /// This method does not initialize Streamline or configure its library path.
+    /// Production binaries are preferred; development binaries are used when those are all the SDK provides.
     /// For commercial products, use binaries authorized by NVIDIA for your application.
     /// </remarks>
-    /// <param name="directory">Absolute path to the directory in which to install the native runtime.</param>
-    public static void DownloadRuntime(string directory)
+    /// <param name="directory">Absolute path to the native runtime directory.</param>
+    /// <param name="options">Features to prepare.</param>
+    public static void EnsureRuntime(string directory, RuntimeOptions options)
     {
-        RuntimeDownloader.Shared.DownloadAsync(directory, CancellationToken.None).GetAwaiter().GetResult();
+        RuntimeDownloader.Shared.EnsureAsync(directory, options, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     /// <summary>
-    /// Downloads the matching Windows x64 runtime from NVIDIA's official Streamline
-    /// release into the specified directory, preserving the downloaded files' licenses.
-    /// An intact matching installation is reused without network access.
+    /// Ensures the selected Windows x64 runtime files exist, downloading missing files
+    /// from NVIDIA's official Streamline release. Existing files are preserved.
     /// </summary>
     /// <remarks>
+    /// This method does not initialize Streamline or configure its library path.
+    /// Production binaries are preferred; development binaries are used when those are all the SDK provides.
     /// For commercial products, use binaries authorized by NVIDIA for your application.
     /// </remarks>
-    /// <param name="directory">Absolute path to the directory in which to install the native runtime.</param>
+    /// <param name="directory">Absolute path to the native runtime directory.</param>
+    /// <param name="options">Features to prepare.</param>
     /// <param name="cancellationToken">Cancels the download or installation.</param>
-    public static Task DownloadRuntimeAsync(string directory, CancellationToken cancellationToken = default)
+    public static Task EnsureRuntimeAsync(string directory, RuntimeOptions options, CancellationToken cancellationToken = default)
     {
-        return RuntimeDownloader.Shared.DownloadAsync(directory, cancellationToken);
+        return RuntimeDownloader.Shared.EnsureAsync(directory, options, cancellationToken);
     }
 }

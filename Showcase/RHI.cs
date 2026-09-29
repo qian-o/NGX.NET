@@ -69,9 +69,14 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private long previousTick = Stopwatch.GetTimestamp();
     private readonly FrameStatistics statistics = new();
 
-    public void Initialize()
+    public void Initialize(RuntimeOptions runtime)
     {
-        Streamline.Initialize(API);
+        if (runtime.RenderAPI != API)
+        {
+            throw new ArgumentException("The runtime rendering API must match the selected backend.", nameof(runtime));
+        }
+
+        Streamline.Initialize(runtime);
         InitializeDevice();
         Console.WriteLine($"Hardware Ray Query: {RayQueryStatus}");
 

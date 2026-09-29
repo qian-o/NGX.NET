@@ -17,8 +17,9 @@ dotnet run --project Showcase -c Release
 ```
 
 Choose DirectX 12 or Vulkan in the startup console. Sponza is included in the
-repository. The first launch downloads NVIDIA's official Streamline runtime to
-`Assets/Streamline/` beside the executable; later launches reuse the verified cache.
+repository. Startup checks the selected Streamline features in `Assets/Streamline/`
+beside the executable and downloads missing files from NVIDIA's official SDK.
+Existing libraries are preserved; a complete directory needs no network access.
 
 Supported DLSS features are enabled by default; unavailable controls are disabled.
 Frame Generation requires Windows Hardware-accelerated GPU scheduling.

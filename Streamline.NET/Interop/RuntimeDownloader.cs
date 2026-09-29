@@ -7,8 +7,6 @@ namespace Streamline.NET;
 
 internal sealed partial class RuntimeDownloader(HttpClient client)
 {
-    private const string ManifestName = ".streamline-runtime.json";
-
     private const int BufferSize = 64 * 1024;
 
     private const int MaximumRedirects = 5;
@@ -24,7 +22,7 @@ internal sealed partial class RuntimeDownloader(HttpClient client)
         AllowAutoRedirect = false
     }));
 
-    internal async Task DownloadAsync(string directory, CancellationToken cancellationToken)
+    internal async Task EnsureAsync(string directory, RuntimeOptions options, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
 
@@ -40,19 +38,19 @@ internal sealed partial class RuntimeDownloader(HttpClient client)
             throw new ArgumentException("The runtime destination must be a directory, not a file.", nameof(directory));
         }
 
+        string[] required = GetRequiredFiles(options);
         await installationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
-            CheckPath(destination, ManifestName);
-            Installation? previous = await ReadInstallationAsync(destination, cancellationToken).ConfigureAwait(false);
+            List<string> missing = GetMissingFiles(destination, required, cancellationToken);
 
-            if (previous is not null && previous.Release == release && previous.Asset == assetName
-                && await IsCompleteAsync(destination, previous, cancellationToken).ConfigureAwait(false))
+            if (missing.Count == 0)
             {
                 return;
             }
 
+            StreamlineLibrary.CheckRuntimeUpdate();
             string workspace = CreateWorkspace(destination);
             bool preserveRecovery = false;
             Exception? operationFailure = null;
@@ -82,12 +80,10 @@ internal sealed partial class RuntimeDownloader(HttpClient client)
 
                 string staging = Path.Combine(workspace, "staging");
                 Directory.CreateDirectory(staging);
-                List<RuntimeFile> files = await ExtractAsync(archive, staging, cancellationToken).ConfigureAwait(false);
-                Installation installation = new(release, assetName, asset.Sha256, files);
-                await WriteInstallationAsync(staging, installation, cancellationToken).ConfigureAwait(false);
+                List<string> files = await ExtractAsync(archive, staging, missing, cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
 
-                StreamlineLibrary.PublishRuntime(() => Publish(destination, staging, workspace, previous, installation,
+                StreamlineLibrary.PublishRuntime(() => Publish(destination, staging, workspace, required, files,
                     cancellationToken, ref preserveRecovery));
             }
             catch (Exception exception)
@@ -234,8 +230,4 @@ internal sealed partial class RuntimeDownloader(HttpClient client)
     }
 
     private sealed record Asset(Uri Url, long Size, string Sha256);
-
-    private sealed record RuntimeFile(string Path, long Size, string Sha256);
-
-    private sealed record Installation(string Release, string Asset, string ArchiveSha256, List<RuntimeFile> Files);
 }

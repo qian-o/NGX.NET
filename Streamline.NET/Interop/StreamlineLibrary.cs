@@ -63,16 +63,28 @@ internal static class StreamlineLibrary
         return NativeLibrary.GetExport(Load(), name);
     }
 
+    internal static void CheckRuntimeUpdate()
+    {
+        lock (sync)
+        {
+            ThrowIfRuntimeLoaded();
+        }
+    }
+
     internal static void PublishRuntime(Action publish)
     {
         lock (sync)
         {
-            if (module != 0)
-            {
-                throw new InvalidOperationException("The Streamline library has already been loaded; its runtime installation cannot be changed.");
-            }
-
+            ThrowIfRuntimeLoaded();
             publish();
+        }
+    }
+
+    private static void ThrowIfRuntimeLoaded()
+    {
+        if (module != 0)
+        {
+            throw new InvalidOperationException("The Streamline library has already been loaded; its runtime installation cannot be changed.");
         }
     }
 

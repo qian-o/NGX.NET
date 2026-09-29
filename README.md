@@ -3,7 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/vpre/Streamline.NET)](https://www.nuget.org/packages/Streamline.NET)
 
 C# bindings for [NVIDIA Streamline](https://github.com/NVIDIA-RTX/Streamline), with .NET 10 and Native AOT support.
-Explicit download helpers retrieve the native runtime from NVIDIA's official SDK releases.
+Runtime helpers download missing files for selected features from NVIDIA's official SDK releases.
 
 ## Usage
 
@@ -11,7 +11,13 @@ Explicit download helpers retrieve the native runtime from NVIDIA's official SDK
 using Streamline.NET;
 
 string directory = @"C:\Path\To\Streamline";
-await SL.DownloadRuntimeAsync(directory);
+RuntimeOptions runtime = new()
+{
+    RenderAPI = RenderAPI.D3D12,
+    DLSS = true
+};
+
+await SL.EnsureRuntimeAsync(directory, runtime);
 SL.SetLibraryPath(directory);
 
 DLSSOptions options = new()

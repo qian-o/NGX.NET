@@ -1,47 +1,73 @@
 ﻿using System.IO.Compression;
-using System.Security.Cryptography;
-using System.Text.Json;
 
 namespace Streamline.NET;
 
 internal sealed partial class RuntimeDownloader
 {
-    private static readonly string[] requiredFiles =
-    [
-        "NvLowLatencyVk.dll",
-        "nvngx_deepdvc.dll",
-        "nvngx_dlss.dll",
-        "nvngx_dlssd.dll",
-        "nvngx_dlssg.dll",
-        "sl.common.dll",
-        "sl.deepdvc.dll",
-        "sl.directsr.dll",
-        "sl.dlss_d.dll",
-        "sl.dlss_g.dll",
-        "sl.dlss.dll",
-        "sl.interposer.dll",
-        "sl.nis.dll",
-        "sl.nvperf.dll",
-        "sl.pcl.dll",
-        "sl.reflex.dll",
-        "nis.license.txt",
-        "nvngx_dlss.license.txt",
-        "reflex.license.txt",
-        "Licenses/external/json/LICENSE.MIT",
-        "Licenses/external/ngx-sdk/license.txt",
-        "Licenses/external/nsight-sdk/SystemsGraphics/LICENSE.txt",
-        "Licenses/external/reflex-sdk-vk/reflex.license.txt",
-        "Licenses/3rd-party-licenses.md",
-        "Licenses/license.txt",
-        "Licenses/NVIDIA Nsight Graphics SDK License (Apache 2.0).txt",
-        "Licenses/NVIDIA Nsight Perf SDK License (28Sept2022).pdf"
-    ];
+    private static string[] GetRequiredFiles(RuntimeOptions options)
+    {
+        if (options.RenderAPI is not (RenderAPI.D3D11 or RenderAPI.D3D12 or RenderAPI.Vulkan))
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "The rendering API is not supported.");
+        }
 
-    private static async Task<List<RuntimeFile>> ExtractAsync(string archivePath, string staging, CancellationToken cancellationToken)
+        List<string> files = ["sl.interposer.dll", "sl.common.dll"];
+
+        foreach (uint feature in options.GetFeatures())
+        {
+            string[] dependencies = feature switch
+            {
+                SL.FeatureDLSS => ["sl.dlss.dll", "nvngx_dlss.dll"],
+                SL.FeatureDLSSRR => ["sl.dlss_d.dll", "nvngx_dlssd.dll"],
+                SL.FeatureDLSSG => ["sl.dlss_g.dll", "nvngx_dlssg.dll"],
+                SL.FeatureReflex => options.RenderAPI == RenderAPI.Vulkan
+                    ? ["sl.reflex.dll", "NvLowLatencyVk.dll"] : ["sl.reflex.dll"],
+                SL.FeaturePCL => ["sl.pcl.dll"],
+                SL.FeatureNIS => ["sl.nis.dll"],
+                SL.FeatureDeepDVC => ["sl.deepdvc.dll", "nvngx_deepdvc.dll"],
+                SL.FeatureDirectSR => ["sl.directsr.dll"],
+                SL.FeatureNvPerf => ["sl.nvperf.dll"],
+                _ => throw new ArgumentOutOfRangeException(nameof(options))
+            };
+            files.AddRange(dependencies);
+        }
+
+        return [.. files];
+    }
+
+    private static List<string> GetMissingFiles(string directory, IEnumerable<string> required, CancellationToken cancellationToken)
+    {
+        List<string> missing = [];
+
+        foreach (string name in required)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            CheckPath(directory, name);
+            string path = Path.Combine(directory, name);
+
+            if (Directory.Exists(path))
+            {
+                throw new IOException("A directory occupies a required Streamline library path: " + path);
+            }
+
+            if (!File.Exists(path))
+            {
+                missing.Add(name);
+            }
+            else if (new FileInfo(path).Length == 0)
+            {
+                throw new InvalidDataException("An existing Streamline library is empty. Replace or remove it before ensuring the runtime: " + path);
+            }
+        }
+
+        return missing;
+    }
+
+    private static async Task<List<string>> ExtractAsync(string archivePath, string staging, List<string> missing, CancellationToken cancellationToken)
     {
         using ZipArchive archive = ZipFile.OpenRead(archivePath);
-        HashSet<string> paths = new(StringComparer.OrdinalIgnoreCase);
-        List<RuntimeFile> files = [];
+        HashSet<string> required = new(missing, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, (ZipArchiveEntry Entry, bool Development)> selected = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
@@ -53,7 +79,7 @@ internal sealed partial class RuntimeDownloader
                 continue;
             }
 
-            string? relative = SelectFile(path);
+            string? relative = SelectFile(path, required, out bool development);
 
             if (relative is null)
             {
@@ -61,34 +87,68 @@ internal sealed partial class RuntimeDownloader
             }
 
             // Unix symbolic links have file type 0120000 in the upper attribute word.
-            if ((entry.ExternalAttributes >> 16 & 0xF000) == 0xA000 || !paths.Add(relative))
+            if ((entry.ExternalAttributes >> 16 & 0xF000) == 0xA000)
             {
-                throw new InvalidDataException("The Streamline archive contains a link or duplicate installation path: " + relative);
+                throw new InvalidDataException("The Streamline archive contains a symbolic link: " + relative);
             }
 
-            string destination = Path.Combine(staging, relative);
-            CheckPath(staging, relative);
-            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
-            using Stream source = entry.Open();
-            string hash = await CopyAndHashAsync(source, destination, entry.Length, cancellationToken).ConfigureAwait(false);
-            files.Add(new(relative, entry.Length, hash));
+            if (selected.TryGetValue(relative, out (ZipArchiveEntry Entry, bool Development) existing))
+            {
+                if (existing.Development == development)
+                {
+                    throw new InvalidDataException("The Streamline archive contains a duplicate installation path: " + relative);
+                }
+
+                if (!existing.Development)
+                {
+                    continue;
+                }
+            }
+
+            selected[relative] = (entry, development);
         }
 
-        ValidateFileSet(files);
+        foreach (string name in missing)
+        {
+            if (!selected.TryGetValue(name, out (ZipArchiveEntry Entry, bool Development) file) || file.Entry.Length == 0)
+            {
+                throw new InvalidDataException($"The official Streamline SDK does not contain the required library '{name}'. " +
+                    "Provide it in the runtime directory or check https://github.com/NVIDIA-RTX/Streamline/releases.");
+            }
+        }
 
-        return [.. files.OrderBy(file => file.Path, StringComparer.Ordinal)];
+        List<string> files = [];
+
+        foreach ((string path, (ZipArchiveEntry entry, _)) in selected.OrderBy(item => item.Key, StringComparer.Ordinal))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            string destination = Path.Combine(staging, path);
+            CheckPath(staging, path);
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            using Stream source = entry.Open();
+            await CopyAndHashAsync(source, destination, entry.Length, cancellationToken).ConfigureAwait(false);
+            files.Add(path);
+        }
+
+        return files;
     }
 
-    private static string? SelectFile(string path)
+    private static string? SelectFile(string path, HashSet<string> required, out bool development)
     {
         const string runtimePrefix = "bin/x64/";
+        const string developmentPrefix = "bin/x64/development/";
+        development = path.StartsWith(developmentPrefix, StringComparison.Ordinal);
 
         if (path.StartsWith(runtimePrefix, StringComparison.Ordinal))
         {
-            string name = path[runtimePrefix.Length..];
+            string name = path[(development ? developmentPrefix.Length : runtimePrefix.Length)..];
 
-            return !name.Contains('/') && (name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || IsLicenseFile(name))
-                ? name : null;
+            if (name.Contains('/'))
+            {
+                return null;
+            }
+
+            return required.TryGetValue(name, out string? canonical) ? canonical : IsLicenseFile(name) ? name : null;
         }
 
         string[] segments = path.Split('/');
@@ -136,41 +196,6 @@ internal sealed partial class RuntimeDownloader
         return path;
     }
 
-    private static void ValidateFileSet(List<RuntimeFile> files, bool requireCurrentFiles = true)
-    {
-        HashSet<string> paths = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (RuntimeFile file in files)
-        {
-            string path = NormalizeRelativePath(file.Path);
-            string name = path[(path.LastIndexOf('/') + 1)..];
-            bool managed = path.StartsWith("Licenses/", StringComparison.Ordinal) ? IsLicenseFile(name)
-                : !path.Contains('/') && (name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || IsLicenseFile(name));
-
-            if (!managed || path != file.Path || !paths.Add(path) || file.Size < 0 || !IsSha256(file.Sha256))
-            {
-                throw new InvalidDataException("Invalid Streamline runtime manifest entry: " + file.Path);
-            }
-        }
-
-        if (!paths.Contains("sl.interposer.dll") || !paths.Contains("sl.common.dll")
-            || !files.Any(file => file.Path.StartsWith("Licenses/", StringComparison.Ordinal)))
-        {
-            throw new InvalidDataException("The Streamline runtime is missing its interposer, common plugin, or accompanying licenses.");
-        }
-
-        if (requireCurrentFiles)
-        {
-            foreach (string path in requiredFiles)
-            {
-                if (!paths.Contains(path))
-                {
-                    throw new InvalidDataException("The Streamline runtime is missing a required file: " + path);
-                }
-            }
-        }
-    }
-
     private static void CheckPath(string directory, string relativePath)
     {
         string path = directory;
@@ -204,103 +229,5 @@ internal sealed partial class RuntimeDownloader
         {
             // A new installation path has no existing parent to validate.
         }
-    }
-
-    private static async Task<Installation?> ReadInstallationAsync(string directory, CancellationToken cancellationToken)
-    {
-        string path = Path.Combine(directory, ManifestName);
-
-        if (!File.Exists(path))
-        {
-            return null;
-        }
-
-        try
-        {
-            using FileStream source = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            using JsonDocument document = await JsonDocument.ParseAsync(source, cancellationToken: cancellationToken).ConfigureAwait(false);
-            JsonElement root = document.RootElement;
-
-            if (root.GetProperty("schema").GetInt32() != 1)
-            {
-                return null;
-            }
-
-            string version = root.GetProperty("release").GetString() ?? "";
-            string asset = root.GetProperty("asset").GetString() ?? "";
-            string digest = root.GetProperty("archiveSha256").GetString() ?? "";
-
-            if (!version.StartsWith('v') || !Version.TryParse(version[1..], out _) || asset != $"streamline-sdk-{version}.zip" || !IsSha256(digest))
-            {
-                return null;
-            }
-
-            List<RuntimeFile> files = [];
-
-            foreach (JsonElement file in root.GetProperty("files").EnumerateArray())
-            {
-                files.Add(new(file.GetProperty("path").GetString() ?? "", file.GetProperty("size").GetInt64(), file.GetProperty("sha256").GetString() ?? ""));
-            }
-
-            ValidateFileSet(files, requireCurrentFiles: version == release);
-
-            return new(version, asset, digest, files);
-        }
-        catch (Exception exception) when (exception is JsonException or InvalidDataException or KeyNotFoundException or InvalidOperationException or FormatException or OverflowException)
-        {
-            // An absent or damaged manifest is repaired from the official archive.
-            return null;
-        }
-    }
-
-    private static async Task<bool> IsCompleteAsync(string directory, Installation installation, CancellationToken cancellationToken)
-    {
-        foreach (RuntimeFile file in installation.Files)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            CheckPath(directory, file.Path);
-            string path = Path.Combine(directory, file.Path);
-
-            if (!File.Exists(path) || new FileInfo(path).Length != file.Size)
-            {
-                return false;
-            }
-
-            using FileStream source = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            byte[] hash = await SHA256.HashDataAsync(source, cancellationToken).ConfigureAwait(false);
-
-            if (!Convert.ToHexStringLower(hash).Equals(file.Sha256, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static async Task WriteInstallationAsync(string directory, Installation installation, CancellationToken cancellationToken)
-    {
-        using FileStream output = new(Path.Combine(directory, ManifestName), FileMode.CreateNew, FileAccess.Write, FileShare.None, BufferSize, FileOptions.Asynchronous);
-        using Utf8JsonWriter writer = new(output);
-        writer.WriteStartObject();
-        writer.WriteNumber("schema", 1);
-        writer.WriteString("release", installation.Release);
-        writer.WriteString("asset", installation.Asset);
-        writer.WriteString("archiveSha256", installation.ArchiveSha256);
-        writer.WriteStartArray("files");
-
-        foreach (RuntimeFile file in installation.Files)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("path", file.Path);
-            writer.WriteNumber("size", file.Size);
-            writer.WriteString("sha256", file.Sha256);
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
-        await output.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 }
