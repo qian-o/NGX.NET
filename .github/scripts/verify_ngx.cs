@@ -22,6 +22,7 @@ Assembly assembly = typeof(Ngx).Assembly;
 Dictionary<string, Type> types = assembly.GetTypes().Where(t => t.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(t => t.GetCustomAttribute<NativeNameAttribute>()!.Name);
 Dictionary<string, MethodInfo> imports = assembly.GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)).Where(m => m.GetCustomAttribute<LibraryImportAttribute>() is not null).ToDictionary(m => m.GetCustomAttribute<LibraryImportAttribute>()!.EntryPoint!);
 HashSet<string> expectedImports = ["NGX_Bridge_Parameter_Reset"];
+HashSet<string> opaqueTypes = document.RootElement.GetProperty("platforms").EnumerateObject().SelectMany(p => p.Value.GetProperty("records").EnumerateArray()).Where(r => r.GetProperty("opaque").GetBoolean()).Select(r => r.GetProperty("name").GetString()!).ToHashSet();
 int checks = 0;
 
 void Require(bool condition, string message)
@@ -32,7 +33,7 @@ void Require(bool condition, string message)
 
 int Size(Type type) => type.IsEnum ? Marshal.SizeOf(Enum.GetUnderlyingType(type)) : type.IsPointer || type.IsFunctionPointer || type == typeof(nint) || type == typeof(nuint) ? IntPtr.Size : Marshal.SizeOf(type);
 
-void VerifyType(JsonElement native, Type managed, string context)
+void VerifyType(JsonElement native, Type managed, string context, bool behindPointer = false)
 {
     string kind = native.GetProperty("kind").GetString()!;
     if (kind == "VOID")
@@ -41,9 +42,51 @@ void VerifyType(JsonElement native, Type managed, string context)
         return;
     }
 
+    if (kind is "RECORD" or "ENUM")
+    {
+        string name = native.GetProperty("name").GetString()!;
+        Require(managed.GetCustomAttribute<NativeNameAttribute>()?.Name == name, context + " native type identity");
+        if (behindPointer && opaqueTypes.Contains(name)) return;
+    }
+
     int nativeSize = kind is "LVALUEREFERENCE" or "RVALUEREFERENCE" ? IntPtr.Size : native.GetProperty("size").GetInt32();
     Require(Size(managed) == nativeSize, context + " ABI size");
-    if (kind == "BOOL") Require(managed == typeof(Bool8), context + " bool ABI");
+    Type? scalar = kind switch
+    {
+        "BOOL" => typeof(Bool8),
+        "CHAR_S" or "CHAR_U" or "SCHAR" => typeof(sbyte),
+        "UCHAR" => typeof(byte),
+        "SHORT" => typeof(short),
+        "USHORT" => typeof(ushort),
+        "INT" => typeof(int),
+        "UINT" => typeof(uint),
+        "LONG" => nativeSize == 8 ? typeof(long) : typeof(int),
+        "ULONG" => nativeSize == 8 ? typeof(ulong) : typeof(uint),
+        "LONGLONG" => typeof(long),
+        "ULONGLONG" => typeof(ulong),
+        "FLOAT" => typeof(float),
+        "DOUBLE" => typeof(double),
+        _ => null
+    };
+    if (scalar is not null) Require(managed == scalar || managed == typeof(nuint) && scalar == typeof(ulong), context + " scalar type");
+    if (kind is "POINTER" or "LVALUEREFERENCE" or "RVALUEREFERENCE")
+    {
+        JsonElement element = native.GetProperty("element");
+        string elementKind = element.GetProperty("kind").GetString()!;
+        if (elementKind is not ("FUNCTIONPROTO" or "FUNCTIONNOPROTO"))
+        {
+            if (managed == typeof(nint))
+            {
+                Require(elementKind == "RECORD" && opaqueTypes.Contains(element.GetProperty("name").GetString()!) && !element.GetProperty("name").GetString()!.StartsWith("NVSDK_NGX_", StringComparison.Ordinal), context + " external opaque handle");
+            }
+            else
+            {
+                Require(managed.IsPointer, context + " pointer type");
+                if (elementKind == "WCHAR") Require(managed.GetElementType() == typeof(void), context + " platform wchar_t pointer");
+                else VerifyType(element, managed.GetElementType()!, context + " pointee", true);
+            }
+        }
+    }
     if (kind == "POINTER" && native.GetProperty("element").GetProperty("kind").GetString() == "FUNCTIONPROTO")
     {
         Require(managed.IsFunctionPointer && managed.IsUnmanagedFunctionPointer, context + " unmanaged callback");
