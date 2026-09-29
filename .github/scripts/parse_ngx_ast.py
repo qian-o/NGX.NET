@@ -87,7 +87,7 @@ def extract(sdk: Path, scratch: Path, rid: str):
             if not record["opaque"]:
                 for field in c.get_children():
                     if field.kind == cx.CursorKind.FIELD_DECL:
-                        record["fields"].append({"name": field.spelling, "offset": field.get_field_offsetof(), "type": type_info(field.type)})
+                        record["fields"].append({"name": field.spelling, "offset": field.get_field_offsetof(), "type": type_info(field.type), "declaration": " ".join(t.spelling for t in field.get_tokens())})
         elif kind == "ENUM_DECL" and name not in enums:
             enums[name] = {"name": name, "header": header, "underlying": c.enum_type.spelling,
                            "values": [{"name": e.spelling, "value": e.enum_value} for e in c.get_children() if e.kind == cx.CursorKind.ENUM_CONSTANT_DECL]}

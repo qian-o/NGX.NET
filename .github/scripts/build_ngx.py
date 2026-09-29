@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import struct
 import urllib.request
 
 from parse_ngx_ast import extract, IMPLEMENTATION_HEADERS
@@ -104,6 +105,48 @@ def run(command, cwd):
     return subprocess.run(list(map(str, command)), cwd=cwd, check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
 
 
+def verify_machine(path, rid):
+    data = path.read_bytes()
+    if rid.startswith("win-"):
+        pe = struct.unpack_from("<I", data, 0x3C)[0]
+        if data[:2] != b"MZ" or data[pe:pe + 4] != b"PE\0\0":
+            raise RuntimeError("Invalid PE image: " + str(path))
+        machine = struct.unpack_from("<H", data, pe + 4)[0]
+        expected = 0xAA64 if rid.endswith("arm64") else 0x8664
+    else:
+        if data[:6] != b"\x7fELF\x02\x01":
+            raise RuntimeError("Expected a 64-bit little-endian ELF image: " + str(path))
+        machine = struct.unpack_from("<H", data, 18)[0]
+        expected = 183 if rid.endswith("arm64") else 62
+    if machine != expected:
+        raise RuntimeError("Architecture mismatch: " + str(path))
+
+
+def layout_assertions(ast, units):
+    assertions = {}
+    names = {}
+    for record in ast["records"]:
+        for field in record["fields"]:
+            t = field["type"]
+            if t["kind"] == "RECORD" and not t["name"].startswith(("NVSDK_NGX_", "Vk")):
+                names[t["name"]] = f'decltype((({record["name"]}*)nullptr)->{field["name"]})'
+    for record in ast["records"]:
+        if record["opaque"]:
+            continue
+        header = record["header"] or "nvsdk_ngx_defs_vk.h"
+        if header not in units:
+            header = "nvsdk_ngx_helpers.h"
+        name = names.get(record["name"], record["name"])
+        checks = [f'static_assert(sizeof({name}) == {record["size"]});',
+                  f'static_assert(alignof({name}) == {record["align"]});']
+        for field in record["fields"]:
+            if field["offset"] % 8:
+                raise RuntimeError("Unreviewed bit field: " + record["name"])
+            checks.append(f'static_assert(offsetof({name}, {field["name"]}) == {field["offset"] // 8});')
+        assertions.setdefault(header, []).extend(checks)
+    return assertions
+
+
 def build(root, scratch, output, rid):
     root, scratch, output = root.resolve(), scratch.resolve(), output.resolve()
     scratch.mkdir(parents=True, exist_ok=True)
@@ -139,10 +182,13 @@ def build(root, scratch, output, rid):
     reset = 'extern "C" ' + ('__declspec(dllexport)' if windows else '__attribute__((visibility("default")))') + ' void NGX_Bridge_Parameter_Reset(NVSDK_NGX_Parameter* parameters)\n{\n    parameters->Reset();\n}\n'
     wrappers.setdefault("nvsdk_ngx_params.h", []).append(reset)
     exports.append("NGX_Bridge_Parameter_Reset")
+    assertions = layout_assertions(ast, units)
+    for header in assertions:
+        wrappers.setdefault(header, [])
     sources = []
     for header, bodies in wrappers.items():
         p = scratch / (header + ".bridge.cpp")
-        p.write_text(Path(units[header]).read_text() + "\n" + "\n".join(bodies))
+        p.write_text(Path(units[header]).read_text() + "\n" + "\n".join(assertions.get(header, [])) + "\n" + "\n".join(bodies))
         sources.append(p)
     platform, lib = PLATFORMS[rid]
     loader = root / "lib" / platform / lib
@@ -172,6 +218,17 @@ def build(root, scratch, output, rid):
         raise RuntimeError(f"Export mismatch: missing={set(exports) - actual}, extra={actual - set(exports)}")
     for p in (root / "lib" / platform / "rel").iterdir():
         shutil.copy2(p, native / p.name)
+    for path in native.iterdir():
+        verify_machine(path, rid)
+    # Execute a driver-independent loader export on each native runner. The
+    # Windows ARM64 cross-build is validated structurally, not emulated.
+    if rid != "win-arm64":
+        module = ctypes.CDLL(str(bridge))
+        describe = module.GetNGXResultAsString
+        describe.argtypes = [ctypes.c_uint]
+        describe.restype = ctypes.c_wchar_p
+        if not describe(1):
+            raise RuntimeError("NGX result conversion returned no string.")
     ast["exports"] = sorted(actual)
     ast["binaries"] = [{"name": p.name, "sha256": sha256(p)} for p in sorted(native.iterdir())]
     save(output / "ast.json", {"source": source, "platform": ast})

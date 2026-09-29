@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+        <IsAotCompatible>true</IsAotCompatible>
+        <NoWarn>IDE0130</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Version>310.9.1-alpha</Version>
+        <Authors>qian-o</Authors>
+        <Copyright>Copyright (c) 2026 qian-o</Copyright>
+        <Description>C# bindings for NVIDIA NGX.</Description>
+
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
+
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>NGX;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
+        <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+        <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\native\**\*">
+            <Link>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <PackagePath>runtimes/%(RecursiveDir)native/</PackagePath>
+            <Pack>true</Pack>
+        </None>
+    </ItemGroup>
+
+</Project>
