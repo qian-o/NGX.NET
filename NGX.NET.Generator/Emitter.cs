@@ -255,7 +255,7 @@ internal sealed partial class Emitter
         bool unsigned = name == "NVSDK_NGX_Result" || values.Any(v => v.GetProperty("value").GetInt64() > int.MaxValue);
         string prefix = name + "_";
         StringBuilder text = new(Header + Namespace + Summary(name));
-        text.AppendLine($"[NativeName(\"{name}\")]" );
+        text.AppendLine($"[NativeName(\"{name}\")]");
         text.AppendLine($"public enum {managed} : {(unsigned ? "uint" : "int")}\n{{");
 
         foreach (JsonElement item in values)
@@ -278,7 +278,7 @@ internal sealed partial class Emitter
             }
 
             text.Append(Summary(native, 4));
-            text.AppendLine($"    [NativeName(\"{native}\")]" );
+            text.AppendLine($"    [NativeName(\"{native}\")]");
             text.AppendLine($"    {FieldName(member)} = {(unsigned ? unchecked((uint)item.GetProperty("value").GetInt64()).ToString(CultureInfo.InvariantCulture) : item.GetProperty("value").GetInt64().ToString(CultureInfo.InvariantCulture))},\n");
         }
 
@@ -297,7 +297,7 @@ internal sealed partial class Emitter
 
         string managed = unionNames.GetValueOrDefault(name, Name(name));
         StringBuilder text = new(Header + "using System.Runtime.CompilerServices;\nusing System.Runtime.InteropServices;\n\n" + Namespace + Summary(opaque ? name + ". Opaque native object; pass only pointers returned by NGX." : name));
-        text.AppendLine($"[NativeName(\"{name}\")]" );
+        text.AppendLine($"[NativeName(\"{name}\")]");
         text.AppendLine(opaque ? "[StructLayout(LayoutKind.Sequential)]" : $"[StructLayout(LayoutKind.Explicit, Size = {value.Number("size")})]");
         text.AppendLine($"public unsafe partial struct {managed}\n{{");
 
@@ -306,7 +306,7 @@ internal sealed partial class Emitter
             JsonElement type = field.GetProperty("type");
             string fieldName = field.Text("name");
             text.Append(Summary($"{name}::{fieldName}", 4));
-            text.AppendLine($"    [NativeName(\"{fieldName}\")]" );
+            text.AppendLine($"    [NativeName(\"{fieldName}\")]");
             text.AppendLine($"    [FieldOffset({field.Number("offset") / 8})]");
 
             if (type.Text("kind") == "CONSTANTARRAY")
@@ -394,7 +394,7 @@ internal sealed partial class Emitter
             text.AppendLine($"    public static partial class {group}\n    {{");
         }
 
-        foreach (JsonElement function in functionsInGroup.OrderBy(f => f.Text("name")))
+        foreach (JsonElement function in functionsInGroup.OrderBy(f => f.Text("name"), StringComparer.Ordinal))
         {
             string native = function.Text("name");
             string method = FunctionName(native).Method;
@@ -505,7 +505,7 @@ internal sealed partial class Emitter
         StringBuilder text = new(Header + Namespace + "public static unsafe partial class NGX\n{\n");
         Dictionary<string, JsonElement> macros = Merge("macros");
 
-        foreach (JsonElement macro in macros.Values.OrderBy(m => m.Text("name")))
+        foreach (JsonElement macro in macros.Values.OrderBy(m => m.Text("name"), StringComparer.Ordinal))
         {
             string native = macro.Text("name");
             string[] tokens = [.. macro.Items("tokens").Select(t => t.GetString()!)];
@@ -518,19 +518,19 @@ internal sealed partial class Emitter
             if (tokens.All(t => t.StartsWith('"')))
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]" );
+                text.AppendLine($"    [NativeName(\"{native}\")]");
                 text.AppendLine($"    public static ReadOnlySpan<byte> {Name(native)} => {string.Join(" + ", tokens.Select(t => t + "u8"))};\n");
             }
             else if (native == "NVSDK_NGX_VERSION_API_MACRO")
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]" );
+                text.AppendLine($"    [NativeName(\"{native}\")]");
                 text.AppendLine($"    public const uint VersionAPI = {tokens[0]};\n");
             }
             else if (native == "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET")
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]" );
+                text.AppendLine($"    [NativeName(\"{native}\")]");
                 text.AppendLine($"    public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};\n");
             }
             else if (native is not ("NVSDK_NGX_API" or "NVSDK_CONV" or "SR_DEPRECATED_SHARPENING"))

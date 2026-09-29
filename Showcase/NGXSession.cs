@@ -12,7 +12,10 @@ internal sealed unsafe class NGXSession : IDisposable
 {
     public Dictionary<Feature, string> Unavailable { get; } = [];
 
-    public bool IsVulkan { get; private set; }
+    public bool IsVulkan
+    {
+        get; private set;
+    }
 
     private nint device;
     private Parameter* capabilities;
@@ -42,7 +45,11 @@ internal sealed unsafe class NGXSession : IDisposable
         *paths = runtimePath.Pointer;
         FeatureCommonInfo common = new()
         {
-            PathListInfo = new() { Path = paths, Length = 1 }
+            PathListInfo = new()
+            {
+                Path = paths,
+                Length = 1
+            }
         };
         fixed (byte* project = "fc6ac847-10b0-48e1-842d-1bc819f8d2f4"u8)
         fixed (byte* engine = "NGX.NET.Showcase.1.0"u8)
@@ -79,7 +86,14 @@ internal sealed unsafe class NGXSession : IDisposable
     {
         HashSet<string> extensions = [];
         *paths = runtimePath.Pointer;
-        FeatureCommonInfo common = new() { PathListInfo = new() { Path = paths, Length = 1 } };
+        FeatureCommonInfo common = new()
+        {
+            PathListInfo = new()
+            {
+                Path = paths,
+                Length = 1
+            }
+        };
 
         fixed (byte* project = "fc6ac847-10b0-48e1-842d-1bc819f8d2f4"u8)
         fixed (byte* engine = "NGX.NET.Showcase.1.0"u8)
@@ -93,7 +107,15 @@ internal sealed unsafe class NGXSession : IDisposable
                     Identifier = new()
                     {
                         IdentifierType = ApplicationIdentifierType.ProjectId,
-                        V = new() { ProjectDesc = new() { ProjectId = (sbyte*)project, EngineType = EngineType.Custom, EngineVersion = (sbyte*)engine } }
+                        V = new()
+                        {
+                            ProjectDesc = new()
+                            {
+                                ProjectId = (sbyte*)project,
+                                EngineType = EngineType.Custom,
+                                EngineVersion = (sbyte*)engine
+                            }
+                        }
                     },
                     ApplicationDataPath = dataPath.Pointer,
                     FeatureInfo = &common
@@ -134,7 +156,9 @@ internal sealed unsafe class NGXSession : IDisposable
 
     public (int Width, int Height) Configure(RenderSettings value, int width, int height)
     {
-        settings = value with { };
+        settings = value with
+        {
+        };
         outputWidth = width;
         outputHeight = height;
         OptimalSettings optimal = value.Reconstruction switch
@@ -195,19 +219,25 @@ internal sealed unsafe class NGXSession : IDisposable
             CreateReconstruction(command);
         }
 
-        NativeImage[] descriptions = images.Select(image => image.Describe()).ToArray();
-        descriptions[(int)ImageSlot.Reconstructed].Vulkan.ReadWrite = true;
+        NativeImage* descriptions = stackalloc NativeImage[images.Length];
 
-        fixed (NativeImage* resources = descriptions)
+        for (int i = 0; i < images.Length; i++)
         {
-            EvaluateImages(command, resources, camera, reset, delta);
+            descriptions[i] = images[i].Describe();
         }
+
+        descriptions[(int)ImageSlot.Reconstructed].Vulkan.ReadWrite = true;
+        EvaluateImages(command, descriptions, camera, reset, delta);
     }
 
     private void EvaluateImages(nint command, NativeImage* images, Camera camera, bool reset, float delta)
     {
         Matrix4x4 view = camera.View, projection = camera.Projection;
-        Dimensions dimensions = new() { Width = (uint)inputWidth, Height = (uint)inputHeight };
+        Dimensions dimensions = new()
+        {
+            Width = (uint)inputWidth,
+            Height = (uint)inputHeight
+        };
         if (!IsVulkan)
         {
             if (settings.Reconstruction == Reconstruction.RayReconstruction)
@@ -240,7 +270,11 @@ internal sealed unsafe class NGXSession : IDisposable
             {
                 D3D12DLSSEvalParams evaluate = new()
                 {
-                    Feature = new() { PInColor = images[(int)ImageSlot.Scene].DirectX, PInOutput = images[(int)ImageSlot.Reconstructed].DirectX },
+                    Feature = new()
+                    {
+                        PInColor = images[(int)ImageSlot.Scene].DirectX,
+                        PInOutput = images[(int)ImageSlot.Reconstructed].DirectX
+                    },
                     PInDepth = images[(int)ImageSlot.Depth].DirectX,
                     PInMotionVectors = images[(int)ImageSlot.Motion].DirectX,
                     InJitterOffsetX = camera.Jitter.X,
@@ -288,7 +322,11 @@ internal sealed unsafe class NGXSession : IDisposable
             {
                 VKDLSSEvalParams evaluate = new()
                 {
-                    Feature = new() { PInColor = &images[(int)ImageSlot.Scene].Vulkan, PInOutput = &images[(int)ImageSlot.Reconstructed].Vulkan },
+                    Feature = new()
+                    {
+                        PInColor = &images[(int)ImageSlot.Scene].Vulkan,
+                        PInOutput = &images[(int)ImageSlot.Reconstructed].Vulkan
+                    },
                     PInDepth = &images[(int)ImageSlot.Depth].Vulkan,
                     PInMotionVectors = &images[(int)ImageSlot.Motion].Vulkan,
                     InJitterOffsetX = camera.Jitter.X,

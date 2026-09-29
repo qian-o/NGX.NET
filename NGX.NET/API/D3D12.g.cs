@@ -56,48 +56,6 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
-        /// NGX_D3D12_CREATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:275.
-        /// </summary>
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_CREATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_D3D12_CREATE_DLSS_EXT.
-        /// </summary>
-        public static global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.DLSSCreateParams @PInDlssCreateParams)
-        {
-            fixed (global::NGX.NET.DLSSCreateParams* pointer0 = &@PInDlssCreateParams)
-            {
-                return CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, @PpOutHandle, @PInParams, pointer0);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NGX_D3D12_CREATE_DLSS_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static global::NGX.NET.Handle* CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams)
-        {
-            global::NGX.NET.Handle* value = default;
-            ThrowIfFailed(CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, &value, @PInParams, @PInDlssCreateParams), "NGX_D3D12_CREATE_DLSS_EXT");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NGX_D3D12_CREATE_DLSS_EXT.
-        /// </summary>
-        public static global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, out global::NGX.NET.Handle* value, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams)
-        {
-            value = default;
-
-            fixed (global::NGX.NET.Handle** pointer = &value)
-            {
-                return CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, pointer, @PInParams, @PInDlssCreateParams);
-            }
-        }
-
-        /// <summary>
         /// NGX_D3D12_CREATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_d3d.h:529.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_CREATE_DLSSD_EXT")]
@@ -182,6 +140,48 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
+        /// NGX_D3D12_CREATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:275.
+        /// </summary>
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_CREATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams);
+
+        /// <summary>
+        /// Pins native structures for NGX_D3D12_CREATE_DLSS_EXT.
+        /// </summary>
+        public static global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.DLSSCreateParams @PInDlssCreateParams)
+        {
+            fixed (global::NGX.NET.DLSSCreateParams* pointer0 = &@PInDlssCreateParams)
+            {
+                return CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, @PpOutHandle, @PInParams, pointer0);
+            }
+        }
+
+        /// <summary>
+        /// Returns the reviewed output of NGX_D3D12_CREATE_DLSS_EXT; throws on NGX failure. The caller owns any returned handle or parameter map.
+        /// </summary>
+        public static global::NGX.NET.Handle* CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams)
+        {
+            global::NGX.NET.Handle* value = default;
+            ThrowIfFailed(CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, &value, @PInParams, @PInDlssCreateParams), "NGX_D3D12_CREATE_DLSS_EXT");
+
+            return value;
+        }
+
+        /// <summary>
+        /// Preserves the native result and writes the output of NGX_D3D12_CREATE_DLSS_EXT.
+        /// </summary>
+        public static global::NGX.NET.Result CreateDLSSExt(nint @PInCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, out global::NGX.NET.Handle* value, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSCreateParams* @PInDlssCreateParams)
+        {
+            value = default;
+
+            fixed (global::NGX.NET.Handle** pointer = &value)
+            {
+                return CreateDLSSExt(@PInCmdList, @InCreationNodeMask, @InVisibilityNodeMask, pointer, @PInParams, @PInDlssCreateParams);
+            }
+        }
+
+        /// <summary>
         /// NGX_D3D12_ESTIMATE_VRAM_DLSSG. Source: nvsdk_ngx_helpers_dlssg_d3d.h:197.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_ESTIMATE_VRAM_DLSSG")]
@@ -203,24 +203,6 @@ public static unsafe partial class NGX
             fixed (global::NGX.NET.D3D12DLISPEvalParams* pointer0 = &@PDlispEvalParams)
             {
                 return EvaluateDLISPExt(@PInCmdList, @PInHandle, @PInParams, pointer0);
-            }
-        }
-
-        /// <summary>
-        /// NGX_D3D12_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:297.
-        /// </summary>
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_EVALUATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result EvaluateDLSSExt(nint @PInCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.D3D12DLSSEvalParams* @PInDlssEvalParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_D3D12_EVALUATE_DLSS_EXT.
-        /// </summary>
-        public static global::NGX.NET.Result EvaluateDLSSExt(nint @PInCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.D3D12DLSSEvalParams @PInDlssEvalParams)
-        {
-            fixed (global::NGX.NET.D3D12DLSSEvalParams* pointer0 = &@PInDlssEvalParams)
-            {
-                return EvaluateDLSSExt(@PInCmdList, @PInHandle, @PInParams, pointer0);
             }
         }
 
@@ -258,6 +240,24 @@ public static unsafe partial class NGX
             fixed (global::NGX.NET.DLSSGOptEvalParams* pointer1 = &@PInDlssgOptEvalParams)
             {
                 return EvaluateDLSSG(@PInCmdList, @PInHandle, @PInParams, pointer0, pointer1);
+            }
+        }
+
+        /// <summary>
+        /// NGX_D3D12_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:297.
+        /// </summary>
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_EVALUATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial global::NGX.NET.Result EvaluateDLSSExt(nint @PInCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.D3D12DLSSEvalParams* @PInDlssEvalParams);
+
+        /// <summary>
+        /// Pins native structures for NGX_D3D12_EVALUATE_DLSS_EXT.
+        /// </summary>
+        public static global::NGX.NET.Result EvaluateDLSSExt(nint @PInCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.D3D12DLSSEvalParams @PInDlssEvalParams)
+        {
+            fixed (global::NGX.NET.D3D12DLSSEvalParams* pointer0 = &@PInDlssEvalParams)
+            {
+                return EvaluateDLSSExt(@PInCmdList, @PInHandle, @PInParams, pointer0);
             }
         }
 

@@ -37,7 +37,10 @@ internal sealed unsafe class NVLowLatency : IDisposable
     private readonly delegate* unmanaged[Cdecl]<int> unload;
     private readonly object sync = new();
 
-    public bool Available { get; }
+    public bool Available
+    {
+        get;
+    }
 
     public NVLowLatency(nint nativeDevice, nint presentationQueue)
     {
@@ -73,7 +76,12 @@ internal sealed unsafe class NVLowLatency : IDisposable
             return;
         }
 
-        SleepMode mode = new() { Version = (uint)sizeof(SleepMode) | (1u << 16), LowLatency = 1, UseMarkers = 1 };
+        SleepMode mode = new()
+        {
+            Version = (uint)sizeof(SleepMode) | (1u << 16),
+            LowLatency = 1,
+            UseMarkers = 1
+        };
         int result = setMode(device, &mode);
         Available = result == 0;
         Console.WriteLine($"Reflex (NVAPI): {(Available ? "Available" : $"status {result}")}");
@@ -94,7 +102,12 @@ internal sealed unsafe class NVLowLatency : IDisposable
     {
         if (Available)
         {
-            MarkerParameters parameters = new() { Version = (uint)sizeof(MarkerParameters) | (1u << 16), Frame = frame, Marker = marker };
+            MarkerParameters parameters = new()
+            {
+                Version = (uint)sizeof(MarkerParameters) | (1u << 16),
+                Frame = frame,
+                Marker = marker
+            };
             lock (sync)
             {
                 Check(setMarker(device, &parameters), "NvAPI_D3D_SetLatencyMarker");
@@ -114,7 +127,10 @@ internal sealed unsafe class NVLowLatency : IDisposable
     {
         if (Available)
         {
-            SleepMode mode = new() { Version = (uint)sizeof(SleepMode) | (1u << 16) };
+            SleepMode mode = new()
+            {
+                Version = (uint)sizeof(SleepMode) | (1u << 16)
+            };
             _ = setMode(device, &mode);
         }
 

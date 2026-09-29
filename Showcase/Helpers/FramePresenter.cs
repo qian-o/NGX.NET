@@ -39,7 +39,11 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, u
 
     private Thread Start()
     {
-        Thread worker = new(Run) { Name = "NGX presentation", IsBackground = true };
+        Thread worker = new(Run)
+        {
+            Name = "NGX presentation",
+            IsBackground = true
+        };
         worker.Start();
 
         return worker;

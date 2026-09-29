@@ -124,6 +124,48 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
+        /// NGX_VULKAN_CREATE_DLSSD_EXT1. Source: nvsdk_ngx_helpers_dlssd_vk.h:131.
+        /// </summary>
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams);
+
+        /// <summary>
+        /// Pins native structures for NGX_VULKAN_CREATE_DLSSD_EXT1.
+        /// </summary>
+        public static global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.DLSSDCreateParams @PInDlssDCreateParams)
+        {
+            fixed (global::NGX.NET.DLSSDCreateParams* pointer0 = &@PInDlssDCreateParams)
+            {
+                return CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, @PpOutHandle, @PInParams, pointer0);
+            }
+        }
+
+        /// <summary>
+        /// Returns the reviewed output of NGX_VULKAN_CREATE_DLSSD_EXT1; throws on NGX failure. The caller owns any returned handle or parameter map.
+        /// </summary>
+        public static global::NGX.NET.Handle* CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams)
+        {
+            global::NGX.NET.Handle* value = default;
+            ThrowIfFailed(CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, &value, @PInParams, @PInDlssDCreateParams), "NGX_VULKAN_CREATE_DLSSD_EXT1");
+
+            return value;
+        }
+
+        /// <summary>
+        /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLSSD_EXT1.
+        /// </summary>
+        public static global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, out global::NGX.NET.Handle* value, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams)
+        {
+            value = default;
+
+            fixed (global::NGX.NET.Handle** pointer = &value)
+            {
+                return CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, pointer, @PInParams, @PInDlssDCreateParams);
+            }
+        }
+
+        /// <summary>
         /// NGX_VULKAN_CREATE_DLSS_EXT. Source: nvsdk_ngx_helpers_vk.h:136.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
@@ -208,48 +250,6 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
-        /// NGX_VULKAN_CREATE_DLSSD_EXT1. Source: nvsdk_ngx_helpers_dlssd_vk.h:131.
-        /// </summary>
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_VULKAN_CREATE_DLSSD_EXT1.
-        /// </summary>
-        public static global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Handle** @PpOutHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.DLSSDCreateParams @PInDlssDCreateParams)
-        {
-            fixed (global::NGX.NET.DLSSDCreateParams* pointer0 = &@PInDlssDCreateParams)
-            {
-                return CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, @PpOutHandle, @PInParams, pointer0);
-            }
-        }
-
-        /// <summary>
-        /// Returns the reviewed output of NGX_VULKAN_CREATE_DLSSD_EXT1; throws on NGX failure. The caller owns any returned handle or parameter map.
-        /// </summary>
-        public static global::NGX.NET.Handle* CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams)
-        {
-            global::NGX.NET.Handle* value = default;
-            ThrowIfFailed(CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, &value, @PInParams, @PInDlssDCreateParams), "NGX_VULKAN_CREATE_DLSSD_EXT1");
-
-            return value;
-        }
-
-        /// <summary>
-        /// Preserves the native result and writes the output of NGX_VULKAN_CREATE_DLSSD_EXT1.
-        /// </summary>
-        public static global::NGX.NET.Result CreateDLSSDExt1(nint @InDevice, nint @InCmdList, uint @InCreationNodeMask, uint @InVisibilityNodeMask, out global::NGX.NET.Handle* value, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.DLSSDCreateParams* @PInDlssDCreateParams)
-        {
-            value = default;
-
-            fixed (global::NGX.NET.Handle** pointer = &value)
-            {
-                return CreateDLSSDExt1(@InDevice, @InCmdList, @InCreationNodeMask, @InVisibilityNodeMask, pointer, @PInParams, @PInDlssDCreateParams);
-            }
-        }
-
-        /// <summary>
         /// NGX_VULKAN_EVALUATE_DLISP_EXT. Source: nvsdk_ngx_helpers_vk.h:251.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
@@ -268,24 +268,6 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
-        /// NGX_VULKAN_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_vk.h:147.
-        /// </summary>
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result EvaluateDLSSExt(nint @InCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.VKDLSSEvalParams* @PInDlssEvalParams);
-
-        /// <summary>
-        /// Pins native structures for NGX_VULKAN_EVALUATE_DLSS_EXT.
-        /// </summary>
-        public static global::NGX.NET.Result EvaluateDLSSExt(nint @InCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.VKDLSSEvalParams @PInDlssEvalParams)
-        {
-            fixed (global::NGX.NET.VKDLSSEvalParams* pointer0 = &@PInDlssEvalParams)
-            {
-                return EvaluateDLSSExt(@InCmdList, @PInHandle, @PInParams, pointer0);
-            }
-        }
-
-        /// <summary>
         /// NGX_VULKAN_EVALUATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_vk.h:157.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
@@ -300,6 +282,24 @@ public static unsafe partial class NGX
             fixed (global::NGX.NET.VKDLSSDEvalParams* pointer0 = &@PInDlssDEvalParams)
             {
                 return EvaluateDLSSDExt(@InCmdList, @PInHandle, @PInParams, pointer0);
+            }
+        }
+
+        /// <summary>
+        /// NGX_VULKAN_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_vk.h:147.
+        /// </summary>
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial global::NGX.NET.Result EvaluateDLSSExt(nint @InCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, global::NGX.NET.VKDLSSEvalParams* @PInDlssEvalParams);
+
+        /// <summary>
+        /// Pins native structures for NGX_VULKAN_EVALUATE_DLSS_EXT.
+        /// </summary>
+        public static global::NGX.NET.Result EvaluateDLSSExt(nint @InCmdList, global::NGX.NET.Handle* @PInHandle, global::NGX.NET.Parameter* @PInParams, ref global::NGX.NET.VKDLSSEvalParams @PInDlssEvalParams)
+        {
+            fixed (global::NGX.NET.VKDLSSEvalParams* pointer0 = &@PInDlssEvalParams)
+            {
+                return EvaluateDLSSExt(@InCmdList, @PInHandle, @PInParams, pointer0);
             }
         }
 

@@ -71,6 +71,10 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Extract, link and verify
         run: python .github/scripts/build_ngx.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
+      - name: Verify deterministic managed generation on the host
+        run: |
+          dotnet run --project NGX.NET.Generator -- .
+          git diff --exit-code -- NGX.NET
       - name: Publish and exercise the NativeAOT binding
         run: python .github/scripts/build_ngx.py smoke --root . --scratch "${{ runner.temp }}/aot" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
       - uses: actions/upload-artifact@v7.0.1
@@ -110,7 +114,7 @@ jobs:
         run: |
           dotnet run --project NGX.NET.Generator -- .
           dotnet build NGX.NET.slnx -c Release -warnaserror -p:GeneratePackageOnBuild=false
-          dotnet run .github/scripts/verify_ngx.cs -- .
+          dotnet run .github/scripts/verify_ngx.cs -c Release -p:GeneratePackageOnBuild=false -- .
           dotnet pack NGX.NET -c Release --no-build
           python .github/scripts/build_ngx.py verify-package --root .
       - uses: actions/upload-artifact@v7.0.1

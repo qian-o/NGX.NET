@@ -34,4 +34,4 @@ Serialize NGX calls and release features only after their GPU work completes. Us
 
 [Showcase](Showcase) demonstrates DirectX 12 and Vulkan with Sponza, SR, RR, frame generation and native Reflex integration. The manual **Update NGX** workflow rebuilds all four native targets and refreshes the checked-in AST and binaries together.
 
-The C# bindings and bridge source use the repository's MIT license. Bundled NVIDIA components retain their NVIDIA terms. The repository remains [qian-o/Streamline.NET](https://github.com/qian-o/Streamline.NET).
+The C# bindings and bridge source use the repository's MIT license. Bundled NVIDIA SDK code and runtime libraries retain their NVIDIA terms. The repository remains [qian-o/Streamline.NET](https://github.com/qian-o/Streamline.NET).

@@ -14,7 +14,10 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private const float SkyRadiance = 0.65f;
     private const float ContactShadowRadiusScale = 0.012f;
 
-    public bool RayQuerySupported { get; protected set; }
+    public bool RayQuerySupported
+    {
+        get; protected set;
+    }
 
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
@@ -40,9 +43,15 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     public string AdapterName { get; protected set; } = "Unknown";
 
-    public int InputWidth { get; private set; }
+    public int InputWidth
+    {
+        get; private set;
+    }
 
-    public int InputHeight { get; private set; }
+    public int InputHeight
+    {
+        get; private set;
+    }
 
     public double? PresentedFps => statistics.PresentedFps;
 
@@ -57,12 +66,16 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected int FrameSlot;
     protected FrameConstants Constants;
 
-    protected abstract nint Command { get; }
+    protected abstract nint Command
+    {
+        get;
+    }
 
     private RenderSettings? applied;
     private int outputWidth;
     private int outputHeight;
     private uint frameNumber;
+    private ulong latencySequence;
     private bool reset = true;
     private bool recreateSwapChain;
     private bool ready;
@@ -206,7 +219,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
         Presenter.WaitSlot(FrameSlot);
-        ulong latencyFrame = ((ulong)frameNumber + 1) * 2;
+        ulong latencyFrame = ++latencySequence * 2;
         BeginLatency(latencyFrame);
         Marker(LatencyMarker.SimulationStart, latencyFrame);
         Marker(LatencyMarker.InputSample, latencyFrame);
@@ -260,7 +273,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             foreach (ImageSlot slot in new[] { ImageSlot.Final, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Hudless, ImageSlot.UI })
             {
-                Transition(Image(slot), NGX.IsVulkan ? ImageUse.Storage : ImageUse.ShaderRead);
+                Transition(Image(slot), ImageUse.ShaderRead);
             }
 
             Transition(GeneratedFrames[FrameSlot], ImageUse.Storage);
@@ -365,7 +378,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Specular, ImageSlot.Normal, ImageSlot.SpecularMotion })
         {
-            Transition(Image(slot), NGX.IsVulkan ? ImageUse.Storage : ImageUse.ShaderRead);
+            Transition(Image(slot), ImageUse.ShaderRead);
         }
 
         Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);

@@ -408,24 +408,6 @@ public static unsafe partial class NGX
         }
 
         /// <summary>
-        /// NVSDK_NGX_CUDA_Init_with_ProjectID. Source: nvsdk_ngx.h:248.
-        /// </summary>
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result InitWithProjectID(sbyte* @InProjectId, global::NGX.NET.EngineType @InEngineType, sbyte* @InEngineVersion, void* @InApplicationDataPath, global::NGX.NET.FeatureCommonInfo* @InFeatureInfo, global::NGX.NET.Version @InSDKVersion);
-
-        /// <summary>
-        /// Pins native structures for NVSDK_NGX_CUDA_Init_with_ProjectID.
-        /// </summary>
-        public static global::NGX.NET.Result InitWithProjectID(sbyte* @InProjectId, global::NGX.NET.EngineType @InEngineType, sbyte* @InEngineVersion, void* @InApplicationDataPath, ref global::NGX.NET.FeatureCommonInfo @InFeatureInfo, global::NGX.NET.Version @InSDKVersion)
-        {
-            fixed (global::NGX.NET.FeatureCommonInfo* pointer0 = &@InFeatureInfo)
-            {
-                return InitWithProjectID(@InProjectId, @InEngineType, @InEngineVersion, @InApplicationDataPath, pointer0, @InSDKVersion);
-            }
-        }
-
-        /// <summary>
         /// NVSDK_NGX_CUDA_Init1. Source: nvsdk_ngx.h:171.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
@@ -441,6 +423,24 @@ public static unsafe partial class NGX
             fixed (global::NGX.NET.FeatureCommonInfo* pointer1 = &@InFeatureInfo)
             {
                 return Init1(@InApplicationId, @InApplicationDataPath, pointer0, pointer1, @InSDKVersion);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_CUDA_Init_with_ProjectID. Source: nvsdk_ngx.h:248.
+        /// </summary>
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial global::NGX.NET.Result InitWithProjectID(sbyte* @InProjectId, global::NGX.NET.EngineType @InEngineType, sbyte* @InEngineVersion, void* @InApplicationDataPath, global::NGX.NET.FeatureCommonInfo* @InFeatureInfo, global::NGX.NET.Version @InSDKVersion);
+
+        /// <summary>
+        /// Pins native structures for NVSDK_NGX_CUDA_Init_with_ProjectID.
+        /// </summary>
+        public static global::NGX.NET.Result InitWithProjectID(sbyte* @InProjectId, global::NGX.NET.EngineType @InEngineType, sbyte* @InEngineVersion, void* @InApplicationDataPath, ref global::NGX.NET.FeatureCommonInfo @InFeatureInfo, global::NGX.NET.Version @InSDKVersion)
+        {
+            fixed (global::NGX.NET.FeatureCommonInfo* pointer0 = &@InFeatureInfo)
+            {
+                return InitWithProjectID(@InProjectId, @InEngineType, @InEngineVersion, @InApplicationDataPath, pointer0, @InSDKVersion);
             }
         }
 

@@ -55,8 +55,9 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
     protected override void InitializeDevice()
     {
-        Check(vkInitialize(), "vkInitialize");
-        vulkanModule = NativeLibrary.Load("vulkan-1.dll", typeof(VulkanRHI).Assembly, DllImportSearchPath.System32);
+        string loader = Path.Combine(Environment.SystemDirectory, "vulkan-1.dll");
+        Check(vkInitialize(loader), "vkInitialize");
+        vulkanModule = NativeLibrary.Load(loader);
         VkApplicationInfo application = new()
         {
             apiVersion = VkVersion.Version_1_3
@@ -182,9 +183,16 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         VkPhysicalDevicePresentIdFeaturesKHR presentIdFeatures = new();
-        VkPhysicalDeviceFeatures2 presentFeatures = new() { pNext = &presentIdFeatures };
+        VkPhysicalDeviceVulkan12Features latencyFeatures = new()
+        {
+            pNext = &presentIdFeatures
+        };
+        VkPhysicalDeviceFeatures2 presentFeatures = new()
+        {
+            pNext = &latencyFeatures
+        };
         instanceApi.vkGetPhysicalDeviceFeatures2(physical, &presentFeatures);
-        lowLatency = separatePresentQueue && supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId;
+        lowLatency = separatePresentQueue && supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId && latencyFeatures.timelineSemaphore;
         presentIdFeatures.presentId = lowLatency;
         float* priorities = stackalloc float[] { 1, 1 };
         VkDeviceQueueCreateInfo queueInfo = new()
@@ -459,7 +467,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             imageCount = Math.Min(imageCount, capabilities.maxImageCount);
         }
 
-        VkSwapchainLatencyCreateInfoNV latencyCreate = new() { latencyModeEnable = lowLatency };
+        VkSwapchainLatencyCreateInfoNV latencyCreate = new()
+        {
+            latencyModeEnable = lowLatency
+        };
         VkSwapchainCreateInfoKHR create = new()
         {
             pNext = lowLatency ? &latencyCreate : null,
@@ -479,7 +490,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         Check(api.vkCreateSwapchainKHR(&create, null, out swapChain), "vkCreateSwapchainKHR");
         if (lowLatency)
         {
-            VkLatencySleepModeInfoNV mode = new() { lowLatencyMode = true };
+            VkLatencySleepModeInfoNV mode = new()
+            {
+                lowLatencyMode = true
+            };
             Check(api.vkSetLatencySleepModeNV(swapChain, &mode), "vkSetLatencySleepModeNV");
         }
 

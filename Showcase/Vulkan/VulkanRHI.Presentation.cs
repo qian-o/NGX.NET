@@ -19,9 +19,17 @@ internal sealed unsafe partial class VulkanRHI
 
     private void InitializePresentation()
     {
-        VkCommandPoolCreateInfo poolInfo = new() { queueFamilyIndex = queueFamily };
+        VkCommandPoolCreateInfo poolInfo = new()
+        {
+            queueFamilyIndex = queueFamily
+        };
         Check(api.vkCreateCommandPool(&poolInfo, null, out presentPool), "vkCreateCommandPool(present)");
-        VkCommandBufferAllocateInfo commandInfo = new() { commandPool = presentPool, level = VkCommandBufferLevel.Primary, commandBufferCount = 1 };
+        VkCommandBufferAllocateInfo commandInfo = new()
+        {
+            commandPool = presentPool,
+            level = VkCommandBufferLevel.Primary,
+            commandBufferCount = 1
+        };
         VkCommandBuffer command = default;
         Check(api.vkAllocateCommandBuffers(&commandInfo, &command), "vkAllocateCommandBuffers(present)");
         presentCommand = command;
@@ -32,9 +40,15 @@ internal sealed unsafe partial class VulkanRHI
 
         if (lowLatency)
         {
-            VkOutOfBandQueueTypeInfoNV outOfBand = new() { queueType = VkOutOfBandQueueTypeNV.Present };
+            VkOutOfBandQueueTypeInfoNV outOfBand = new()
+            {
+                queueType = VkOutOfBandQueueTypeNV.Present
+            };
             api.vkQueueNotifyOutOfBandNV(presentQueue, &outOfBand);
-            VkSemaphoreTypeCreateInfo timeline = new() { semaphoreType = VkSemaphoreType.Timeline };
+            VkSemaphoreTypeCreateInfo timeline = new()
+            {
+                semaphoreType = VkSemaphoreType.Timeline
+            };
             semaphoreInfo.pNext = &timeline;
             Check(api.vkCreateSemaphore(&semaphoreInfo, null, out sleepSemaphore), "vkCreateSemaphore(Reflex)");
         }
@@ -47,13 +61,22 @@ internal sealed unsafe partial class VulkanRHI
         if (lowLatency && !swapChain.IsNull)
         {
             VkSemaphore semaphore = sleepSemaphore;
-            VkLatencySleepInfoNV sleep = new() { signalSemaphore = semaphore, value = frame };
+            VkLatencySleepInfoNV sleep = new()
+            {
+                signalSemaphore = semaphore,
+                value = frame
+            };
             lock (latencySync)
             {
                 Check(api.vkLatencySleepNV(swapChain, &sleep), "vkLatencySleepNV");
             }
 
-            VkSemaphoreWaitInfo wait = new() { semaphoreCount = 1, pSemaphores = &semaphore, pValues = &frame };
+            VkSemaphoreWaitInfo wait = new()
+            {
+                semaphoreCount = 1,
+                pSemaphores = &semaphore,
+                pValues = &frame
+            };
             Check(api.vkWaitSemaphores(&wait, ulong.MaxValue), "vkWaitSemaphores(Reflex)");
         }
     }
@@ -62,7 +85,11 @@ internal sealed unsafe partial class VulkanRHI
     {
         if (lowLatency && !swapChain.IsNull)
         {
-            VkSetLatencyMarkerInfoNV info = new() { presentID = frame, marker = (VkLatencyMarkerNV)marker };
+            VkSetLatencyMarkerInfoNV info = new()
+            {
+                presentID = frame,
+                marker = (VkLatencyMarkerNV)marker
+            };
             lock (latencySync)
             {
                 api.vkSetLatencyMarkerNV(swapChain, &info);
@@ -76,7 +103,12 @@ internal sealed unsafe partial class VulkanRHI
         Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(render)");
         VkSemaphore complete = slots[slot].RenderComplete;
         VkPipelineStageFlags stage = VkPipelineStageFlags.AllCommands;
-        VkSubmitInfo wait = new() { waitSemaphoreCount = 1, pWaitSemaphores = &complete, pWaitDstStageMask = &stage };
+        VkSubmitInfo wait = new()
+        {
+            waitSemaphoreCount = 1,
+            pWaitSemaphores = &complete,
+            pWaitDstStageMask = &stage
+        };
 
         lock (queueSync)
         {
@@ -99,7 +131,10 @@ internal sealed unsafe partial class VulkanRHI
         }
 
         Check(api.vkResetCommandPool(presentPool, 0), "vkResetCommandPool(present)");
-        VkCommandBufferBeginInfo begin = new() { flags = VkCommandBufferUsageFlags.OneTimeSubmit };
+        VkCommandBufferBeginInfo begin = new()
+        {
+            flags = VkCommandBufferUsageFlags.OneTimeSubmit
+        };
         Check(api.vkBeginCommandBuffer(presentCommand, &begin), "vkBeginCommandBuffer(present)");
         Barrier(backBuffers[index], backLayouts[index], VkImageLayout.TransferDstOptimal, Range(ImageFormat.Rgba8), presentCommand);
         VkImageBlit blit = new()
@@ -130,7 +165,11 @@ internal sealed unsafe partial class VulkanRHI
         };
         VkSwapchainKHR swap = swapChain;
         ulong presentId = generated ? frame - 1 : frame;
-        VkPresentIdKHR id = new() { swapchainCount = 1, pPresentIds = &presentId };
+        VkPresentIdKHR id = new()
+        {
+            swapchainCount = 1,
+            pPresentIds = &presentId
+        };
         VkPresentInfoKHR present = new()
         {
             pNext = lowLatency ? &id : null,
