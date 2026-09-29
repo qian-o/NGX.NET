@@ -13,24 +13,24 @@ public enum NGXOptLevel : int
     /// NVSDK_NGX_OPT_LEVEL_UNDEFINED
     /// </summary>
     [NGXNativeName("NVSDK_NGX_OPT_LEVEL_UNDEFINED")]
-    Undefined = 0,
+    UNDEFINED = 0,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_DEBUG
     /// </summary>
     [NGXNativeName("NVSDK_NGX_OPT_LEVEL_DEBUG")]
-    Debug = 20,
+    DEBUG = 20,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_DEVELOP
     /// </summary>
     [NGXNativeName("NVSDK_NGX_OPT_LEVEL_DEVELOP")]
-    Develop = 30,
+    DEVELOP = 30,
 
     /// <summary>
     /// NVSDK_NGX_OPT_LEVEL_RELEASE
     /// </summary>
     [NGXNativeName("NVSDK_NGX_OPT_LEVEL_RELEASE")]
-    Release = 40,
+    RELEASE = 40,
 
 }

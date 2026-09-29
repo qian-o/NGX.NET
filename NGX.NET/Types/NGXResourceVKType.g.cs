@@ -13,12 +13,12 @@ public enum NGXResourceVKType : int
     /// NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW
     /// </summary>
     [NGXNativeName("NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW")]
-    VKImageview = 0,
+    VKIMAGEVIEW = 0,
 
     /// <summary>
     /// NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER
     /// </summary>
     [NGXNativeName("NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER")]
-    VKBuffer = 1,
+    VKBUFFER = 1,
 
 }

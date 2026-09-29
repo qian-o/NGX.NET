@@ -13,30 +13,30 @@ public enum NGXEngineType : int
     /// NVSDK_NGX_ENGINE_TYPE_CUSTOM
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_CUSTOM")]
-    Custom = 0,
+    CUSTOM = 0,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNREAL
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_UNREAL")]
-    Unreal = 1,
+    UNREAL = 1,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNITY
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_UNITY")]
-    Unity = 2,
+    UNITY = 2,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_OMNIVERSE
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_OMNIVERSE")]
-    Omniverse = 3,
+    OMNIVERSE = 3,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_COUNT
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_COUNT")]
-    EngineCount = 4,
+    ENGINECOUNT = 4,
 
 }

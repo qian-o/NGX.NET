@@ -133,7 +133,7 @@ public enum NGXFeature : int
     /// NVSDK_NGX_Feature_Reserved_SDK
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Feature_Reserved_SDK")]
-    ReservedSdk = 32764,
+    ReservedSDK = 32764,
 
     /// <summary>
     /// NVSDK_NGX_Feature_Reserved_Core

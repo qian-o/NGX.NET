@@ -13,30 +13,30 @@ public enum NGXToneMapperType : int
     /// NVSDK_NGX_TONEMAPPER_STRING
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPER_STRING")]
-    TonemapperString = 0,
+    TONEMAPPERSTRING = 0,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_REINHARD
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPER_REINHARD")]
-    TonemapperReinhard = 1,
+    TONEMAPPERREINHARD = 1,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_ONEOVERLUMA
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPER_ONEOVERLUMA")]
-    TonemapperOneoverluma = 2,
+    TONEMAPPERONEOVERLUMA = 2,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPER_ACES
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPER_ACES")]
-    TonemapperAces = 3,
+    TONEMAPPERACES = 3,
 
     /// <summary>
     /// NVSDK_NGX_TONEMAPPERTYPE_NUM
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPERTYPE_NUM")]
-    Num = 4,
+    NUM = 4,
 
 }

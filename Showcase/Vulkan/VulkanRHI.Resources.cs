@@ -9,11 +9,11 @@ internal sealed unsafe partial class VulkanRHI
 {
     private sealed class NativeText(string text) : IDisposable
     {
-        private readonly nint memory = Marshal.StringToCoTaskMemUTF8(text);
+        private readonly void* memory = NGXMarshal.StringToPtr(text, NGXEncoding.Utf8);
 
         public byte* Pointer => (byte*)memory;
 
-        public void Dispose() => Marshal.FreeCoTaskMem(memory);
+        public void Dispose() => NGXMarshal.Free(memory);
     }
 
     private sealed class VkAcceleration : IDisposable
@@ -67,7 +67,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             Vulkan = new()
             {
-                Type = NGXResourceVKType.VKImageview,
+                Type = NGXResourceVKType.VKIMAGEVIEW,
                 ReadWrite = (Usage & VkImageUsageFlags.Storage) != 0,
                 Resource = new()
                 {

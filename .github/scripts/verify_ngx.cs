@@ -3,6 +3,7 @@
 #:property PublishTrimmed=false
 #:property EnableTrimAnalyzer=false
 #:property EnableAotAnalyzer=false
+#:property AllowUnsafeBlocks=true
 
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -165,6 +166,7 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         {
             string memberName = member.GetProperty("name").GetString()!;
             Require(members.TryGetValue(memberName, out FieldInfo? field), "missing enum member " + memberName);
+            Require(memberName.Replace("_", "", StringComparison.Ordinal).EndsWith(field!.Name, StringComparison.Ordinal), "native enum capitalization " + memberName);
             Require(unchecked((uint)Convert.ToInt64(field!.GetRawConstantValue())) == unchecked((uint)member.GetProperty("value").GetInt64()), rid + " enum bits " + memberName);
         }
     }
@@ -280,6 +282,92 @@ foreach (NGXResult result in Enum.GetValues<NGXResult>())
         Require(failed && exception.Result == result, "exception result " + result);
     }
 }
+
+// String helpers execute on the CPU without loading NGX or requiring a GPU.
+void RequireThrows<TException>(Action action, string message) where TException : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (TException)
+    {
+        Require(true, message);
+        return;
+    }
+
+    Require(false, message);
+}
+
+unsafe void VerifyStrings(NGXEncoding encoding, ReadOnlySpan<byte> expected, int terminatorSize)
+{
+    const string value = "NGX 中文 🚀";
+    void* pointer = NGXMarshal.StringToPtr(value, encoding);
+
+    try
+    {
+        Require(pointer != null, encoding + " allocation");
+        Require(new ReadOnlySpan<byte>(pointer, expected.Length).SequenceEqual(expected), encoding + " bytes and terminator without BOM");
+        Require(NGXMarshal.PtrToString(pointer, encoding) == value, encoding + " round trip");
+    }
+    finally
+    {
+        NGXMarshal.Free(pointer);
+    }
+
+    pointer = NGXMarshal.StringToPtr(string.Empty, encoding);
+
+    try
+    {
+        Require(pointer != null, encoding + " empty string allocation");
+        Require(new ReadOnlySpan<byte>(pointer, terminatorSize).IndexOfAnyExcept((byte)0) == -1, encoding + " empty terminator");
+        Require(NGXMarshal.PtrToString(pointer, encoding) == string.Empty, encoding + " empty round trip");
+    }
+    finally
+    {
+        NGXMarshal.Free(pointer);
+    }
+
+    Require(NGXMarshal.StringToPtr(null, encoding) == null, encoding + " null input");
+    Require(NGXMarshal.PtrToString(null, encoding) is null, encoding + " null pointer");
+    RequireThrows<ArgumentException>(() => NGXMarshal.StringToPtr("before\0after", encoding), encoding + " embedded NUL rejection");
+    byte* borrowed = stackalloc byte[expected.Length];
+    expected.CopyTo(new Span<byte>(borrowed, expected.Length));
+    Require(NGXMarshal.PtrToString(borrowed, encoding) == value, encoding + " borrowed pointer read");
+    Require(new ReadOnlySpan<byte>(borrowed, expected.Length).SequenceEqual(expected), encoding + " borrowed bytes unchanged");
+    Require(NGXMarshal.PtrToString(borrowed, encoding) == value, encoding + " borrowed pointer remains valid");
+}
+
+unsafe
+{
+    VerifyStrings(NGXEncoding.Utf8, [0x4E, 0x47, 0x58, 0x20, 0xE4, 0xB8, 0xAD, 0xE6, 0x96, 0x87, 0x20, 0xF0, 0x9F, 0x9A, 0x80, 0], 1);
+    NGXEncoding invalid = (NGXEncoding)(-1);
+    RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.StringToPtr("text", invalid), "invalid input encoding");
+    RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.StringToPtr(null, invalid), "invalid encoding with null input");
+    RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.PtrToString(null, invalid), "invalid encoding with null pointer");
+    byte borrowed = 0;
+    nint borrowedAddress = (nint)(&borrowed);
+    RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.PtrToString((void*)borrowedAddress, invalid), "invalid pointer encoding");
+    NGXMarshal.Free(null);
+    Require(true, "Free(null)");
+
+    if (OperatingSystem.IsWindows())
+    {
+        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0x47, 0, 0x58, 0, 0x20, 0, 0x2D, 0x4E, 0x87, 0x65, 0x20, 0, 0x3D, 0xD8, 0x80, 0xDE, 0, 0], 2);
+    }
+    else if (OperatingSystem.IsLinux())
+    {
+        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0, 0, 0x47, 0, 0, 0, 0x58, 0, 0, 0, 0x20, 0, 0, 0, 0x2D, 0x4E, 0, 0, 0x87, 0x65, 0, 0, 0x20, 0, 0, 0, 0x80, 0xF6, 1, 0, 0, 0, 0, 0], 4);
+    }
+    else
+    {
+        RequireThrows<PlatformNotSupportedException>(() => NGXMarshal.StringToPtr("text", NGXEncoding.NativeWide), "unsupported wchar_t input");
+        RequireThrows<PlatformNotSupportedException>(() => NGXMarshal.StringToPtr(null, NGXEncoding.NativeWide), "unsupported wchar_t null input");
+        RequireThrows<PlatformNotSupportedException>(() => NGXMarshal.PtrToString(null, NGXEncoding.NativeWide), "unsupported wchar_t null pointer");
+        RequireThrows<PlatformNotSupportedException>(() => NGXMarshal.PtrToString((void*)borrowedAddress, NGXEncoding.NativeWide), "unsupported wchar_t pointer");
+    }
+}
+
 Require(Marshal.SizeOf<NGXBool8>() == 1, "bool8 size");
 NGXDLSSGOptEvalParams defaults = new();
 Require(defaults.MultiFrameCount == 1 && defaults.MultiFrameIndex == 1 && defaults.MinRelativeLinearDepthObjectSeparation == 40, "official FG defaults");

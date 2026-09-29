@@ -31,12 +31,12 @@ public enum NGXGraphicsAPI : int
     /// NVSDK_NGX_GRAPHICS_API_VULKAN
     /// </summary>
     [NGXNativeName("NVSDK_NGX_GRAPHICS_API_VULKAN")]
-    Vulkan = 3,
+    VULKAN = 3,
 
     /// <summary>
     /// NVSDK_NGX_GRAPHICS_API_COUNT
     /// </summary>
     [NGXNativeName("NVSDK_NGX_GRAPHICS_API_COUNT")]
-    Count = 4,
+    COUNT = 4,
 
 }

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
@@ -128,7 +129,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
             foreach (VkExtensionProperties extension in availableExtensions)
             {
-                extensionNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
+                extensionNames.Add(NGXMarshal.PtrToString(extension.extensionName, NGXEncoding.Utf8)!);
             }
 
             bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure && features12.bufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
@@ -160,7 +161,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 separatePresentQueue = families[i].queueCount > 1;
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
-                AdapterName = Marshal.PtrToStringUTF8((nint)properties.deviceName) ?? "Vulkan GPU";
+                AdapterName = NGXMarshal.PtrToString(properties.deviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
                 ulong alignment = properties.limits.minUniformBufferOffsetAlignment;
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
             }
@@ -179,7 +180,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
         foreach (VkExtensionProperties extension in supported)
         {
-            supportedNames.Add(Marshal.PtrToStringUTF8((nint)extension.extensionName)!);
+            supportedNames.Add(NGXMarshal.PtrToString(extension.extensionName, NGXEncoding.Utf8)!);
         }
 
         float* priorities = stackalloc float[] { 1, 1 };

@@ -268,7 +268,7 @@ internal sealed partial class Emitter
 
             text.Append(Summary(native, 4));
             text.AppendLine($"    [NGXNativeName(\"{native}\")]");
-            text.AppendLine($"    {FieldName(member)} = {(unsigned ? unchecked((uint)item.GetProperty("value").GetInt64()).ToString(CultureInfo.InvariantCulture) : item.GetProperty("value").GetInt64().ToString(CultureInfo.InvariantCulture))},\n");
+            text.AppendLine($"    {member.Replace("_", "", StringComparison.Ordinal)} = {(unsigned ? unchecked((uint)item.GetProperty("value").GetInt64()).ToString(CultureInfo.InvariantCulture) : item.GetProperty("value").GetInt64().ToString(CultureInfo.InvariantCulture))},\n");
         }
 
         text.AppendLine("}");

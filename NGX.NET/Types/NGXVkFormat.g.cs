@@ -13,1938 +13,1938 @@ public enum NGXVkFormat : int
     /// VK_FORMAT_UNDEFINED
     /// </summary>
     [NGXNativeName("VK_FORMAT_UNDEFINED")]
-    Undefined = 0,
+    UNDEFINED = 0,
 
     /// <summary>
     /// VK_FORMAT_R4G4_UNORM_PACK8
     /// </summary>
     [NGXNativeName("VK_FORMAT_R4G4_UNORM_PACK8")]
-    R4g4UnormPack8 = 1,
+    R4G4UNORMPACK8 = 1,
 
     /// <summary>
     /// VK_FORMAT_R4G4B4A4_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R4G4B4A4_UNORM_PACK16")]
-    R4g4b4a4UnormPack16 = 2,
+    R4G4B4A4UNORMPACK16 = 2,
 
     /// <summary>
     /// VK_FORMAT_B4G4R4A4_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_B4G4R4A4_UNORM_PACK16")]
-    B4g4r4a4UnormPack16 = 3,
+    B4G4R4A4UNORMPACK16 = 3,
 
     /// <summary>
     /// VK_FORMAT_R5G6B5_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R5G6B5_UNORM_PACK16")]
-    R5g6b5UnormPack16 = 4,
+    R5G6B5UNORMPACK16 = 4,
 
     /// <summary>
     /// VK_FORMAT_B5G6R5_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_B5G6R5_UNORM_PACK16")]
-    B5g6r5UnormPack16 = 5,
+    B5G6R5UNORMPACK16 = 5,
 
     /// <summary>
     /// VK_FORMAT_R5G5B5A1_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R5G5B5A1_UNORM_PACK16")]
-    R5g5b5a1UnormPack16 = 6,
+    R5G5B5A1UNORMPACK16 = 6,
 
     /// <summary>
     /// VK_FORMAT_B5G5R5A1_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_B5G5R5A1_UNORM_PACK16")]
-    B5g5r5a1UnormPack16 = 7,
+    B5G5R5A1UNORMPACK16 = 7,
 
     /// <summary>
     /// VK_FORMAT_A1R5G5B5_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_A1R5G5B5_UNORM_PACK16")]
-    A1r5g5b5UnormPack16 = 8,
+    A1R5G5B5UNORMPACK16 = 8,
 
     /// <summary>
     /// VK_FORMAT_R8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_UNORM")]
-    R8Unorm = 9,
+    R8UNORM = 9,
 
     /// <summary>
     /// VK_FORMAT_R8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_SNORM")]
-    R8Snorm = 10,
+    R8SNORM = 10,
 
     /// <summary>
     /// VK_FORMAT_R8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_USCALED")]
-    R8Uscaled = 11,
+    R8USCALED = 11,
 
     /// <summary>
     /// VK_FORMAT_R8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_SSCALED")]
-    R8Sscaled = 12,
+    R8SSCALED = 12,
 
     /// <summary>
     /// VK_FORMAT_R8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_UINT")]
-    R8Uint = 13,
+    R8UINT = 13,
 
     /// <summary>
     /// VK_FORMAT_R8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_SINT")]
-    R8Sint = 14,
+    R8SINT = 14,
 
     /// <summary>
     /// VK_FORMAT_R8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_SRGB")]
-    R8Srgb = 15,
+    R8SRGB = 15,
 
     /// <summary>
     /// VK_FORMAT_R8G8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_UNORM")]
-    R8g8Unorm = 16,
+    R8G8UNORM = 16,
 
     /// <summary>
     /// VK_FORMAT_R8G8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_SNORM")]
-    R8g8Snorm = 17,
+    R8G8SNORM = 17,
 
     /// <summary>
     /// VK_FORMAT_R8G8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_USCALED")]
-    R8g8Uscaled = 18,
+    R8G8USCALED = 18,
 
     /// <summary>
     /// VK_FORMAT_R8G8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_SSCALED")]
-    R8g8Sscaled = 19,
+    R8G8SSCALED = 19,
 
     /// <summary>
     /// VK_FORMAT_R8G8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_UINT")]
-    R8g8Uint = 20,
+    R8G8UINT = 20,
 
     /// <summary>
     /// VK_FORMAT_R8G8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_SINT")]
-    R8g8Sint = 21,
+    R8G8SINT = 21,
 
     /// <summary>
     /// VK_FORMAT_R8G8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8_SRGB")]
-    R8g8Srgb = 22,
+    R8G8SRGB = 22,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_UNORM")]
-    R8g8b8Unorm = 23,
+    R8G8B8UNORM = 23,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_SNORM")]
-    R8g8b8Snorm = 24,
+    R8G8B8SNORM = 24,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_USCALED")]
-    R8g8b8Uscaled = 25,
+    R8G8B8USCALED = 25,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_SSCALED")]
-    R8g8b8Sscaled = 26,
+    R8G8B8SSCALED = 26,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_UINT")]
-    R8g8b8Uint = 27,
+    R8G8B8UINT = 27,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_SINT")]
-    R8g8b8Sint = 28,
+    R8G8B8SINT = 28,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8_SRGB")]
-    R8g8b8Srgb = 29,
+    R8G8B8SRGB = 29,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_UNORM")]
-    B8g8r8Unorm = 30,
+    B8G8R8UNORM = 30,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_SNORM")]
-    B8g8r8Snorm = 31,
+    B8G8R8SNORM = 31,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_USCALED")]
-    B8g8r8Uscaled = 32,
+    B8G8R8USCALED = 32,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_SSCALED")]
-    B8g8r8Sscaled = 33,
+    B8G8R8SSCALED = 33,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_UINT")]
-    B8g8r8Uint = 34,
+    B8G8R8UINT = 34,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_SINT")]
-    B8g8r8Sint = 35,
+    B8G8R8SINT = 35,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8_SRGB")]
-    B8g8r8Srgb = 36,
+    B8G8R8SRGB = 36,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_UNORM")]
-    R8g8b8a8Unorm = 37,
+    R8G8B8A8UNORM = 37,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_SNORM")]
-    R8g8b8a8Snorm = 38,
+    R8G8B8A8SNORM = 38,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_USCALED")]
-    R8g8b8a8Uscaled = 39,
+    R8G8B8A8USCALED = 39,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_SSCALED")]
-    R8g8b8a8Sscaled = 40,
+    R8G8B8A8SSCALED = 40,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_UINT")]
-    R8g8b8a8Uint = 41,
+    R8G8B8A8UINT = 41,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_SINT")]
-    R8g8b8a8Sint = 42,
+    R8G8B8A8SINT = 42,
 
     /// <summary>
     /// VK_FORMAT_R8G8B8A8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8G8B8A8_SRGB")]
-    R8g8b8a8Srgb = 43,
+    R8G8B8A8SRGB = 43,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_UNORM")]
-    B8g8r8a8Unorm = 44,
+    B8G8R8A8UNORM = 44,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_SNORM")]
-    B8g8r8a8Snorm = 45,
+    B8G8R8A8SNORM = 45,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_USCALED")]
-    B8g8r8a8Uscaled = 46,
+    B8G8R8A8USCALED = 46,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_SSCALED")]
-    B8g8r8a8Sscaled = 47,
+    B8G8R8A8SSCALED = 47,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_UINT")]
-    B8g8r8a8Uint = 48,
+    B8G8R8A8UINT = 48,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_SINT")]
-    B8g8r8a8Sint = 49,
+    B8G8R8A8SINT = 49,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8A8_SRGB
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8A8_SRGB")]
-    B8g8r8a8Srgb = 50,
+    B8G8R8A8SRGB = 50,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_UNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_UNORM_PACK32")]
-    A8b8g8r8UnormPack32 = 51,
+    A8B8G8R8UNORMPACK32 = 51,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_SNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_SNORM_PACK32")]
-    A8b8g8r8SnormPack32 = 52,
+    A8B8G8R8SNORMPACK32 = 52,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_USCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_USCALED_PACK32")]
-    A8b8g8r8UscaledPack32 = 53,
+    A8B8G8R8USCALEDPACK32 = 53,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_SSCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_SSCALED_PACK32")]
-    A8b8g8r8SscaledPack32 = 54,
+    A8B8G8R8SSCALEDPACK32 = 54,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_UINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_UINT_PACK32")]
-    A8b8g8r8UintPack32 = 55,
+    A8B8G8R8UINTPACK32 = 55,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_SINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_SINT_PACK32")]
-    A8b8g8r8SintPack32 = 56,
+    A8B8G8R8SINTPACK32 = 56,
 
     /// <summary>
     /// VK_FORMAT_A8B8G8R8_SRGB_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8B8G8R8_SRGB_PACK32")]
-    A8b8g8r8SrgbPack32 = 57,
+    A8B8G8R8SRGBPACK32 = 57,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_UNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_UNORM_PACK32")]
-    A2r10g10b10UnormPack32 = 58,
+    A2R10G10B10UNORMPACK32 = 58,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_SNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_SNORM_PACK32")]
-    A2r10g10b10SnormPack32 = 59,
+    A2R10G10B10SNORMPACK32 = 59,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_USCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_USCALED_PACK32")]
-    A2r10g10b10UscaledPack32 = 60,
+    A2R10G10B10USCALEDPACK32 = 60,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_SSCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_SSCALED_PACK32")]
-    A2r10g10b10SscaledPack32 = 61,
+    A2R10G10B10SSCALEDPACK32 = 61,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_UINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_UINT_PACK32")]
-    A2r10g10b10UintPack32 = 62,
+    A2R10G10B10UINTPACK32 = 62,
 
     /// <summary>
     /// VK_FORMAT_A2R10G10B10_SINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2R10G10B10_SINT_PACK32")]
-    A2r10g10b10SintPack32 = 63,
+    A2R10G10B10SINTPACK32 = 63,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_UNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_UNORM_PACK32")]
-    A2b10g10r10UnormPack32 = 64,
+    A2B10G10R10UNORMPACK32 = 64,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_SNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_SNORM_PACK32")]
-    A2b10g10r10SnormPack32 = 65,
+    A2B10G10R10SNORMPACK32 = 65,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_USCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_USCALED_PACK32")]
-    A2b10g10r10UscaledPack32 = 66,
+    A2B10G10R10USCALEDPACK32 = 66,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_SSCALED_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_SSCALED_PACK32")]
-    A2b10g10r10SscaledPack32 = 67,
+    A2B10G10R10SSCALEDPACK32 = 67,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_UINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_UINT_PACK32")]
-    A2b10g10r10UintPack32 = 68,
+    A2B10G10R10UINTPACK32 = 68,
 
     /// <summary>
     /// VK_FORMAT_A2B10G10R10_SINT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_A2B10G10R10_SINT_PACK32")]
-    A2b10g10r10SintPack32 = 69,
+    A2B10G10R10SINTPACK32 = 69,
 
     /// <summary>
     /// VK_FORMAT_R16_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_UNORM")]
-    R16Unorm = 70,
+    R16UNORM = 70,
 
     /// <summary>
     /// VK_FORMAT_R16_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_SNORM")]
-    R16Snorm = 71,
+    R16SNORM = 71,
 
     /// <summary>
     /// VK_FORMAT_R16_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_USCALED")]
-    R16Uscaled = 72,
+    R16USCALED = 72,
 
     /// <summary>
     /// VK_FORMAT_R16_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_SSCALED")]
-    R16Sscaled = 73,
+    R16SSCALED = 73,
 
     /// <summary>
     /// VK_FORMAT_R16_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_UINT")]
-    R16Uint = 74,
+    R16UINT = 74,
 
     /// <summary>
     /// VK_FORMAT_R16_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_SINT")]
-    R16Sint = 75,
+    R16SINT = 75,
 
     /// <summary>
     /// VK_FORMAT_R16_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16_SFLOAT")]
-    R16Sfloat = 76,
+    R16SFLOAT = 76,
 
     /// <summary>
     /// VK_FORMAT_R16G16_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_UNORM")]
-    R16g16Unorm = 77,
+    R16G16UNORM = 77,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_SNORM")]
-    R16g16Snorm = 78,
+    R16G16SNORM = 78,
 
     /// <summary>
     /// VK_FORMAT_R16G16_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_USCALED")]
-    R16g16Uscaled = 79,
+    R16G16USCALED = 79,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_SSCALED")]
-    R16g16Sscaled = 80,
+    R16G16SSCALED = 80,
 
     /// <summary>
     /// VK_FORMAT_R16G16_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_UINT")]
-    R16g16Uint = 81,
+    R16G16UINT = 81,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_SINT")]
-    R16g16Sint = 82,
+    R16G16SINT = 82,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_SFLOAT")]
-    R16g16Sfloat = 83,
+    R16G16SFLOAT = 83,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_UNORM")]
-    R16g16b16Unorm = 84,
+    R16G16B16UNORM = 84,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_SNORM")]
-    R16g16b16Snorm = 85,
+    R16G16B16SNORM = 85,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_USCALED")]
-    R16g16b16Uscaled = 86,
+    R16G16B16USCALED = 86,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_SSCALED")]
-    R16g16b16Sscaled = 87,
+    R16G16B16SSCALED = 87,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_UINT")]
-    R16g16b16Uint = 88,
+    R16G16B16UINT = 88,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_SINT")]
-    R16g16b16Sint = 89,
+    R16G16B16SINT = 89,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16_SFLOAT")]
-    R16g16b16Sfloat = 90,
+    R16G16B16SFLOAT = 90,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_UNORM")]
-    R16g16b16a16Unorm = 91,
+    R16G16B16A16UNORM = 91,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_SNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_SNORM")]
-    R16g16b16a16Snorm = 92,
+    R16G16B16A16SNORM = 92,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_USCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_USCALED")]
-    R16g16b16a16Uscaled = 93,
+    R16G16B16A16USCALED = 93,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_SSCALED
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_SSCALED")]
-    R16g16b16a16Sscaled = 94,
+    R16G16B16A16SSCALED = 94,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_UINT")]
-    R16g16b16a16Uint = 95,
+    R16G16B16A16UINT = 95,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_SINT")]
-    R16g16b16a16Sint = 96,
+    R16G16B16A16SINT = 96,
 
     /// <summary>
     /// VK_FORMAT_R16G16B16A16_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16B16A16_SFLOAT")]
-    R16g16b16a16Sfloat = 97,
+    R16G16B16A16SFLOAT = 97,
 
     /// <summary>
     /// VK_FORMAT_R32_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32_UINT")]
-    R32Uint = 98,
+    R32UINT = 98,
 
     /// <summary>
     /// VK_FORMAT_R32_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32_SINT")]
-    R32Sint = 99,
+    R32SINT = 99,
 
     /// <summary>
     /// VK_FORMAT_R32_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32_SFLOAT")]
-    R32Sfloat = 100,
+    R32SFLOAT = 100,
 
     /// <summary>
     /// VK_FORMAT_R32G32_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32_UINT")]
-    R32g32Uint = 101,
+    R32G32UINT = 101,
 
     /// <summary>
     /// VK_FORMAT_R32G32_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32_SINT")]
-    R32g32Sint = 102,
+    R32G32SINT = 102,
 
     /// <summary>
     /// VK_FORMAT_R32G32_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32_SFLOAT")]
-    R32g32Sfloat = 103,
+    R32G32SFLOAT = 103,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32_UINT")]
-    R32g32b32Uint = 104,
+    R32G32B32UINT = 104,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32_SINT")]
-    R32g32b32Sint = 105,
+    R32G32B32SINT = 105,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32_SFLOAT")]
-    R32g32b32Sfloat = 106,
+    R32G32B32SFLOAT = 106,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32A32_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32A32_UINT")]
-    R32g32b32a32Uint = 107,
+    R32G32B32A32UINT = 107,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32A32_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32A32_SINT")]
-    R32g32b32a32Sint = 108,
+    R32G32B32A32SINT = 108,
 
     /// <summary>
     /// VK_FORMAT_R32G32B32A32_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R32G32B32A32_SFLOAT")]
-    R32g32b32a32Sfloat = 109,
+    R32G32B32A32SFLOAT = 109,
 
     /// <summary>
     /// VK_FORMAT_R64_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64_UINT")]
-    R64Uint = 110,
+    R64UINT = 110,
 
     /// <summary>
     /// VK_FORMAT_R64_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64_SINT")]
-    R64Sint = 111,
+    R64SINT = 111,
 
     /// <summary>
     /// VK_FORMAT_R64_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64_SFLOAT")]
-    R64Sfloat = 112,
+    R64SFLOAT = 112,
 
     /// <summary>
     /// VK_FORMAT_R64G64_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64_UINT")]
-    R64g64Uint = 113,
+    R64G64UINT = 113,
 
     /// <summary>
     /// VK_FORMAT_R64G64_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64_SINT")]
-    R64g64Sint = 114,
+    R64G64SINT = 114,
 
     /// <summary>
     /// VK_FORMAT_R64G64_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64_SFLOAT")]
-    R64g64Sfloat = 115,
+    R64G64SFLOAT = 115,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64_UINT")]
-    R64g64b64Uint = 116,
+    R64G64B64UINT = 116,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64_SINT")]
-    R64g64b64Sint = 117,
+    R64G64B64SINT = 117,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64_SFLOAT")]
-    R64g64b64Sfloat = 118,
+    R64G64B64SFLOAT = 118,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64A64_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64A64_UINT")]
-    R64g64b64a64Uint = 119,
+    R64G64B64A64UINT = 119,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64A64_SINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64A64_SINT")]
-    R64g64b64a64Sint = 120,
+    R64G64B64A64SINT = 120,
 
     /// <summary>
     /// VK_FORMAT_R64G64B64A64_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_R64G64B64A64_SFLOAT")]
-    R64g64b64a64Sfloat = 121,
+    R64G64B64A64SFLOAT = 121,
 
     /// <summary>
     /// VK_FORMAT_B10G11R11_UFLOAT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_B10G11R11_UFLOAT_PACK32")]
-    B10g11r11UfloatPack32 = 122,
+    B10G11R11UFLOATPACK32 = 122,
 
     /// <summary>
     /// VK_FORMAT_E5B9G9R9_UFLOAT_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_E5B9G9R9_UFLOAT_PACK32")]
-    E5b9g9r9UfloatPack32 = 123,
+    E5B9G9R9UFLOATPACK32 = 123,
 
     /// <summary>
     /// VK_FORMAT_D16_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_D16_UNORM")]
-    D16Unorm = 124,
+    D16UNORM = 124,
 
     /// <summary>
     /// VK_FORMAT_X8_D24_UNORM_PACK32
     /// </summary>
     [NGXNativeName("VK_FORMAT_X8_D24_UNORM_PACK32")]
-    X8D24UnormPack32 = 125,
+    X8D24UNORMPACK32 = 125,
 
     /// <summary>
     /// VK_FORMAT_D32_SFLOAT
     /// </summary>
     [NGXNativeName("VK_FORMAT_D32_SFLOAT")]
-    D32Sfloat = 126,
+    D32SFLOAT = 126,
 
     /// <summary>
     /// VK_FORMAT_S8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_S8_UINT")]
-    S8Uint = 127,
+    S8UINT = 127,
 
     /// <summary>
     /// VK_FORMAT_D16_UNORM_S8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_D16_UNORM_S8_UINT")]
-    D16UnormS8Uint = 128,
+    D16UNORMS8UINT = 128,
 
     /// <summary>
     /// VK_FORMAT_D24_UNORM_S8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_D24_UNORM_S8_UINT")]
-    D24UnormS8Uint = 129,
+    D24UNORMS8UINT = 129,
 
     /// <summary>
     /// VK_FORMAT_D32_SFLOAT_S8_UINT
     /// </summary>
     [NGXNativeName("VK_FORMAT_D32_SFLOAT_S8_UINT")]
-    D32SfloatS8Uint = 130,
+    D32SFLOATS8UINT = 130,
 
     /// <summary>
     /// VK_FORMAT_BC1_RGB_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC1_RGB_UNORM_BLOCK")]
-    Bc1RgbUnormBlock = 131,
+    BC1RGBUNORMBLOCK = 131,
 
     /// <summary>
     /// VK_FORMAT_BC1_RGB_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC1_RGB_SRGB_BLOCK")]
-    Bc1RgbSrgbBlock = 132,
+    BC1RGBSRGBBLOCK = 132,
 
     /// <summary>
     /// VK_FORMAT_BC1_RGBA_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC1_RGBA_UNORM_BLOCK")]
-    Bc1RgbaUnormBlock = 133,
+    BC1RGBAUNORMBLOCK = 133,
 
     /// <summary>
     /// VK_FORMAT_BC1_RGBA_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC1_RGBA_SRGB_BLOCK")]
-    Bc1RgbaSrgbBlock = 134,
+    BC1RGBASRGBBLOCK = 134,
 
     /// <summary>
     /// VK_FORMAT_BC2_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC2_UNORM_BLOCK")]
-    Bc2UnormBlock = 135,
+    BC2UNORMBLOCK = 135,
 
     /// <summary>
     /// VK_FORMAT_BC2_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC2_SRGB_BLOCK")]
-    Bc2SrgbBlock = 136,
+    BC2SRGBBLOCK = 136,
 
     /// <summary>
     /// VK_FORMAT_BC3_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC3_UNORM_BLOCK")]
-    Bc3UnormBlock = 137,
+    BC3UNORMBLOCK = 137,
 
     /// <summary>
     /// VK_FORMAT_BC3_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC3_SRGB_BLOCK")]
-    Bc3SrgbBlock = 138,
+    BC3SRGBBLOCK = 138,
 
     /// <summary>
     /// VK_FORMAT_BC4_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC4_UNORM_BLOCK")]
-    Bc4UnormBlock = 139,
+    BC4UNORMBLOCK = 139,
 
     /// <summary>
     /// VK_FORMAT_BC4_SNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC4_SNORM_BLOCK")]
-    Bc4SnormBlock = 140,
+    BC4SNORMBLOCK = 140,
 
     /// <summary>
     /// VK_FORMAT_BC5_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC5_UNORM_BLOCK")]
-    Bc5UnormBlock = 141,
+    BC5UNORMBLOCK = 141,
 
     /// <summary>
     /// VK_FORMAT_BC5_SNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC5_SNORM_BLOCK")]
-    Bc5SnormBlock = 142,
+    BC5SNORMBLOCK = 142,
 
     /// <summary>
     /// VK_FORMAT_BC6H_UFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC6H_UFLOAT_BLOCK")]
-    Bc6hUfloatBlock = 143,
+    BC6HUFLOATBLOCK = 143,
 
     /// <summary>
     /// VK_FORMAT_BC6H_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC6H_SFLOAT_BLOCK")]
-    Bc6hSfloatBlock = 144,
+    BC6HSFLOATBLOCK = 144,
 
     /// <summary>
     /// VK_FORMAT_BC7_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC7_UNORM_BLOCK")]
-    Bc7UnormBlock = 145,
+    BC7UNORMBLOCK = 145,
 
     /// <summary>
     /// VK_FORMAT_BC7_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_BC7_SRGB_BLOCK")]
-    Bc7SrgbBlock = 146,
+    BC7SRGBBLOCK = 146,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK")]
-    Etc2R8g8b8UnormBlock = 147,
+    ETC2R8G8B8UNORMBLOCK = 147,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK")]
-    Etc2R8g8b8SrgbBlock = 148,
+    ETC2R8G8B8SRGBBLOCK = 148,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK")]
-    Etc2R8g8b8a1UnormBlock = 149,
+    ETC2R8G8B8A1UNORMBLOCK = 149,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK")]
-    Etc2R8g8b8a1SrgbBlock = 150,
+    ETC2R8G8B8A1SRGBBLOCK = 150,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK")]
-    Etc2R8g8b8a8UnormBlock = 151,
+    ETC2R8G8B8A8UNORMBLOCK = 151,
 
     /// <summary>
     /// VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK")]
-    Etc2R8g8b8a8SrgbBlock = 152,
+    ETC2R8G8B8A8SRGBBLOCK = 152,
 
     /// <summary>
     /// VK_FORMAT_EAC_R11_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_EAC_R11_UNORM_BLOCK")]
-    EacR11UnormBlock = 153,
+    EACR11UNORMBLOCK = 153,
 
     /// <summary>
     /// VK_FORMAT_EAC_R11_SNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_EAC_R11_SNORM_BLOCK")]
-    EacR11SnormBlock = 154,
+    EACR11SNORMBLOCK = 154,
 
     /// <summary>
     /// VK_FORMAT_EAC_R11G11_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_EAC_R11G11_UNORM_BLOCK")]
-    EacR11g11UnormBlock = 155,
+    EACR11G11UNORMBLOCK = 155,
 
     /// <summary>
     /// VK_FORMAT_EAC_R11G11_SNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_EAC_R11G11_SNORM_BLOCK")]
-    EacR11g11SnormBlock = 156,
+    EACR11G11SNORMBLOCK = 156,
 
     /// <summary>
     /// VK_FORMAT_ASTC_4x4_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_4x4_UNORM_BLOCK")]
-    Astc4x4UnormBlock = 157,
+    ASTC4x4UNORMBLOCK = 157,
 
     /// <summary>
     /// VK_FORMAT_ASTC_4x4_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_4x4_SRGB_BLOCK")]
-    Astc4x4SrgbBlock = 158,
+    ASTC4x4SRGBBLOCK = 158,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x4_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x4_UNORM_BLOCK")]
-    Astc5x4UnormBlock = 159,
+    ASTC5x4UNORMBLOCK = 159,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x4_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x4_SRGB_BLOCK")]
-    Astc5x4SrgbBlock = 160,
+    ASTC5x4SRGBBLOCK = 160,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x5_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x5_UNORM_BLOCK")]
-    Astc5x5UnormBlock = 161,
+    ASTC5x5UNORMBLOCK = 161,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x5_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x5_SRGB_BLOCK")]
-    Astc5x5SrgbBlock = 162,
+    ASTC5x5SRGBBLOCK = 162,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x5_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x5_UNORM_BLOCK")]
-    Astc6x5UnormBlock = 163,
+    ASTC6x5UNORMBLOCK = 163,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x5_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x5_SRGB_BLOCK")]
-    Astc6x5SrgbBlock = 164,
+    ASTC6x5SRGBBLOCK = 164,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x6_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x6_UNORM_BLOCK")]
-    Astc6x6UnormBlock = 165,
+    ASTC6x6UNORMBLOCK = 165,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x6_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x6_SRGB_BLOCK")]
-    Astc6x6SrgbBlock = 166,
+    ASTC6x6SRGBBLOCK = 166,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x5_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x5_UNORM_BLOCK")]
-    Astc8x5UnormBlock = 167,
+    ASTC8x5UNORMBLOCK = 167,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x5_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x5_SRGB_BLOCK")]
-    Astc8x5SrgbBlock = 168,
+    ASTC8x5SRGBBLOCK = 168,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x6_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x6_UNORM_BLOCK")]
-    Astc8x6UnormBlock = 169,
+    ASTC8x6UNORMBLOCK = 169,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x6_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x6_SRGB_BLOCK")]
-    Astc8x6SrgbBlock = 170,
+    ASTC8x6SRGBBLOCK = 170,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x8_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x8_UNORM_BLOCK")]
-    Astc8x8UnormBlock = 171,
+    ASTC8x8UNORMBLOCK = 171,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x8_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x8_SRGB_BLOCK")]
-    Astc8x8SrgbBlock = 172,
+    ASTC8x8SRGBBLOCK = 172,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x5_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x5_UNORM_BLOCK")]
-    Astc10x5UnormBlock = 173,
+    ASTC10x5UNORMBLOCK = 173,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x5_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x5_SRGB_BLOCK")]
-    Astc10x5SrgbBlock = 174,
+    ASTC10x5SRGBBLOCK = 174,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x6_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x6_UNORM_BLOCK")]
-    Astc10x6UnormBlock = 175,
+    ASTC10x6UNORMBLOCK = 175,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x6_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x6_SRGB_BLOCK")]
-    Astc10x6SrgbBlock = 176,
+    ASTC10x6SRGBBLOCK = 176,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x8_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x8_UNORM_BLOCK")]
-    Astc10x8UnormBlock = 177,
+    ASTC10x8UNORMBLOCK = 177,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x8_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x8_SRGB_BLOCK")]
-    Astc10x8SrgbBlock = 178,
+    ASTC10x8SRGBBLOCK = 178,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x10_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x10_UNORM_BLOCK")]
-    Astc10x10UnormBlock = 179,
+    ASTC10x10UNORMBLOCK = 179,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x10_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x10_SRGB_BLOCK")]
-    Astc10x10SrgbBlock = 180,
+    ASTC10x10SRGBBLOCK = 180,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x10_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x10_UNORM_BLOCK")]
-    Astc12x10UnormBlock = 181,
+    ASTC12x10UNORMBLOCK = 181,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x10_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x10_SRGB_BLOCK")]
-    Astc12x10SrgbBlock = 182,
+    ASTC12x10SRGBBLOCK = 182,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x12_UNORM_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x12_UNORM_BLOCK")]
-    Astc12x12UnormBlock = 183,
+    ASTC12x12UNORMBLOCK = 183,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x12_SRGB_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x12_SRGB_BLOCK")]
-    Astc12x12SrgbBlock = 184,
+    ASTC12x12SRGBBLOCK = 184,
 
     /// <summary>
     /// VK_FORMAT_G8B8G8R8_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8B8G8R8_422_UNORM")]
-    G8b8g8r8422Unorm = 1000156000,
+    G8B8G8R8422UNORM = 1000156000,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8G8_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8G8_422_UNORM")]
-    B8g8r8g8422Unorm = 1000156001,
+    B8G8R8G8422UNORM = 1000156001,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM")]
-    G8B8R83Plane420Unorm = 1000156002,
+    G8B8R83PLANE420UNORM = 1000156002,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_420_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_420_UNORM")]
-    G8B8r82Plane420Unorm = 1000156003,
+    G8B8R82PLANE420UNORM = 1000156003,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM")]
-    G8B8R83Plane422Unorm = 1000156004,
+    G8B8R83PLANE422UNORM = 1000156004,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_422_UNORM")]
-    G8B8r82Plane422Unorm = 1000156005,
+    G8B8R82PLANE422UNORM = 1000156005,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM")]
-    G8B8R83Plane444Unorm = 1000156006,
+    G8B8R83PLANE444UNORM = 1000156006,
 
     /// <summary>
     /// VK_FORMAT_R10X6_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6_UNORM_PACK16")]
-    R10x6UnormPack16 = 1000156007,
+    R10X6UNORMPACK16 = 1000156007,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6_UNORM_2PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6_UNORM_2PACK16")]
-    R10x6g10x6Unorm2Pack16 = 1000156008,
+    R10X6G10X6UNORM2PACK16 = 1000156008,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16")]
-    R10x6g10x6b10x6a10x6Unorm4Pack16 = 1000156009,
+    R10X6G10X6B10X6A10X6UNORM4PACK16 = 1000156009,
 
     /// <summary>
     /// VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16")]
-    G10x6b10x6g10x6r10x6422Unorm4Pack16 = 1000156010,
+    G10X6B10X6G10X6R10X6422UNORM4PACK16 = 1000156010,
 
     /// <summary>
     /// VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16")]
-    B10x6g10x6r10x6g10x6422Unorm4Pack16 = 1000156011,
+    B10X6G10X6R10X6G10X6422UNORM4PACK16 = 1000156011,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16")]
-    G10x6B10x6R10x63Plane420Unorm3Pack16 = 1000156012,
+    G10X6B10X6R10X63PLANE420UNORM3PACK16 = 1000156012,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16")]
-    G10x6B10x6r10x62Plane420Unorm3Pack16 = 1000156013,
+    G10X6B10X6R10X62PLANE420UNORM3PACK16 = 1000156013,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16")]
-    G10x6B10x6R10x63Plane422Unorm3Pack16 = 1000156014,
+    G10X6B10X6R10X63PLANE422UNORM3PACK16 = 1000156014,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16")]
-    G10x6B10x6r10x62Plane422Unorm3Pack16 = 1000156015,
+    G10X6B10X6R10X62PLANE422UNORM3PACK16 = 1000156015,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16")]
-    G10x6B10x6R10x63Plane444Unorm3Pack16 = 1000156016,
+    G10X6B10X6R10X63PLANE444UNORM3PACK16 = 1000156016,
 
     /// <summary>
     /// VK_FORMAT_R12X4_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4_UNORM_PACK16")]
-    R12x4UnormPack16 = 1000156017,
+    R12X4UNORMPACK16 = 1000156017,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4_UNORM_2PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4_UNORM_2PACK16")]
-    R12x4g12x4Unorm2Pack16 = 1000156018,
+    R12X4G12X4UNORM2PACK16 = 1000156018,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16")]
-    R12x4g12x4b12x4a12x4Unorm4Pack16 = 1000156019,
+    R12X4G12X4B12X4A12X4UNORM4PACK16 = 1000156019,
 
     /// <summary>
     /// VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16")]
-    G12x4b12x4g12x4r12x4422Unorm4Pack16 = 1000156020,
+    G12X4B12X4G12X4R12X4422UNORM4PACK16 = 1000156020,
 
     /// <summary>
     /// VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16")]
-    B12x4g12x4r12x4g12x4422Unorm4Pack16 = 1000156021,
+    B12X4G12X4R12X4G12X4422UNORM4PACK16 = 1000156021,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16")]
-    G12x4B12x4R12x43Plane420Unorm3Pack16 = 1000156022,
+    G12X4B12X4R12X43PLANE420UNORM3PACK16 = 1000156022,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16")]
-    G12x4B12x4r12x42Plane420Unorm3Pack16 = 1000156023,
+    G12X4B12X4R12X42PLANE420UNORM3PACK16 = 1000156023,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16")]
-    G12x4B12x4R12x43Plane422Unorm3Pack16 = 1000156024,
+    G12X4B12X4R12X43PLANE422UNORM3PACK16 = 1000156024,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16")]
-    G12x4B12x4r12x42Plane422Unorm3Pack16 = 1000156025,
+    G12X4B12X4R12X42PLANE422UNORM3PACK16 = 1000156025,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16")]
-    G12x4B12x4R12x43Plane444Unorm3Pack16 = 1000156026,
+    G12X4B12X4R12X43PLANE444UNORM3PACK16 = 1000156026,
 
     /// <summary>
     /// VK_FORMAT_G16B16G16R16_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16B16G16R16_422_UNORM")]
-    G16b16g16r16422Unorm = 1000156027,
+    G16B16G16R16422UNORM = 1000156027,
 
     /// <summary>
     /// VK_FORMAT_B16G16R16G16_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_B16G16R16G16_422_UNORM")]
-    B16g16r16g16422Unorm = 1000156028,
+    B16G16R16G16422UNORM = 1000156028,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM")]
-    G16B16R163Plane420Unorm = 1000156029,
+    G16B16R163PLANE420UNORM = 1000156029,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_420_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_420_UNORM")]
-    G16B16r162Plane420Unorm = 1000156030,
+    G16B16R162PLANE420UNORM = 1000156030,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM")]
-    G16B16R163Plane422Unorm = 1000156031,
+    G16B16R163PLANE422UNORM = 1000156031,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_422_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_422_UNORM")]
-    G16B16r162Plane422Unorm = 1000156032,
+    G16B16R162PLANE422UNORM = 1000156032,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM")]
-    G16B16R163Plane444Unorm = 1000156033,
+    G16B16R163PLANE444UNORM = 1000156033,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_444_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_444_UNORM")]
-    G8B8r82Plane444Unorm = 1000330000,
+    G8B8R82PLANE444UNORM = 1000330000,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16")]
-    G10x6B10x6r10x62Plane444Unorm3Pack16 = 1000330001,
+    G10X6B10X6R10X62PLANE444UNORM3PACK16 = 1000330001,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16")]
-    G12x4B12x4r12x42Plane444Unorm3Pack16 = 1000330002,
+    G12X4B12X4R12X42PLANE444UNORM3PACK16 = 1000330002,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_444_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_444_UNORM")]
-    G16B16r162Plane444Unorm = 1000330003,
+    G16B16R162PLANE444UNORM = 1000330003,
 
     /// <summary>
     /// VK_FORMAT_A4R4G4B4_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_A4R4G4B4_UNORM_PACK16")]
-    A4r4g4b4UnormPack16 = 1000340000,
+    A4R4G4B4UNORMPACK16 = 1000340000,
 
     /// <summary>
     /// VK_FORMAT_A4B4G4R4_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_A4B4G4R4_UNORM_PACK16")]
-    A4b4g4r4UnormPack16 = 1000340001,
+    A4B4G4R4UNORMPACK16 = 1000340001,
 
     /// <summary>
     /// VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK")]
-    Astc4x4SfloatBlock = 1000066000,
+    ASTC4x4SFLOATBLOCK = 1000066000,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK")]
-    Astc5x4SfloatBlock = 1000066001,
+    ASTC5x4SFLOATBLOCK = 1000066001,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK")]
-    Astc5x5SfloatBlock = 1000066002,
+    ASTC5x5SFLOATBLOCK = 1000066002,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK")]
-    Astc6x5SfloatBlock = 1000066003,
+    ASTC6x5SFLOATBLOCK = 1000066003,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK")]
-    Astc6x6SfloatBlock = 1000066004,
+    ASTC6x6SFLOATBLOCK = 1000066004,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK")]
-    Astc8x5SfloatBlock = 1000066005,
+    ASTC8x5SFLOATBLOCK = 1000066005,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK")]
-    Astc8x6SfloatBlock = 1000066006,
+    ASTC8x6SFLOATBLOCK = 1000066006,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK")]
-    Astc8x8SfloatBlock = 1000066007,
+    ASTC8x8SFLOATBLOCK = 1000066007,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK")]
-    Astc10x5SfloatBlock = 1000066008,
+    ASTC10x5SFLOATBLOCK = 1000066008,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK")]
-    Astc10x6SfloatBlock = 1000066009,
+    ASTC10x6SFLOATBLOCK = 1000066009,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK")]
-    Astc10x8SfloatBlock = 1000066010,
+    ASTC10x8SFLOATBLOCK = 1000066010,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK")]
-    Astc10x10SfloatBlock = 1000066011,
+    ASTC10x10SFLOATBLOCK = 1000066011,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK")]
-    Astc12x10SfloatBlock = 1000066012,
+    ASTC12x10SFLOATBLOCK = 1000066012,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK")]
-    Astc12x12SfloatBlock = 1000066013,
+    ASTC12x12SFLOATBLOCK = 1000066013,
 
     /// <summary>
     /// VK_FORMAT_A1B5G5R5_UNORM_PACK16
     /// </summary>
     [NGXNativeName("VK_FORMAT_A1B5G5R5_UNORM_PACK16")]
-    A1b5g5r5UnormPack16 = 1000470000,
+    A1B5G5R5UNORMPACK16 = 1000470000,
 
     /// <summary>
     /// VK_FORMAT_A8_UNORM
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8_UNORM")]
-    A8Unorm = 1000470001,
+    A8UNORM = 1000470001,
 
     /// <summary>
     /// VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG")]
-    Pvrtc12BppUnormBlockImg = 1000054000,
+    PVRTC12BPPUNORMBLOCKIMG = 1000054000,
 
     /// <summary>
     /// VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG")]
-    Pvrtc14BppUnormBlockImg = 1000054001,
+    PVRTC14BPPUNORMBLOCKIMG = 1000054001,
 
     /// <summary>
     /// VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG")]
-    Pvrtc22BppUnormBlockImg = 1000054002,
+    PVRTC22BPPUNORMBLOCKIMG = 1000054002,
 
     /// <summary>
     /// VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG")]
-    Pvrtc24BppUnormBlockImg = 1000054003,
+    PVRTC24BPPUNORMBLOCKIMG = 1000054003,
 
     /// <summary>
     /// VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG")]
-    Pvrtc12BppSrgbBlockImg = 1000054004,
+    PVRTC12BPPSRGBBLOCKIMG = 1000054004,
 
     /// <summary>
     /// VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG")]
-    Pvrtc14BppSrgbBlockImg = 1000054005,
+    PVRTC14BPPSRGBBLOCKIMG = 1000054005,
 
     /// <summary>
     /// VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG")]
-    Pvrtc22BppSrgbBlockImg = 1000054006,
+    PVRTC22BPPSRGBBLOCKIMG = 1000054006,
 
     /// <summary>
     /// VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG
     /// </summary>
     [NGXNativeName("VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG")]
-    Pvrtc24BppSrgbBlockImg = 1000054007,
+    PVRTC24BPPSRGBBLOCKIMG = 1000054007,
 
     /// <summary>
     /// VK_FORMAT_R8_BOOL_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R8_BOOL_ARM")]
-    R8BoolArm = 1000460000,
+    R8BOOLARM = 1000460000,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SFIXED5_NV
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_SFIXED5_NV")]
-    R16g16Sfixed5Nv = 1000464000,
+    R16G16SFIXED5NV = 1000464000,
 
     /// <summary>
     /// VK_FORMAT_R10X6_UINT_PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6_UINT_PACK16_ARM")]
-    R10x6UintPack16Arm = 1000609000,
+    R10X6UINTPACK16ARM = 1000609000,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6_UINT_2PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6_UINT_2PACK16_ARM")]
-    R10x6g10x6Uint2Pack16Arm = 1000609001,
+    R10X6G10X6UINT2PACK16ARM = 1000609001,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6B10X6A10X6_UINT_4PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6B10X6A10X6_UINT_4PACK16_ARM")]
-    R10x6g10x6b10x6a10x6Uint4Pack16Arm = 1000609002,
+    R10X6G10X6B10X6A10X6UINT4PACK16ARM = 1000609002,
 
     /// <summary>
     /// VK_FORMAT_R12X4_UINT_PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4_UINT_PACK16_ARM")]
-    R12x4UintPack16Arm = 1000609003,
+    R12X4UINTPACK16ARM = 1000609003,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4_UINT_2PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4_UINT_2PACK16_ARM")]
-    R12x4g12x4Uint2Pack16Arm = 1000609004,
+    R12X4G12X4UINT2PACK16ARM = 1000609004,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4B12X4A12X4_UINT_4PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4B12X4A12X4_UINT_4PACK16_ARM")]
-    R12x4g12x4b12x4a12x4Uint4Pack16Arm = 1000609005,
+    R12X4G12X4B12X4A12X4UINT4PACK16ARM = 1000609005,
 
     /// <summary>
     /// VK_FORMAT_R14X2_UINT_PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2_UINT_PACK16_ARM")]
-    R14x2UintPack16Arm = 1000609006,
+    R14X2UINTPACK16ARM = 1000609006,
 
     /// <summary>
     /// VK_FORMAT_R14X2G14X2_UINT_2PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2G14X2_UINT_2PACK16_ARM")]
-    R14x2g14x2Uint2Pack16Arm = 1000609007,
+    R14X2G14X2UINT2PACK16ARM = 1000609007,
 
     /// <summary>
     /// VK_FORMAT_R14X2G14X2B14X2A14X2_UINT_4PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2G14X2B14X2A14X2_UINT_4PACK16_ARM")]
-    R14x2g14x2b14x2a14x2Uint4Pack16Arm = 1000609008,
+    R14X2G14X2B14X2A14X2UINT4PACK16ARM = 1000609008,
 
     /// <summary>
     /// VK_FORMAT_R14X2_UNORM_PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2_UNORM_PACK16_ARM")]
-    R14x2UnormPack16Arm = 1000609009,
+    R14X2UNORMPACK16ARM = 1000609009,
 
     /// <summary>
     /// VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM")]
-    R14x2g14x2Unorm2Pack16Arm = 1000609010,
+    R14X2G14X2UNORM2PACK16ARM = 1000609010,
 
     /// <summary>
     /// VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM")]
-    R14x2g14x2b14x2a14x2Unorm4Pack16Arm = 1000609011,
+    R14X2G14X2B14X2A14X2UNORM4PACK16ARM = 1000609011,
 
     /// <summary>
     /// VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM")]
-    G14x2B14x2r14x22Plane420Unorm3Pack16Arm = 1000609012,
+    G14X2B14X2R14X22PLANE420UNORM3PACK16ARM = 1000609012,
 
     /// <summary>
     /// VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM
     /// </summary>
     [NGXNativeName("VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM")]
-    G14x2B14x2r14x22Plane422Unorm3Pack16Arm = 1000609013,
+    G14X2B14X2R14X22PLANE422UNORM3PACK16ARM = 1000609013,
 
     /// <summary>
     /// VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK_EXT")]
-    Astc4x4SfloatBlockExt = 1000066000,
+    ASTC4x4SFLOATBLOCKEXT = 1000066000,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK_EXT")]
-    Astc5x4SfloatBlockExt = 1000066001,
+    ASTC5x4SFLOATBLOCKEXT = 1000066001,
 
     /// <summary>
     /// VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK_EXT")]
-    Astc5x5SfloatBlockExt = 1000066002,
+    ASTC5x5SFLOATBLOCKEXT = 1000066002,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK_EXT")]
-    Astc6x5SfloatBlockExt = 1000066003,
+    ASTC6x5SFLOATBLOCKEXT = 1000066003,
 
     /// <summary>
     /// VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK_EXT")]
-    Astc6x6SfloatBlockExt = 1000066004,
+    ASTC6x6SFLOATBLOCKEXT = 1000066004,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK_EXT")]
-    Astc8x5SfloatBlockExt = 1000066005,
+    ASTC8x5SFLOATBLOCKEXT = 1000066005,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK_EXT")]
-    Astc8x6SfloatBlockExt = 1000066006,
+    ASTC8x6SFLOATBLOCKEXT = 1000066006,
 
     /// <summary>
     /// VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK_EXT")]
-    Astc8x8SfloatBlockExt = 1000066007,
+    ASTC8x8SFLOATBLOCKEXT = 1000066007,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK_EXT")]
-    Astc10x5SfloatBlockExt = 1000066008,
+    ASTC10x5SFLOATBLOCKEXT = 1000066008,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK_EXT")]
-    Astc10x6SfloatBlockExt = 1000066009,
+    ASTC10x6SFLOATBLOCKEXT = 1000066009,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK_EXT")]
-    Astc10x8SfloatBlockExt = 1000066010,
+    ASTC10x8SFLOATBLOCKEXT = 1000066010,
 
     /// <summary>
     /// VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK_EXT")]
-    Astc10x10SfloatBlockExt = 1000066011,
+    ASTC10x10SFLOATBLOCKEXT = 1000066011,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK_EXT")]
-    Astc12x10SfloatBlockExt = 1000066012,
+    ASTC12x10SFLOATBLOCKEXT = 1000066012,
 
     /// <summary>
     /// VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK_EXT")]
-    Astc12x12SfloatBlockExt = 1000066013,
+    ASTC12x12SFLOATBLOCKEXT = 1000066013,
 
     /// <summary>
     /// VK_FORMAT_G8B8G8R8_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8B8G8R8_422_UNORM_KHR")]
-    G8b8g8r8422UnormKhr = 1000156000,
+    G8B8G8R8422UNORMKHR = 1000156000,
 
     /// <summary>
     /// VK_FORMAT_B8G8R8G8_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_B8G8R8G8_422_UNORM_KHR")]
-    B8g8r8g8422UnormKhr = 1000156001,
+    B8G8R8G8422UNORMKHR = 1000156001,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM_KHR")]
-    G8B8R83Plane420UnormKhr = 1000156002,
+    G8B8R83PLANE420UNORMKHR = 1000156002,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_420_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_420_UNORM_KHR")]
-    G8B8r82Plane420UnormKhr = 1000156003,
+    G8B8R82PLANE420UNORMKHR = 1000156003,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM_KHR")]
-    G8B8R83Plane422UnormKhr = 1000156004,
+    G8B8R83PLANE422UNORMKHR = 1000156004,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_422_UNORM_KHR")]
-    G8B8r82Plane422UnormKhr = 1000156005,
+    G8B8R82PLANE422UNORMKHR = 1000156005,
 
     /// <summary>
     /// VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM_KHR")]
-    G8B8R83Plane444UnormKhr = 1000156006,
+    G8B8R83PLANE444UNORMKHR = 1000156006,
 
     /// <summary>
     /// VK_FORMAT_R10X6_UNORM_PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6_UNORM_PACK16_KHR")]
-    R10x6UnormPack16Khr = 1000156007,
+    R10X6UNORMPACK16KHR = 1000156007,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6_UNORM_2PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6_UNORM_2PACK16_KHR")]
-    R10x6g10x6Unorm2Pack16Khr = 1000156008,
+    R10X6G10X6UNORM2PACK16KHR = 1000156008,
 
     /// <summary>
     /// VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16_KHR")]
-    R10x6g10x6b10x6a10x6Unorm4Pack16Khr = 1000156009,
+    R10X6G10X6B10X6A10X6UNORM4PACK16KHR = 1000156009,
 
     /// <summary>
     /// VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16_KHR")]
-    G10x6b10x6g10x6r10x6422Unorm4Pack16Khr = 1000156010,
+    G10X6B10X6G10X6R10X6422UNORM4PACK16KHR = 1000156010,
 
     /// <summary>
     /// VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16_KHR")]
-    B10x6g10x6r10x6g10x6422Unorm4Pack16Khr = 1000156011,
+    B10X6G10X6R10X6G10X6422UNORM4PACK16KHR = 1000156011,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16_KHR")]
-    G10x6B10x6R10x63Plane420Unorm3Pack16Khr = 1000156012,
+    G10X6B10X6R10X63PLANE420UNORM3PACK16KHR = 1000156012,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16_KHR")]
-    G10x6B10x6r10x62Plane420Unorm3Pack16Khr = 1000156013,
+    G10X6B10X6R10X62PLANE420UNORM3PACK16KHR = 1000156013,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16_KHR")]
-    G10x6B10x6R10x63Plane422Unorm3Pack16Khr = 1000156014,
+    G10X6B10X6R10X63PLANE422UNORM3PACK16KHR = 1000156014,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16_KHR")]
-    G10x6B10x6r10x62Plane422Unorm3Pack16Khr = 1000156015,
+    G10X6B10X6R10X62PLANE422UNORM3PACK16KHR = 1000156015,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16_KHR")]
-    G10x6B10x6R10x63Plane444Unorm3Pack16Khr = 1000156016,
+    G10X6B10X6R10X63PLANE444UNORM3PACK16KHR = 1000156016,
 
     /// <summary>
     /// VK_FORMAT_R12X4_UNORM_PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4_UNORM_PACK16_KHR")]
-    R12x4UnormPack16Khr = 1000156017,
+    R12X4UNORMPACK16KHR = 1000156017,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4_UNORM_2PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4_UNORM_2PACK16_KHR")]
-    R12x4g12x4Unorm2Pack16Khr = 1000156018,
+    R12X4G12X4UNORM2PACK16KHR = 1000156018,
 
     /// <summary>
     /// VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16_KHR")]
-    R12x4g12x4b12x4a12x4Unorm4Pack16Khr = 1000156019,
+    R12X4G12X4B12X4A12X4UNORM4PACK16KHR = 1000156019,
 
     /// <summary>
     /// VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16_KHR")]
-    G12x4b12x4g12x4r12x4422Unorm4Pack16Khr = 1000156020,
+    G12X4B12X4G12X4R12X4422UNORM4PACK16KHR = 1000156020,
 
     /// <summary>
     /// VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16_KHR")]
-    B12x4g12x4r12x4g12x4422Unorm4Pack16Khr = 1000156021,
+    B12X4G12X4R12X4G12X4422UNORM4PACK16KHR = 1000156021,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16_KHR")]
-    G12x4B12x4R12x43Plane420Unorm3Pack16Khr = 1000156022,
+    G12X4B12X4R12X43PLANE420UNORM3PACK16KHR = 1000156022,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16_KHR")]
-    G12x4B12x4r12x42Plane420Unorm3Pack16Khr = 1000156023,
+    G12X4B12X4R12X42PLANE420UNORM3PACK16KHR = 1000156023,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16_KHR")]
-    G12x4B12x4R12x43Plane422Unorm3Pack16Khr = 1000156024,
+    G12X4B12X4R12X43PLANE422UNORM3PACK16KHR = 1000156024,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16_KHR")]
-    G12x4B12x4r12x42Plane422Unorm3Pack16Khr = 1000156025,
+    G12X4B12X4R12X42PLANE422UNORM3PACK16KHR = 1000156025,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16_KHR")]
-    G12x4B12x4R12x43Plane444Unorm3Pack16Khr = 1000156026,
+    G12X4B12X4R12X43PLANE444UNORM3PACK16KHR = 1000156026,
 
     /// <summary>
     /// VK_FORMAT_G16B16G16R16_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16B16G16R16_422_UNORM_KHR")]
-    G16b16g16r16422UnormKhr = 1000156027,
+    G16B16G16R16422UNORMKHR = 1000156027,
 
     /// <summary>
     /// VK_FORMAT_B16G16R16G16_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_B16G16R16G16_422_UNORM_KHR")]
-    B16g16r16g16422UnormKhr = 1000156028,
+    B16G16R16G16422UNORMKHR = 1000156028,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM_KHR")]
-    G16B16R163Plane420UnormKhr = 1000156029,
+    G16B16R163PLANE420UNORMKHR = 1000156029,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_420_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_420_UNORM_KHR")]
-    G16B16r162Plane420UnormKhr = 1000156030,
+    G16B16R162PLANE420UNORMKHR = 1000156030,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM_KHR")]
-    G16B16R163Plane422UnormKhr = 1000156031,
+    G16B16R163PLANE422UNORMKHR = 1000156031,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_422_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_422_UNORM_KHR")]
-    G16B16r162Plane422UnormKhr = 1000156032,
+    G16B16R162PLANE422UNORMKHR = 1000156032,
 
     /// <summary>
     /// VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR")]
-    G16B16R163Plane444UnormKhr = 1000156033,
+    G16B16R163PLANE444UNORMKHR = 1000156033,
 
     /// <summary>
     /// VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT")]
-    G8B8r82Plane444UnormExt = 1000330000,
+    G8B8R82PLANE444UNORMEXT = 1000330000,
 
     /// <summary>
     /// VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT")]
-    G10x6B10x6r10x62Plane444Unorm3Pack16Ext = 1000330001,
+    G10X6B10X6R10X62PLANE444UNORM3PACK16EXT = 1000330001,
 
     /// <summary>
     /// VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT")]
-    G12x4B12x4r12x42Plane444Unorm3Pack16Ext = 1000330002,
+    G12X4B12X4R12X42PLANE444UNORM3PACK16EXT = 1000330002,
 
     /// <summary>
     /// VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT")]
-    G16B16r162Plane444UnormExt = 1000330003,
+    G16B16R162PLANE444UNORMEXT = 1000330003,
 
     /// <summary>
     /// VK_FORMAT_A4R4G4B4_UNORM_PACK16_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_A4R4G4B4_UNORM_PACK16_EXT")]
-    A4r4g4b4UnormPack16Ext = 1000340000,
+    A4R4G4B4UNORMPACK16EXT = 1000340000,
 
     /// <summary>
     /// VK_FORMAT_A4B4G4R4_UNORM_PACK16_EXT
     /// </summary>
     [NGXNativeName("VK_FORMAT_A4B4G4R4_UNORM_PACK16_EXT")]
-    A4b4g4r4UnormPack16Ext = 1000340001,
+    A4B4G4R4UNORMPACK16EXT = 1000340001,
 
     /// <summary>
     /// VK_FORMAT_R16G16_S10_5_NV
     /// </summary>
     [NGXNativeName("VK_FORMAT_R16G16_S10_5_NV")]
-    R16g16S105Nv = 1000464000,
+    R16G16S105NV = 1000464000,
 
     /// <summary>
     /// VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR")]
-    A1b5g5r5UnormPack16Khr = 1000470000,
+    A1B5G5R5UNORMPACK16KHR = 1000470000,
 
     /// <summary>
     /// VK_FORMAT_A8_UNORM_KHR
     /// </summary>
     [NGXNativeName("VK_FORMAT_A8_UNORM_KHR")]
-    A8UnormKhr = 1000470001,
+    A8UNORMKHR = 1000470001,
 
     /// <summary>
     /// VK_FORMAT_MAX_ENUM
     /// </summary>
     [NGXNativeName("VK_FORMAT_MAX_ENUM")]
-    MaxEnum = 2147483647,
+    MAXENUM = 2147483647,
 
 }

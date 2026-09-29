@@ -19,6 +19,6 @@ public enum NGXDLSSDepthType : int
     /// NVSDK_NGX_DLSS_Depth_Type_HW
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Depth_Type_HW")]
-    Hw = 1,
+    HW = 1,
 
 }

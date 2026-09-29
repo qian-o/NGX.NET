@@ -25,108 +25,108 @@ public enum NGXResult : uint
     /// NVSDK_NGX_Result_FAIL_FeatureNotSupported
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureNotSupported")]
-    FailFeatureNotSupported = 3134193665,
+    FAILFeatureNotSupported = 3134193665,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_PlatformError
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_PlatformError")]
-    FailPlatformError = 3134193666,
+    FAILPlatformError = 3134193666,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureAlreadyExists
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureAlreadyExists")]
-    FailFeatureAlreadyExists = 3134193667,
+    FAILFeatureAlreadyExists = 3134193667,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureNotFound
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureNotFound")]
-    FailFeatureNotFound = 3134193668,
+    FAILFeatureNotFound = 3134193668,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_InvalidParameter
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_InvalidParameter")]
-    FailInvalidParameter = 3134193669,
+    FAILInvalidParameter = 3134193669,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_ScratchBufferTooSmall
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_ScratchBufferTooSmall")]
-    FailScratchBufferTooSmall = 3134193670,
+    FAILScratchBufferTooSmall = 3134193670,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotInitialized
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_NotInitialized")]
-    FailNotInitialized = 3134193671,
+    FAILNotInitialized = 3134193671,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedInputFormat
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedInputFormat")]
-    FailUnsupportedInputFormat = 3134193672,
+    FAILUnsupportedInputFormat = 3134193672,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_RWFlagMissing
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_RWFlagMissing")]
-    FailRWFlagMissing = 3134193673,
+    FAILRWFlagMissing = 3134193673,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_MissingInput
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_MissingInput")]
-    FailMissingInput = 3134193674,
+    FAILMissingInput = 3134193674,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToInitializeFeature
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_UnableToInitializeFeature")]
-    FailUnableToInitializeFeature = 3134193675,
+    FAILUnableToInitializeFeature = 3134193675,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfDate
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_OutOfDate")]
-    FailOutOfDate = 3134193676,
+    FAILOutOfDate = 3134193676,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfGPUMemory
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_OutOfGPUMemory")]
-    FailOutOfGPUMemory = 3134193677,
+    FAILOutOfGPUMemory = 3134193677,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedFormat
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedFormat")]
-    FailUnsupportedFormat = 3134193678,
+    FAILUnsupportedFormat = 3134193678,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToWriteToAppDataPath
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_UnableToWriteToAppDataPath")]
-    FailUnableToWriteToAppDataPath = 3134193679,
+    FAILUnableToWriteToAppDataPath = 3134193679,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedParameter
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedParameter")]
-    FailUnsupportedParameter = 3134193680,
+    FAILUnsupportedParameter = 3134193680,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_Denied
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_Denied")]
-    FailDenied = 3134193681,
+    FAILDenied = 3134193681,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotImplemented
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_NotImplemented")]
-    FailNotImplemented = 3134193682,
+    FAILNotImplemented = 3134193682,
 
 }

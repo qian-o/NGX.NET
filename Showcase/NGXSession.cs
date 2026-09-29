@@ -25,13 +25,28 @@ internal sealed unsafe class NGXSession : IDisposable
     private RenderSettings settings = new();
     private int inputWidth, inputHeight, outputWidth, outputHeight;
     private bool initialized;
-    private readonly NGXNativeWideString runtimePath = new(Ngx.RuntimeDirectory);
-    private readonly NGXNativeWideString dataPath = new(Path.Combine(AppContext.BaseDirectory, "Logs"));
-    private readonly void** paths = (void**)NativeMemory.Alloc((nuint)sizeof(nint));
+    private void* runtimePath;
+    private void* dataPath;
+    private void** paths;
 
     public NGXSession()
     {
-        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
+        string logDirectory = Path.Combine(AppContext.BaseDirectory, "Logs");
+        Directory.CreateDirectory(logDirectory);
+
+        try
+        {
+            runtimePath = NGXMarshal.StringToPtr(Ngx.RuntimeDirectory, NGXEncoding.NativeWide);
+            dataPath = NGXMarshal.StringToPtr(logDirectory, NGXEncoding.NativeWide);
+            paths = (void**)NativeMemory.Alloc((nuint)sizeof(nint));
+        }
+        catch
+        {
+            NativeMemory.Free(paths);
+            NGXMarshal.Free(dataPath);
+            NGXMarshal.Free(runtimePath);
+            throw;
+        }
     }
 
     public bool Available(NGXFeature feature) => !Unavailable.ContainsKey(feature);
@@ -41,7 +56,7 @@ internal sealed unsafe class NGXSession : IDisposable
         IsVulkan = instance != 0;
         device = nativeDevice;
         Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
-        *paths = runtimePath.Pointer;
+        *paths = runtimePath;
         NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
@@ -54,11 +69,11 @@ internal sealed unsafe class NGXSession : IDisposable
         fixed (byte* engine = "NGX.NET.Showcase.1.0"u8)
         {
             NGXResult result = IsVulkan
-                ? Ngx.Vulkan.InitWithProjectID((sbyte*)project, NGXEngineType.Custom, (sbyte*)engine, dataPath.Pointer, instance, physical, device,
+                ? Ngx.Vulkan.InitWithProjectID((sbyte*)project, NGXEngineType.CUSTOM, (sbyte*)engine, dataPath, instance, physical, device,
                     (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr,
                     (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NGXVersion)Ngx.VersionAPI)
-                : Ngx.D3D12.InitWithProjectID((sbyte*)project, NGXEngineType.Custom, (sbyte*)engine, dataPath.Pointer, device, &common, (NGXVersion)Ngx.VersionAPI);
-            if (result is NGXResult.FailFeatureNotSupported or NGXResult.FailPlatformError or NGXResult.FailOutOfDate)
+                : Ngx.D3D12.InitWithProjectID((sbyte*)project, NGXEngineType.CUSTOM, (sbyte*)engine, dataPath, device, &common, (NGXVersion)Ngx.VersionAPI);
+            if (result is NGXResult.FAILFeatureNotSupported or NGXResult.FAILPlatformError or NGXResult.FAILOutOfDate)
             {
                 foreach (NGXFeature feature in new[] { NGXFeature.SuperSampling, NGXFeature.RayReconstruction, NGXFeature.FrameGeneration })
                 {
@@ -96,7 +111,7 @@ internal sealed unsafe class NGXSession : IDisposable
     public string[] VulkanExtensions(nint instance = 0, nint physical = 0)
     {
         HashSet<string> extensions = [];
-        *paths = runtimePath.Pointer;
+        *paths = runtimePath;
         NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
@@ -123,12 +138,12 @@ internal sealed unsafe class NGXSession : IDisposable
                             ProjectDesc = new()
                             {
                                 ProjectId = (sbyte*)project,
-                                EngineType = NGXEngineType.Custom,
+                                EngineType = NGXEngineType.CUSTOM,
                                 EngineVersion = (sbyte*)engine
                             }
                         }
                     },
-                    ApplicationDataPath = dataPath.Pointer,
+                    ApplicationDataPath = dataPath,
                     FeatureInfo = &common
                 };
                 uint count = 0;
@@ -145,7 +160,7 @@ internal sealed unsafe class NGXSession : IDisposable
 
                 for (int i = 0; i < count; i++)
                 {
-                    extensions.Add(Marshal.PtrToStringUTF8((nint)properties[i].ExtensionName)!);
+                    extensions.Add(NGXMarshal.PtrToString(properties[i].ExtensionName, NGXEncoding.Utf8)!);
                 }
             }
         }
@@ -212,7 +227,7 @@ internal sealed unsafe class NGXSession : IDisposable
             {
                 InDenoiseMode = NGXDLSSDenoiseMode.DLUnified,
                 InRoughnessMode = NGXDLSSRoughnessMode.Packed,
-                InUseHWDepth = NGXDLSSDepthType.Hw,
+                InUseHWDepth = NGXDLSSDepthType.HW,
                 InWidth = (uint)inputWidth,
                 InHeight = (uint)inputHeight,
                 InTargetWidth = (uint)outputWidth,
@@ -505,7 +520,10 @@ internal sealed unsafe class NGXSession : IDisposable
         }
 
         NativeMemory.Free(paths);
-        runtimePath.Dispose();
-        dataPath.Dispose();
+        paths = null;
+        NGXMarshal.Free(runtimePath);
+        runtimePath = null;
+        NGXMarshal.Free(dataPath);
+        dataPath = null;
     }
 }

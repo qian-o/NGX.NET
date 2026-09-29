@@ -19,36 +19,36 @@ public enum NGXBufferFormat : int
     /// NVSDK_NGX_Buffer_Format_RGB8UI
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGB8UI")]
-    Rgb8ui = 1,
+    RGB8UI = 1,
 
     /// <summary>
     /// NVSDK_NGX_Buffer_Format_RGB16F
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGB16F")]
-    Rgb16f = 2,
+    RGB16F = 2,
 
     /// <summary>
     /// NVSDK_NGX_Buffer_Format_RGB32F
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGB32F")]
-    Rgb32f = 3,
+    RGB32F = 3,
 
     /// <summary>
     /// NVSDK_NGX_Buffer_Format_RGBA8UI
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGBA8UI")]
-    Rgba8ui = 4,
+    RGBA8UI = 4,
 
     /// <summary>
     /// NVSDK_NGX_Buffer_Format_RGBA16F
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGBA16F")]
-    Rgba16f = 5,
+    RGBA16F = 5,
 
     /// <summary>
     /// NVSDK_NGX_Buffer_Format_RGBA32F
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGBA32F")]
-    Rgba32f = 6,
+    RGBA32F = 6,
 
 }

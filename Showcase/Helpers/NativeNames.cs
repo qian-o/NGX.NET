@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using NGX.NET;
 
 namespace Showcase.Helpers;
 
@@ -23,7 +24,7 @@ internal sealed unsafe class NativeNames : IDisposable
         {
             for (int i = 0; i < names.Length; i++)
             {
-                Pointer[i] = (byte*)Marshal.StringToCoTaskMemUTF8(names[i]);
+                Pointer[i] = (byte*)NGXMarshal.StringToPtr(names[i], NGXEncoding.Utf8);
             }
         }
         catch
@@ -42,7 +43,7 @@ internal sealed unsafe class NativeNames : IDisposable
 
         for (int i = 0; i < Length; i++)
         {
-            Marshal.FreeCoTaskMem((nint)Pointer[i]);
+            NGXMarshal.Free(Pointer[i]);
         }
 
         NativeMemory.Free(Pointer);

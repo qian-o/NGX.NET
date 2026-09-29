@@ -275,21 +275,34 @@ unsafe
     if (sizeof(NGXBool8) != 1 || sizeof(nuint) != sizeof(void*)) throw new Exception("ABI widths");
     NGXDLSSGOptEvalParams options = new();
     if (options.MultiFrameCount != 1 || options.MultiFrameIndex != 1 || options.MinRelativeLinearDepthObjectSeparation != 40) throw new Exception("SDK defaults");
-    using NGXNativeWideString wide = new("NGX \U0001F680");
-    if (OperatingSystem.IsWindows())
+    const string value = "NGX \U0001F680";
+    void* utf8 = NGXMarshal.StringToPtr(value, NGXEncoding.Utf8);
+    void* wide = null;
+    try
     {
-        if (Marshal.PtrToStringUni((nint)wide.Pointer) != "NGX \U0001F680") throw new Exception("Windows wchar_t");
+        wide = NGXMarshal.StringToPtr(value, NGXEncoding.NativeWide);
+        if (NGXMarshal.PtrToString(utf8, NGXEncoding.Utf8) != value || ((byte*)utf8)[4] != 0xF0 || ((byte*)utf8)[8] != 0) throw new Exception("UTF-8 string");
+        if (NGXMarshal.PtrToString(wide, NGXEncoding.NativeWide) != value) throw new Exception("Native wchar_t round trip");
+        if (OperatingSystem.IsWindows())
+        {
+            if (((ushort*)wide)[4] != 0xD83D || ((ushort*)wide)[5] != 0xDE80 || ((ushort*)wide)[6] != 0) throw new Exception("Windows wchar_t");
+        }
+        else if (((uint*)wide)[4] != 0x1F680 || ((uint*)wide)[5] != 0) throw new Exception("Linux wchar_t");
     }
-    else if (((uint*)wide.Pointer)[4] != 0x1F680 || ((uint*)wide.Pointer)[5] != 0) throw new Exception("Linux wchar_t");
+    finally
+    {
+        NGXMarshal.Free(wide);
+        NGXMarshal.Free(utf8);
+    }
+    // The loader owns this returned string; conversion must not free it.
     void* description = Ngx.GetResultAsString(NGXResult.Success);
-    if (description == null) throw new Exception("Native loader export");
-    uint first = OperatingSystem.IsWindows() ? *(char*)description : *(uint*)description;
-    if (first == 0 || first > 0x10FFFF) throw new Exception("Native wchar_t result");
+    string? message = NGXMarshal.PtrToString(description, NGXEncoding.NativeWide);
+    if (string.IsNullOrEmpty(message) || NGXMarshal.PtrToString(description, NGXEncoding.NativeWide) != message) throw new Exception("Borrowed native wchar_t result");
     NGXVkImageSubresourceRange range = new() { AspectMask = 1, BaseMipLevel = 2, LevelCount = 3, BaseArrayLayer = 4, LayerCount = 5 };
-    NGXResourceVK image = Ngx.CreateImageViewResourceVK((nint)0x1122, (nint)0x3344, range, NGXVkFormat.R8g8b8a8Unorm, 120, 60, true);
-    if (!image.ReadWrite || image.Type != NGXResourceVKType.VKImageview || image.Resource.ImageViewInfo.ImageView != (nint)0x1122 || image.Resource.ImageViewInfo.Image != (nint)0x3344 || image.Resource.ImageViewInfo.Width != 120 || image.Resource.ImageViewInfo.Height != 60 || image.Resource.ImageViewInfo.SubresourceRange.LayerCount != 5) throw new Exception("Native structure argument/return ABI");
+    NGXResourceVK image = Ngx.CreateImageViewResourceVK((nint)0x1122, (nint)0x3344, range, NGXVkFormat.R8G8B8A8UNORM, 120, 60, true);
+    if (!image.ReadWrite || image.Type != NGXResourceVKType.VKIMAGEVIEW || image.Resource.ImageViewInfo.ImageView != (nint)0x1122 || image.Resource.ImageViewInfo.Image != (nint)0x3344 || image.Resource.ImageViewInfo.Width != 120 || image.Resource.ImageViewInfo.Height != 60 || image.Resource.ImageViewInfo.SubresourceRange.LayerCount != 5) throw new Exception("Native structure argument/return ABI");
     NGXResourceVK buffer = Ngx.CreateBufferResourceVK((nint)0x5566, 4096, false);
-    if (buffer.ReadWrite || buffer.Type != NGXResourceVKType.VKBuffer || buffer.Resource.BufferInfo.Buffer != (nint)0x5566 || buffer.Resource.BufferInfo.SizeInBytes != 4096) throw new Exception("Native union return ABI");
+    if (buffer.ReadWrite || buffer.Type != NGXResourceVKType.VKBUFFER || buffer.Resource.BufferInfo.Buffer != (nint)0x5566 || buffer.Resource.BufferInfo.SizeInBytes != 4096) throw new Exception("Native union return ABI");
     delegate* unmanaged[Cdecl]<float, NGXBool8*, void> callback = &Callbacks.Progress;
     NGXBool8 cancelled = false;
     callback(1, &cancelled);

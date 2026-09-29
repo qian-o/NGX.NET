@@ -13,24 +13,24 @@ public enum NGXLoggingLevel : int
     /// NVSDK_NGX_LOGGING_LEVEL_OFF
     /// </summary>
     [NGXNativeName("NVSDK_NGX_LOGGING_LEVEL_OFF")]
-    Off = 0,
+    OFF = 0,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_ON
     /// </summary>
     [NGXNativeName("NVSDK_NGX_LOGGING_LEVEL_ON")]
-    On = 1,
+    ON = 1,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_VERBOSE
     /// </summary>
     [NGXNativeName("NVSDK_NGX_LOGGING_LEVEL_VERBOSE")]
-    Verbose = 2,
+    VERBOSE = 2,
 
     /// <summary>
     /// NVSDK_NGX_LOGGING_LEVEL_NUM
     /// </summary>
     [NGXNativeName("NVSDK_NGX_LOGGING_LEVEL_NUM")]
-    Num = 3,
+    NUM = 3,
 
 }
