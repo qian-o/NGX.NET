@@ -20,12 +20,21 @@ def extract(sdk: Path, scratch: Path, rid: str):
     from clang import cindex as cx
 
     windows = rid.startswith("win-")
+    if windows:
+        # Use the runner's matching LLVM library and builtin headers with its
+        # current MSVC headers (Clang 18 predates the ARM64 intrinsics).
+        import subprocess
+        llvm = Path(os.environ["ProgramFiles"]) / "LLVM"
+        cx.Config.set_compatibility_check(False)
+        cx.Config.set_library_file(str(llvm / "bin/libclang.dll"))
+        resource = subprocess.check_output([str(llvm / "bin/clang.exe"), "-print-resource-dir"], text=True).strip()
+
     target = ("aarch64" if rid.endswith("arm64") else "x86_64") + ("-pc-windows-msvc" if windows else "-linux-gnu")
     flags = ["-x", "c++", "-std=c++17", "--target=" + target,
              "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"),
              "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
     if windows:
-        flags += ["-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40",
+        flags += ["-resource-dir=" + resource, "-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40",
                   "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", "-DNOMINMAX"]
         for path in os.environ["INCLUDE"].split(";"):
             flags += ["-isystem", path]
@@ -133,7 +142,7 @@ def extract(sdk: Path, scratch: Path, rid: str):
         tu = cx.Index.create().parse(str(unit), args=flags, options=cx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
         errors = [str(d) for d in tu.diagnostics if d.severity >= cx.Diagnostic.Error]
         if errors:
-            raise RuntimeError("\n".join(errors))
+            raise RuntimeError(header + "\n" + "\n".join(errors))
         walk(tu.cursor)
         units[header] = str(unit)
     return {"rid": rid, "target": target, "wcharSize": 2 if windows else 4,
