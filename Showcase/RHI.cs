@@ -22,9 +22,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
     public RenderCapabilities Capabilities => new(
-        NGX.Available(Feature.SuperSampling),
-        RayQuerySupported && NGX.Available(Feature.RayReconstruction),
-        NGX.Available(Feature.FrameGeneration));
+        NGX.Available(NGXFeature.SuperSampling),
+        RayQuerySupported && NGX.Available(NGXFeature.RayReconstruction),
+        NGX.Available(NGXFeature.FrameGeneration));
 
     public Window Window { get; } = window;
 
@@ -88,7 +88,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         if (!RayQuerySupported)
         {
-            NGX.Unavailable[Feature.RayReconstruction] = RayQueryStatus;
+            NGX.Unavailable[NGXFeature.RayReconstruction] = RayQueryStatus;
         }
 
         Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));

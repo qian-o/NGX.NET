@@ -15,11 +15,11 @@ using NGX.NET;
 using Ngx = NGX.NET.NGX;
 
 // Independent compiled-assembly audit. This does not use the C# emitter or its
-// naming/type mapping logic; NativeName and actual import metadata identify APIs.
+// naming/type mapping logic; NGXNativeName and actual import metadata identify APIs.
 string root = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
 using JsonDocument document = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "NGX.NET.Generator/ast.json")));
 Assembly assembly = typeof(Ngx).Assembly;
-Dictionary<string, Type> types = assembly.GetTypes().Where(t => t.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(t => t.GetCustomAttribute<NativeNameAttribute>()!.Name);
+Dictionary<string, Type> types = assembly.GetTypes().Where(t => t.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(t => t.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
 Dictionary<string, MethodInfo> imports = assembly.GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)).Where(m => m.GetCustomAttribute<LibraryImportAttribute>() is not null).ToDictionary(m => m.GetCustomAttribute<LibraryImportAttribute>()!.EntryPoint!);
 HashSet<string> expectedImports = ["NGX_Bridge_Parameter_Reset"];
 HashSet<string> opaqueTypes = document.RootElement.GetProperty("platforms").EnumerateObject().SelectMany(p => p.Value.GetProperty("records").EnumerateArray()).Where(r => r.GetProperty("opaque").GetBoolean()).Select(r => r.GetProperty("name").GetString()!).ToHashSet();
@@ -29,6 +29,15 @@ void Require(bool condition, string message)
 {
     checks++;
     if (!condition) throw new InvalidDataException(message);
+}
+
+// API groups retain their backend/feature names. Every exported data or helper
+// type uses the library prefix, including source-generated nested array types.
+foreach (Type type in assembly.GetExportedTypes().Where(t => !t.IsDefined(typeof(CompilerGeneratedAttribute))))
+{
+    bool apiGroup = type.DeclaringType == typeof(Ngx) && type.IsAbstract && type.IsSealed;
+    if (!apiGroup) Require(type.Name.StartsWith("NGX", StringComparison.Ordinal), "Missing NGX type prefix: " + type.FullName);
+    Require(!type.Name.StartsWith("NGXNGX", StringComparison.Ordinal), "Repeated NGX type prefix: " + type.FullName);
 }
 
 int Size(Type type) => type.IsEnum ? Marshal.SizeOf(Enum.GetUnderlyingType(type)) : type.IsPointer || type.IsFunctionPointer || type == typeof(nint) || type == typeof(nuint) ? IntPtr.Size : Marshal.SizeOf(type);
@@ -45,7 +54,7 @@ void VerifyType(JsonElement native, Type managed, string context, bool behindPoi
     if (kind is "RECORD" or "ENUM")
     {
         string name = native.GetProperty("name").GetString()!;
-        Require(managed.GetCustomAttribute<NativeNameAttribute>()?.Name == name, context + " native type identity");
+        Require(managed.GetCustomAttribute<NGXNativeNameAttribute>()?.Name == name, context + " native type identity");
         if (behindPointer && opaqueTypes.Contains(name)) return;
     }
 
@@ -53,7 +62,7 @@ void VerifyType(JsonElement native, Type managed, string context, bool behindPoi
     Require(Size(managed) == nativeSize, context + " ABI size");
     Type? scalar = kind switch
     {
-        "BOOL" => typeof(Bool8),
+        "BOOL" => typeof(NGXBool8),
         "CHAR_S" or "CHAR_U" or "SCHAR" => typeof(sbyte),
         "UCHAR" => typeof(byte),
         "SHORT" => typeof(short),
@@ -109,7 +118,7 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         string name = record.GetProperty("name").GetString()!;
         Require(types.TryGetValue(name, out Type? type), rid + " missing structure " + name);
         Require(Marshal.SizeOf(type!) == record.GetProperty("size").GetInt32(), rid + " sizeof " + name);
-        Dictionary<string, FieldInfo> fields = type!.GetFields().Where(f => f.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NativeNameAttribute>()!.Name);
+        Dictionary<string, FieldInfo> fields = type!.GetFields().Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
         Require(fields.Count == record.GetProperty("fields").GetArrayLength(), rid + " field count " + name);
         foreach (JsonElement field in record.GetProperty("fields").EnumerateArray())
         {
@@ -126,7 +135,7 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
     {
         string name = enumeration.GetProperty("name").GetString()!;
         Require(types.TryGetValue(name, out Type? type), rid + " missing enum " + name);
-        Dictionary<string, FieldInfo> members = type!.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(f => f.GetCustomAttribute<NativeNameAttribute>()!.Name);
+        Dictionary<string, FieldInfo> members = type!.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
         foreach (JsonElement member in enumeration.GetProperty("values").EnumerateArray())
         {
             string memberName = member.GetProperty("name").GetString()!;
@@ -165,7 +174,7 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         foreach (JsonElement member in virtualMembers.EnumerateArray()) Require(imports.ContainsKey(member.GetProperty("binding").GetString()!), "Missing C++ member adapter");
     }
 
-    Dictionary<string, PropertyInfo> strings = typeof(Ngx).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(p => p.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(p => p.GetCustomAttribute<NativeNameAttribute>()!.Name);
+    Dictionary<string, PropertyInfo> strings = typeof(Ngx).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(p => p.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(p => p.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
     foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray())
     {
         string[] tokens = [.. macro.GetProperty("tokens").EnumerateArray().Select(t => t.GetString()!)];
@@ -198,7 +207,7 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         Require(actual.SequenceEqual(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(bytes)), "Parameter constant bytes " + nativeName);
     }
 
-    Dictionary<string, FieldInfo> numbers = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public).Where(f => f.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NativeNameAttribute>()!.Name);
+    Dictionary<string, FieldInfo> numbers = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public).Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
     foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray().Where(m => m.GetProperty("name").GetString() is "NVSDK_NGX_VERSION_API_MACRO" or "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET"))
     {
         string name = macro.GetProperty("name").GetString()!;
@@ -231,8 +240,8 @@ foreach (FieldInfo field in assembly.GetTypes().SelectMany(t => t.GetFields()).W
 }
 
 Require(expectedImports.SetEquals(imports.Keys), "Compiled imports do not match the native export inventory.");
-Require(Ngx.Succeeded(Result.Success) && Ngx.Succeeded(0), "official success predicate");
-foreach (Result result in Enum.GetValues<Result>())
+Require(Ngx.Succeeded(NGXResult.Success) && Ngx.Succeeded(0), "official success predicate");
+foreach (NGXResult result in Enum.GetValues<NGXResult>())
 {
     bool failed = ((uint)result & 0xFFF00000u) == 0xBAD00000u;
     Require(Ngx.Failed(result) == failed, "result predicate " + result);
@@ -246,8 +255,8 @@ foreach (Result result in Enum.GetValues<Result>())
         Require(failed && exception.Result == result, "exception result " + result);
     }
 }
-Require(Marshal.SizeOf<Bool8>() == 1, "bool8 size");
-DLSSGOptEvalParams defaults = new();
+Require(Marshal.SizeOf<NGXBool8>() == 1, "bool8 size");
+NGXDLSSGOptEvalParams defaults = new();
 Require(defaults.MultiFrameCount == 1 && defaults.MultiFrameIndex == 1 && defaults.MinRelativeLinearDepthObjectSeparation == 40, "official FG defaults");
 Console.WriteLine($"Verified {checks} compiled API/ABI checks across four RIDs; {imports.Count} imports.");
 

@@ -4,13 +4,12 @@ using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Models;
 using Ngx = NGX.NET.NGX;
-using NgxVersion = NGX.NET.Version;
 
 namespace Showcase;
 
 internal sealed unsafe class NGXSession : IDisposable
 {
-    public Dictionary<Feature, string> Unavailable { get; } = [];
+    public Dictionary<NGXFeature, string> Unavailable { get; } = [];
 
     public bool IsVulkan
     {
@@ -18,16 +17,16 @@ internal sealed unsafe class NGXSession : IDisposable
     }
 
     private nint device;
-    private Parameter* capabilities;
-    private Parameter* parameters;
-    private Parameter* frameParameters;
-    private Handle* reconstruction;
-    private Handle* generation;
+    private NGXParameter* capabilities;
+    private NGXParameter* parameters;
+    private NGXParameter* frameParameters;
+    private NGXHandle* reconstruction;
+    private NGXHandle* generation;
     private RenderSettings settings = new();
     private int inputWidth, inputHeight, outputWidth, outputHeight;
     private bool initialized;
-    private readonly NativeWideString runtimePath = new(Ngx.RuntimeDirectory);
-    private readonly NativeWideString dataPath = new(Path.Combine(AppContext.BaseDirectory, "Logs"));
+    private readonly NGXNativeWideString runtimePath = new(Ngx.RuntimeDirectory);
+    private readonly NGXNativeWideString dataPath = new(Path.Combine(AppContext.BaseDirectory, "Logs"));
     private readonly void** paths = (void**)NativeMemory.Alloc((nuint)sizeof(nint));
 
     public NGXSession()
@@ -35,7 +34,7 @@ internal sealed unsafe class NGXSession : IDisposable
         Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
     }
 
-    public bool Available(Feature feature) => !Unavailable.ContainsKey(feature);
+    public bool Available(NGXFeature feature) => !Unavailable.ContainsKey(feature);
 
     public void Initialize(nint nativeDevice, nint instance = 0, nint physical = 0, nint getInstanceProcAddr = 0, nint getDeviceProcAddr = 0)
     {
@@ -43,7 +42,7 @@ internal sealed unsafe class NGXSession : IDisposable
         device = nativeDevice;
         Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
         *paths = runtimePath.Pointer;
-        FeatureCommonInfo common = new()
+        NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
             {
@@ -54,14 +53,14 @@ internal sealed unsafe class NGXSession : IDisposable
         fixed (byte* project = "fc6ac847-10b0-48e1-842d-1bc819f8d2f4"u8)
         fixed (byte* engine = "NGX.NET.Showcase.1.0"u8)
         {
-            Result result = IsVulkan
-                ? Ngx.Vulkan.InitWithProjectID((sbyte*)project, EngineType.Custom, (sbyte*)engine, dataPath.Pointer, instance, physical, device,
+            NGXResult result = IsVulkan
+                ? Ngx.Vulkan.InitWithProjectID((sbyte*)project, NGXEngineType.Custom, (sbyte*)engine, dataPath.Pointer, instance, physical, device,
                     (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr,
-                    (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NgxVersion)Ngx.VersionAPI)
-                : Ngx.D3D12.InitWithProjectID((sbyte*)project, EngineType.Custom, (sbyte*)engine, dataPath.Pointer, device, &common, (NgxVersion)Ngx.VersionAPI);
-            if (result is Result.FailFeatureNotSupported or Result.FailPlatformError or Result.FailOutOfDate)
+                    (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NGXVersion)Ngx.VersionAPI)
+                : Ngx.D3D12.InitWithProjectID((sbyte*)project, NGXEngineType.Custom, (sbyte*)engine, dataPath.Pointer, device, &common, (NGXVersion)Ngx.VersionAPI);
+            if (result is NGXResult.FailFeatureNotSupported or NGXResult.FailPlatformError or NGXResult.FailOutOfDate)
             {
-                foreach (Feature feature in new[] { Feature.SuperSampling, Feature.RayReconstruction, Feature.FrameGeneration })
+                foreach (NGXFeature feature in new[] { NGXFeature.SuperSampling, NGXFeature.RayReconstruction, NGXFeature.FrameGeneration })
                 {
                     Unavailable[feature] = $"NGX initialization: {result}";
                 }
@@ -77,16 +76,16 @@ internal sealed unsafe class NGXSession : IDisposable
         capabilities = IsVulkan ? Ngx.Vulkan.GetCapabilityParameters() : Ngx.D3D12.GetCapabilityParameters();
         parameters = IsVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
         frameParameters = IsVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
-        Query(Feature.SuperSampling, Ngx.ParameterSuperSamplingAvailable);
-        Query(Feature.RayReconstruction, Ngx.ParameterSuperSamplingDenoisingAvailable);
-        Query(Feature.FrameGeneration, Ngx.ParameterFrameGenerationAvailable);
+        Query(NGXFeature.SuperSampling, Ngx.ParameterSuperSamplingAvailable);
+        Query(NGXFeature.RayReconstruction, Ngx.ParameterSuperSamplingDenoisingAvailable);
+        Query(NGXFeature.FrameGeneration, Ngx.ParameterFrameGenerationAvailable);
     }
 
     public string[] VulkanExtensions(nint instance = 0, nint physical = 0)
     {
         HashSet<string> extensions = [];
         *paths = runtimePath.Pointer;
-        FeatureCommonInfo common = new()
+        NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
             {
@@ -98,21 +97,21 @@ internal sealed unsafe class NGXSession : IDisposable
         fixed (byte* project = "fc6ac847-10b0-48e1-842d-1bc819f8d2f4"u8)
         fixed (byte* engine = "NGX.NET.Showcase.1.0"u8)
         {
-            foreach (Feature feature in new[] { Feature.SuperSampling, Feature.RayReconstruction, Feature.FrameGeneration })
+            foreach (NGXFeature feature in new[] { NGXFeature.SuperSampling, NGXFeature.RayReconstruction, NGXFeature.FrameGeneration })
             {
-                FeatureDiscoveryInfo discovery = new()
+                NGXFeatureDiscoveryInfo discovery = new()
                 {
-                    SDKVersion = (NgxVersion)Ngx.VersionAPI,
+                    SDKVersion = (NGXVersion)Ngx.VersionAPI,
                     FeatureID = feature,
                     Identifier = new()
                     {
-                        IdentifierType = ApplicationIdentifierType.ProjectId,
+                        IdentifierType = NGXApplicationIdentifierType.ProjectId,
                         V = new()
                         {
                             ProjectDesc = new()
                             {
                                 ProjectId = (sbyte*)project,
-                                EngineType = EngineType.Custom,
+                                EngineType = NGXEngineType.Custom,
                                 EngineVersion = (sbyte*)engine
                             }
                         }
@@ -121,8 +120,8 @@ internal sealed unsafe class NGXSession : IDisposable
                     FeatureInfo = &common
                 };
                 uint count = 0;
-                NGX.NET.VkExtensionProperties* properties = null;
-                Result result = instance == 0
+                NGXVkExtensionProperties* properties = null;
+                NGXResult result = instance == 0
                     ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(&discovery, &count, &properties)
                     : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, &discovery, &count, &properties);
 
@@ -142,9 +141,9 @@ internal sealed unsafe class NGXSession : IDisposable
         return [.. extensions];
     }
 
-    private void Query(Feature feature, ReadOnlySpan<byte> name)
+    private void Query(NGXFeature feature, ReadOnlySpan<byte> name)
     {
-        Result result = Ngx.Parameter.GetI(capabilities, name, out int available);
+        NGXResult result = Ngx.Parameter.GetI(capabilities, name, out int available);
 
         if (Ngx.Failed(result) || available == 0)
         {
@@ -161,7 +160,7 @@ internal sealed unsafe class NGXSession : IDisposable
         };
         outputWidth = width;
         outputHeight = height;
-        OptimalSettings optimal = value.Reconstruction switch
+        NGXOptimalSettings optimal = value.Reconstruction switch
         {
             Reconstruction.DLSS => Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality),
             Reconstruction.RayReconstruction => Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality),
@@ -177,15 +176,15 @@ internal sealed unsafe class NGXSession : IDisposable
     {
         Ngx.Parameter.Reset(parameters);
         // Camera.Projection maps the near plane to 1 and the far plane to 0.
-        int flags = (int)(DLSSFeatureFlags.IsHDR | DLSSFeatureFlags.MVLowRes | DLSSFeatureFlags.AutoExposure | DLSSFeatureFlags.DepthInverted);
+        int flags = (int)(NGXDLSSFeatureFlags.IsHDR | NGXDLSSFeatureFlags.MVLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
 
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
-            DLSSDCreateParams create = new()
+            NGXDLSSDCreateParams create = new()
             {
-                InDenoiseMode = DLSSDenoiseMode.DLUnified,
-                InRoughnessMode = DLSSRoughnessMode.Packed,
-                InUseHWDepth = DLSSDepthType.Hw,
+                InDenoiseMode = NGXDLSSDenoiseMode.DLUnified,
+                InRoughnessMode = NGXDLSSRoughnessMode.Packed,
+                InUseHWDepth = NGXDLSSDepthType.Hw,
                 InWidth = (uint)inputWidth,
                 InHeight = (uint)inputHeight,
                 InTargetWidth = (uint)outputWidth,
@@ -197,7 +196,7 @@ internal sealed unsafe class NGXSession : IDisposable
         }
         else
         {
-            DLSSCreateParams create = new()
+            NGXDLSSCreateParams create = new()
             {
                 Feature = new()
                 {
@@ -234,7 +233,7 @@ internal sealed unsafe class NGXSession : IDisposable
     private void EvaluateImages(nint command, NativeImage* images, Camera camera, bool reset, float delta)
     {
         Matrix4x4 view = camera.View, projection = camera.Projection;
-        Dimensions dimensions = new()
+        NGXDimensions dimensions = new()
         {
             Width = (uint)inputWidth,
             Height = (uint)inputHeight
@@ -243,7 +242,7 @@ internal sealed unsafe class NGXSession : IDisposable
         {
             if (settings.Reconstruction == Reconstruction.RayReconstruction)
             {
-                D3D12DLSSDEvalParams evaluate = new()
+                NGXD3D12DLSSDEvalParams evaluate = new()
                 {
                     PInColor = images[(int)ImageSlot.Scene].DirectX,
                     PInOutput = images[(int)ImageSlot.Reconstructed].DirectX,
@@ -269,7 +268,7 @@ internal sealed unsafe class NGXSession : IDisposable
             }
             else
             {
-                D3D12DLSSEvalParams evaluate = new()
+                NGXD3D12DLSSEvalParams evaluate = new()
                 {
                     Feature = new()
                     {
@@ -295,7 +294,7 @@ internal sealed unsafe class NGXSession : IDisposable
         {
             if (settings.Reconstruction == Reconstruction.RayReconstruction)
             {
-                VKDLSSDEvalParams evaluate = new()
+                NGXVKDLSSDEvalParams evaluate = new()
                 {
                     PInColor = &images[(int)ImageSlot.Scene].Vulkan,
                     PInOutput = &images[(int)ImageSlot.Reconstructed].Vulkan,
@@ -321,7 +320,7 @@ internal sealed unsafe class NGXSession : IDisposable
             }
             else
             {
-                VKDLSSEvalParams evaluate = new()
+                NGXVKDLSSEvalParams evaluate = new()
                 {
                     Feature = new()
                     {
@@ -351,7 +350,7 @@ internal sealed unsafe class NGXSession : IDisposable
         {
             Ngx.Parameter.Reset(frameParameters);
             NativeImage color = images[(int)ImageSlot.Final].Describe();
-            DLSSGCreateParams create = new()
+            NGXDLSSGCreateParams create = new()
             {
                 Width = (uint)outputWidth,
                 Height = (uint)outputHeight,
@@ -370,7 +369,7 @@ internal sealed unsafe class NGXSession : IDisposable
         Vector3 forward = camera.Forward;
         Vector3 right = Vector3.Normalize(Vector3.Cross(forward, Vector3.UnitY));
         Vector3 up = Vector3.Cross(right, forward);
-        DLSSGOptEvalParams options = new()
+        NGXDLSSGOptEvalParams options = new()
         {
             CameraNear = camera.Near,
             CameraFar = camera.Far,
@@ -403,7 +402,7 @@ internal sealed unsafe class NGXSession : IDisposable
 
         if (IsVulkan)
         {
-            VKDLSSGEvalParams evaluate = new()
+            NGXVKDLSSGEvalParams evaluate = new()
             {
                 PBackbuffer = &back.Vulkan,
                 PDepth = &depth.Vulkan,
@@ -416,7 +415,7 @@ internal sealed unsafe class NGXSession : IDisposable
         }
         else
         {
-            D3D12DLSSGEvalParams evaluate = new()
+            NGXD3D12DLSSGEvalParams evaluate = new()
             {
                 PBackbuffer = back.DirectX,
                 PDepth = depth.DirectX,
@@ -439,7 +438,7 @@ internal sealed unsafe class NGXSession : IDisposable
         Release(ref generation);
     }
 
-    private void Release(ref Handle* handle)
+    private void Release(ref NGXHandle* handle)
     {
         if (handle != null)
         {
@@ -458,7 +457,7 @@ internal sealed unsafe class NGXSession : IDisposable
             {
                 if (value != 0)
                 {
-                    Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.DestroyParameters((Parameter*)value) : Ngx.D3D12.DestroyParameters((Parameter*)value));
+                    Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.DestroyParameters((NGXParameter*)value) : Ngx.D3D12.DestroyParameters((NGXParameter*)value));
                 }
             }
 

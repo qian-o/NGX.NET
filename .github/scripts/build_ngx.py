@@ -271,27 +271,27 @@ using NGX.NET;
 using Ngx = NGX.NET.NGX;
 unsafe
 {
-    if (!Ngx.Succeeded(Result.Success) || !Ngx.Failed(Result.Fail)) throw new Exception("Result predicates");
-    if (sizeof(Bool8) != 1 || sizeof(nuint) != sizeof(void*)) throw new Exception("ABI widths");
-    DLSSGOptEvalParams options = new();
+    if (!Ngx.Succeeded(NGXResult.Success) || !Ngx.Failed(NGXResult.Fail)) throw new Exception("Result predicates");
+    if (sizeof(NGXBool8) != 1 || sizeof(nuint) != sizeof(void*)) throw new Exception("ABI widths");
+    NGXDLSSGOptEvalParams options = new();
     if (options.MultiFrameCount != 1 || options.MultiFrameIndex != 1 || options.MinRelativeLinearDepthObjectSeparation != 40) throw new Exception("SDK defaults");
-    using NativeWideString wide = new("NGX \U0001F680");
+    using NGXNativeWideString wide = new("NGX \U0001F680");
     if (OperatingSystem.IsWindows())
     {
         if (Marshal.PtrToStringUni((nint)wide.Pointer) != "NGX \U0001F680") throw new Exception("Windows wchar_t");
     }
     else if (((uint*)wide.Pointer)[4] != 0x1F680 || ((uint*)wide.Pointer)[5] != 0) throw new Exception("Linux wchar_t");
-    void* description = Ngx.GetResultAsString(Result.Success);
+    void* description = Ngx.GetResultAsString(NGXResult.Success);
     if (description == null) throw new Exception("Native loader export");
     uint first = OperatingSystem.IsWindows() ? *(char*)description : *(uint*)description;
     if (first == 0 || first > 0x10FFFF) throw new Exception("Native wchar_t result");
-    VkImageSubresourceRange range = new() { AspectMask = 1, BaseMipLevel = 2, LevelCount = 3, BaseArrayLayer = 4, LayerCount = 5 };
-    ResourceVK image = Ngx.CreateImageViewResourceVK((nint)0x1122, (nint)0x3344, range, VkFormat.R8g8b8a8Unorm, 120, 60, true);
-    if (!image.ReadWrite || image.Type != ResourceVKType.VKImageview || image.Resource.ImageViewInfo.ImageView != (nint)0x1122 || image.Resource.ImageViewInfo.Image != (nint)0x3344 || image.Resource.ImageViewInfo.Width != 120 || image.Resource.ImageViewInfo.Height != 60 || image.Resource.ImageViewInfo.SubresourceRange.LayerCount != 5) throw new Exception("Native structure argument/return ABI");
-    ResourceVK buffer = Ngx.CreateBufferResourceVK((nint)0x5566, 4096, false);
-    if (buffer.ReadWrite || buffer.Type != ResourceVKType.VKBuffer || buffer.Resource.BufferInfo.Buffer != (nint)0x5566 || buffer.Resource.BufferInfo.SizeInBytes != 4096) throw new Exception("Native union return ABI");
-    delegate* unmanaged[Cdecl]<float, Bool8*, void> callback = &Callbacks.Progress;
-    Bool8 cancelled = false;
+    NGXVkImageSubresourceRange range = new() { AspectMask = 1, BaseMipLevel = 2, LevelCount = 3, BaseArrayLayer = 4, LayerCount = 5 };
+    NGXResourceVK image = Ngx.CreateImageViewResourceVK((nint)0x1122, (nint)0x3344, range, NGXVkFormat.R8g8b8a8Unorm, 120, 60, true);
+    if (!image.ReadWrite || image.Type != NGXResourceVKType.VKImageview || image.Resource.ImageViewInfo.ImageView != (nint)0x1122 || image.Resource.ImageViewInfo.Image != (nint)0x3344 || image.Resource.ImageViewInfo.Width != 120 || image.Resource.ImageViewInfo.Height != 60 || image.Resource.ImageViewInfo.SubresourceRange.LayerCount != 5) throw new Exception("Native structure argument/return ABI");
+    NGXResourceVK buffer = Ngx.CreateBufferResourceVK((nint)0x5566, 4096, false);
+    if (buffer.ReadWrite || buffer.Type != NGXResourceVKType.VKBuffer || buffer.Resource.BufferInfo.Buffer != (nint)0x5566 || buffer.Resource.BufferInfo.SizeInBytes != 4096) throw new Exception("Native union return ABI");
+    delegate* unmanaged[Cdecl]<float, NGXBool8*, void> callback = &Callbacks.Progress;
+    NGXBool8 cancelled = false;
     callback(1, &cancelled);
     if (!cancelled) throw new Exception("C callback bool pointer");
 }
@@ -299,7 +299,7 @@ Console.WriteLine("NativeAOT NGX loader, structure/union ABI, wchar_t, callback 
 static unsafe class Callbacks
 {
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static void Progress(float progress, Bool8* cancelled) => *cancelled = progress == 1;
+    public static void Progress(float progress, NGXBool8* cancelled) => *cancelled = progress == 1;
 }
 """)
     published = scratch / "published"

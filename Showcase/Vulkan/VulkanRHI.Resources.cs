@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using NGX.NET;
 using Showcase.Models;
-using ResourceVKType = NGX.NET.ResourceVKType;
 using Vortice.Vulkan;
 
 namespace Showcase.Vulkan;
@@ -67,7 +67,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             Vulkan = new()
             {
-                Type = ResourceVKType.VKImageview,
+                Type = NGXResourceVKType.VKImageview,
                 ReadWrite = (Usage & VkImageUsageFlags.Storage) != 0,
                 Resource = new()
                 {
@@ -75,7 +75,7 @@ internal sealed unsafe partial class VulkanRHI
                     {
                         Image = (nint)Texture.Handle,
                         ImageView = (nint)View.Handle,
-                        Format = (global::NGX.NET.VkFormat)NativeFormat(Format),
+                        Format = (NGXVkFormat)NativeFormat(Format),
                         Width = (uint)Width,
                         Height = (uint)Height,
                         SubresourceRange = new()

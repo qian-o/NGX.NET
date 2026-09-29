@@ -12,13 +12,13 @@ internal sealed record RenderSettings
     // and continues when this setting is off. RR without upscaling runs natively.
     public Reconstruction Reconstruction => RayReconstruction ? Reconstruction.RayReconstruction : Quality == QualityMode.Off ? Reconstruction.Native : Reconstruction.DLSS;
 
-    public PerfQualityValue ReconstructionQuality => Quality switch
+    public NGXPerfQualityValue ReconstructionQuality => Quality switch
     {
-        QualityMode.Off => PerfQualityValue.DLAA,
-        QualityMode.MaxQuality => PerfQualityValue.MaxQuality,
-        QualityMode.Balanced => PerfQualityValue.Balanced,
-        QualityMode.MaxPerformance => PerfQualityValue.MaxPerf,
-        QualityMode.UltraPerformance => PerfQualityValue.UltraPerformance,
+        QualityMode.Off => NGXPerfQualityValue.DLAA,
+        QualityMode.MaxQuality => NGXPerfQualityValue.MaxQuality,
+        QualityMode.Balanced => NGXPerfQualityValue.Balanced,
+        QualityMode.MaxPerformance => NGXPerfQualityValue.MaxPerf,
+        QualityMode.UltraPerformance => NGXPerfQualityValue.UltraPerformance,
         _ => throw new ArgumentOutOfRangeException()
     };
 

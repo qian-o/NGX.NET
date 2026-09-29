@@ -18,28 +18,28 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_OPTIMAL_SETTINGS")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetOptimalSettings(global::NGX.NET.Parameter* @PInParams, uint @InUserSelectedWidth, uint @InUserSelectedHeight, global::NGX.NET.PerfQualityValue @InPerfQualityValue, uint* @POutRenderOptimalWidth, uint* @POutRenderOptimalHeight, uint* @POutRenderMaxWidth, uint* @POutRenderMaxHeight, uint* @POutRenderMinWidth, uint* @POutRenderMinHeight, float* @POutSharpness);
+        public static partial global::NGX.NET.NGXResult GetOptimalSettings(global::NGX.NET.NGXParameter* PInParams, uint InUserSelectedWidth, uint InUserSelectedHeight, global::NGX.NET.NGXPerfQualityValue InPerfQualityValue, uint* POutRenderOptimalWidth, uint* POutRenderOptimalHeight, uint* POutRenderMaxWidth, uint* POutRenderMaxHeight, uint* POutRenderMinWidth, uint* POutRenderMinHeight, float* POutSharpness);
 
         /// <summary>
         /// NGX_DLSS_GET_STATS. Source: nvsdk_ngx_helpers.h:57.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetStats(global::NGX.NET.Parameter* @PInParams, ulong* @PVRAMAllocatedBytes);
+        public static partial global::NGX.NET.NGXResult GetStats(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes);
 
         /// <summary>
         /// NGX_DLSS_GET_STATS_1. Source: nvsdk_ngx_helpers.h:48.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetStats1(global::NGX.NET.Parameter* @PInParams, ulong* @PVRAMAllocatedBytes, uint* @POptLevel);
+        public static partial global::NGX.NET.NGXResult GetStats1(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes, uint* POptLevel);
 
         /// <summary>
         /// NGX_DLSS_GET_STATS_2. Source: nvsdk_ngx_helpers.h:20.
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_2")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetStats2(global::NGX.NET.Parameter* @PInParams, ulong* @PVRAMAllocatedBytes, uint* @POptLevel, uint* @IsDevSnippetBranch);
+        public static partial global::NGX.NET.NGXResult GetStats2(global::NGX.NET.NGXParameter* PInParams, ulong* PVRAMAllocatedBytes, uint* POptLevel, uint* IsDevSnippetBranch);
 
     }
 }

@@ -18,12 +18,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetD(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, double* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetD(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, double* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD.
         /// </summary>
-        public static global::NGX.NET.Result GetD(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out double value)
+        public static global::NGX.NET.NGXResult GetD(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out double value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -39,7 +39,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static double GetD(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static double GetD(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetD(parameters, name, out double value), "NVSDK_NGX_Parameter_GetD");
 
@@ -51,12 +51,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetD3d11Resource(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, nint* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetD3d11Resource(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, nint* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD3d11Resource.
         /// </summary>
-        public static global::NGX.NET.Result GetD3d11Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out nint value)
+        public static global::NGX.NET.NGXResult GetD3d11Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out nint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -72,7 +72,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static nint GetD3d11Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static nint GetD3d11Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetD3d11Resource(parameters, name, out nint value), "NVSDK_NGX_Parameter_GetD3d11Resource");
 
@@ -84,12 +84,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetD3d12Resource(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, nint* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetD3d12Resource(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, nint* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetD3d12Resource.
         /// </summary>
-        public static global::NGX.NET.Result GetD3d12Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out nint value)
+        public static global::NGX.NET.NGXResult GetD3d12Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out nint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -105,7 +105,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static nint GetD3d12Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static nint GetD3d12Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetD3d12Resource(parameters, name, out nint value), "NVSDK_NGX_Parameter_GetD3d12Resource");
 
@@ -117,12 +117,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetF(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, float* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetF(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, float* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetF.
         /// </summary>
-        public static global::NGX.NET.Result GetF(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out float value)
+        public static global::NGX.NET.NGXResult GetF(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out float value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -138,7 +138,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static float GetF(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static float GetF(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetF(parameters, name, out float value), "NVSDK_NGX_Parameter_GetF");
 
@@ -150,12 +150,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetI(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, int* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetI(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, int* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetI.
         /// </summary>
-        public static global::NGX.NET.Result GetI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out int value)
+        public static global::NGX.NET.NGXResult GetI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out int value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -171,7 +171,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static int GetI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static int GetI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetI(parameters, name, out int value), "NVSDK_NGX_Parameter_GetI");
 
@@ -183,12 +183,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetUI(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, uint* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetUI(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, uint* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetUI.
         /// </summary>
-        public static global::NGX.NET.Result GetUI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out uint value)
+        public static global::NGX.NET.NGXResult GetUI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out uint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -204,7 +204,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static uint GetUI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static uint GetUI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetUI(parameters, name, out uint value), "NVSDK_NGX_Parameter_GetUI");
 
@@ -216,12 +216,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetULL")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetULL(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, ulong* @OutValue);
+        public static partial global::NGX.NET.NGXResult GetULL(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, ulong* OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetULL.
         /// </summary>
-        public static global::NGX.NET.Result GetULL(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out ulong value)
+        public static global::NGX.NET.NGXResult GetULL(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out ulong value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -237,7 +237,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static ulong GetULL(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static ulong GetULL(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetULL(parameters, name, out ulong value), "NVSDK_NGX_Parameter_GetULL");
 
@@ -249,12 +249,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial global::NGX.NET.Result GetVoidPointer(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, void** @OutValue);
+        public static partial global::NGX.NET.NGXResult GetVoidPointer(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, void** OutValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_GetVoidPointer.
         /// </summary>
-        public static global::NGX.NET.Result GetVoidPointer(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, out void* value)
+        public static global::NGX.NET.NGXResult GetVoidPointer(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, out void* value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -270,7 +270,7 @@ public static unsafe partial class NGX
         /// <summary>
         /// Returns a typed parameter value and throws on NGX failure.
         /// </summary>
-        public static void* GetVoidPointer(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)
+        public static void* GetVoidPointer(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)
         {
             ThrowIfFailed(GetVoidPointer(parameters, name, out void* value), "NVSDK_NGX_Parameter_GetVoidPointer");
 
@@ -282,12 +282,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetD(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, double @InValue);
+        public static partial void SetD(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, double InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD.
         /// </summary>
-        public static void SetD(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, double value)
+        public static void SetD(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, double value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -303,12 +303,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetD3d11Resource(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, nint @InValue);
+        public static partial void SetD3d11Resource(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, nint InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD3d11Resource.
         /// </summary>
-        public static void SetD3d11Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, nint value)
+        public static void SetD3d11Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, nint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -324,12 +324,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetD3d12Resource(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, nint @InValue);
+        public static partial void SetD3d12Resource(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, nint InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetD3d12Resource.
         /// </summary>
-        public static void SetD3d12Resource(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, nint value)
+        public static void SetD3d12Resource(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, nint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -345,12 +345,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetF(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, float @InValue);
+        public static partial void SetF(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, float InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetF.
         /// </summary>
-        public static void SetF(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, float value)
+        public static void SetF(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, float value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -366,12 +366,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetI(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, int @InValue);
+        public static partial void SetI(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, int InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetI.
         /// </summary>
-        public static void SetI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, int value)
+        public static void SetI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, int value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -387,12 +387,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetUI(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, uint @InValue);
+        public static partial void SetUI(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, uint InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetUI.
         /// </summary>
-        public static void SetUI(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, uint value)
+        public static void SetUI(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, uint value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -408,12 +408,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetULL")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetULL(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, ulong @InValue);
+        public static partial void SetULL(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, ulong InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetULL.
         /// </summary>
-        public static void SetULL(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, ulong value)
+        public static void SetULL(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, ulong value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);
@@ -429,12 +429,12 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetVoidPointer(global::NGX.NET.Parameter* @InParameter, sbyte* @InName, void* @InValue);
+        public static partial void SetVoidPointer(global::NGX.NET.NGXParameter* InParameter, sbyte* InName, void* InValue);
 
         /// <summary>
         /// Uses a UTF-8 parameter name with NVSDK_NGX_Parameter_SetVoidPointer.
         /// </summary>
-        public static void SetVoidPointer(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, void* value)
+        public static void SetVoidPointer(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, void* value)
         {
             byte[] terminated = new byte[name.Length + 1];
             name.CopyTo(terminated);

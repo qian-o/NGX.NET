@@ -71,7 +71,7 @@ internal sealed partial class Emitter
 
                 if (type.Text("kind") == "RECORD" && records[type.Text("name")].Text("kind") == "UNION_DECL")
                 {
-                    unionNames[type.Text("name")] = Name(parent.Text("name")) + "Union";
+                    unionNames[type.Text("name")] = TypeName(parent.Text("name")) + "Union";
                 }
             }
         }
@@ -141,10 +141,10 @@ internal sealed partial class Emitter
                 continue;
             }
 
-            string name = Name(native);
+            string name = TypeName(native);
             string pointer = Type(type);
             files[$"Callbacks/{name}.g.cs"] = Header + "using System.Runtime.InteropServices;\n\n" + Namespace + Summary(native + ". Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.") +
-                $"[NativeName(\"{native}\")]\n[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" +
+                $"[NGXNativeName(\"{native}\")]\n[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" +
                 Summary("Native C callback pointer. C++ reference parameters use their pointer ABI.", 4) +
                 $"    public readonly {pointer} Pointer = pointer;\n}}\n";
         }
@@ -167,7 +167,15 @@ internal sealed partial class Emitter
         return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(p => acronyms.Contains(p) || p.Any(char.IsLower) ? char.ToUpperInvariant(p[0]) + p[1..] : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(p.ToLowerInvariant())));
     }
 
-    private static string FieldName(string name) => "@" + (name == "v" ? "V" : Name(name));
+    private static string TypeName(string native)
+    {
+        string name = Name(native);
+
+        return name.StartsWith("NGX", StringComparison.Ordinal) ? name : "NGX" + name;
+    }
+
+    // PascalCase names cannot collide with C#'s lowercase keywords.
+    private static string FieldName(string name) => name == "v" ? "V" : Name(name);
 
     private static (string Group, string Method) FunctionName(string native)
     {
@@ -224,13 +232,13 @@ internal sealed partial class Emitter
 
         if (kind is "ENUM" or "RECORD")
         {
-            return "global::NGX.NET." + unionNames.GetValueOrDefault(type.Text("name"), Name(type.Text("name")));
+            return "global::NGX.NET." + unionNames.GetValueOrDefault(type.Text("name"), TypeName(type.Text("name")));
         }
 
         return kind switch
         {
             "VOID" => "void",
-            "BOOL" => "global::NGX.NET.Bool8",
+            "BOOL" => "global::NGX.NET.NGXBool8",
             "CHAR_S" or "CHAR_U" or "SCHAR" => "sbyte",
             "UCHAR" => "byte",
             "SHORT" => "short",
@@ -250,12 +258,12 @@ internal sealed partial class Emitter
 
     private void WriteEnum(string name, JsonElement value)
     {
-        string managed = Name(name);
+        string managed = TypeName(name);
         JsonElement[] values = [.. value.Items("values")];
         bool unsigned = name == "NVSDK_NGX_Result" || values.Any(v => v.GetProperty("value").GetInt64() > int.MaxValue);
         string prefix = name + "_";
         StringBuilder text = new(Header + Namespace + Summary(name));
-        text.AppendLine($"[NativeName(\"{name}\")]");
+        text.AppendLine($"[NGXNativeName(\"{name}\")]");
         text.AppendLine($"public enum {managed} : {(unsigned ? "uint" : "int")}\n{{");
 
         foreach (JsonElement item in values)
@@ -278,7 +286,7 @@ internal sealed partial class Emitter
             }
 
             text.Append(Summary(native, 4));
-            text.AppendLine($"    [NativeName(\"{native}\")]");
+            text.AppendLine($"    [NGXNativeName(\"{native}\")]");
             text.AppendLine($"    {FieldName(member)} = {(unsigned ? unchecked((uint)item.GetProperty("value").GetInt64()).ToString(CultureInfo.InvariantCulture) : item.GetProperty("value").GetInt64().ToString(CultureInfo.InvariantCulture))},\n");
         }
 
@@ -295,9 +303,9 @@ internal sealed partial class Emitter
             return;
         }
 
-        string managed = unionNames.GetValueOrDefault(name, Name(name));
+        string managed = unionNames.GetValueOrDefault(name, TypeName(name));
         StringBuilder text = new(Header + "using System.Runtime.CompilerServices;\nusing System.Runtime.InteropServices;\n\n" + Namespace + Summary(opaque ? name + ". Opaque native object; pass only pointers returned by NGX." : name));
-        text.AppendLine($"[NativeName(\"{name}\")]");
+        text.AppendLine($"[NGXNativeName(\"{name}\")]");
         text.AppendLine(opaque ? "[StructLayout(LayoutKind.Sequential)]" : $"[StructLayout(LayoutKind.Explicit, Size = {value.Number("size")})]");
         text.AppendLine($"public unsafe partial struct {managed}\n{{");
 
@@ -306,7 +314,7 @@ internal sealed partial class Emitter
             JsonElement type = field.GetProperty("type");
             string fieldName = field.Text("name");
             text.Append(Summary($"{name}::{fieldName}", 4));
-            text.AppendLine($"    [NativeName(\"{fieldName}\")]");
+            text.AppendLine($"    [NGXNativeName(\"{fieldName}\")]");
             text.AppendLine($"    [FieldOffset({field.Number("offset") / 8})]");
 
             if (type.Text("kind") == "CONSTANTARRAY")
@@ -329,10 +337,10 @@ internal sealed partial class Emitter
                 {
                     if (element.EndsWith('*'))
                     {
-                        element = "global::NGX.NET.Pointer<" + element[..^1] + ">";
+                        element = "global::NGX.NET.NGXPointer<" + element[..^1] + ">";
                     }
 
-                    string arrayName = Name(fieldName) + "Buffer";
+                    string arrayName = TypeName(fieldName) + "Buffer";
                     text.AppendLine($"    public {arrayName} {FieldName(fieldName)};\n");
                     text.Append(Summary($"Inline storage for {count} native elements.", 4));
                     text.AppendLine($"    [InlineArray({count})]\n    public struct {arrayName}\n    {{\n        private {element} element;\n    }}\n");
@@ -464,7 +472,7 @@ internal sealed partial class Emitter
             string valueType = Type(parameters[2].GetProperty("type"));
             string valueName = getter ? "out " + valueType[..^1] + " value" : valueType + " value";
             text.Append(Summary("Uses a UTF-8 parameter name with " + native + ".", indent));
-            text.AppendLine($"{spaces}public static {result} {method}(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name, {valueName})\n{spaces}{{");
+            text.AppendLine($"{spaces}public static {result} {method}(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name, {valueName})\n{spaces}{{");
             text.AppendLine($"{spaces}    byte[] terminated = new byte[name.Length + 1];\n{spaces}    name.CopyTo(terminated);\n{spaces}    terminated[^1] = 0;");
 
             if (getter)
@@ -478,7 +486,7 @@ internal sealed partial class Emitter
             if (getter)
             {
                 text.Append(Summary("Returns a typed parameter value and throws on NGX failure.", indent));
-                text.AppendLine($"{spaces}public static {valueType[..^1]} {method}(global::NGX.NET.Parameter* parameters, ReadOnlySpan<byte> name)\n{spaces}{{\n{spaces}    ThrowIfFailed({method}(parameters, name, out {valueType[..^1]} value), \"{native}\");\n\n{spaces}    return value;\n{spaces}}}\n");
+                text.AppendLine($"{spaces}public static {valueType[..^1]} {method}(global::NGX.NET.NGXParameter* parameters, ReadOnlySpan<byte> name)\n{spaces}{{\n{spaces}    ThrowIfFailed({method}(parameters, name, out {valueType[..^1]} value), \"{native}\");\n\n{spaces}    return value;\n{spaces}}}\n");
             }
         }
 
@@ -487,7 +495,7 @@ internal sealed partial class Emitter
         int output = Array.FindIndex(parameters, p => p.Text("name") is "OutParameters" or "OutHandle" or "ppOutHandle" or "OutSizeInBytes");
         bool reviewed = OutputContracts.Contains(native);
 
-        if (reviewed && output >= 0 && result == "global::NGX.NET.Result")
+        if (reviewed && output >= 0 && result == "global::NGX.NET.NGXResult")
         {
             string outputType = Type(parameters[output].GetProperty("type"))[..^1];
             string args = string.Join(", ", parameters.Where((_, i) => i != output).Select(p => Type(p.GetProperty("type")) + " " + FieldName(p.Text("name"))));
@@ -518,19 +526,19 @@ internal sealed partial class Emitter
             if (tokens.All(t => t.StartsWith('"')))
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]");
+                text.AppendLine($"    [NGXNativeName(\"{native}\")]");
                 text.AppendLine($"    public static ReadOnlySpan<byte> {Name(native)} => {string.Join(" + ", tokens.Select(t => t + "u8"))};\n");
             }
             else if (native == "NVSDK_NGX_VERSION_API_MACRO")
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]");
+                text.AppendLine($"    [NGXNativeName(\"{native}\")]");
                 text.AppendLine($"    public const uint VersionAPI = {tokens[0]};\n");
             }
             else if (native == "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET")
             {
                 text.Append(Summary(native, 4));
-                text.AppendLine($"    [NativeName(\"{native}\")]");
+                text.AppendLine($"    [NGXNativeName(\"{native}\")]");
                 text.AppendLine($"    public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};\n");
             }
             else if (native is not ("NVSDK_NGX_API" or "NVSDK_CONV" or "SR_DEPRECATED_SHARPENING"))

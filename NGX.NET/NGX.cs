@@ -15,7 +15,7 @@ public static unsafe partial class NGX
 
     /// <summary>
     /// Directory containing the bridge and packaged NVIDIA feature libraries.
-    /// Pass this directory in FeatureCommonInfo when initializing NGX.
+    /// Pass this directory in NGXFeatureCommonInfo when initializing NGX.
     /// </summary>
     public static string RuntimeDirectory
     {
@@ -56,17 +56,17 @@ public static unsafe partial class NGX
     /// <summary>
     /// Applies the official NVSDK_NGX_SUCCEED macro. NGX success is not zero.
     /// </summary>
-    public static bool Succeeded(Result result) => ((uint)result & 0xFFF00000u) != (uint)Result.Fail;
+    public static bool Succeeded(NGXResult result) => ((uint)result & 0xFFF00000u) != (uint)NGXResult.Fail;
 
     /// <summary>
     /// Applies the official NVSDK_NGX_FAILED macro.
     /// </summary>
-    public static bool Failed(Result result) => !Succeeded(result);
+    public static bool Failed(NGXResult result) => !Succeeded(result);
 
     /// <summary>
     /// Throws an NGXException only when the official failure predicate is true.
     /// </summary>
-    public static void ThrowIfFailed(Result result, [CallerArgumentExpression(nameof(result))] string? operation = null)
+    public static void ThrowIfFailed(NGXResult result, [CallerArgumentExpression(nameof(result))] string? operation = null)
     {
         if (Failed(result))
         {
@@ -86,6 +86,6 @@ public static unsafe partial class NGX
         /// </summary>
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void Reset(global::NGX.NET.Parameter* parameters);
+        public static partial void Reset(global::NGX.NET.NGXParameter* parameters);
     }
 }
