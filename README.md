@@ -27,4 +27,4 @@ DLSSOptimalSettings settings = SL.DLSS.GetOptimalSettings(in options);
 
 ## License
 
-[MIT](https://github.com/qian-o/Streamline.NET/blob/master/LICENSE). See [THIRD-PARTY-NOTICES](https://github.com/qian-o/Streamline.NET/blob/master/THIRD-PARTY-NOTICES) for third-party attributions.
+[MIT](https://github.com/qian-o/Streamline.NET/blob/master/LICENSE)
