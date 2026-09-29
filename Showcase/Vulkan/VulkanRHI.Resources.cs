@@ -103,7 +103,7 @@ internal sealed unsafe partial class VulkanRHI
         public VkCommandPool Pool;
         public VkCommandBuffer Command;
         public VkFence Fence;
-        public VkSemaphore Acquire;
+        public VkSemaphore RenderComplete;
         public VkDescriptorSet Descriptors;
         public required VkBufferResource Constants;
         public required VkBufferResource Objects;
@@ -123,7 +123,7 @@ internal sealed unsafe partial class VulkanRHI
             Indices?.Dispose();
             Constants.Dispose();
             Objects.Dispose();
-            Api.vkDestroySemaphore(Acquire);
+            Api.vkDestroySemaphore(RenderComplete);
             Api.vkDestroyFence(Fence);
             Api.vkDestroyCommandPool(Pool);
         }

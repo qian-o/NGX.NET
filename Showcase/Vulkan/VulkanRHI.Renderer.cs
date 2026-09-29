@@ -42,7 +42,7 @@ internal sealed unsafe partial class VulkanRHI
             };
             Check(api.vkCreateFence(&fence, null, out frame.Fence), "vkCreateFence");
             VkSemaphoreCreateInfo semaphore = new();
-            Check(api.vkCreateSemaphore(&semaphore, null, out frame.Acquire), "vkCreateSemaphore(acquire)");
+            Check(api.vkCreateSemaphore(&semaphore, null, out frame.RenderComplete), "vkCreateSemaphore(render complete)");
         }
 
         commandBuffer = slots[0].Command;
@@ -771,12 +771,13 @@ internal sealed unsafe partial class VulkanRHI
         Check(api.vkEndCommandBuffer(commandBuffer), "vkEndCommandBuffer");
         recording = false;
         VkCommandBuffer command = commandBuffer;
-        VkLatencySubmissionPresentIdNV latencyInfo = new() { presentID = latencyFrame };
+        VkSemaphore complete = slots[FrameSlot].RenderComplete;
         VkSubmitInfo submit = new()
         {
-            pNext = lowLatency ? &latencyInfo : null,
             commandBufferCount = 1,
-            pCommandBuffers = &command
+            pCommandBuffers = &command,
+            signalSemaphoreCount = 1,
+            pSignalSemaphores = &complete
         };
 
         lock (queueSync)

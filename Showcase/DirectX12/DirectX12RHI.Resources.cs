@@ -1,5 +1,4 @@
 ﻿using Showcase.Models;
-using NGX.NET;
 using Vortice.Direct3D12;
 
 namespace Showcase.DirectX12;

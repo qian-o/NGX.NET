@@ -2,7 +2,6 @@
 using System.Numerics;
 using ImGuiNET;
 using Showcase.Models;
-using NGX.NET;
 
 namespace Showcase.Handlers;
 

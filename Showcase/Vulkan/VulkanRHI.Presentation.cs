@@ -9,7 +9,6 @@ internal sealed unsafe partial class VulkanRHI
     private readonly object latencySync = new();
     private nint vulkanModule;
     private bool lowLatency;
-    private ulong latencyFrame;
     private VkSemaphore sleepSemaphore;
     private VkCommandPool presentPool;
     private VkCommandBuffer presentCommand;
@@ -33,6 +32,8 @@ internal sealed unsafe partial class VulkanRHI
 
         if (lowLatency)
         {
+            VkOutOfBandQueueTypeInfoNV outOfBand = new() { queueType = VkOutOfBandQueueTypeNV.Present };
+            api.vkQueueNotifyOutOfBandNV(presentQueue, &outOfBand);
             VkSemaphoreTypeCreateInfo timeline = new() { semaphoreType = VkSemaphoreType.Timeline };
             semaphoreInfo.pNext = &timeline;
             Check(api.vkCreateSemaphore(&semaphoreInfo, null, out sleepSemaphore), "vkCreateSemaphore(Reflex)");
@@ -43,8 +44,6 @@ internal sealed unsafe partial class VulkanRHI
 
     protected override void BeginLatency(ulong frame)
     {
-        latencyFrame = frame;
-
         if (lowLatency && !swapChain.IsNull)
         {
             VkSemaphore semaphore = sleepSemaphore;
@@ -75,6 +74,14 @@ internal sealed unsafe partial class VulkanRHI
     {
         VkFence fence = slots[slot].Fence;
         Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(render)");
+        VkSemaphore complete = slots[slot].RenderComplete;
+        VkPipelineStageFlags stage = VkPipelineStageFlags.AllCommands;
+        VkSubmitInfo wait = new() { waitSemaphoreCount = 1, pWaitSemaphores = &complete, pWaitDstStageMask = &stage };
+
+        lock (queueSync)
+        {
+            Check(api.vkQueueSubmit(presentQueue, 1, &wait, default), "vkQueueSubmit(render dependency)");
+        }
     }
 
     protected override bool PresentImage(GpuImage image, ulong frame, bool generated)
@@ -111,10 +118,8 @@ internal sealed unsafe partial class VulkanRHI
         VkFence fence = presentFence;
         Check(api.vkResetFences(1, &fence), "vkResetFences(present)");
         VkPipelineStageFlags stage = VkPipelineStageFlags.Transfer;
-        VkLatencySubmissionPresentIdNV latency = new() { presentID = frame };
         VkSubmitInfo submit = new()
         {
-            pNext = lowLatency ? &latency : null,
             waitSemaphoreCount = 1,
             pWaitSemaphores = &acquireSemaphore,
             pWaitDstStageMask = &stage,
@@ -136,14 +141,14 @@ internal sealed unsafe partial class VulkanRHI
             pImageIndices = &index
         };
         VkResult result;
-        Marker(generated ? LatencyMarker.OutOfBandPresentStart : LatencyMarker.PresentStart, frame);
+        Marker(LatencyMarker.OutOfBandPresentStart, frame);
         lock (queueSync)
         {
-            Check(api.vkQueueSubmit(queue, 1, &submit, fence), "vkQueueSubmit(present)");
-            result = api.vkQueuePresentKHR(queue, &present);
+            Check(api.vkQueueSubmit(presentQueue, 1, &submit, fence), "vkQueueSubmit(present)");
+            result = api.vkQueuePresentKHR(presentQueue, &present);
         }
 
-        Marker(generated ? LatencyMarker.OutOfBandPresentEnd : LatencyMarker.PresentEnd, frame);
+        Marker(LatencyMarker.OutOfBandPresentEnd, frame);
         Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(present copy)");
 
         if (result is VkResult.ErrorOutOfDateKHR or VkResult.SuboptimalKHR)

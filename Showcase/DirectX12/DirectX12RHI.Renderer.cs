@@ -502,6 +502,8 @@ internal sealed unsafe partial class DirectX12RHI
             fence.SetEventOnCompletion(value, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
             presentEvent.WaitOne();
         }
+
+        presentQueue.Wait(fence, value).CheckError();
     }
 
     protected override bool PresentImage(GpuImage image, ulong frame, bool generated)
@@ -513,21 +515,11 @@ internal sealed unsafe partial class DirectX12RHI
         presentCommands.CopyResource(back, ((DxImage)image).Texture);
         presentCommands.ResourceBarrierTransition(back, ResourceStates.CopyDest, ResourceStates.Present);
         presentCommands.Close();
-        if (generated)
-        {
-            Marker(LatencyMarker.OutOfBandRenderSubmitStart, frame);
-        }
-
-        queue.ExecuteCommandList(presentCommands);
-
-        if (generated)
-        {
-            Marker(LatencyMarker.OutOfBandRenderSubmitEnd, frame);
-        }
-        Marker(generated ? LatencyMarker.OutOfBandPresentStart : LatencyMarker.PresentStart, frame);
+        presentQueue.ExecuteCommandList(presentCommands);
+        Marker(LatencyMarker.OutOfBandPresentStart, frame);
         swapChain.Present(0, PresentFlags.None).CheckError();
-        Marker(generated ? LatencyMarker.OutOfBandPresentEnd : LatencyMarker.PresentEnd, frame);
-        queue.Signal(presentFence, ++presentFenceValue).CheckError();
+        Marker(LatencyMarker.OutOfBandPresentEnd, frame);
+        presentQueue.Signal(presentFence, ++presentFenceValue).CheckError();
         presentFence.SetEventOnCompletion(presentFenceValue, presentEvent.SafeWaitHandle.DangerousGetHandle()).CheckError();
         presentEvent.WaitOne();
 
@@ -616,6 +608,7 @@ internal sealed unsafe partial class DirectX12RHI
         presentEvent.Dispose();
         commandList?.Dispose();
         fence?.Dispose();
+        presentQueue?.Dispose();
         queue?.Dispose();
         device?.Dispose();
         adapter?.Dispose();

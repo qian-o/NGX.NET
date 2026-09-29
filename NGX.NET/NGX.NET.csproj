@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>$(StandardTargetFramework)</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>IDE0130</NoWarn>
     </PropertyGroup>
 

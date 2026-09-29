@@ -1,5 +1,4 @@
-﻿using NGX.NET;
-
+﻿
 namespace Showcase.Models;
 
 internal abstract class GpuImage : IDisposable

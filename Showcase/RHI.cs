@@ -204,6 +204,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
 
+        FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
+        Presenter.WaitSlot(FrameSlot);
         ulong latencyFrame = ((ulong)frameNumber + 1) * 2;
         BeginLatency(latencyFrame);
         Marker(LatencyMarker.SimulationStart, latencyFrame);
@@ -236,9 +238,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         UpdateScene(delta);
         Marker(LatencyMarker.SimulationEnd, latencyFrame);
-        FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
-        Presenter.WaitSlot(FrameSlot);
-
         if (!BeginCommands())
         {
             recreateSwapChain = true;
@@ -273,7 +272,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         SubmitFrame();
         Marker(LatencyMarker.RenderSubmitEnd, latencyFrame);
         FinishFrame();
+        Marker(LatencyMarker.PresentStart, latencyFrame);
         Presenter.Enqueue(FrameSlot, latencyFrame, Image(ImageSlot.Final), generated ? GeneratedFrames[FrameSlot] : null, TimeSpan.FromSeconds(delta));
+        Marker(LatencyMarker.PresentEnd, latencyFrame);
         uint presentedFrames = Presenter.ReadPresentedCount();
 
         Camera.CommitHistory();

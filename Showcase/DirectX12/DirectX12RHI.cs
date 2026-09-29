@@ -2,7 +2,6 @@
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using NGX.NET;
 using Vortice.DXGI;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
@@ -31,6 +30,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private IDXGIFactory4 factory = null!;
     private IDXGIAdapter1 adapter = null!;
     private ID3D12CommandQueue queue = null!;
+    private ID3D12CommandQueue presentQueue = null!;
     private ID3D12GraphicsCommandList commandList = null!;
     private ID3D12Fence fence = null!;
     private IDXGISwapChain3? swapChain;
@@ -87,7 +87,6 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         AdapterName = adapter.Description1.Description;
         device = Vortice.Direct3D12.D3D12.D3D12CreateDevice<ID3D12Device>(adapter.NativePointer, FeatureLevel.Level_12_0);
         NGX.Initialize(device.NativePointer);
-        latency = new(device.NativePointer);
         RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
 
@@ -97,6 +96,8 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         }
 
         queue = device.CreateCommandQueue(CommandListType.Direct);
+        presentQueue = device.CreateCommandQueue(CommandListType.Direct);
+        latency = new(device.NativePointer, presentQueue.NativePointer);
         fence = device.CreateFence();
         presentAllocator = device.CreateCommandAllocator(CommandListType.Direct);
         presentCommands = device.CreateCommandList<ID3D12GraphicsCommandList>(0, CommandListType.Direct, presentAllocator);
@@ -134,7 +135,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             Scaling = Scaling.Stretch,
             AlphaMode = Vortice.DXGI.AlphaMode.Ignore
         };
-        using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(queue, Window.Handle, description);
+        using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(presentQueue, Window.Handle, description);
         swapChain = created.QueryInterface<IDXGISwapChain3>();
         factory.MakeWindowAssociation(Window.Handle, WindowAssociationFlags.IgnoreAltEnter).CheckError();
 

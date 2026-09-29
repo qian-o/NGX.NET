@@ -19,6 +19,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     private VkPhysicalDevice physical;
     private VkPhysicalDeviceMemoryProperties memoryProperties;
     private VkQueue queue;
+    private VkQueue presentQueue;
+    private bool separatePresentQueue;
     private uint queueFamily;
     private VkSurfaceKHR surface;
     private VkSwapchainKHR swapChain;
@@ -154,6 +156,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 bestScore = score;
                 physical = candidate;
                 queueFamily = i;
+                separatePresentQueue = families[i].queueCount > 1;
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
                 AdapterName = Marshal.PtrToStringUTF8((nint)properties.deviceName) ?? "Vulkan GPU";
@@ -181,14 +184,14 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         VkPhysicalDevicePresentIdFeaturesKHR presentIdFeatures = new();
         VkPhysicalDeviceFeatures2 presentFeatures = new() { pNext = &presentIdFeatures };
         instanceApi.vkGetPhysicalDeviceFeatures2(physical, &presentFeatures);
-        lowLatency = supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId;
+        lowLatency = separatePresentQueue && supportedNames.Contains("VK_NV_low_latency2") && supportedNames.Contains("VK_KHR_present_id") && presentIdFeatures.presentId;
         presentIdFeatures.presentId = lowLatency;
-        float priority = 1;
+        float* priorities = stackalloc float[] { 1, 1 };
         VkDeviceQueueCreateInfo queueInfo = new()
         {
             queueFamilyIndex = queueFamily,
-            queueCount = 1,
-            pQueuePriorities = &priority
+            queueCount = separatePresentQueue ? 2u : 1u,
+            pQueuePriorities = priorities
         };
         VkPhysicalDeviceRayQueryFeaturesKHR enabledRayQuery = new()
         {
@@ -281,6 +284,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         Check(instanceApi.vkCreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
         api = GetApi(instance, device);
         api.vkGetDeviceQueue(queueFamily, 0, out queue);
+        api.vkGetDeviceQueue(queueFamily, separatePresentQueue ? 1u : 0u, out presentQueue);
         NGX.Initialize(device.Handle, instance.Handle, physical.Handle,
             NativeLibrary.GetExport(vulkanModule, "vkGetInstanceProcAddr"), NativeLibrary.GetExport(vulkanModule, "vkGetDeviceProcAddr"));
         InitializePresentation();

@@ -39,7 +39,7 @@ internal sealed unsafe class NVLowLatency : IDisposable
 
     public bool Available { get; }
 
-    public NVLowLatency(nint nativeDevice)
+    public NVLowLatency(nint nativeDevice, nint presentationQueue)
     {
         device = nativeDevice;
 
@@ -59,6 +59,17 @@ internal sealed unsafe class NVLowLatency : IDisposable
         if (initialize == null || setMode == null || sleep == null || setMarker == null || initialize() != 0)
         {
             Console.WriteLine("Reflex: required NVAPI entry points could not be initialized.");
+            return;
+        }
+
+        // NV_OUT_OF_BAND_CQ_TYPE.OUT_OF_BAND_PRESENT excludes deferred copies
+        // from the application's render cadence while markers retain attribution.
+        delegate* unmanaged[Cdecl]<nint, int, int> notify = (delegate* unmanaged[Cdecl]<nint, int, int>)query(0x03d6e8cb);
+        const int outOfBandPresent = 1;
+
+        if (notify == null || notify(presentationQueue, outOfBandPresent) != 0)
+        {
+            Console.WriteLine("Reflex: presentation queue registration failed.");
             return;
         }
 

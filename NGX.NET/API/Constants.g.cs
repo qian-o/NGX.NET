@@ -8,2556 +8,3067 @@ public static unsafe partial class NGX
     /// <summary>
     /// NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET")]
     public const int DLSSDebugOverlayValueUnset = -1;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_AsyncCreateEnabled
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_AsyncCreateEnabled")]
     public static ReadOnlySpan<byte> DLSSGParameterAsyncCreateEnabled => "DLSSG.AsyncCreateEnabled"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_AutomodeOverrideReset
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_AutomodeOverrideReset")]
     public static ReadOnlySpan<byte> DLSSGParameterAutomodeOverrideReset => "DLSSG.AutomodeOverrideReset"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_Backbuffer
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_Backbuffer")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbuffer => "DLSSG.Backbuffer"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferFormat
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferFormat")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferFormat => "DLSSG.BackbufferFormat"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferFrameID
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferFrameID")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferFrameID => "DLSSG.BackbufferFrameID"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferSubrectBaseX => "DLSSG.BackbufferSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferSubrectBaseY => "DLSSG.BackbufferSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferSubrectHeight => "DLSSG.BackbufferSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BackbufferSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterBackbufferSubrectWidth => "DLSSG.BackbufferSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionField => "DLSSG.BidirectionalDistortionField"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_Bias
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_Bias")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldLowPrecisionBias => "DLSSG.BidirectionalDistortionFieldLowPrecision.Bias"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_IsLowPrecision
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_IsLowPrecision")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldLowPrecisionIsLowPrecision => "DLSSG.BidirectionalDistortionFieldLowPrecision.IsLowPrecision"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_Scale
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField_LowPrecision_Scale")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldLowPrecisionScale => "DLSSG.BidirectionalDistortionFieldLowPrecision.Scale"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldSubrectBaseX => "DLSSG.BidirectionalDistortionFieldSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldSubrectBaseY => "DLSSG.BidirectionalDistortionFieldSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldSubrectHeight => "DLSSG.BidirectionalDistortionFieldSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionFieldSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterBidirectionalDistortionFieldSubrectWidth => "DLSSG.BidirectionalDistortionFieldSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraAspectRatio
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraAspectRatio")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraAspectRatio => "DLSSG.CameraAspectRatio"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraFar
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraFar")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraFar => "DLSSG.CameraFar"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraFOV
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraFOV")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraFOV => "DLSSG.CameraFOV"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraFwdX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraFwdX")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraFwdX => "DLSSG.CameraFwdX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraFwdY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraFwdY")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraFwdY => "DLSSG.CameraFwdY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraFwdZ
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraFwdZ")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraFwdZ => "DLSSG.CameraFwdZ"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraMotionIncluded
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraMotionIncluded")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraMotionIncluded => "DLSSG.CameraMotionIncluded"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraNear
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraNear")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraNear => "DLSSG.CameraNear"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraPinholeOffsetX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraPinholeOffsetX")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraPinholeOffsetX => "DLSSG.CameraPinholeOffsetX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraPinholeOffsetY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraPinholeOffsetY")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraPinholeOffsetY => "DLSSG.CameraPinholeOffsetY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraPosX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraPosX")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraPosX => "DLSSG.CameraPosX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraPosY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraPosY")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraPosY => "DLSSG.CameraPosY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraPosZ
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraPosZ")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraPosZ => "DLSSG.CameraPosZ"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraRightX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraRightX")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraRightX => "DLSSG.CameraRightX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraRightY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraRightY")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraRightY => "DLSSG.CameraRightY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraRightZ
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraRightZ")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraRightZ => "DLSSG.CameraRightZ"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraUpX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraUpX")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraUpX => "DLSSG.CameraUpX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraUpY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraUpY")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraUpY => "DLSSG.CameraUpY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraUpZ
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraUpZ")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraUpZ => "DLSSG.CameraUpZ"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_CameraViewToClip
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_CameraViewToClip")]
     public static ReadOnlySpan<byte> DLSSGParameterCameraViewToClip => "DLSSG.CameraViewToClip"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ClipToCameraView
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ClipToCameraView")]
     public static ReadOnlySpan<byte> DLSSGParameterClipToCameraView => "DLSSG.ClipToCameraView"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ClipToLensClip
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ClipToLensClip")]
     public static ReadOnlySpan<byte> DLSSGParameterClipToLensClip => "DLSSG.ClipToLensClip"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ClipToPrevClip
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ClipToPrevClip")]
     public static ReadOnlySpan<byte> DLSSGParameterClipToPrevClip => "DLSSG.ClipToPrevClip"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ColorBuffersHDR
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ColorBuffersHDR")]
     public static ReadOnlySpan<byte> DLSSGParameterColorBuffersHDR => "DLSSG.ColorBuffersHDR"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_Depth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_Depth")]
     public static ReadOnlySpan<byte> DLSSGParameterDepth => "DLSSG.Depth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DepthInverted
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DepthInverted")]
     public static ReadOnlySpan<byte> DLSSGParameterDepthInverted => "DLSSG.DepthInverted"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DepthSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DepthSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterDepthSubrectBaseX => "DLSSG.DepthSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DepthSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DepthSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterDepthSubrectBaseY => "DLSSG.DepthSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DepthSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DepthSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterDepthSubrectHeight => "DLSSG.DepthSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DepthSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DepthSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterDepthSubrectWidth => "DLSSG.DepthSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_DynamicResolution
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_DynamicResolution")]
     public static ReadOnlySpan<byte> DLSSGParameterDynamicResolution => "DLSSG.DynamicResolution"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_EstimateVRAMCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_EstimateVRAMCallback")]
     public static ReadOnlySpan<byte> DLSSGParameterEstimateVRAMCallback => "DLSSG.EstimateVRAMCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_EvalFlags
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_EvalFlags")]
     public static ReadOnlySpan<byte> DLSSGParameterEvalFlags => "DLSSG.EvalFlags"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_FullscreenMode
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_FullscreenMode")]
     public static ReadOnlySpan<byte> DLSSGParameterFullscreenMode => "DLSSG.FullscreenMode"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_Height")]
     public static ReadOnlySpan<byte> DLSSGParameterHeight => "DLSSG.Height"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_HUDLess
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_HUDLess")]
     public static ReadOnlySpan<byte> DLSSGParameterHUDLess => "DLSSG.HUDLess"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterHUDLessSubrectBaseX => "DLSSG.HUDLessSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterHUDLessSubrectBaseY => "DLSSG.HUDLessSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterHUDLessSubrectHeight => "DLSSG.HUDLessSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_HUDLessSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterHUDLessSubrectWidth => "DLSSG.HUDLessSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterInputBackbufferSubrectBaseX => "DLSSG.InputBackbufferSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterInputBackbufferSubrectBaseY => "DLSSG.InputBackbufferSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterInputBackbufferSubrectHeight => "DLSSG.InputBackbufferSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InputBackbufferSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterInputBackbufferSubrectWidth => "DLSSG.InputBackbufferSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InternalHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InternalHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterInternalHeight => "DLSSG.InternalHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InternalWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InternalWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterInternalWidth => "DLSSG.InternalWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InvertXAxis
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InvertXAxis")]
     public static ReadOnlySpan<byte> DLSSGParameterInvertXAxis => "DLSSG.InvertXAxis"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_InvertYAxis
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_InvertYAxis")]
     public static ReadOnlySpan<byte> DLSSGParameterInvertYAxis => "DLSSG.InvertYAxis"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_JitterOffsetX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_JitterOffsetX")]
     public static ReadOnlySpan<byte> DLSSGParameterJitterOffsetX => "DLSSG.JitterOffsetX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_JitterOffsetY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_JitterOffsetY")]
     public static ReadOnlySpan<byte> DLSSGParameterJitterOffsetY => "DLSSG.JitterOffsetY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_NearFarPartition
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_NearFarPartition")]
     public static ReadOnlySpan<byte> DLSSGParameterLinearizedDepthNearFarPartition => "DLSSG.LinearizedDepth_NearFarPartition"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_Scale
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_Scale")]
     public static ReadOnlySpan<byte> DLSSGParameterLinearizedDepthScale => "DLSSG.LinearizedDepth_Scale"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MenuDetectionEnabled
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MenuDetectionEnabled")]
     public static ReadOnlySpan<byte> DLSSGParameterMenuDetectionEnabled => "DLSSG.MenuDetectionEnabled"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MinRelativeLinearDepthObjectSeparation
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MinRelativeLinearDepthObjectSeparation")]
     public static ReadOnlySpan<byte> DLSSGParameterMinRelativeLinearDepthObjectSeparation => "DLSSG.MinRelativeLinearDepthObjectSeparation"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MultiFrameCount
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MultiFrameCount")]
     public static ReadOnlySpan<byte> DLSSGParameterMultiFrameCount => "DLSSG.MultiFrameCount"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MultiFrameCountMax
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MultiFrameCountMax")]
     public static ReadOnlySpan<byte> DLSSGParameterMultiFrameCountMax => "DLSSG.MultiFrameCountMax"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MultiFrameIndex
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MultiFrameIndex")]
     public static ReadOnlySpan<byte> DLSSGParameterMultiFrameIndex => "DLSSG.MultiFrameIndex"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MvecDilated
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MvecDilated")]
     public static ReadOnlySpan<byte> DLSSGParameterMvecDilated => "DLSSG.MvecDilated"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MvecInvalidValue
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MvecInvalidValue")]
     public static ReadOnlySpan<byte> DLSSGParameterMvecInvalidValue => "DLSSG.MvecInvalidValue"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MvecJittered
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MvecJittered")]
     public static ReadOnlySpan<byte> DLSSGParameterMvecJittered => "DLSSG.MvecJittered"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MVecs
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MVecs")]
     public static ReadOnlySpan<byte> DLSSGParameterMVecs => "DLSSG.MVecs"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MvecScaleX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MvecScaleX")]
     public static ReadOnlySpan<byte> DLSSGParameterMvecScaleX => "DLSSG.MvecScaleX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MvecScaleY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MvecScaleY")]
     public static ReadOnlySpan<byte> DLSSGParameterMvecScaleY => "DLSSG.MvecScaleY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MVecsSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MVecsSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterMVecsSubrectBaseX => "DLSSG.MVecsSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MVecsSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MVecsSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterMVecsSubrectBaseY => "DLSSG.MVecsSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MVecsSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MVecsSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterMVecsSubrectHeight => "DLSSG.MVecsSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_MVecsSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_MVecsSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterMVecsSubrectWidth => "DLSSG.MVecsSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_NotRenderingGameFrames
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_NotRenderingGameFrames")]
     public static ReadOnlySpan<byte> DLSSGParameterNotRenderingGameFrames => "DLSSG.NotRenderingGameFrames"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OrthoProjection
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OrthoProjection")]
     public static ReadOnlySpan<byte> DLSSGParameterOrthoProjection => "DLSSG.OrthoProjection"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputDisableInterpolation
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputDisableInterpolation")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputDisableInterpolation => "DLSSG.OutputDisableInterpolation"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputInterpolated
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputInterpolated")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputInterpolated => "DLSSG.OutputInterpolated"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputInterpolatedSubrectBaseX => "DLSSG.OutputInterpolatedSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputInterpolatedSubrectBaseY => "DLSSG.OutputInterpolatedSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputInterpolatedSubrectHeight => "DLSSG.OutputInterpolatedSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputInterpolatedSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputInterpolatedSubrectWidth => "DLSSG.OutputInterpolatedSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputReal
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputReal")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputReal => "DLSSG.OutputReal"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputRealSubrectBaseX => "DLSSG.OutputRealSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputRealSubrectBaseY => "DLSSG.OutputRealSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputRealSubrectHeight => "DLSSG.OutputRealSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_OutputRealSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterOutputRealSubrectWidth => "DLSSG.OutputRealSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_PrevClipToClip
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_PrevClipToClip")]
     public static ReadOnlySpan<byte> DLSSGParameterPrevClipToClip => "DLSSG.PrevClipToClip"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_Reset
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_Reset")]
     public static ReadOnlySpan<byte> DLSSGParameterReset => "DLSSG.Reset"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ResourceAlwaysProvided_Flags
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ResourceAlwaysProvided_Flags")]
     public static ReadOnlySpan<byte> DLSSGParameterResourceAlwaysProvidedFlags => "DLSSG.ResourceAlwaysProvidedFlags"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_ResourceNeverProvided_Flags
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_ResourceNeverProvided_Flags")]
     public static ReadOnlySpan<byte> DLSSGParameterResourceNeverProvidedFlags => "DLSSG.ResourceNeverProvidedFlags"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_TargetFrameRate
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_TargetFrameRate")]
     public static ReadOnlySpan<byte> DLSSGParameterTargetFrameRate => "DLSSG.TargetFrameRate"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UI
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UI")]
     public static ReadOnlySpan<byte> DLSSGParameterUI => "DLSSG.UI"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UIAlpha
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UIAlpha")]
     public static ReadOnlySpan<byte> DLSSGParameterUIAlpha => "DLSSG.UIAlpha"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterUIAlphaSubrectBaseX => "DLSSG.UIAlphaSubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterUIAlphaSubrectBaseY => "DLSSG.UIAlphaSubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterUIAlphaSubrectHeight => "DLSSG.UIAlphaSubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UIAlphaSubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterUIAlphaSubrectWidth => "DLSSG.UIAlphaSubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UISubrectBaseX
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UISubrectBaseX")]
     public static ReadOnlySpan<byte> DLSSGParameterUISubrectBaseX => "DLSSG.UISubrectBaseX"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UISubrectBaseY
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UISubrectBaseY")]
     public static ReadOnlySpan<byte> DLSSGParameterUISubrectBaseY => "DLSSG.UISubrectBaseY"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UISubrectHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UISubrectHeight")]
     public static ReadOnlySpan<byte> DLSSGParameterUISubrectHeight => "DLSSG.UISubrectHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UISubrectWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UISubrectWidth")]
     public static ReadOnlySpan<byte> DLSSGParameterUISubrectWidth => "DLSSG.UISubrectWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UserDebugText
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UserDebugText")]
     public static ReadOnlySpan<byte> DLSSGParameterUserDebugText => "DLSSG.UserDebugText"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_UserInterfaceRecompositionEnabled
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_UserInterfaceRecompositionEnabled")]
     public static ReadOnlySpan<byte> DLSSGParameterUserInterfaceRecompositionEnabled => "DLSSG.UserInterfaceRecompositionEnabled"u8;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Parameter_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_DLSSG_Parameter_Width")]
     public static ReadOnlySpan<byte> DLSSGParameterWidth => "DLSSG.Width"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Albedo
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Albedo")]
     public static ReadOnlySpan<byte> EParameterAlbedo => "#\x21"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_BlendFactor
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_BlendFactor")]
     public static ReadOnlySpan<byte> EParameterBlendFactor => "#\x26"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_BufferAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_BufferAllocCallback")]
     public static ReadOnlySpan<byte> EParameterBufferAllocCallback => "#\x32"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Color
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Color")]
     public static ReadOnlySpan<byte> EParameterColor => "#\x1e"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Color_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Color_Format")]
     public static ReadOnlySpan<byte> EParameterColorFormat => "#\x1f"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Color_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Color_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterColorSizeInBytes => "#\x20"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_CreationNodeMask
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_CreationNodeMask")]
     public static ReadOnlySpan<byte> EParameterCreationNodeMask => "#\x35"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_DeepDVC_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_DeepDVC_Available")]
     public static ReadOnlySpan<byte> EParameterDeepDVCAvailable => "#\x46"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_DeepResolve_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_DeepResolve_Available")]
     public static ReadOnlySpan<byte> EParameterDeepResolveAvailable => "#\x42"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Deprecated_43
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Deprecated_43")]
     public static ReadOnlySpan<byte> EParameterDeprecated43 => "#\x43"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Depth
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Depth")]
     public static ReadOnlySpan<byte> EParameterDepth => "#\x3d"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_DLSSMode
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_DLSSMode")]
     public static ReadOnlySpan<byte> EParameterDLSSMode => "#\x41"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_DLSSOptimalSettingsCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_DLSSOptimalSettingsCallback")]
     public static ReadOnlySpan<byte> EParameterDLSSOptimalSettingsCallback => "#\x3e"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_EvaluationNode
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_EvaluationNode")]
     public static ReadOnlySpan<byte> EParameterEvaluationNode => "#\x17"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Format")]
     public static ReadOnlySpan<byte> EParameterFormat => "#\x2f"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Graphics_API
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Graphics_API")]
     public static ReadOnlySpan<byte> EParameterGraphicsAPI => "#\x47"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Height")]
     public static ReadOnlySpan<byte> EParameterHeight => "#\x11"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Hint_UseFireflySwatter
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Hint_UseFireflySwatter")]
     public static ReadOnlySpan<byte> EParameterHintUseFireflySwatter => "#\x3a"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSignalProcessing_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSignalProcessing_Available")]
     public static ReadOnlySpan<byte> EParameterImageSignalProcessingAvailable => "#\x09"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSuperResolution_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSuperResolution_Available")]
     public static ReadOnlySpan<byte> EParameterImageSuperResolutionAvailable => "#\x03"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_2_1
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_2_1")]
     public static ReadOnlySpan<byte> EParameterImageSuperResolutionScaleFactor21 => "#\x0a"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_3_1
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_3_1")]
     public static ReadOnlySpan<byte> EParameterImageSuperResolutionScaleFactor31 => "#\x0b"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_3_2
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_3_2")]
     public static ReadOnlySpan<byte> EParameterImageSuperResolutionScaleFactor32 => "#\x0c"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_4_3
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ImageSuperResolution_ScaleFactor_4_3")]
     public static ReadOnlySpan<byte> EParameterImageSuperResolutionScaleFactor43 => "#\x0d"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_InPainting_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_InPainting_Available")]
     public static ReadOnlySpan<byte> EParameterInPaintingAvailable => "#\x02"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input1
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input1")]
     public static ReadOnlySpan<byte> EParameterInput1 => "#\x18"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input1_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input1_Format")]
     public static ReadOnlySpan<byte> EParameterInput1Format => "#\x19"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input1_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input1_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterInput1SizeInBytes => "#\x1a"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input2
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input2")]
     public static ReadOnlySpan<byte> EParameterInput2 => "#\x1b"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input2_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input2_Format")]
     public static ReadOnlySpan<byte> EParameterInput2Format => "#\x1c"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Input2_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Input2_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterInput2SizeInBytes => "#\x1d"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_IsDevSnippetBranch
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_IsDevSnippetBranch")]
     public static ReadOnlySpan<byte> EParameterIsDevSnippetBranch => "#\x45"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Model
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Model")]
     public static ReadOnlySpan<byte> EParameterModel => "#\x2e"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_MotionVectors
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_MotionVectors")]
     public static ReadOnlySpan<byte> EParameterMotionVectors => "#\x27"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_MV_Offset_X
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_MV_Offset_X")]
     public static ReadOnlySpan<byte> EParameterMvOffsetX => "#\x38"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_MV_Offset_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_MV_Offset_Y")]
     public static ReadOnlySpan<byte> EParameterMvOffsetY => "#\x39"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_MV_Scale_X
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_MV_Scale_X")]
     public static ReadOnlySpan<byte> EParameterMvScaleX => "#\x2c"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_MV_Scale_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_MV_Scale_Y")]
     public static ReadOnlySpan<byte> EParameterMvScaleY => "#\x2d"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_NumFrames
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_NumFrames")]
     public static ReadOnlySpan<byte> EParameterNumFrames => "#\x0e"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_OptLevel
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_OptLevel")]
     public static ReadOnlySpan<byte> EParameterOptLevel => "#\x44"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_OutHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_OutHeight")]
     public static ReadOnlySpan<byte> EParameterOutHeight => "#\x13"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Output
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Output")]
     public static ReadOnlySpan<byte> EParameterOutput => "#\x22"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Output_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Output_Format")]
     public static ReadOnlySpan<byte> EParameterOutputFormat => "#\x23"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Output_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Output_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterOutputSizeInBytes => "#\x24"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_OutWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_OutWidth")]
     public static ReadOnlySpan<byte> EParameterOutWidth => "#\x12"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_PerfQualityValue
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_PerfQualityValue")]
     public static ReadOnlySpan<byte> EParameterPerfQualityValue => "#\x3f"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_PreviousOutput
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_PreviousOutput")]
     public static ReadOnlySpan<byte> EParameterPreviousOutput => "#\x37"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Rect_H
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Rect_H")]
     public static ReadOnlySpan<byte> EParameterRectH => "#\x2b"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Rect_W
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Rect_W")]
     public static ReadOnlySpan<byte> EParameterRectW => "#\x2a"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Rect_X
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Rect_X")]
     public static ReadOnlySpan<byte> EParameterRectX => "#\x28"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Rect_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Rect_Y")]
     public static ReadOnlySpan<byte> EParameterRectY => "#\x29"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved_48
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved_48")]
     public static ReadOnlySpan<byte> EParameterReserved48 => "#\x48"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved_49
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved_49")]
     public static ReadOnlySpan<byte> EParameterReserved49 => "#\x49"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved00
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved00")]
     public static ReadOnlySpan<byte> EParameterReserved00 => "#\x00"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved06
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved06")]
     public static ReadOnlySpan<byte> EParameterReserved06 => "#\x06"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved07
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved07")]
     public static ReadOnlySpan<byte> EParameterReserved07 => "#\x07"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reserved08
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reserved08")]
     public static ReadOnlySpan<byte> EParameterReserved08 => "#\x08"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Reset
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Reset")]
     public static ReadOnlySpan<byte> EParameterReset => "#\x25"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Resource_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Resource_Height")]
     public static ReadOnlySpan<byte> EParameterResourceHeight => "#\x3c"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Resource_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Resource_Width")]
     public static ReadOnlySpan<byte> EParameterResourceWidth => "#\x3b"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ResourceAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ResourceAllocCallback")]
     public static ReadOnlySpan<byte> EParameterResourceAllocCallback => "#\x31"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_ResourceReleaseCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_ResourceReleaseCallback")]
     public static ReadOnlySpan<byte> EParameterResourceReleaseCallback => "#\x34"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_RTXValue
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_RTXValue")]
     public static ReadOnlySpan<byte> EParameterRTXValue => "#\x40"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Scale
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Scale")]
     public static ReadOnlySpan<byte> EParameterScale => "#\x0f"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Scratch
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Scratch")]
     public static ReadOnlySpan<byte> EParameterScratch => "#\x15"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Scratch_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Scratch_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterScratchSizeInBytes => "#\x16"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Sharpness
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Sharpness")]
     public static ReadOnlySpan<byte> EParameterSharpness => "#\x14"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_SizeInBytes")]
     public static ReadOnlySpan<byte> EParameterSizeInBytes => "#\x30"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_SlowMotion_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_SlowMotion_Available")]
     public static ReadOnlySpan<byte> EParameterSlowMotionAvailable => "#\x04"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_SuperSampling_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_SuperSampling_Available")]
     public static ReadOnlySpan<byte> EParameterSuperSamplingAvailable => "#\x01"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Tex2DAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Tex2DAllocCallback")]
     public static ReadOnlySpan<byte> EParameterTex2DAllocCallback => "#\x33"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_VideoSuperResolution_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_VideoSuperResolution_Available")]
     public static ReadOnlySpan<byte> EParameterVideoSuperResolutionAvailable => "#\x05"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_VisibilityNodeMask
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_VisibilityNodeMask")]
     public static ReadOnlySpan<byte> EParameterVisibilityNodeMask => "#\x36"u8;
 
     /// <summary>
     /// NVSDK_NGX_EParameter_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_EParameter_Width")]
     public static ReadOnlySpan<byte> EParameterWidth => "#\x10"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Albedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Albedo")]
     public static ReadOnlySpan<byte> ParameterAlbedo => "Albedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_AnimatedTextureMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_AnimatedTextureMask")]
     public static ReadOnlySpan<byte> ParameterAnimatedTextureMask => "AnimatedTextureMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_BlendFactor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_BlendFactor")]
     public static ReadOnlySpan<byte> ParameterBlendFactor => "BlendFactor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_BufferAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_BufferAllocCallback")]
     public static ReadOnlySpan<byte> ParameterBufferAllocCallback => "BufferAllocCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Color
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Color")]
     public static ReadOnlySpan<byte> ParameterColor => "Color"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Color_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Color_Format")]
     public static ReadOnlySpan<byte> ParameterColorFormat => "Color.Format"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Color_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Color_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterColorSizeInBytes => "Color.SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_CreationNodeMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_CreationNodeMask")]
     public static ReadOnlySpan<byte> ParameterCreationNodeMask => "CreationNodeMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DeepResolve_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DeepResolve_Available")]
     public static ReadOnlySpan<byte> ParameterDeepResolveAvailable => "DeepResolve.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DeepResolve_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DeepResolve_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterDeepResolveFeatureInitResult => "DeepResolve.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterDeepResolveMinDriverVersionMajor => "DeepResolve.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterDeepResolveMinDriverVersionMinor => "DeepResolve.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DeepResolve_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DeepResolve_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterDeepResolveNeedsUpdatedDriver => "DeepResolve.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Denoise
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Denoise")]
     public static ReadOnlySpan<byte> ParameterDenoise => "Denoise"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Depth
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Depth")]
     public static ReadOnlySpan<byte> ParameterDepth => "Depth"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DepthHighRes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DepthHighRes")]
     public static ReadOnlySpan<byte> ParameterDepthHighRes => "DepthHighRes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Diffuse_Ray_Direction
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Diffuse_Ray_Direction")]
     public static ReadOnlySpan<byte> ParameterDiffuseRayDirection => "Diffuse.Ray.Direction"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DiffuseAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DiffuseAlbedo")]
     public static ReadOnlySpan<byte> ParameterDiffuseAlbedo => "DLSS.Input.DiffuseAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Checkerboard_Jitter_Hack
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Checkerboard_Jitter_Hack")]
     public static ReadOnlySpan<byte> ParameterDLSSCheckerboardJitterHack => "DLSS.Checkerboard.Jitter.Hack"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_CLIP_TO_PREV_CLIP_MATRIX
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_CLIP_TO_PREV_CLIP_MATRIX")]
     public static ReadOnlySpan<byte> ParameterDLSSClipToPrevClipMatrix => "ClipToPrevClipMatrix"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Denoise_Mode
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Denoise_Mode")]
     public static ReadOnlySpan<byte> ParameterDLSSDenoiseMode => "DLSS.Denoise.Mode"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_DisocclusionMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_DisocclusionMask")]
     public static ReadOnlySpan<byte> ParameterDLSSDisocclusionMask => "DLSS.DisocclusionMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDisocclusionMaskSubrectBaseX => "DLSS.DisocclusionMask.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDisocclusionMaskSubrectBaseY => "DLSS.DisocclusionMask.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects")]
     public static ReadOnlySpan<byte> ParameterDLSSEnableOutputSubrects => "DLSS.Enable.Output.Subrects"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Exposure_Scale
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Exposure_Scale")]
     public static ReadOnlySpan<byte> ParameterDLSSExposureScale => "DLSS.Exposure.Scale"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags")]
     public static ReadOnlySpan<byte> ParameterDLSSFeatureCreateFlags => "DLSS.Feature.Create.Flags"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Height")]
     public static ReadOnlySpan<byte> ParameterDLSSGetDynamicMaxRenderHeight => "DLSS.Get.Dynamic.Max.Render.Height"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width")]
     public static ReadOnlySpan<byte> ParameterDLSSGetDynamicMaxRenderWidth => "DLSS.Get.Dynamic.Max.Render.Width"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Height")]
     public static ReadOnlySpan<byte> ParameterDLSSGetDynamicMinRenderHeight => "DLSS.Get.Dynamic.Min.Render.Height"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Width")]
     public static ReadOnlySpan<byte> ParameterDLSSGetDynamicMinRenderWidth => "DLSS.Get.Dynamic.Min.Render.Width"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Balanced
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Balanced")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetBalanced => "DLSS.Hint.Render.Preset.Balanced"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetDLAA => "DLSS.Hint.Render.Preset.DLAA"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Performance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Performance")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetPerformance => "DLSS.Hint.Render.Preset.Performance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Quality
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Quality")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetQuality => "DLSS.Hint.Render.Preset.Quality"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraPerformance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraPerformance")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetUltraPerformance => "DLSS.Hint.Render.Preset.UltraPerformance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraQuality
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraQuality")]
     public static ReadOnlySpan<byte> ParameterDLSSHintRenderPresetUltraQuality => "DLSS.Hint.Render.Preset.UltraQuality"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis")]
     public static ReadOnlySpan<byte> ParameterDLSSIndicatorInvertXAxis => "DLSS.Indicator.Invert.X.Axis"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis")]
     public static ReadOnlySpan<byte> ParameterDLSSIndicatorInvertYAxis => "DLSS.Indicator.Invert.Y.Axis"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_Mask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_Mask")]
     public static ReadOnlySpan<byte> ParameterDLSSInputBiasCurrentColorMask => "DLSS.Input.Bias.Current.Color.Mask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputBiasCurrentColorSubrectBaseX => "DLSS.Input.Bias.Current.Color.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputBiasCurrentColorSubrectBaseY => "DLSS.Input.Bias.Current.Color.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Color_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Color_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputColorSubrectBaseX => "DLSS.Input.Color.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Color_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Color_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputColorSubrectBaseY => "DLSS.Input.Color.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Depth_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Depth_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputDepthSubrectBaseX => "DLSS.Input.Depth.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Depth_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Depth_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputDepthSubrectBaseY => "DLSS.Input.Depth.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_DiffuseAlbedo_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_DiffuseAlbedo_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputDiffuseAlbedoSubrectBaseX => "DLSS.Input.DiffuseAlbedo.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_DiffuseAlbedo_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_DiffuseAlbedo_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputDiffuseAlbedoSubrectBaseY => "DLSS.Input.DiffuseAlbedo.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_MV_SubrectBase_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_MV_SubrectBase_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputMvSubrectBaseX => "DLSS.Input.MV.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_MV_SubrectBase_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_MV_SubrectBase_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputMvSubrectBaseY => "DLSS.Input.MV.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Normals_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Normals_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputNormalsSubrectBaseX => "DLSS.Input.Normals.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Normals_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Normals_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputNormalsSubrectBaseY => "DLSS.Input.Normals.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Roughness_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Roughness_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputRoughnessSubrectBaseX => "DLSS.Input.Roughness.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Roughness_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Roughness_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputRoughnessSubrectBaseY => "DLSS.Input.Roughness.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_SpecularAlbedo_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_SpecularAlbedo_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputSpecularAlbedoSubrectBaseX => "DLSS.Input.SpecularAlbedo.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_SpecularAlbedo_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_SpecularAlbedo_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputSpecularAlbedoSubrectBaseY => "DLSS.Input.SpecularAlbedo.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Translucency_SubrectBase_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Translucency_SubrectBase_X")]
     public static ReadOnlySpan<byte> ParameterDLSSInputTranslucencySubrectBaseX => "DLSS.Input.Translucency.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Input_Translucency_SubrectBase_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Input_Translucency_SubrectBase_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSInputTranslucencySubrectBaseY => "DLSS.Input.Translucency.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_INV_VIEW_PROJECTION_MATRIX
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_INV_VIEW_PROJECTION_MATRIX")]
     public static ReadOnlySpan<byte> ParameterDLSSInvViewProjectionMatrix => "InvViewProjectionMatrix"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Output_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Output_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSOutputSubrectBaseX => "DLSS.Output.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Output_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Output_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSOutputSubrectBaseY => "DLSS.Output.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Overlay_Debug_Layer
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Overlay_Debug_Layer")]
     public static ReadOnlySpan<byte> ParameterDLSSOverlayDebugLayer => "DLSS.Overlay.Debug.Layer"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Overlay_Full_Screen
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Overlay_Full_Screen")]
     public static ReadOnlySpan<byte> ParameterDLSSOverlayFullScreen => "DLSS.Overlay.Full.Screen"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Overlay_Jitter_Debug
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Overlay_Jitter_Debug")]
     public static ReadOnlySpan<byte> ParameterDLSSOverlayJitterDebug => "DLSS.Overlay.Jitter.Debug"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Overlay_Show_Nans
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Overlay_Show_Nans")]
     public static ReadOnlySpan<byte> ParameterDLSSOverlayShowNans => "DLSS.Overlay.Show.Nans"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Pre_Exposure
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Pre_Exposure")]
     public static ReadOnlySpan<byte> ParameterDLSSPreExposure => "DLSS.Pre.Exposure"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Height")]
     public static ReadOnlySpan<byte> ParameterDLSSRenderSubrectDimensionsHeight => "DLSS.Render.Subrect.Dimensions.Height"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Width")]
     public static ReadOnlySpan<byte> ParameterDLSSRenderSubrectDimensionsWidth => "DLSS.Render.Subrect.Dimensions.Width"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_ResponsivityMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_ResponsivityMask")]
     public static ReadOnlySpan<byte> ParameterDLSSResponsivityMask => "DLSS.ResponsivityMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSResponsivityMaskSubrectBaseX => "DLSS.ResponsivityMask.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSResponsivityMaskSubrectBaseY => "DLSS.ResponsivityMask.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_Roughness_Mode
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_Roughness_Mode")]
     public static ReadOnlySpan<byte> ParameterDLSSRoughnessMode => "DLSS.Roughness.Mode"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayer
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayer")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayer => "DLSS.TransparencyLayer"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerSubrectBaseX => "DLSS.TransparencyLayer.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerSubrectBaseY => "DLSS.TransparencyLayer.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerMvecs => "DLSS.TransparencyLayerMvecs"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerMvecsSubrectBaseX => "DLSS.TransparencyLayerMvecs.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerMvecsSubrectBaseY => "DLSS.TransparencyLayerMvecs.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerOpacity => "DLSS.TransparencyLayerOpacity"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerOpacitySubrectBaseX => "DLSS.TransparencyLayerOpacity.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSTransparencyLayerOpacitySubrectBaseY => "DLSS.TransparencyLayerOpacity.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_VIEW_TO_CLIP_MATRIX
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_VIEW_TO_CLIP_MATRIX")]
     public static ReadOnlySpan<byte> ParameterDLSSViewToClipMatrix => "ViewToClipMatrix"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSS_WORLD_TO_VIEW_MATRIX
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSS_WORLD_TO_VIEW_MATRIX")]
     public static ReadOnlySpan<byte> ParameterDLSSWorldToViewMatrix => "WorldToViewMatrix"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_Alpha
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_Alpha")]
     public static ReadOnlySpan<byte> ParameterDLSSDAlpha => "DLSSD.Alpha"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDAlphaSubrectBaseX => "DLSSD.Alpha.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDAlphaSubrectBaseY => "DLSSD.Alpha.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterDepthOfField => "DLSSD.ColorAfterDepthOfField"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterDepthOfFieldSubrectBaseX => "DLSSD.ColorAfterDepthOfField.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterDepthOfField_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterDepthOfFieldSubrectBaseY => "DLSSD.ColorAfterDepthOfField.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterFog
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterFog")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterFog => "DLSSD.ColorAfterFog"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterFog_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterFog_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterFogSubrectBaseX => "DLSSD.ColorAfterFog.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterFog_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterFog_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterFogSubrectBaseY => "DLSSD.ColorAfterFog.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterParticles => "DLSSD.ColorAfterParticles"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterParticlesSubrectBaseX => "DLSSD.ColorAfterParticles.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterParticles_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterParticlesSubrectBaseY => "DLSSD.ColorAfterParticles.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceRefraction => "DLSSD.ColorAfterScreenSpaceRefraction"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceRefractionSubrectBaseX => "DLSSD.ColorAfterScreenSpaceRefraction.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceRefraction_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceRefractionSubrectBaseY => "DLSSD.ColorAfterScreenSpaceRefraction.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceSubsurfaceScattering => "DLSSD.ColorAfterScreenSpaceSubsurfaceScattering"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceSubsurfaceScatteringSubrectBaseX => "DLSSD.ColorAfterScreenSpaceSubsurfaceScattering.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterScreenSpaceSubsurfaceScattering_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterScreenSpaceSubsurfaceScatteringSubrectBaseY => "DLSSD.ColorAfterScreenSpaceSubsurfaceScattering.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterTransparency => "DLSSD.ColorAfterTransparency"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterTransparencySubrectBaseX => "DLSSD.ColorAfterTransparency.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorAfterTransparency_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorAfterTransparencySubrectBaseY => "DLSSD.ColorAfterTransparency.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeDepthOfField => "DLSSD.ColorBeforeDepthOfField"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeDepthOfFieldSubrectBaseX => "DLSSD.ColorBeforeDepthOfField.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeDepthOfField_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeDepthOfFieldSubrectBaseY => "DLSSD.ColorBeforeDepthOfField.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeFog => "DLSSD.ColorBeforeFog"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeFogSubrectBaseX => "DLSSD.ColorBeforeFog.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeFog_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeFogSubrectBaseY => "DLSSD.ColorBeforeFog.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeParticles => "DLSSD.ColorBeforeParticles"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeParticlesSubrectBaseX => "DLSSD.ColorBeforeParticles.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeParticles_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeParticlesSubrectBaseY => "DLSSD.ColorBeforeParticles.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceRefraction => "DLSSD.ColorBeforeScreenSpaceRefraction"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceRefractionSubrectBaseX => "DLSSD.ColorBeforeScreenSpaceRefraction.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceRefraction_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceRefractionSubrectBaseY => "DLSSD.ColorBeforeScreenSpaceRefraction.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceSubsurfaceScattering => "DLSSD.ColorBeforeScreenSpaceSubsurfaceScattering"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceSubsurfaceScatteringSubrectBaseX => "DLSSD.ColorBeforeScreenSpaceSubsurfaceScattering.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeScreenSpaceSubsurfaceScattering_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeScreenSpaceSubsurfaceScatteringSubrectBaseY => "DLSSD.ColorBeforeScreenSpaceSubsurfaceScattering.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeTransparency => "DLSSD.ColorBeforeTransparency"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeTransparencySubrectBaseX => "DLSSD.ColorBeforeTransparency.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ColorBeforeTransparency_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDColorBeforeTransparencySubrectBaseY => "DLSSD.ColorBeforeTransparency.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide")]
     public static ReadOnlySpan<byte> ParameterDLSSDDepthOfFieldGuide => "DLSSD.DepthOfFieldGuide"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDDepthOfFieldGuideSubrectBaseX => "DLSSD.DepthOfFieldGuide.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DepthOfFieldGuide_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDDepthOfFieldGuideSubrectBaseY => "DLSSD.DepthOfFieldGuide.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseHitDistance => "DLSSD.DiffuseHitDistance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseHitDistanceSubrectBaseX => "DLSSD.DiffuseHitDistance.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseHitDistance_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseHitDistanceSubrectBaseY => "DLSSD.DiffuseHitDistance.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirection => "DLSSD.DiffuseRayDirection"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirectionSubrectBaseX => "DLSSD.DiffuseRayDirection.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirection_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirectionSubrectBaseY => "DLSSD.DiffuseRayDirection.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirectionHitDistance => "DLSSD.DiffuseRayDirectionHitDistance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirectionHitDistanceSubrectBaseX => "DLSSD.DiffuseRayDirectionHitDistance.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDDiffuseRayDirectionHitDistanceSubrectBaseY => "DLSSD.DiffuseRayDirectionHitDistance.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_OutputAlpha
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_OutputAlpha")]
     public static ReadOnlySpan<byte> ParameterDLSSDOutputAlpha => "DLSSD.OutputAlpha"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_OutputAlpha_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_OutputAlpha_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDOutputAlphaSubrectBaseX => "DLSSD.OutputAlpha.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_OutputAlpha_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_OutputAlpha_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDOutputAlphaSubrectBaseY => "DLSSD.OutputAlpha.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo")]
     public static ReadOnlySpan<byte> ParameterDLSSDReflectedAlbedo => "DLSSD.ReflectedAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDReflectedAlbedoSubrectBaseX => "DLSSD.ReflectedAlbedo.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ReflectedAlbedo_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDReflectedAlbedoSubrectBaseY => "DLSSD.ReflectedAlbedo.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ResponsivityMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ResponsivityMask")]
     public static ReadOnlySpan<byte> ParameterDLSSDResponsivityMask => "DLSSD.ResponsivityMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDResponsivityMaskSubrectBaseX => "DLSSD.ResponsivityMask.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDResponsivityMaskSubrectBaseY => "DLSSD.ResponsivityMask.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceRefractionGuide => "DLSSD.ScreenSpaceRefractionGuide"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceRefractionGuideSubrectBaseX => "DLSSD.ScreenSpaceRefractionGuide.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceRefractionGuide_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceRefractionGuideSubrectBaseY => "DLSSD.ScreenSpaceRefractionGuide.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceSubsurfaceScatteringGuide => "DLSSD.ScreenSpaceSubsurfaceScatteringGuide"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceSubsurfaceScatteringGuideSubrectBaseX => "DLSSD.ScreenSpaceSubsurfaceScatteringGuide.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_ScreenSpaceSubsurfaceScatteringGuide_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDScreenSpaceSubsurfaceScatteringGuideSubrectBaseY => "DLSSD.ScreenSpaceSubsurfaceScatteringGuide.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularHitDistance => "DLSSD.SpecularHitDistance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularHitDistanceSubrectBaseX => "DLSSD.SpecularHitDistance.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularHitDistance_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularHitDistanceSubrectBaseY => "DLSSD.SpecularHitDistance.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirection => "DLSSD.SpecularRayDirection"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirectionSubrectBaseX => "DLSSD.SpecularRayDirection.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirection_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirectionSubrectBaseY => "DLSSD.SpecularRayDirection.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirectionHitDistance => "DLSSD.SpecularRayDirectionHitDistance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_X")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirectionHitDistanceSubrectBaseX => "DLSSD.SpecularRayDirectionHitDistance.Subrect.Base.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_Y")]
     public static ReadOnlySpan<byte> ParameterDLSSDSpecularRayDirectionHitDistanceSubrectBaseY => "DLSSD.SpecularRayDirectionHitDistance.Subrect.Base.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSDGetStatsCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSDGetStatsCallback")]
     public static ReadOnlySpan<byte> ParameterDLSSDGetStatsCallback => "DLSSDGetStatsCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSDOptimalSettingsCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSDOptimalSettingsCallback")]
     public static ReadOnlySpan<byte> ParameterDLSSDOptimalSettingsCallback => "DLSSDOptimalSettingsCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSGetStatsCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSGetStatsCallback")]
     public static ReadOnlySpan<byte> ParameterDLSSGetStatsCallback => "DLSSGetStatsCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSMode
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSMode")]
     public static ReadOnlySpan<byte> ParameterDLSSMode => "DLSSMode"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_DLSSOptimalSettingsCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_DLSSOptimalSettingsCallback")]
     public static ReadOnlySpan<byte> ParameterDLSSOptimalSettingsCallback => "DLSSOptimalSettingsCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ExposureTexture
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ExposureTexture")]
     public static ReadOnlySpan<byte> ParameterExposureTexture => "ExposureTexture"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Color1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Color1")]
     public static ReadOnlySpan<byte> ParameterFiColor1 => "Color1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Color2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Color2")]
     public static ReadOnlySpan<byte> ParameterFiColor2 => "Color2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Depth1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Depth1")]
     public static ReadOnlySpan<byte> ParameterFiDepth1 => "Depth1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Depth2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Depth2")]
     public static ReadOnlySpan<byte> ParameterFiDepth2 => "Depth2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Mode
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Mode")]
     public static ReadOnlySpan<byte> ParameterFiMode => "FIMode"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_MotionVectors1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_MotionVectors1")]
     public static ReadOnlySpan<byte> ParameterFiMotionVectors1 => "MotionVectors1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_MotionVectors2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_MotionVectors2")]
     public static ReadOnlySpan<byte> ParameterFiMotionVectors2 => "MotionVectors2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_OF_GridSize
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_OF_GridSize")]
     public static ReadOnlySpan<byte> ParameterFiOfGridSize => "FIOFGridSize"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_OF_Preset
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_OF_Preset")]
     public static ReadOnlySpan<byte> ParameterFiOfPreset => "FIOFPreset"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Output1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Output1")]
     public static ReadOnlySpan<byte> ParameterFiOutput1 => "Output1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Output2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Output2")]
     public static ReadOnlySpan<byte> ParameterFiOutput2 => "Output2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FI_Output3
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FI_Output3")]
     public static ReadOnlySpan<byte> ParameterFiOutput3 => "Output3"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Format")]
     public static ReadOnlySpan<byte> ParameterFormat => "Format"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameGeneration_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameGeneration_Available")]
     public static ReadOnlySpan<byte> ParameterFrameGenerationAvailable => "FrameGeneration.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameGeneration_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameGeneration_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterFrameGenerationFeatureInitResult => "FrameGeneration.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameGeneration_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameGeneration_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterFrameGenerationMinDriverVersionMajor => "FrameGeneration.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameGeneration_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameGeneration_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterFrameGenerationMinDriverVersionMinor => "FrameGeneration.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameGeneration_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameGeneration_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterFrameGenerationNeedsUpdatedDriver => "FrameGeneration.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameInterpolation_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameInterpolation_Available")]
     public static ReadOnlySpan<byte> ParameterFrameInterpolationAvailable => "FrameInterpolation.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameInterpolation_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameInterpolation_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterFrameInterpolationFeatureInitResult => "FrameInterpolation.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameInterpolation_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameInterpolation_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterFrameInterpolationMinDriverVersionMajor => "FrameInterpolation.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameInterpolation_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameInterpolation_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterFrameInterpolationMinDriverVersionMinor => "FrameInterpolation.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameInterpolation_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameInterpolation_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterFrameInterpolationNeedsUpdatedDriver => "FrameInterpolation.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FrameTimeDeltaInMsec
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FrameTimeDeltaInMsec")]
     public static ReadOnlySpan<byte> ParameterFrameTimeDeltaInMsec => "FrameTimeDeltaInMsec"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_FreeMemOnReleaseFeature
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_FreeMemOnReleaseFeature")]
     public static ReadOnlySpan<byte> ParameterFreeMemOnReleaseFeature => "FreeMemOnReleaseFeature"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Albedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Albedo")]
     public static ReadOnlySpan<byte> ParameterGBufferAlbedo => "GBuffer.Albedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_10
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_10")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib10 => "GBuffer.Attrib.10"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_11
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_11")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib11 => "GBuffer.Attrib.11"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_12
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_12")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib12 => "GBuffer.Attrib.12"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_13
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_13")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib13 => "GBuffer.Attrib.13"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_14
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_14")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib14 => "GBuffer.Attrib.14"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_15
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_15")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib15 => "GBuffer.Attrib.15"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_8
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_8")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib8 => "GBuffer.Attrib.8"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Atrrib_9
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Atrrib_9")]
     public static ReadOnlySpan<byte> ParameterGBufferAtrrib9 => "GBuffer.Attrib.9"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_DiffuseAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_DiffuseAlbedo")]
     public static ReadOnlySpan<byte> ParameterGBufferDiffuseAlbedo => "GBuffer.DiffuseAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_DisocclusionMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_DisocclusionMask")]
     public static ReadOnlySpan<byte> ParameterGBufferDisocclusionMask => "GBuffer.DisocclusionMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Emissive
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Emissive")]
     public static ReadOnlySpan<byte> ParameterGBufferEmissive => "GBuffer.Emissive"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_IndirectAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_IndirectAlbedo")]
     public static ReadOnlySpan<byte> ParameterGBufferIndirectAlbedo => "GBuffer.IndirectAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_MaterialId
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_MaterialId")]
     public static ReadOnlySpan<byte> ParameterGBufferMaterialId => "GBuffer.MaterialId"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Metallic
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Metallic")]
     public static ReadOnlySpan<byte> ParameterGBufferMetallic => "GBuffer.Metallic"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Normals
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Normals")]
     public static ReadOnlySpan<byte> ParameterGBufferNormals => "GBuffer.Normals"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Roughness
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Roughness")]
     public static ReadOnlySpan<byte> ParameterGBufferRoughness => "GBuffer.Roughness"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_ShadingModelId
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_ShadingModelId")]
     public static ReadOnlySpan<byte> ParameterGBufferShadingModelId => "GBuffer.ShadingModelId"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Specular
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Specular")]
     public static ReadOnlySpan<byte> ParameterGBufferSpecular => "GBuffer.Specular"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_SpecularAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_SpecularAlbedo")]
     public static ReadOnlySpan<byte> ParameterGBufferSpecularAlbedo => "GBuffer.SpecularAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_SpecularMvec
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_SpecularMvec")]
     public static ReadOnlySpan<byte> ParameterGBufferSpecularMvec => "GBuffer.SpecularMvec"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_GBuffer_Subsurface
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_GBuffer_Subsurface")]
     public static ReadOnlySpan<byte> ParameterGBufferSubsurface => "GBuffer.Subsurface"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Height")]
     public static ReadOnlySpan<byte> ParameterHeight => "Height"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Hint_UseFireflySwatter
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Hint_UseFireflySwatter")]
     public static ReadOnlySpan<byte> ParameterHintUseFireflySwatter => "Hint.UseFireflySwatter"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_Available")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingAvailable => "ImageSignalProcessing.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingFeatureInitResult => "ImageSignalProcessing.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingMinDriverVersionMajor => "ImageSignalProcessing.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingMinDriverVersionMinor => "ImageSignalProcessing.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingNeedsUpdatedDriver => "ImageSignalProcessing.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSignalProcessing_ScaleFactor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSignalProcessing_ScaleFactor")]
     public static ReadOnlySpan<byte> ParameterImageSignalProcessingScaleFactor => "ImageSignalProcessing.ScaleFactor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_Available")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionAvailable => "ImageSuperResolution.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionFeatureInitResult => "ImageSuperResolution.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionMinDriverVersionMajor => "ImageSuperResolution.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionMinDriverVersionMinor => "ImageSuperResolution.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionNeedsUpdatedDriver => "ImageSuperResolution.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_2_1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_2_1")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionScaleFactor21 => "ImageSuperResolution.ScaleFactor.2.1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_1")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionScaleFactor31 => "ImageSuperResolution.ScaleFactor.3.1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_2")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionScaleFactor32 => "ImageSuperResolution.ScaleFactor.3.2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_4_3
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_4_3")]
     public static ReadOnlySpan<byte> ParameterImageSuperResolutionScaleFactor43 => "ImageSuperResolution.ScaleFactor.4.3"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_InPainting_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_InPainting_Available")]
     public static ReadOnlySpan<byte> ParameterInPaintingAvailable => "InPainting.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_InPainting_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_InPainting_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterInPaintingFeatureInitResult => "InPainting.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_InPainting_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_InPainting_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterInPaintingMinDriverVersionMajor => "InPainting.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_InPainting_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_InPainting_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterInPaintingMinDriverVersionMinor => "InPainting.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_InPainting_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_InPainting_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterInPaintingNeedsUpdatedDriver => "InPainting.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input1
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input1")]
     public static ReadOnlySpan<byte> ParameterInput1 => "Input1"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input1_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input1_Format")]
     public static ReadOnlySpan<byte> ParameterInput1Format => "Input1.Format"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input1_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input1_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterInput1SizeInBytes => "Input1.SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input2
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input2")]
     public static ReadOnlySpan<byte> ParameterInput2 => "Input2"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input2_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input2_Format")]
     public static ReadOnlySpan<byte> ParameterInput2Format => "Input2.Format"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Input2_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Input2_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterInput2SizeInBytes => "Input2.SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_IsDevSnippetBranch
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_IsDevSnippetBranch")]
     public static ReadOnlySpan<byte> ParameterIsDevSnippetBranch => "Snippet.IsDevBranch"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_IsParticleMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_IsParticleMask")]
     public static ReadOnlySpan<byte> ParameterIsParticleMask => "IsParticleMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Jitter_Offset_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Jitter_Offset_X")]
     public static ReadOnlySpan<byte> ParameterJitterOffsetX => "Jitter.Offset.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Jitter_Offset_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Jitter_Offset_Y")]
     public static ReadOnlySpan<byte> ParameterJitterOffsetY => "Jitter.Offset.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Model
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Model")]
     public static ReadOnlySpan<byte> ParameterModel => "Model"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MotionVectors
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MotionVectors")]
     public static ReadOnlySpan<byte> ParameterMotionVectors => "MotionVectors"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MotionVectors3D
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MotionVectors3D")]
     public static ReadOnlySpan<byte> ParameterMotionVectors3D => "MotionVectors3D"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MotionVectorsReflection
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MotionVectorsReflection")]
     public static ReadOnlySpan<byte> ParameterMotionVectorsReflection => "MotionVectorsReflection"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MV_Offset_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MV_Offset_X")]
     public static ReadOnlySpan<byte> ParameterMvOffsetX => "MV.Offset.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MV_Offset_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MV_Offset_Y")]
     public static ReadOnlySpan<byte> ParameterMvOffsetY => "MV.Offset.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MV_Scale_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MV_Scale_X")]
     public static ReadOnlySpan<byte> ParameterMvScaleX => "MV.Scale.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_MV_Scale_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_MV_Scale_Y")]
     public static ReadOnlySpan<byte> ParameterMvScaleY => "MV.Scale.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_NumFrames
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_NumFrames")]
     public static ReadOnlySpan<byte> ParameterNumFrames => "NumFrames"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OptLevel
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OptLevel")]
     public static ReadOnlySpan<byte> ParameterOptLevel => "Snippet.OptLevel"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutHeight")]
     public static ReadOnlySpan<byte> ParameterOutHeight => "OutHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Output
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Output")]
     public static ReadOnlySpan<byte> ParameterOutput => "Output"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Output_Format
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Output_Format")]
     public static ReadOnlySpan<byte> ParameterOutputFormat => "Output.Format"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Output_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Output_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterOutputSizeInBytes => "Output.SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutputInterpolated
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutputInterpolated")]
     public static ReadOnlySpan<byte> ParameterOutputInterpolated => "DLSSG.OutputInterpolated"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutputReal
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutputReal")]
     public static ReadOnlySpan<byte> ParameterOutputReal => "DLSSG.OutputReal"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutRect_H
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutRect_H")]
     public static ReadOnlySpan<byte> ParameterOutRectH => "OutRect.H"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutRect_W
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutRect_W")]
     public static ReadOnlySpan<byte> ParameterOutRectW => "OutRect.W"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutRect_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutRect_X")]
     public static ReadOnlySpan<byte> ParameterOutRectX => "OutRect.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutRect_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutRect_Y")]
     public static ReadOnlySpan<byte> ParameterOutRectY => "OutRect.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_OutWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_OutWidth")]
     public static ReadOnlySpan<byte> ParameterOutWidth => "OutWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_PerfQualityValue
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_PerfQualityValue")]
     public static ReadOnlySpan<byte> ParameterPerfQualityValue => "PerfQualityValue"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Position_ViewSpace
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Position_ViewSpace")]
     public static ReadOnlySpan<byte> ParameterPositionViewSpace => "Position.ViewSpace"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Balanced
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Balanced")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetBalanced => "RayReconstruction.Hint.Render.Preset.Balanced"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_DLAA
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_DLAA")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetDLAA => "RayReconstruction.Hint.Render.Preset.DLAA"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Performance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Performance")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetPerformance => "RayReconstruction.Hint.Render.Preset.Performance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Quality
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_Quality")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetQuality => "RayReconstruction.Hint.Render.Preset.Quality"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_UltraPerformance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_UltraPerformance")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetUltraPerformance => "RayReconstruction.Hint.Render.Preset.UltraPerformance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_UltraQuality
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayReconstruction_Hint_Render_Preset_UltraQuality")]
     public static ReadOnlySpan<byte> ParameterRayReconstructionHintRenderPresetUltraQuality => "RayReconstruction.Hint.Render.Preset.UltraQuality"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RayTracingHitDistance
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RayTracingHitDistance")]
     public static ReadOnlySpan<byte> ParameterRayTracingHitDistance => "RayTracingHitDistance"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Rect_H
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Rect_H")]
     public static ReadOnlySpan<byte> ParameterRectH => "Rect.H"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Rect_W
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Rect_W")]
     public static ReadOnlySpan<byte> ParameterRectW => "Rect.W"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Rect_X
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Rect_X")]
     public static ReadOnlySpan<byte> ParameterRectX => "Rect.X"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Rect_Y
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Rect_Y")]
     public static ReadOnlySpan<byte> ParameterRectY => "Rect.Y"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Reset
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Reset")]
     public static ReadOnlySpan<byte> ParameterReset => "Reset"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Resource_Height
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Resource_Height")]
     public static ReadOnlySpan<byte> ParameterResourceHeight => "ResourceHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Resource_OutHeight
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Resource_OutHeight")]
     public static ReadOnlySpan<byte> ParameterResourceOutHeight => "ResourceOutHeight"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Resource_OutWidth
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Resource_OutWidth")]
     public static ReadOnlySpan<byte> ParameterResourceOutWidth => "ResourceOutWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Resource_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Resource_Width")]
     public static ReadOnlySpan<byte> ParameterResourceWidth => "ResourceWidth"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ResourceAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ResourceAllocCallback")]
     public static ReadOnlySpan<byte> ParameterResourceAllocCallback => "ResourceAllocCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ResourceReleaseCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ResourceReleaseCallback")]
     public static ReadOnlySpan<byte> ParameterResourceReleaseCallback => "ResourceReleaseCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_RTXValue
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_RTXValue")]
     public static ReadOnlySpan<byte> ParameterRTXValue => "RTXValue"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Scale
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Scale")]
     public static ReadOnlySpan<byte> ParameterScale => "Scale"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Scratch
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Scratch")]
     public static ReadOnlySpan<byte> ParameterScratch => "Scratch"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Scratch_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Scratch_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterScratchSizeInBytes => "Scratch.SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Sharpness
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Sharpness")]
     public static ReadOnlySpan<byte> ParameterSharpness => "Sharpness"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SizeInBytes
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SizeInBytes")]
     public static ReadOnlySpan<byte> ParameterSizeInBytes => "SizeInBytes"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SlowMotion_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SlowMotion_Available")]
     public static ReadOnlySpan<byte> ParameterSlowMotionAvailable => "SlowMotion.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SlowMotion_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SlowMotion_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterSlowMotionFeatureInitResult => "SlowMotion.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SlowMotion_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SlowMotion_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterSlowMotionMinDriverVersionMajor => "SlowMotion.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SlowMotion_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SlowMotion_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterSlowMotionMinDriverVersionMinor => "SlowMotion.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SlowMotion_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SlowMotion_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterSlowMotionNeedsUpdatedDriver => "SlowMotion.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SpecularAlbedo
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SpecularAlbedo")]
     public static ReadOnlySpan<byte> ParameterSpecularAlbedo => "DLSS.Input.SpecularAlbedo"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_Available")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingAvailable => "SuperSampling.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingFeatureInitResult => "SuperSampling.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingMinDriverVersionMajor => "SuperSampling.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingMinDriverVersionMinor => "SuperSampling.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingNeedsUpdatedDriver => "SuperSampling.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSampling_ScaleFactor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSampling_ScaleFactor")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingScaleFactor => "SuperSampling.ScaleFactor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSamplingDenoising_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSamplingDenoising_Available")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingDenoisingAvailable => "SuperSamplingDenoising.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSamplingDenoising_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSamplingDenoising_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingDenoisingFeatureInitResult => "SuperSamplingDenoising.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingDenoisingMinDriverVersionMajor => "SuperSamplingDenoising.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingDenoisingMinDriverVersionMinor => "SuperSamplingDenoising.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_SuperSamplingDenoising_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_SuperSamplingDenoising_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterSuperSamplingDenoisingNeedsUpdatedDriver => "SuperSamplingDenoising.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Tex2DAllocCallback
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Tex2DAllocCallback")]
     public static ReadOnlySpan<byte> ParameterTex2DAllocCallback => "Tex2DAllocCallback"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_TonemapperType
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_TonemapperType")]
     public static ReadOnlySpan<byte> ParameterTonemapperType => "TonemapperType"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_TransparencyMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_TransparencyMask")]
     public static ReadOnlySpan<byte> ParameterTransparencyMask => "TransparencyMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Use_Folded_Network
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Use_Folded_Network")]
     public static ReadOnlySpan<byte> ParameterUseFoldedNetwork => "DLSS.Use.Folded.Network"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Use_HW_Depth
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Use_HW_Depth")]
     public static ReadOnlySpan<byte> ParameterUseHwDepth => "DLSS.Use.HW.Depth"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VideoSuperResolution_Available
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VideoSuperResolution_Available")]
     public static ReadOnlySpan<byte> ParameterVideoSuperResolutionAvailable => "VideoSuperResolution.Available"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VideoSuperResolution_FeatureInitResult
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VideoSuperResolution_FeatureInitResult")]
     public static ReadOnlySpan<byte> ParameterVideoSuperResolutionFeatureInitResult => "VideoSuperResolution.FeatureInitResult"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMajor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMajor")]
     public static ReadOnlySpan<byte> ParameterVideoSuperResolutionMinDriverVersionMajor => "VideoSuperResolution.MinDriverVersionMajor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMinor
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMinor")]
     public static ReadOnlySpan<byte> ParameterVideoSuperResolutionMinDriverVersionMinor => "VideoSuperResolution.MinDriverVersionMinor"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VideoSuperResolution_NeedsUpdatedDriver
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VideoSuperResolution_NeedsUpdatedDriver")]
     public static ReadOnlySpan<byte> ParameterVideoSuperResolutionNeedsUpdatedDriver => "VideoSuperResolution.NeedsUpdatedDriver"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_ViewToClipMatrix
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_ViewToClipMatrix")]
     public static ReadOnlySpan<byte> ParameterViewToClipMatrix => "ViewToClipMatrix"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_VisibilityNodeMask
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_VisibilityNodeMask")]
     public static ReadOnlySpan<byte> ParameterVisibilityNodeMask => "VisibilityNodeMask"u8;
 
     /// <summary>
     /// NVSDK_NGX_Parameter_Width
     /// </summary>
+    [NativeName("NVSDK_NGX_Parameter_Width")]
     public static ReadOnlySpan<byte> ParameterWidth => "Width"u8;
 
     /// <summary>
     /// NVSDK_NGX_VERSION_API_MACRO
     /// </summary>
+    [NativeName("NVSDK_NGX_VERSION_API_MACRO")]
     public const uint VersionAPI = 0x0000015;
 
 }

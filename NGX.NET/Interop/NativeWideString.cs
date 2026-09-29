@@ -37,6 +37,9 @@ public sealed unsafe class NativeWideString : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Releases the allocation if Dispose was not called.
+    /// </summary>
     ~NativeWideString()
     {
         NativeMemory.Free(pointer);

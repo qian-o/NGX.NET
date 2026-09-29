@@ -52,6 +52,17 @@ internal sealed unsafe class NGXSession : IDisposable
                     (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr,
                     (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NgxVersion)Ngx.VersionAPI)
                 : Ngx.D3D12.InitWithProjectID((sbyte*)project, EngineType.Custom, (sbyte*)engine, dataPath.Pointer, device, &common, (NgxVersion)Ngx.VersionAPI);
+            if (result is Result.FailFeatureNotSupported or Result.FailPlatformError or Result.FailOutOfDate)
+            {
+                foreach (Feature feature in new[] { Feature.SuperSampling, Feature.RayReconstruction, Feature.FrameGeneration })
+                {
+                    Unavailable[feature] = $"NGX initialization: {result}";
+                }
+
+                Console.WriteLine($"NGX features unavailable: {result}. Native rendering remains available.");
+                return;
+            }
+
             Ngx.ThrowIfFailed(result);
         }
 

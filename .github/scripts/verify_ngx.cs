@@ -1,4 +1,4 @@
-#:project ../../NGX.NET/NGX.NET.csproj
+﻿#:project ../../NGX.NET/NGX.NET.csproj
 #:property PublishAot=false
 #:property PublishTrimmed=false
 #:property EnableTrimAnalyzer=false
@@ -115,6 +115,56 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         VerifyType(native, type!.GetField("Pointer")!.FieldType, alias.Name);
     }
 
+    JsonElement parameter = platform.Value.GetProperty("records").EnumerateArray().Single(r => r.GetProperty("name").GetString() == "NVSDK_NGX_Parameter");
+    if (parameter.TryGetProperty("members", out JsonElement virtualMembers))
+    {
+        Require(virtualMembers.GetArrayLength() == 17, "Parameter virtual member inventory");
+        foreach (JsonElement member in virtualMembers.EnumerateArray()) Require(imports.ContainsKey(member.GetProperty("binding").GetString()!), "Missing C++ member adapter");
+    }
+
+    Dictionary<string, PropertyInfo> strings = typeof(Ngx).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(p => p.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(p => p.GetCustomAttribute<NativeNameAttribute>()!.Name);
+    foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray())
+    {
+        string[] tokens = [.. macro.GetProperty("tokens").EnumerateArray().Select(t => t.GetString()!)];
+        if (tokens.Length == 0 || !tokens.All(t => t.StartsWith('"'))) continue;
+        string nativeName = macro.GetProperty("name").GetString()!;
+        Require(strings.TryGetValue(nativeName, out PropertyInfo? property), "Missing parameter constant " + nativeName);
+        List<byte> bytes = [];
+        foreach (string literal in tokens)
+        {
+            for (int i = 1; i < literal.Length - 1; i++)
+            {
+                char c = literal[i];
+                if (c == '\\')
+                {
+                    c = literal[++i];
+                    if (c == 'x')
+                    {
+                        int start = ++i;
+                        while (i < literal.Length - 1 && Uri.IsHexDigit(literal[i])) i++;
+                        bytes.Add(Convert.ToByte(literal[start..i], 16));
+                        i--;
+                        continue;
+                    }
+                    c = c switch { 'n' => '\n', 'r' => '\r', 't' => '\t', '0' => '\0', _ => c };
+                }
+                bytes.Add(checked((byte)c));
+            }
+        }
+        ReadOnlySpan<byte> actual = property!.GetMethod!.CreateDelegate<SpanGetter>()();
+        Require(actual.SequenceEqual(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(bytes)), "Parameter constant bytes " + nativeName);
+    }
+
+    Dictionary<string, FieldInfo> numbers = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public).Where(f => f.GetCustomAttribute<NativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NativeNameAttribute>()!.Name);
+    foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray().Where(m => m.GetProperty("name").GetString() is "NVSDK_NGX_VERSION_API_MACRO" or "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET"))
+    {
+        string name = macro.GetProperty("name").GetString()!;
+        string literal = string.Concat(macro.GetProperty("tokens").EnumerateArray().Select(t => t.GetString()));
+        long expected = literal.StartsWith("0x", StringComparison.Ordinal) ? Convert.ToInt64(literal[2..], 16) : long.Parse(literal, System.Globalization.CultureInfo.InvariantCulture);
+        Require(numbers.TryGetValue(name, out FieldInfo? field), "Missing numeric macro " + name);
+        Require(Convert.ToInt64(field!.GetRawConstantValue()) == expected, "Numeric macro value " + name);
+    }
+
     foreach (JsonElement binary in platform.Value.GetProperty("binaries").EnumerateArray())
     {
         string path = Path.Combine(root, "native", rid, binary.GetProperty("name").GetString()!);
@@ -157,3 +207,5 @@ Require(Marshal.SizeOf<Bool8>() == 1, "bool8 size");
 DLSSGOptEvalParams defaults = new();
 Require(defaults.MultiFrameCount == 1 && defaults.MultiFrameIndex == 1 && defaults.MinRelativeLinearDepthObjectSeparation == 40, "official FG defaults");
 Console.WriteLine($"Verified {checks} compiled API/ABI checks across four RIDs; {imports.Count} imports.");
+
+delegate ReadOnlySpan<byte> SpanGetter();
