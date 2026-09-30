@@ -6,12 +6,10 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Version
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Version")]
 public enum NGXVersion : int
 {
     /// <summary>
     /// NVSDK_NGX_Version_API
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Version_API")]
     API = 21,
 }

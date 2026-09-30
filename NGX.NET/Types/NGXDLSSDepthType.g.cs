@@ -6,18 +6,15 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Depth_Type
 /// </summary>
-[NGXNativeName("NVSDK_NGX_DLSS_Depth_Type")]
 public enum NGXDLSSDepthType : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Depth_Type_Linear
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSS_Depth_Type_Linear")]
     Linear = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Depth_Type_HW
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSS_Depth_Type_HW")]
     HW = 1,
 }

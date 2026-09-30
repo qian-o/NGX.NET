@@ -1,18 +1,26 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-using ImGuiNET;
+﻿using Hexa.NET.ImGui;
 using NGX.NET;
 using Showcase.Handlers;
-using Showcase.Helpers;
 using Showcase.Models;
+using Silk.NET.Windowing;
 
 namespace Showcase;
 
-internal abstract class RHI(Window window, UserInterface ui) : IDisposable
+internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
 {
-    private const float SunIrradiance = 8;
-    private const float SkyRadiance = 0.65f;
-    private const float ContactShadowRadiusScale = 0.012f;
+    protected IWindow Window { get; } = window;
+
+    protected ImGuiHandler UI { get; } = ui;
+
+    protected RenderResources Resources { get; private set; } = null!;
+
+    protected PassArgs Frame { get; private set; }
+
+    public NGXSession NGX { get; } = new();
+
+    public abstract nint Command { get; }
+
+    public string AdapterName { get; protected set; } = "Unknown";
 
     public bool RayQuerySupported { get; protected set; }
 
@@ -23,55 +31,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         RayQuerySupported && NGX.Available(NGXFeature.RayReconstruction),
         NGX.Available(NGXFeature.FrameGeneration));
 
-    public Window Window { get; } = window;
-
-    public UserInterface UI { get; } = ui;
-
-    public NGXSession NGX { get; } = new();
-
-    protected FramePresenter Presenter = null!;
-
-    protected readonly GpuImage[] GeneratedFrames = new GpuImage[RenderLayout.FramesInFlight];
-
-    public RenderSettings Settings { get; } = new();
-
-    // Simulation state stays outside RenderSettings so pausing never recreates GPU resources.
-    public bool AnimationPaused;
-
-    public string AdapterName { get; protected set; } = "Unknown";
-
-    public int InputWidth { get; private set; }
-
-    public int InputHeight { get; private set; }
-
-    public double? PresentedFps => statistics.PresentedFps;
-
-    protected Scene Scene = null!;
-
-    protected Camera Camera { get; } = new();
-
-    protected readonly GpuImage[][] Frames = new GpuImage[RenderLayout.FramesInFlight][];
-
-    // Scratch data is consumed entirely on the graphics queue before the next
-    // frame writes it. One shared allocation avoids multiplying it by frame slots.
-    protected GpuImage LightingSamples = null!;
-
-    protected int FrameSlot;
-
-    protected FrameConstants Constants;
-
-    protected abstract nint Command { get; }
-
-    private RenderSettings? applied;
-    private int outputWidth;
-    private int outputHeight;
-    private uint frameNumber;
-    private bool reset = true;
-    private bool recreateSwapChain;
-    private bool ready;
     private bool disposed;
-    private long previousTick = Stopwatch.GetTimestamp();
-    private readonly FrameStatistics statistics = new();
 
     public void Initialize()
     {
@@ -82,384 +42,57 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         {
             NGX.Unavailable[NGXFeature.RayReconstruction] = RayQueryStatus;
         }
-
-        Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
-        Camera.Reset(Scene);
-        Settings.Reset(Capabilities);
-        UI.UpdateFont(Window.DpiScale);
-        InitializeRenderer();
-        Presenter = new(WaitRenderedFrame, PresentImage, WaitPresentation);
-        ready = true;
-        Window.BeforeWindowChange = SuspendFrameGeneration;
-        ApplySettings();
-        previousTick = Stopwatch.GetTimestamp();
     }
 
-    private void ApplySettings()
+    public void InitializeRenderer(RenderResources resources)
     {
-        bool outputChanged = outputWidth != Window.Width || outputHeight != Window.Height;
-        bool swapChainChanged = applied is null || recreateSwapChain || outputChanged || applied.FrameGeneration != Settings.FrameGeneration;
-        bool reconstructionChanged = applied is null || outputChanged || applied.Quality != Settings.Quality || applied.RayReconstruction != Settings.RayReconstruction;
-        Presenter.Drain();
-        WaitIdle();
-
-        if (reconstructionChanged)
-        {
-            NGX.ReleaseReconstruction();
-        }
-
-        if (swapChainChanged)
-        {
-            DestroySwapChain();
-        }
-
-        outputWidth = Window.Width;
-        outputHeight = Window.Height;
-
-        if (reconstructionChanged)
-        {
-            (InputWidth, InputHeight) = NGX.Configure(Settings, outputWidth, outputHeight);
-
-            if (InputWidth <= 0 || InputHeight <= 0)
-            {
-                throw new InvalidOperationException("The SDK returned an invalid input resolution.");
-            }
-        }
-
-        if (swapChainChanged)
-        {
-            CreateSwapChain();
-        }
-
-        EnsureTargets();
-
-        // Discard presentation counts from before the configuration change.
-        _ = Presenter.ReadPresentedCount();
-        applied = Settings with { };
-        reset = true;
-        recreateSwapChain = false;
-        Scene.CommitHistory();
-        statistics.Reset(Stopwatch.GetTimestamp());
+        Resources = resources;
+        InitializeRendererCore();
     }
 
-    private void EnsureTargets()
+    public void BeginFrame(in PassArgs args)
     {
-        bool changed = false;
-
-        for (int frame = 0; frame < Frames.Length; frame++)
-        {
-            Frames[frame] ??= new GpuImage[(int)ImageSlot.Count];
-
-            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
-            {
-                (int width, int height) = RenderLayout.Size(slot, InputWidth, InputHeight, outputWidth, outputHeight);
-                changed |= ResizeImage(ref Frames[frame][(int)slot], width, height, RenderLayout.Format(slot));
-            }
-        }
-
-        for (int frame = 0; frame < GeneratedFrames.Length; frame++)
-        {
-            ResizeImage(ref GeneratedFrames[frame], outputWidth, outputHeight, ImageFormat.Rgba8);
-        }
-
-        changed |= ResizeImage(ref LightingSamples, RayQuerySupported ? InputWidth : 1, RayQuerySupported ? InputHeight : 1, ImageFormat.Rgba32, RenderLayout.LightingPaths);
-
-        if (changed)
-        {
-            UpdateDescriptors();
-        }
-    }
-
-    private bool ResizeImage(ref GpuImage image, int width, int height, ImageFormat format, int layers = 1)
-    {
-        if (image is not null && image.Width == width && image.Height == height && image.Format == format && image.Layers == layers)
-        {
-            return false;
-        }
-
-        image?.Dispose();
-        image = null!;
-        image = CreateImage(width, height, format, layers);
-
-        return true;
-    }
-
-    private void SuspendFrameGeneration()
-    {
-        if (ready && !disposed)
-        {
-            statistics.Reset(Stopwatch.GetTimestamp());
-            recreateSwapChain = true;
-        }
-    }
-
-    public void RenderFrame()
-    {
-        if (Window.Width == 0 || Window.Height == 0)
-        {
-            Window.Wait();
-            Window.Pump();
-            previousTick = Stopwatch.GetTimestamp();
-            statistics.Reset(previousTick);
-            reset = true;
-
-            return;
-        }
-
-        FrameSlot = (int)(frameNumber % RenderLayout.FramesInFlight);
-        Presenter.WaitSlot(FrameSlot);
-        Window.Pump();
-
-        if (Window.Closed || Window.Width == 0 || Window.Height == 0)
-        {
-            statistics.Reset(Stopwatch.GetTimestamp());
-
-            return;
-        }
-
-        long start = Stopwatch.GetTimestamp();
-        float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
-        previousTick = start;
-
-        if (UI.UpdateFont(Window.DpiScale))
-        {
-            Presenter.Drain();
-            WaitIdle();
-            UpdateFontTexture();
-        }
-
-        UI.Build(this, delta);
-
-        recreateSwapChain |= Presenter.NeedsRecreation;
-
-        if (recreateSwapChain || outputWidth != Window.Width || outputHeight != Window.Height || applied != Settings)
-        {
-            ApplySettings();
-
-            // A modal window resize or settings change is not simulation time.
-            delta = 0;
-            previousTick = Stopwatch.GetTimestamp();
-        }
-
-        UpdateScene(delta);
-
+        Frame = args;
         BeginCommands();
-        RenderLighting();
-        Reconstruct();
-        PostProcess();
-        DrawUI(ImGui.GetDrawData());
-        Transition(Image(ImageSlot.UI), ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.Final), ImageUse.Storage);
-        Dispatch(ComputePass.Composite, outputWidth, outputHeight, Constants);
-
-        bool generated = false;
-
-        if (Settings.FrameGeneration)
-        {
-            Transition(Image(ImageSlot.Final), ImageUse.ShaderRead);
-            Transition(GeneratedFrames[FrameSlot], ImageUse.Storage);
-            generated = NGX.Generate(Command, Frames[FrameSlot], GeneratedFrames[FrameSlot], Camera, reset);
-            Transition(GeneratedFrames[FrameSlot], ImageUse.CopySource);
-        }
-
-        Transition(Image(ImageSlot.Final), ImageUse.CopySource);
-        SubmitFrame();
-        FinishFrame();
-        Presenter.Enqueue(FrameSlot, Image(ImageSlot.Final), generated ? GeneratedFrames[FrameSlot] : null, TimeSpan.FromSeconds(delta));
-        uint presentedFrames = Presenter.ReadPresentedCount();
-
-        Camera.CommitHistory();
-        Scene.CommitHistory();
-        reset = false;
-        frameNumber++;
-        long timestamp = Stopwatch.GetTimestamp();
-
-        statistics.RecordFrame(timestamp, presentedFrames);
     }
 
-    private void UpdateScene(float delta)
-    {
-        Camera.Move(Window, delta);
-        Scene.Update(AnimationPaused ? 0 : delta);
-        bool temporal = Settings.Reconstruction != Reconstruction.Native;
-        Camera.Update(InputWidth, InputHeight, outputWidth, outputHeight, frameNumber, temporal, reset);
-        Matrix4x4.Invert(Camera.JitteredViewProjection, out Matrix4x4 inverse);
-        const float elevation = 50 * MathF.PI / 180;
-        const float azimuth = 65 * MathF.PI / 180;
-        Vector3 sun = new(MathF.Cos(elevation) * MathF.Cos(azimuth), MathF.Sin(elevation), MathF.Cos(elevation) * MathF.Sin(azimuth));
-        const float solarAngularRadius = 0.2666f * MathF.PI / 180;
-        Constants = new()
-        {
-            ViewProjection = Camera.JitteredViewProjection,
-            CurrentViewProjection = Camera.ViewProjection,
-            PreviousViewProjection = Camera.PreviousViewProjection,
-            InverseViewProjection = inverse,
-            Camera = new(Camera.Position, MathF.Tan(Camera.FieldOfView / 2)),
-            Size = new(InputWidth, InputHeight, outputWidth, outputHeight),
-            Sun = new(sun, solarAngularRadius),
-            Scene = new(Scene.Objects.Length, frameNumber, Scene.RayEpsilon, Scene.Scale),
-            Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, RenderLayout.TextureMipBias(InputWidth, outputWidth, temporal)),
-            SunViewProjection = Scene.GetSunViewProjection(sun),
-            Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
-            Exposure = new(0, delta, reset ? 1 : 0, 0),
-            EnvironmentMinimum = new(Scene.Minimum, 0),
-            EnvironmentMaximum = new(Scene.Maximum, 0),
-            PreviousCamera = new(Camera.PreviousPosition, 0)
-        };
-    }
+    public abstract void CreateSwapChain();
 
-    private void RenderLighting()
-    {
-        if (RayQuerySupported)
-        {
-            UpdateRayTracingScene();
-        }
-        else
-        {
-            DrawShadow();
-        }
+    public abstract void DestroySwapChain();
 
-        Transition(Image(ImageSlot.Shadow), ImageUse.ShaderRead);
-        DrawScene();
+    public abstract GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1);
 
-        foreach (ImageSlot slot in RenderLayout.GeometryOutputs)
-        {
-            Transition(Image(slot), ImageUse.ShaderRead);
-        }
+    public abstract void UpdateDescriptors();
 
-        foreach (ImageSlot slot in RenderLayout.LightingOutputs)
-        {
-            Transition(Image(slot), ImageUse.Storage);
-        }
+    public abstract void UpdateFontTexture();
 
-        if (RayQuerySupported)
-        {
-            Transition(LightingSamples, ImageUse.Storage);
-            Dispatch(ComputePass.TraceLighting, InputWidth, InputHeight, Constants, RenderLayout.LightingPaths);
-        }
+    public abstract void UpdateRayTracingScene();
 
-        Transition(LightingSamples, ImageUse.ShaderRead);
-        Dispatch(ComputePass.Lighting, InputWidth, InputHeight, Constants);
+    public abstract void DrawShadow();
 
-        foreach (ImageSlot slot in RenderLayout.LightingOutputs)
-        {
-            Transition(Image(slot), ImageUse.ShaderRead);
-        }
-    }
+    public abstract void DrawScene();
 
-    private void Reconstruct()
-    {
-        if (Settings.Reconstruction == Reconstruction.Native)
-        {
-            return;
-        }
+    public abstract void DrawUI(ImDrawDataPtr data);
 
-        Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);
-        NGX.Evaluate(Command, Frames[FrameSlot], Camera, reset, Constants.Exposure.Y);
-        Transition(Image(ImageSlot.Reconstructed), ImageUse.ShaderRead);
-    }
+    public abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1);
 
-    private void PostProcess()
-    {
-        FrameConstants post = Constants;
-        post.Parameters.Z = Settings.Reconstruction != Reconstruction.Native ? 1 : 0;
-        Transition(Image(ImageSlot.Luminance), ImageUse.Storage);
+    public abstract void Transition(GpuImage image, ImageUse use);
 
-        // PrepareLuminance uses one 8x8 group per tile, rather than per 8x8 tiles.
-        Dispatch(ComputePass.PrepareLuminance, Image(ImageSlot.Luminance).Width * 8, Image(ImageSlot.Luminance).Height * 8, post);
-        Transition(Image(ImageSlot.Luminance), ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.FilteredLuminance), ImageUse.Storage);
-        Dispatch(ComputePass.FilterLuminance, Image(ImageSlot.FilteredLuminance).Width, Image(ImageSlot.FilteredLuminance).Height, post);
-        Transition(Image(ImageSlot.FilteredLuminance), ImageUse.ShaderRead);
+    public abstract void SubmitFrame();
 
-        // Meter reconstructed HDR when available, before tone mapping and UI. Each
-        // frame reads the preceding submitted frame's result, not its slot's old value.
-        int previousFrame = (FrameSlot + RenderLayout.FramesInFlight - 1) % RenderLayout.FramesInFlight;
-        Transition(Frames[previousFrame][(int)ImageSlot.Exposure], ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.Exposure), ImageUse.Storage);
-        Dispatch(ComputePass.MeterExposure, 1, 1, post);
-        Transition(Image(ImageSlot.Exposure), ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.DisplayInput), ImageUse.Storage);
-        Dispatch(ComputePass.ToneMap, Image(ImageSlot.DisplayInput).Width, Image(ImageSlot.DisplayInput).Height, post);
-        Transition(Image(ImageSlot.DisplayInput), ImageUse.ShaderRead);
-        Transition(Image(ImageSlot.Hudless), ImageUse.Storage);
+    public abstract bool PresentImage(GpuImage image);
 
-        // Keep native, un-reconstructed RT samples intact for the RR comparison.
-        Dispatch(
-            Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay,
-            outputWidth,
-            outputHeight,
-            post);
-        Transition(Image(ImageSlot.Hudless), ImageUse.ShaderRead);
-    }
+    public abstract void WaitRenderedFrame(int slot);
 
-    protected GpuImage Image(ImageSlot slot) => Frames[FrameSlot][(int)slot];
+    public abstract void WaitPresentation();
 
-    private void ReleaseTargets()
-    {
-        LightingSamples?.Dispose();
-        LightingSamples = null!;
-
-        foreach (GpuImage[]? frame in Frames)
-        {
-            if (frame is not null)
-            {
-                foreach (GpuImage image in frame)
-                {
-                    image?.Dispose();
-                }
-            }
-        }
-
-        Array.Clear(Frames);
-
-        foreach (GpuImage? generated in GeneratedFrames)
-        {
-            generated?.Dispose();
-        }
-
-        Array.Clear(GeneratedFrames);
-    }
+    public abstract void WaitIdle();
 
     protected abstract void InitializeDevice();
 
-    protected abstract void InitializeRenderer();
-
-    protected abstract void UpdateFontTexture();
-
-    protected abstract void CreateSwapChain();
-
-    protected abstract void DestroySwapChain();
-
-    protected abstract GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1);
-
-    protected abstract void UpdateDescriptors();
+    protected abstract void InitializeRendererCore();
 
     protected abstract void BeginCommands();
-
-    protected abstract void UpdateRayTracingScene();
-
-    protected abstract void DrawShadow();
-
-    protected abstract void DrawScene();
-
-    protected abstract void DrawUI(ImDrawDataPtr data);
-
-    protected abstract void Dispatch(ComputePass pass, int width, int height, in FrameConstants constants, int groupsZ = 1);
-
-    protected abstract void Transition(GpuImage image, ImageUse use);
-
-    protected abstract void SubmitFrame();
-
-    protected abstract bool PresentImage(GpuImage image);
-
-    protected abstract void WaitRenderedFrame(int slot);
-
-    protected abstract void WaitPresentation();
-
-    protected abstract void FinishFrame();
-
-    protected abstract void WaitIdle();
 
     protected abstract void DisposeDevice();
 
@@ -471,30 +104,19 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
 
         disposed = true;
-        Window.BeforeWindowChange = null;
 
         try
         {
-            try
-            {
-                Presenter?.Drain();
-            }
-            finally
-            {
-                WaitIdle();
-            }
+            WaitIdle();
         }
         finally
         {
-            // Keep the device alive through NGX shutdown.
             try
             {
-                Presenter?.Dispose();
                 NGX.Dispose();
             }
             finally
             {
-                ReleaseTargets();
                 DisposeDevice();
             }
         }

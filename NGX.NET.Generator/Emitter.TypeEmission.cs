@@ -14,7 +14,6 @@ internal sealed partial class Emitter
         bool unsigned = name == "NVSDK_NGX_Result" || values.Any(v => v.GetProperty("value").GetInt64() > int.MaxValue);
         string prefix = name + "_";
         StringBuilder text = new(Header + Namespace + Summary(name));
-        text.AppendLine($"[NGXNativeName(\"{name}\")]");
         text.AppendLine($"public enum {managed} : {(unsigned ? "uint" : "int")}\n{{");
 
         for (int i = 0; i < values.Length; i++)
@@ -44,7 +43,6 @@ internal sealed partial class Emitter
             }
 
             text.Append(Summary(native, 4));
-            text.AppendLine($"    [NGXNativeName(\"{native}\")]");
             text.AppendLine($"    {member.Replace("_", "", StringComparison.Ordinal)} = {(unsigned ? unchecked((uint)item.GetProperty("value").GetInt64()).ToString(CultureInfo.InvariantCulture) : item.GetProperty("value").GetInt64().ToString(CultureInfo.InvariantCulture))},");
         }
 
@@ -66,7 +64,6 @@ internal sealed partial class Emitter
         bool hasNumerics = fields.Any(field => MathFieldType(name, field) is not null);
         bool hasInlineArrays = false;
         StringBuilder text = new(Summary(opaque ? name + ". Opaque native object; pass only pointers returned by NGX." : name));
-        text.AppendLine($"[NGXNativeName(\"{name}\")]");
         text.AppendLine(opaque ? "[StructLayout(LayoutKind.Sequential)]" : $"[StructLayout(LayoutKind.Explicit, Size = {value.Number("size")})]");
         text.AppendLine($"public unsafe partial struct {managed}\n{{");
 
@@ -81,7 +78,6 @@ internal sealed partial class Emitter
             JsonElement type = field.GetProperty("type");
             string fieldName = field.Text("name");
             text.Append(Summary($"{name}::{fieldName}", 4));
-            text.AppendLine($"    [NGXNativeName(\"{fieldName}\")]");
             text.AppendLine($"    [FieldOffset({field.Number("offset") / 8})]");
 
             if (MathFieldType(name, field) is string mathType)
@@ -143,7 +139,7 @@ internal sealed partial class Emitter
             }
             else if (!Regex.IsMatch(expression, @"^\{[0 ,.f]+\}$"))
             {
-                throw new InvalidOperationException("Unreviewed native initializer: " + expression);
+                throw new InvalidOperationException("Unsupported native initializer: " + expression);
             }
         }
 
@@ -169,8 +165,6 @@ internal sealed partial class Emitter
 
     private void WriteCallbacks()
     {
-        Dictionary<string, JsonElement> aliases = platforms.SelectMany(p => p.GetProperty("aliases").EnumerateObject()).GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.First().Value);
-
         foreach ((string native, JsonElement type) in aliases)
         {
             if (type.Text("kind") != "POINTER" || type.GetProperty("element").Text("kind") != "FUNCTIONPROTO")
@@ -181,7 +175,7 @@ internal sealed partial class Emitter
             string name = TypeName(native);
             string pointer = Type(type);
             files[$"Callbacks/{name}.g.cs"] = Header + "using System.Runtime.InteropServices;\n\n" + Namespace + Summary(native + ". Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.") +
-                $"[NGXNativeName(\"{native}\")]\n[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" +
+                $"[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" +
                 Summary("Native C callback pointer. C++ reference parameters use their pointer ABI.", 4) +
                 $"    public readonly {pointer} Pointer = pointer;\n}}\n";
         }

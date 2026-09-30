@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Coordinates_VK
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Coordinates_VK")]
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public unsafe partial struct NGXCoordinatesVK
 {
     /// <summary>
     /// NVSDK_NGX_Coordinates_VK::X
     /// </summary>
-    [NGXNativeName("X")]
     [FieldOffset(0)]
     public uint X;
 
     /// <summary>
     /// NVSDK_NGX_Coordinates_VK::Y
     /// </summary>
-    [NGXNativeName("Y")]
     [FieldOffset(4)]
     public uint Y;
 }

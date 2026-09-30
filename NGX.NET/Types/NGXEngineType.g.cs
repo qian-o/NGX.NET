@@ -6,36 +6,30 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_EngineType
 /// </summary>
-[NGXNativeName("NVSDK_NGX_EngineType")]
 public enum NGXEngineType : int
 {
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_CUSTOM
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_CUSTOM")]
     CUSTOM = 0,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNREAL
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_UNREAL")]
     UNREAL = 1,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_UNITY
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_UNITY")]
     UNITY = 2,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_TYPE_OMNIVERSE
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_ENGINE_TYPE_OMNIVERSE")]
     OMNIVERSE = 3,
 
     /// <summary>
     /// NVSDK_NGX_ENGINE_COUNT
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_ENGINE_COUNT")]
     ENGINECOUNT = 4,
 }

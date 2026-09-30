@@ -8,28 +8,24 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_CUDA_Feature_Eval_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_CUDA_Feature_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct NGXCUDAFeatureEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_Feature_Eval_Params::pInColor
     /// </summary>
-    [NGXNativeName("pInColor")]
     [FieldOffset(0)]
     public ulong* PInColor;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_Feature_Eval_Params::pInOutput
     /// </summary>
-    [NGXNativeName("pInOutput")]
     [FieldOffset(8)]
     public ulong* PInOutput;
 
     /// <summary>
     /// NVSDK_NGX_CUDA_Feature_Eval_Params::InSharpness
     /// </summary>
-    [NGXNativeName("InSharpness")]
     [FieldOffset(16)]
     public float InSharpness;
 }

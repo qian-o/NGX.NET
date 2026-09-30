@@ -42,7 +42,7 @@ internal sealed unsafe partial class VulkanRHI
         presentAcquire = createdSemaphore;
     }
 
-    protected override void WaitRenderedFrame(int slot)
+    public override void WaitRenderedFrame(int slot)
     {
         Fence fence = slots[slot].Fence;
         Check(api.WaitForFences(device, 1, &fence, true, ulong.MaxValue), "vkWaitForFences(render)");
@@ -55,16 +55,27 @@ internal sealed unsafe partial class VulkanRHI
             PWaitSemaphores = &complete,
             PWaitDstStageMask = &stage
         };
+        Fence dependencyFence = presentFence;
+        Check(api.ResetFences(device, 1, &dependencyFence), "vkResetFences(render dependency)");
 
         lock (queueSync)
         {
-            Check(api.QueueSubmit(presentQueue, 1, &wait, default), "vkQueueSubmit(render dependency)");
+            // Track semaphore consumption even when acquire cannot produce an
+            // image. The slot must not signal RenderComplete again first.
+            Check(api.QueueSubmit(presentQueue, 1, &wait, dependencyFence), "vkQueueSubmit(render dependency)");
+            presentationPending = true;
         }
     }
 
-    protected override bool PresentImage(GpuImage image)
+    public override bool PresentImage(GpuImage image)
     {
         WaitPresentation();
+
+        if (swapChain.Handle == 0)
+        {
+            return false;
+        }
+
         uint index = 0;
         Result acquire = swapChainApi.AcquireNextImage(device, swapChain, ulong.MaxValue, presentAcquire, default, &index);
 
@@ -94,7 +105,7 @@ internal sealed unsafe partial class VulkanRHI
         };
 
         blit.SrcOffsets[1] = new(image.Width, image.Height, 1);
-        blit.DstOffsets[1] = new(image.Width, image.Height, 1);
+        blit.DstOffsets[1] = new((int)swapChainExtent.Width, (int)swapChainExtent.Height, 1);
         api.CmdBlitImage(
             presentCommand,
             ((VkTexture)image).Texture,
@@ -150,10 +161,10 @@ internal sealed unsafe partial class VulkanRHI
 
         Check(result, "vkQueuePresentKHR");
 
-        return true;
+        return acquire != Result.SuboptimalKhr;
     }
 
-    protected override void WaitPresentation()
+    public override void WaitPresentation()
     {
         if (presentationPending)
         {

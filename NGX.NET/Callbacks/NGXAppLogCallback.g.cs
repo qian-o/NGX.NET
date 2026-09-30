@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_AppLogCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("NVSDK_NGX_AppLogCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXAppLogCallback(delegate* unmanaged[Cdecl]<sbyte*, NGXLoggingLevel, NGXFeature, void> pointer)
 {

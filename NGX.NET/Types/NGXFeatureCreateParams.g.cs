@@ -8,42 +8,36 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Feature_Create_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Feature_Create_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 20)]
 public unsafe partial struct NGXFeatureCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InWidth
     /// </summary>
-    [NGXNativeName("InWidth")]
     [FieldOffset(0)]
     public uint InWidth;
 
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InHeight
     /// </summary>
-    [NGXNativeName("InHeight")]
     [FieldOffset(4)]
     public uint InHeight;
 
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InTargetWidth
     /// </summary>
-    [NGXNativeName("InTargetWidth")]
     [FieldOffset(8)]
     public uint InTargetWidth;
 
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InTargetHeight
     /// </summary>
-    [NGXNativeName("InTargetHeight")]
     [FieldOffset(12)]
     public uint InTargetHeight;
 
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InPerfQualityValue
     /// </summary>
-    [NGXNativeName("InPerfQualityValue")]
     [FieldOffset(16)]
     public NGXPerfQualityValue InPerfQualityValue;
 }

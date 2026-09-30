@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_ProgressCallback_C. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_ProgressCallback_C")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnProgressCallbackC(delegate* unmanaged[Cdecl]<float, NGXBool8*, void> pointer)
 {

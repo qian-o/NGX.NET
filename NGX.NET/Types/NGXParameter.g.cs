@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Parameter. Opaque native object; pass only pointers returned by NGX.
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Parameter")]
 [StructLayout(LayoutKind.Sequential)]
 public unsafe partial struct NGXParameter
 {

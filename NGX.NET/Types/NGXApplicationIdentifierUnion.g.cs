@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// v
 /// </summary>
-[NGXNativeName("v")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct NGXApplicationIdentifierUnion
 {
     /// <summary>
     /// v::ProjectDesc
     /// </summary>
-    [NGXNativeName("ProjectDesc")]
     [FieldOffset(0)]
     public NGXProjectIdDescription ProjectDesc;
 
     /// <summary>
     /// v::ApplicationId
     /// </summary>
-    [NGXNativeName("ApplicationId")]
     [FieldOffset(0)]
     public ulong ApplicationId;
 }

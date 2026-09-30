@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_PathListInfo
 /// </summary>
-[NGXNativeName("NVSDK_NGX_PathListInfo")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public unsafe partial struct NGXPathListInfo
 {
     /// <summary>
     /// NVSDK_NGX_PathListInfo::Path
     /// </summary>
-    [NGXNativeName("Path")]
     [FieldOffset(0)]
     public void** Path;
 
     /// <summary>
     /// NVSDK_NGX_PathListInfo::Length
     /// </summary>
-    [NGXNativeName("Length")]
     [FieldOffset(8)]
     public uint Length;
 }

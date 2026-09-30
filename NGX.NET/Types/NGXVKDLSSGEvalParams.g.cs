@@ -8,77 +8,66 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_VK_DLSSG_Eval_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_VK_DLSSG_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 80)]
 public unsafe partial struct NGXVKDLSSGEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pBackbuffer
     /// </summary>
-    [NGXNativeName("pBackbuffer")]
     [FieldOffset(0)]
     public NGXResourceVK* PBackbuffer;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pDepth
     /// </summary>
-    [NGXNativeName("pDepth")]
     [FieldOffset(8)]
     public NGXResourceVK* PDepth;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pMVecs
     /// </summary>
-    [NGXNativeName("pMVecs")]
     [FieldOffset(16)]
     public NGXResourceVK* PMVecs;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pHudless
     /// </summary>
-    [NGXNativeName("pHudless")]
     [FieldOffset(24)]
     public NGXResourceVK* PHudless;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pUI
     /// </summary>
-    [NGXNativeName("pUI")]
     [FieldOffset(32)]
     public NGXResourceVK* PUI;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pUIAlpha
     /// </summary>
-    [NGXNativeName("pUIAlpha")]
     [FieldOffset(40)]
     public NGXResourceVK* PUIAlpha;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pBidirectionalDistortionField
     /// </summary>
-    [NGXNativeName("pBidirectionalDistortionField")]
     [FieldOffset(48)]
     public NGXResourceVK* PBidirectionalDistortionField;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputInterpFrame
     /// </summary>
-    [NGXNativeName("pOutputInterpFrame")]
     [FieldOffset(56)]
     public NGXResourceVK* POutputInterpFrame;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputRealFrame
     /// </summary>
-    [NGXNativeName("pOutputRealFrame")]
     [FieldOffset(64)]
     public NGXResourceVK* POutputRealFrame;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pOutputDisableInterpolation
     /// </summary>
-    [NGXNativeName("pOutputDisableInterpolation")]
     [FieldOffset(72)]
     public NGXResourceVK* POutputDisableInterpolation;
 }

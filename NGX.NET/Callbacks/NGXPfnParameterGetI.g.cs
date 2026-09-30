@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_Parameter_GetI. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_Parameter_GetI")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnParameterGetI(delegate* unmanaged[Cdecl]<NGXParameter*, sbyte*, int*, NGXResult> pointer)
 {

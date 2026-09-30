@@ -6,18 +6,15 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Application_Identifier_Type
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Application_Identifier_Type")]
 public enum NGXApplicationIdentifierType : int
 {
     /// <summary>
     /// NVSDK_NGX_Application_Identifier_Type_Application_Id
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Application_Identifier_Type_Application_Id")]
     ApplicationId = 0,
 
     /// <summary>
     /// NVSDK_NGX_Application_Identifier_Type_Project_Id
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Application_Identifier_Type_Project_Id")]
     ProjectId = 1,
 }

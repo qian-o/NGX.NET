@@ -8,77 +8,66 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSD_Create_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_DLSSD_Create_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 40)]
 public unsafe partial struct NGXDLSSDCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InDenoiseMode
     /// </summary>
-    [NGXNativeName("InDenoiseMode")]
     [FieldOffset(0)]
     public NGXDLSSDenoiseMode InDenoiseMode;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InRoughnessMode
     /// </summary>
-    [NGXNativeName("InRoughnessMode")]
     [FieldOffset(4)]
     public NGXDLSSRoughnessMode InRoughnessMode;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InUseHWDepth
     /// </summary>
-    [NGXNativeName("InUseHWDepth")]
     [FieldOffset(8)]
     public NGXDLSSDepthType InUseHWDepth;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InWidth
     /// </summary>
-    [NGXNativeName("InWidth")]
     [FieldOffset(12)]
     public uint InWidth;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InHeight
     /// </summary>
-    [NGXNativeName("InHeight")]
     [FieldOffset(16)]
     public uint InHeight;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InTargetWidth
     /// </summary>
-    [NGXNativeName("InTargetWidth")]
     [FieldOffset(20)]
     public uint InTargetWidth;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InTargetHeight
     /// </summary>
-    [NGXNativeName("InTargetHeight")]
     [FieldOffset(24)]
     public uint InTargetHeight;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InPerfQualityValue
     /// </summary>
-    [NGXNativeName("InPerfQualityValue")]
     [FieldOffset(28)]
     public NGXPerfQualityValue InPerfQualityValue;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InFeatureCreateFlags
     /// </summary>
-    [NGXNativeName("InFeatureCreateFlags")]
     [FieldOffset(32)]
     public int InFeatureCreateFlags;
 
     /// <summary>
     /// NVSDK_NGX_DLSSD_Create_Params::InEnableOutputSubrects
     /// </summary>
-    [NGXNativeName("InEnableOutputSubrects")]
     [FieldOffset(36)]
     public NGXBool8 InEnableOutputSubrects;
 }

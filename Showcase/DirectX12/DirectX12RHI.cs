@@ -5,12 +5,13 @@ using Showcase.Models;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
+using Silk.NET.Windowing;
 
 namespace Showcase.DirectX12;
 
-internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
+internal sealed unsafe partial class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window, ui)
 {
-    protected override nint Command => (nint)commandList.Handle;
+    public override nint Command => (nint)commandList.Handle;
 
     private ComPtr<ID3D12CommandAllocator> presentAllocator;
     private ComPtr<ID3D12GraphicsCommandList> presentCommands;
@@ -123,103 +124,67 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         Check(device.Handle->CreateFence(0, FenceFlags.None, SilkMarshal.GuidPtrOf<ID3D12Fence>(), (void**)presentFence.GetAddressOf()));
     }
 
-    private ComPtr<ID3D12Resource> UploadBuffer(int bytes) => CreateBuffer((ulong)Math.Max(bytes, 4), HeapType.Upload, ResourceStates.GenericRead);
-
-    private ComPtr<ID3D12Resource> StaticBuffer<T>(ReadOnlySpan<T> data)
-        where T : unmanaged
+    protected override void DisposeDevice()
     {
-        int size = data.Length * sizeof(T);
-        ComPtr<ID3D12Resource> buffer = CreateBuffer((ulong)size, HeapType.Default, ResourceStates.CopyDest);
-        try
+        if (recording)
         {
-            ComPtr<ID3D12Resource> upload = UploadBuffer(size);
-            uploads.Add(upload);
-            SetData(upload, data);
-            commandList.Handle->CopyBufferRegion(buffer.Handle, 0, upload.Handle, 0, (ulong)size);
-            TransitionBarrier(commandList, buffer, ResourceStates.CopyDest, ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
-
-            return buffer;
+            commandList.Handle->Close();
+            recording = false;
         }
-        catch
+
+        DestroySwapChain();
+
+        foreach (ComPtr<ID3D12PipelineState> pipeline in pipelines.Values)
         {
-            buffer.Dispose();
-            throw;
+            pipeline.Dispose();
         }
-    }
 
-    protected override void CreateSwapChain()
-    {
-        SwapChainDesc1 description = new()
+        shadowPipeline.Dispose();
+        scenePipeline.Dispose();
+        depthPipeline.Dispose();
+        uiPipeline.Dispose();
+        root.Dispose();
+
+        foreach (DxFrame? slot in slots)
         {
-            Width = (uint)Window.Width,
-            Height = (uint)Window.Height,
-            Format = Format.FormatR8G8B8A8Unorm,
-            BufferCount = RenderLayout.FramesInFlight,
-            BufferUsage = DXGI.UsageRenderTargetOutput,
-            SampleDesc = new(1, 0),
-            SwapEffect = SwapEffect.FlipDiscard,
-            Scaling = Scaling.Stretch,
-            AlphaMode = AlphaMode.Ignore
-        };
-
-        using ComPtr<IDXGISwapChain1> created = default;
-        Check(factory.Handle->CreateSwapChainForHwnd((IUnknown*)presentQueue.Handle, Window.Handle, &description, null, null, created.GetAddressOf()));
-        Check(created.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGISwapChain3>(), (void**)swapChain.GetAddressOf()));
-        Check(factory.Handle->MakeWindowAssociation(Window.Handle, NoAltEnter));
-
-        for (uint i = 0; i < RenderLayout.FramesInFlight; i++)
-        {
-            ComPtr<ID3D12Resource> buffer = default;
-            Check(swapChain.Handle->GetBuffer(i, SilkMarshal.GuidPtrOf<ID3D12Resource>(), (void**)buffer.GetAddressOf()));
-            backBuffers.Add(buffer);
+            slot?.Dispose();
         }
-    }
 
-    protected override void DestroySwapChain()
-    {
-        foreach (ComPtr<ID3D12Resource> buffer in backBuffers)
+        foreach (ComPtr<ID3D12Resource> blas in bottomLevels)
+        {
+            blas.Dispose();
+        }
+
+        rayCommands.Dispose();
+        rayDevice.Dispose();
+
+        foreach (ComPtr<ID3D12Resource> buffer in sceneBuffers)
         {
             buffer.Dispose();
         }
 
-        backBuffers.Clear();
-        swapChain.Dispose();
-    }
-
-    protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
-    {
-        ResourceFlags flags = format == ImageFormat.Depth ? ResourceFlags.AllowDepthStencil : ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess;
-        Format resourceFormat = format == ImageFormat.Depth ? Format.FormatR32Typeless : NativeFormat(format);
-        ResourceDesc description = new()
+        foreach (ComPtr<ID3D12Resource> upload in uploads)
         {
-            Dimension = ResourceDimension.Texture2D,
-            Width = (uint)width,
-            Height = (uint)height,
-            DepthOrArraySize = (ushort)layers,
-            MipLevels = 1,
-            Format = resourceFormat,
-            SampleDesc = new(1, 0),
-            Flags = flags
-        };
+            upload.Dispose();
+        }
 
-        return new DxImage
-        {
-            Width = width,
-            Height = height,
-            Layers = layers,
-            Format = format,
-            Texture = CreateResource(HeapType.Default, description, ResourceStates.Common),
-            State = ResourceStates.Common
-        };
+        font?.Dispose();
+        descriptors.Dispose();
+        renderTargets.Dispose();
+        depthViews.Dispose();
+        presentCommands.Dispose();
+        presentAllocator.Dispose();
+        presentFence.Dispose();
+        presentEvent.Dispose();
+        commandList.Dispose();
+        fence.Dispose();
+        presentQueue.Dispose();
+        queue.Dispose();
+        device.Dispose();
+        adapter.Dispose();
+        factory.Dispose();
+        fenceEvent.Dispose();
+        d3d12?.Dispose();
+        dxgi?.Dispose();
     }
-
-    private static Format NativeFormat(ImageFormat format) => format switch
-    {
-        ImageFormat.Rgba16 => Format.FormatR16G16B16A16Float,
-        ImageFormat.Rgba32 => Format.FormatR32G32B32A32Float,
-        ImageFormat.Rg16 => Format.FormatR16G16Float,
-        ImageFormat.Float => Format.FormatR32Float,
-        ImageFormat.Depth => Format.FormatD32Float,
-        _ => Format.FormatR8G8B8A8Unorm
-    };
 }

@@ -6,24 +6,20 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_FullscreenMode
 /// </summary>
-[NGXNativeName("NVSDK_NGX_DLSSG_FullscreenMode")]
 public enum NGXDLSSGFullscreenMode : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_FullscreenMode_Windowed
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSSG_FullscreenMode_Windowed")]
     Windowed = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_FullscreenMode_Borderless
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSSG_FullscreenMode_Borderless")]
     Borderless = 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_FullscreenMode_Exclusive
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSSG_FullscreenMode_Exclusive")]
     Exclusive = 2,
 }

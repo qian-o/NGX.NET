@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_DLSS_GetStatsCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_DLSS_GetStatsCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnDLSSGetStatsCallback(delegate* unmanaged[Cdecl]<NGXParameter*, NGXResult> pointer)
 {

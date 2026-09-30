@@ -69,8 +69,7 @@ internal sealed partial class Emitter
                 {
                     "NVSDK_NGX_VERSION_API_MACRO" => $"public const uint VersionAPI = {tokens[0]};",
                     "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET" => $"public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};",
-                    "NVSDK_NGX_API" or "NVSDK_CONV" or "SR_DEPRECATED_SHARPENING" => null,
-                    _ => throw new InvalidOperationException("Unclassified public macro: " + native)
+                    _ => null
                 };
 
             if (declaration is null)
@@ -85,7 +84,6 @@ internal sealed partial class Emitter
 
             hasMembers = true;
             text.Append(Summary(native, 4));
-            text.AppendLine($"    [NGXNativeName(\"{native}\")]");
             text.AppendLine($"    {declaration}");
         }
 

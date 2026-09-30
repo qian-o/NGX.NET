@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// Anonymous_94_5
 /// </summary>
-[NGXNativeName("Anonymous_94_5")]
 [StructLayout(LayoutKind.Explicit, Size = 48)]
 public unsafe partial struct NGXResourceVKUnion
 {
     /// <summary>
     /// Anonymous_94_5::ImageViewInfo
     /// </summary>
-    [NGXNativeName("ImageViewInfo")]
     [FieldOffset(0)]
     public NGXImageViewInfoVK ImageViewInfo;
 
     /// <summary>
     /// Anonymous_94_5::BufferInfo
     /// </summary>
-    [NGXNativeName("BufferInfo")]
     [FieldOffset(0)]
     public NGXBufferInfoVK BufferInfo;
 }

@@ -6,126 +6,105 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Result
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Result")]
 public enum NGXResult : uint
 {
     /// <summary>
     /// NVSDK_NGX_Result_Success
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_Success")]
     Success = 1,
 
     /// <summary>
     /// NVSDK_NGX_Result_Fail
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_Fail")]
     Fail = 3134193664,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureNotSupported
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureNotSupported")]
     FAILFeatureNotSupported = 3134193665,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_PlatformError
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_PlatformError")]
     FAILPlatformError = 3134193666,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureAlreadyExists
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureAlreadyExists")]
     FAILFeatureAlreadyExists = 3134193667,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureNotFound
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_FeatureNotFound")]
     FAILFeatureNotFound = 3134193668,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_InvalidParameter
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_InvalidParameter")]
     FAILInvalidParameter = 3134193669,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_ScratchBufferTooSmall
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_ScratchBufferTooSmall")]
     FAILScratchBufferTooSmall = 3134193670,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotInitialized
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_NotInitialized")]
     FAILNotInitialized = 3134193671,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedInputFormat
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedInputFormat")]
     FAILUnsupportedInputFormat = 3134193672,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_RWFlagMissing
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_RWFlagMissing")]
     FAILRWFlagMissing = 3134193673,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_MissingInput
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_MissingInput")]
     FAILMissingInput = 3134193674,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToInitializeFeature
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_UnableToInitializeFeature")]
     FAILUnableToInitializeFeature = 3134193675,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfDate
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_OutOfDate")]
     FAILOutOfDate = 3134193676,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfGPUMemory
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_OutOfGPUMemory")]
     FAILOutOfGPUMemory = 3134193677,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedFormat
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedFormat")]
     FAILUnsupportedFormat = 3134193678,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToWriteToAppDataPath
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_UnableToWriteToAppDataPath")]
     FAILUnableToWriteToAppDataPath = 3134193679,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedParameter
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_UnsupportedParameter")]
     FAILUnsupportedParameter = 3134193680,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_Denied
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_Denied")]
     FAILDenied = 3134193681,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotImplemented
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_Result_FAIL_NotImplemented")]
     FAILNotImplemented = 3134193682,
 }

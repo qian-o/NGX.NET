@@ -1,24 +1,21 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using Showcase.Models;
 
 namespace Showcase.Helpers;
 
-// The presenter owns all swap-chain operations. Per-slot completion prevents
+// Presentation runs on one worker. Per-slot completion prevents
 // rendering from overwriting either retained real frames or generated frames.
 internal sealed class FramePresenter(
     Action<int> waitRendering,
     Func<GpuImage, bool> present,
-    Action waitPresentation,
-    TimeProvider? timeProvider = null,
-    Action<long>? waitUntil = null) : IDisposable
+    Action waitPresentation) : IDisposable
 {
     private sealed record Batch(int Slot, GpuImage Real, GpuImage? Generated, TimeSpan Interval, TaskCompletionSource Completion);
 
     private readonly BlockingCollection<Batch> queue = new(RenderLayout.FramesInFlight);
     private readonly Task[] slots = Enumerable.Repeat(Task.CompletedTask, RenderLayout.FramesInFlight).ToArray();
-    private readonly TimeProvider time = timeProvider ?? TimeProvider.System;
-    private PresentationTimer? timer;
     private Thread? thread;
     private ExceptionDispatchInfo? failure;
     private int presented;
@@ -72,19 +69,12 @@ internal sealed class FramePresenter(
                     if (batch.Generated is not null)
                     {
                         // Copy/Present time belongs inside the half-frame interval.
-                        long deadline = time.GetTimestamp() + (long)(batch.Interval.TotalSeconds * time.TimestampFrequency / 2);
+                        long deadline = Stopwatch.GetTimestamp() + (long)(batch.Interval.TotalSeconds * Stopwatch.Frequency / 2);
                         presentReal = Present(batch.Generated);
 
-                        if (presentReal && time.GetTimestamp() < deadline)
+                        if (presentReal)
                         {
-                            if (waitUntil is not null)
-                            {
-                                waitUntil(deadline);
-                            }
-                            else
-                            {
-                                (timer ??= new()).WaitUntil(deadline, time);
-                            }
+                            WaitUntil(deadline);
                         }
                     }
 
@@ -126,13 +116,31 @@ internal sealed class FramePresenter(
         return success;
     }
 
+    private static void WaitUntil(long deadline)
+    {
+        long now;
+
+        while ((now = Stopwatch.GetTimestamp()) < deadline)
+        {
+            double milliseconds = Stopwatch.GetElapsedTime(now, deadline).TotalMilliseconds;
+
+            if (milliseconds >= 1)
+            {
+                Thread.Sleep((int)Math.Min(milliseconds, int.MaxValue));
+            }
+            else
+            {
+                Thread.Yield();
+            }
+        }
+    }
+
     public void Drain() => Task.WhenAll(slots).GetAwaiter().GetResult();
 
     public void Dispose()
     {
         queue.CompleteAdding();
         thread?.Join();
-        timer?.Dispose();
         queue.Dispose();
     }
 }

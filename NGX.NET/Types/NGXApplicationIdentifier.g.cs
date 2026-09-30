@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Application_Identifier
 /// </summary>
-[NGXNativeName("NVSDK_NGX_Application_Identifier")]
 [StructLayout(LayoutKind.Explicit, Size = 32)]
 public unsafe partial struct NGXApplicationIdentifier
 {
     /// <summary>
     /// NVSDK_NGX_Application_Identifier::IdentifierType
     /// </summary>
-    [NGXNativeName("IdentifierType")]
     [FieldOffset(0)]
     public NGXApplicationIdentifierType IdentifierType;
 
     /// <summary>
     /// NVSDK_NGX_Application_Identifier::v
     /// </summary>
-    [NGXNativeName("v")]
     [FieldOffset(8)]
     public NGXApplicationIdentifierUnion V;
 }

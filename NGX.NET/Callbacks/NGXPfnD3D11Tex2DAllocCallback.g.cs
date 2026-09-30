@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_D3D11_Tex2DAllocCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_D3D11_Tex2DAllocCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnD3D11Tex2DAllocCallback(delegate* unmanaged[Cdecl]<nint, nint*, void> pointer)
 {

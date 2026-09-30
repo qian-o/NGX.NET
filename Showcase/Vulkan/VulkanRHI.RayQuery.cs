@@ -110,12 +110,12 @@ internal sealed unsafe partial class VulkanRHI
 
     private void InitializeAccelerationStructures()
     {
-        if ((ulong)Scene.Objects.Length > maxRayInstances)
+        if ((ulong)Resources.Scene.Objects.Length > maxRayInstances)
         {
             throw new NotSupportedException("Scene exceeds Vulkan maxInstanceCount.");
         }
 
-        foreach (SceneObject instance in Scene.Objects)
+        foreach (SceneObject instance in Resources.Scene.Objects)
         {
             GeometryRange range = instance.Geometry;
             uint primitiveCount = range.VertexCount / 3;
@@ -181,7 +181,7 @@ internal sealed unsafe partial class VulkanRHI
             AccessFlags2.AccelerationStructureWriteBitKhr,
             PipelineStageFlags2.AccelerationStructureBuildBitKhr,
             AccessFlags2.AccelerationStructureReadBitKhr);
-        uint count = (uint)Scene.Objects.Length;
+        uint count = (uint)Resources.Scene.Objects.Length;
         AccelerationStructureGeometryKHR instances = InstanceGeometry(0);
         AccelerationStructureBuildGeometryInfoKHR topBuild = new()
         {
@@ -201,7 +201,7 @@ internal sealed unsafe partial class VulkanRHI
             frame.Tlas = CreateAcceleration(AccelerationStructureTypeKHR.TopLevelKhr, topSizes.AccelerationStructureSize);
             frame.RayScratch = CreateRayScratch(Math.Max(topSizes.BuildScratchSize, topSizes.UpdateScratchSize));
             frame.RayInstances = CreateBuffer(
-                (ulong)(Scene.Objects.Length * sizeof(AccelerationStructureInstanceKHR)),
+                (ulong)(Resources.Scene.Objects.Length * sizeof(AccelerationStructureInstanceKHR)),
                 BufferUsageFlags.AccelerationStructureBuildInputReadOnlyBitKhr | BufferUsageFlags.ShaderDeviceAddressBit,
                 true);
         }
@@ -250,11 +250,11 @@ internal sealed unsafe partial class VulkanRHI
     {
         // BeginCommands has waited for this slot's fence; each slot owns independent
         // TLAS, scratch and instance allocations, including during in-place updates.
-        Span<AccelerationStructureInstanceKHR> instances = new(frame.RayInstances!.Mapped, Scene.Objects.Length);
+        Span<AccelerationStructureInstanceKHR> instances = new(frame.RayInstances!.Mapped, Resources.Scene.Objects.Length);
 
         for (int i = 0; i < instances.Length; i++)
         {
-            instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].Address);
+            instances[i] = CreateRayInstance(Resources.Scene.Objects[i], (uint)i, bottomLevels[i].Address);
         }
 
         RayBarrier(
@@ -281,7 +281,7 @@ internal sealed unsafe partial class VulkanRHI
 
         AccelerationStructureBuildRangeInfoKHR range = new()
         {
-            PrimitiveCount = (uint)Scene.Objects.Length
+            PrimitiveCount = (uint)Resources.Scene.Objects.Length
         };
 
         AccelerationStructureBuildRangeInfoKHR* ranges = &range;

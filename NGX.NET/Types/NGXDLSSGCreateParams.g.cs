@@ -8,49 +8,42 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_Create_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_DLSSG_Create_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 24)]
 public unsafe partial struct NGXDLSSGCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::Width
     /// </summary>
-    [NGXNativeName("Width")]
     [FieldOffset(0)]
     public uint Width;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::Height
     /// </summary>
-    [NGXNativeName("Height")]
     [FieldOffset(4)]
     public uint Height;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::NativeBackbufferFormat
     /// </summary>
-    [NGXNativeName("NativeBackbufferFormat")]
     [FieldOffset(8)]
     public uint NativeBackbufferFormat;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::RenderWidth
     /// </summary>
-    [NGXNativeName("RenderWidth")]
     [FieldOffset(12)]
     public uint RenderWidth;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::RenderHeight
     /// </summary>
-    [NGXNativeName("RenderHeight")]
     [FieldOffset(16)]
     public uint RenderHeight;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::DynamicResolutionScaling
     /// </summary>
-    [NGXNativeName("DynamicResolutionScaling")]
     [FieldOffset(20)]
     public NGXBool8 DynamicResolutionScaling;
 }

@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_CUDADevice
 /// </summary>
-[NGXNativeName("NVSDK_NGX_CUDADevice")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public unsafe partial struct NGXCUDADevice
 {
     /// <summary>
     /// NVSDK_NGX_CUDADevice::cudaContext
     /// </summary>
-    [NGXNativeName("cudaContext")]
     [FieldOffset(0)]
     public void* CudaContext;
 
     /// <summary>
     /// NVSDK_NGX_CUDADevice::cudaStream
     /// </summary>
-    [NGXNativeName("cudaStream")]
     [FieldOffset(8)]
     public void* CudaStream;
 }

@@ -6,18 +6,15 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_RTX_Value
 /// </summary>
-[NGXNativeName("NVSDK_NGX_RTX_Value")]
 public enum NGXRtxValue : int
 {
     /// <summary>
     /// NVSDK_NGX_RTX_Value_Off
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_RTX_Value_Off")]
     Off = 0,
 
     /// <summary>
     /// NVSDK_NGX_RTX_Value_On
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_RTX_Value_On")]
     On = 1,
 }

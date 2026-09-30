@@ -6,18 +6,15 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Roughness_Mode
 /// </summary>
-[NGXNativeName("NVSDK_NGX_DLSS_Roughness_Mode")]
 public enum NGXDLSSRoughnessMode : int
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Roughness_Mode_Unpacked
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSS_Roughness_Mode_Unpacked")]
     Unpacked = 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Roughness_Mode_Packed
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_DLSS_Roughness_Mode_Packed")]
     Packed = 1,
 }

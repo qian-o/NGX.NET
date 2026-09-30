@@ -9,14 +9,15 @@ internal sealed class FrameStatistics
     private long startedAt;
     private ulong presentedFrames;
 
-    public void Reset(long timestamp)
+    public void Reset()
     {
-        StartInterval(timestamp);
+        StartInterval(Stopwatch.GetTimestamp());
         PresentedFps = null;
     }
 
-    public void RecordFrame(long timestamp, uint presented)
+    public void RecordFrame(uint presented)
     {
+        long timestamp = Stopwatch.GetTimestamp();
         presentedFrames += presented;
         double seconds = Stopwatch.GetElapsedTime(startedAt, timestamp).TotalSeconds;
 

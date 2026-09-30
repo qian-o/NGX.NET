@@ -3,7 +3,7 @@ using Silk.NET.Input;
 
 namespace Showcase.Handlers;
 
-internal sealed class Camera
+internal sealed class CameraHandler
 {
     public Vector3 Position;
 
@@ -46,48 +46,48 @@ internal sealed class Camera
         speed = scene.Scale * 0.08f;
     }
 
-    public void Move(Window window, float delta)
+    public void Move(InputHandler input, float delta)
     {
-        if (window.Looking)
+        if (input.Looking)
         {
-            Yaw += window.MouseDelta.X * 0.003f;
-            Pitch = Math.Clamp(Pitch - window.MouseDelta.Y * 0.003f, -1.5f, 1.5f);
+            Yaw += input.MouseDelta.X * 0.003f;
+            Pitch = Math.Clamp(Pitch - input.MouseDelta.Y * 0.003f, -1.5f, 1.5f);
         }
 
-        if (window.KeyboardCaptured)
+        if (input.KeyboardCaptured)
         {
             return;
         }
 
         Vector3 right = Vector3.Normalize(Vector3.Cross(Forward, Vector3.UnitY));
-        float distance = speed * delta * ((window.Down(Key.ShiftLeft) || window.Down(Key.ShiftRight)) ? 3 : 1);
+        float distance = speed * delta * ((input.Down(Key.ShiftLeft) || input.Down(Key.ShiftRight)) ? 3 : 1);
 
-        if (window.Down(Key.W))
+        if (input.Down(Key.W))
         {
             Position += Forward * distance;
         }
 
-        if (window.Down(Key.S))
+        if (input.Down(Key.S))
         {
             Position -= Forward * distance;
         }
 
-        if (window.Down(Key.D))
+        if (input.Down(Key.D))
         {
             Position += right * distance;
         }
 
-        if (window.Down(Key.A))
+        if (input.Down(Key.A))
         {
             Position -= right * distance;
         }
 
-        if (window.Down(Key.E))
+        if (input.Down(Key.E))
         {
             Position += Vector3.UnitY * distance;
         }
 
-        if (window.Down(Key.Q))
+        if (input.Down(Key.Q))
         {
             Position -= Vector3.UnitY * distance;
         }

@@ -6,42 +6,35 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_PerfQuality_Value
 /// </summary>
-[NGXNativeName("NVSDK_NGX_PerfQuality_Value")]
 public enum NGXPerfQualityValue : int
 {
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_MaxPerf
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_MaxPerf")]
     MaxPerf = 0,
 
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_Balanced
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_Balanced")]
     Balanced = 1,
 
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_MaxQuality
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_MaxQuality")]
     MaxQuality = 2,
 
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_UltraPerformance
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_UltraPerformance")]
     UltraPerformance = 3,
 
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_UltraQuality
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_UltraQuality")]
     UltraQuality = 4,
 
     /// <summary>
     /// NVSDK_NGX_PerfQuality_Value_DLAA
     /// </summary>
-    [NGXNativeName("NVSDK_NGX_PerfQuality_Value_DLAA")]
     DLAA = 5,
 }

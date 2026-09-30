@@ -8,231 +8,198 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_VK_DLSS_Eval_Params
 /// </summary>
-[NGXNativeName("NVSDK_NGX_VK_DLSS_Eval_Params")]
 [StructLayout(LayoutKind.Explicit, Size = 368)]
 public unsafe partial struct NGXVKDLSSEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::Feature
     /// </summary>
-    [NGXNativeName("Feature")]
     [FieldOffset(0)]
     public NGXVKFeatureEvalParams Feature;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInDepth
     /// </summary>
-    [NGXNativeName("pInDepth")]
     [FieldOffset(24)]
     public NGXResourceVK* PInDepth;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInMotionVectors
     /// </summary>
-    [NGXNativeName("pInMotionVectors")]
     [FieldOffset(32)]
     public NGXResourceVK* PInMotionVectors;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InJitterOffsetX
     /// </summary>
-    [NGXNativeName("InJitterOffsetX")]
     [FieldOffset(40)]
     public float InJitterOffsetX;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InJitterOffsetY
     /// </summary>
-    [NGXNativeName("InJitterOffsetY")]
     [FieldOffset(44)]
     public float InJitterOffsetY;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InRenderSubrectDimensions
     /// </summary>
-    [NGXNativeName("InRenderSubrectDimensions")]
     [FieldOffset(48)]
     public NGXDimensions InRenderSubrectDimensions;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InReset
     /// </summary>
-    [NGXNativeName("InReset")]
     [FieldOffset(56)]
     public int InReset;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InMVScaleX
     /// </summary>
-    [NGXNativeName("InMVScaleX")]
     [FieldOffset(60)]
     public float InMVScaleX;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InMVScaleY
     /// </summary>
-    [NGXNativeName("InMVScaleY")]
     [FieldOffset(64)]
     public float InMVScaleY;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInTransparencyMask
     /// </summary>
-    [NGXNativeName("pInTransparencyMask")]
     [FieldOffset(72)]
     public NGXResourceVK* PInTransparencyMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInExposureTexture
     /// </summary>
-    [NGXNativeName("pInExposureTexture")]
     [FieldOffset(80)]
     public NGXResourceVK* PInExposureTexture;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInBiasCurrentColorMask
     /// </summary>
-    [NGXNativeName("pInBiasCurrentColorMask")]
     [FieldOffset(88)]
     public NGXResourceVK* PInBiasCurrentColorMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InColorSubrectBase
     /// </summary>
-    [NGXNativeName("InColorSubrectBase")]
     [FieldOffset(96)]
     public NGXCoordinates InColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InDepthSubrectBase
     /// </summary>
-    [NGXNativeName("InDepthSubrectBase")]
     [FieldOffset(104)]
     public NGXCoordinates InDepthSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InMVSubrectBase
     /// </summary>
-    [NGXNativeName("InMVSubrectBase")]
     [FieldOffset(112)]
     public NGXCoordinates InMVSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InTranslucencySubrectBase
     /// </summary>
-    [NGXNativeName("InTranslucencySubrectBase")]
     [FieldOffset(120)]
     public NGXCoordinates InTranslucencySubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InBiasCurrentColorSubrectBase
     /// </summary>
-    [NGXNativeName("InBiasCurrentColorSubrectBase")]
     [FieldOffset(128)]
     public NGXCoordinates InBiasCurrentColorSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InOutputSubrectBase
     /// </summary>
-    [NGXNativeName("InOutputSubrectBase")]
     [FieldOffset(136)]
     public NGXCoordinates InOutputSubrectBase;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InPreExposure
     /// </summary>
-    [NGXNativeName("InPreExposure")]
     [FieldOffset(144)]
     public float InPreExposure;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InExposureScale
     /// </summary>
-    [NGXNativeName("InExposureScale")]
     [FieldOffset(148)]
     public float InExposureScale;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InIndicatorInvertXAxis
     /// </summary>
-    [NGXNativeName("InIndicatorInvertXAxis")]
     [FieldOffset(152)]
     public int InIndicatorInvertXAxis;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InIndicatorInvertYAxis
     /// </summary>
-    [NGXNativeName("InIndicatorInvertYAxis")]
     [FieldOffset(156)]
     public int InIndicatorInvertYAxis;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::GBufferSurface
     /// </summary>
-    [NGXNativeName("GBufferSurface")]
     [FieldOffset(160)]
     public NGXVKGBuffer GBufferSurface;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InToneMapperType
     /// </summary>
-    [NGXNativeName("InToneMapperType")]
     [FieldOffset(296)]
     public NGXToneMapperType InToneMapperType;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInMotionVectors3D
     /// </summary>
-    [NGXNativeName("pInMotionVectors3D")]
     [FieldOffset(304)]
     public NGXResourceVK* PInMotionVectors3D;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInIsParticleMask
     /// </summary>
-    [NGXNativeName("pInIsParticleMask")]
     [FieldOffset(312)]
     public NGXResourceVK* PInIsParticleMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInAnimatedTextureMask
     /// </summary>
-    [NGXNativeName("pInAnimatedTextureMask")]
     [FieldOffset(320)]
     public NGXResourceVK* PInAnimatedTextureMask;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInDepthHighRes
     /// </summary>
-    [NGXNativeName("pInDepthHighRes")]
     [FieldOffset(328)]
     public NGXResourceVK* PInDepthHighRes;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInPositionViewSpace
     /// </summary>
-    [NGXNativeName("pInPositionViewSpace")]
     [FieldOffset(336)]
     public NGXResourceVK* PInPositionViewSpace;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::InFrameTimeDeltaInMsec
     /// </summary>
-    [NGXNativeName("InFrameTimeDeltaInMsec")]
     [FieldOffset(344)]
     public float InFrameTimeDeltaInMsec;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInRayTracingHitDistance
     /// </summary>
-    [NGXNativeName("pInRayTracingHitDistance")]
     [FieldOffset(352)]
     public NGXResourceVK* PInRayTracingHitDistance;
 
     /// <summary>
     /// NVSDK_NGX_VK_DLSS_Eval_Params::pInMotionVectorsReflections
     /// </summary>
-    [NGXNativeName("pInMotionVectorsReflections")]
     [FieldOffset(360)]
     public NGXResourceVK* PInMotionVectorsReflections;
 }

@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_DLSSG_EstimateVRAMCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_DLSSG_EstimateVRAMCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnDLSSGEstimateVRAMCallback(delegate* unmanaged[Cdecl]<uint, uint, uint, uint, uint, uint, uint, uint, uint, ulong*, NGXResult> pointer)
 {

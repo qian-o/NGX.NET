@@ -1,13 +1,13 @@
 ﻿using System.Globalization;
 using System.Numerics;
-using ImGuiNET;
+using Hexa.NET.ImGui;
 using Showcase.Models;
 
 namespace Showcase.Handlers;
 
-internal sealed unsafe class UserInterface : IDisposable
+internal sealed unsafe class ImGuiHandler : IDisposable
 {
-    private readonly nint context;
+    private readonly ImGuiContextPtr context;
     private float fontDensity;
     private const float TextSize = 20;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
@@ -26,11 +26,11 @@ internal sealed unsafe class UserInterface : IDisposable
 
     public int FontHeight { get; private set; }
 
-    public UserInterface()
+    public ImGuiHandler()
     {
         context = ImGui.CreateContext();
         ImGuiIOPtr io = ImGui.GetIO();
-        io.NativePtr->IniFilename = null;
+        io.Handle->IniFilename = null;
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
         io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
         ImGui.StyleColorsDark();
@@ -71,7 +71,7 @@ internal sealed unsafe class UserInterface : IDisposable
 
         ImGuiIOPtr io = ImGui.GetIO();
         io.Fonts.Clear();
-        ImFontConfigPtr config = ImGuiNative.ImFontConfig_ImFontConfig();
+        ImFontConfigPtr config = ImGui.ImFontConfig();
 
         try
         {
@@ -81,9 +81,11 @@ internal sealed unsafe class UserInterface : IDisposable
             config.OversampleV = 1;
 
             io.Fonts.AddFontFromFileTTF(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "msyh.ttf"),
-                config.SizePixels, config, io.Fonts.GetGlyphRangesDefault());
+                config.SizePixels, config.Handle, io.Fonts.GetGlyphRangesDefault());
 
-            io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int bytesPerPixel);
+            byte* pixels;
+            int width, height, bytesPerPixel;
+            io.Fonts.GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
             FontWidth = width;
             FontHeight = height;
             FontPixels = new ReadOnlySpan<byte>(pixels, width * height * bytesPerPixel).ToArray();
@@ -93,21 +95,25 @@ internal sealed unsafe class UserInterface : IDisposable
             config.Destroy();
         }
 
-        io.Fonts.SetTexID(1);
+        io.Fonts.SetTexID(new ImTextureID(1));
         fontDensity = density;
 
         return true;
     }
 
-    public void Build(RHI rhi, float delta)
+    public void Update(float delta, Vector2 size, Vector2 dpiScale)
     {
         ImGuiIOPtr io = ImGui.GetIO();
-        Vector2 dpiScale = rhi.Window.DpiScale;
         // ImGui and Silk input share window coordinates; drawing scales to framebuffer pixels.
-        io.DisplaySize = new Vector2(rhi.Window.Width, rhi.Window.Height) / dpiScale;
+        io.DisplaySize = size / dpiScale;
         io.DisplayFramebufferScale = dpiScale;
         io.DeltaTime = Math.Max(delta, 1e-4f);
         ImGui.NewFrame();
+    }
+
+    public void Build(Renderer renderer)
+    {
+        ImGuiIOPtr io = ImGui.GetIO();
         Vector2 margin = new(12);
         ImGui.SetNextWindowPos(margin, ImGuiCond.FirstUseEver);
         Vector2 available = Vector2.Max(new(1), io.DisplaySize - margin * 2);
@@ -115,22 +121,23 @@ internal sealed unsafe class UserInterface : IDisposable
 
         if (ImGui.Begin("Settings", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.TextUnformatted(rhi.AdapterName);
-            ImGui.TextUnformatted($"FPS: {Rate(rhi.PresentedFps)}");
+            ImGui.TextUnformatted(renderer.AdapterName);
+            ImGui.TextUnformatted($"FPS: {Rate(renderer.PresentedFps)}");
             ImGui.Separator();
-            Graphics(rhi);
+            Graphics(renderer);
             ImGui.Separator();
-            ImGui.Checkbox("Pause Animation", ref rhi.AnimationPaused);
+            ImGui.Checkbox("Pause Animation", ref renderer.AnimationPaused);
         }
 
         ImGui.End();
-        ImGui.Render();
     }
 
-    private void Graphics(RHI rhi)
+    public void Render() => ImGui.Render();
+
+    private static void Graphics(Renderer renderer)
     {
-        RenderSettings settings = rhi.Settings;
-        RenderCapabilities capabilities = rhi.Capabilities;
+        RenderSettings settings = renderer.Settings;
+        RenderCapabilities capabilities = renderer.Capabilities;
         ImGui.TextUnformatted("DLSS Super Resolution");
 
         // A content-sized window needs an explicit item width; using the remaining

@@ -8,28 +8,24 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_FeatureRequirement
 /// </summary>
-[NGXNativeName("NVSDK_NGX_FeatureRequirement")]
 [StructLayout(LayoutKind.Explicit, Size = 264)]
 public unsafe partial struct NGXFeatureRequirement
 {
     /// <summary>
     /// NVSDK_NGX_FeatureRequirement::FeatureSupported
     /// </summary>
-    [NGXNativeName("FeatureSupported")]
     [FieldOffset(0)]
     public NGXFeatureSupportResult FeatureSupported;
 
     /// <summary>
     /// NVSDK_NGX_FeatureRequirement::MinHWArchitecture
     /// </summary>
-    [NGXNativeName("MinHWArchitecture")]
     [FieldOffset(4)]
     public uint MinHWArchitecture;
 
     /// <summary>
     /// NVSDK_NGX_FeatureRequirement::MinOSVersion
     /// </summary>
-    [NGXNativeName("MinOSVersion")]
     [FieldOffset(8)]
     public fixed sbyte MinOSVersion[255];
 }

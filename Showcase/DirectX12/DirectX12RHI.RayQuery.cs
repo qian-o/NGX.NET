@@ -26,7 +26,7 @@ internal sealed unsafe partial class DirectX12RHI
 
     private void InitializeAccelerationStructures()
     {
-        foreach (SceneObject instance in Scene.Objects)
+        foreach (SceneObject instance in Resources.Scene.Objects)
         {
             GeometryRange range = instance.Geometry;
             RaytracingGeometryDesc geometry = new()
@@ -77,7 +77,7 @@ internal sealed unsafe partial class DirectX12RHI
             Type = RaytracingAccelerationStructureType.TopLevel,
             Flags = RaytracingAccelerationStructureBuildFlags.AllowUpdate | RaytracingAccelerationStructureBuildFlags.PreferFastTrace,
             DescsLayout = ElementsLayout.Array,
-            NumDescs = (uint)Scene.Objects.Length
+            NumDescs = (uint)Resources.Scene.Objects.Length
         };
 
         RaytracingAccelerationStructurePrebuildInfo topSizes = default;
@@ -87,7 +87,7 @@ internal sealed unsafe partial class DirectX12RHI
         {
             frame.Tlas = AccelerationBuffer(topSizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
             frame.RayScratch = AccelerationBuffer(Math.Max(topSizes.ScratchDataSizeInBytes, topSizes.UpdateScratchDataSizeInBytes), ResourceStates.UnorderedAccess);
-            frame.RayInstances = UploadBuffer(Scene.Objects.Length * sizeof(RaytracingInstanceDesc));
+            frame.RayInstances = UploadBuffer(Resources.Scene.Objects.Length * sizeof(RaytracingInstanceDesc));
         }
     }
 
@@ -117,11 +117,11 @@ internal sealed unsafe partial class DirectX12RHI
     {
         // BeginCommands has already waited for this frame slot's fence. Other slots
         // retain their own TLAS, scratch and instance data until their GPU work ends.
-        Span<RaytracingInstanceDesc> instances = new(Map<RaytracingInstanceDesc>(frame.RayInstances), Scene.Objects.Length);
+        Span<RaytracingInstanceDesc> instances = new(Map<RaytracingInstanceDesc>(frame.RayInstances), Resources.Scene.Objects.Length);
 
         for (int i = 0; i < instances.Length; i++)
         {
-            instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].Handle->GetGPUVirtualAddress());
+            instances[i] = CreateRayInstance(Resources.Scene.Objects[i], (uint)i, bottomLevels[i].Handle->GetGPUVirtualAddress());
         }
 
         frame.RayInstances.Handle->Unmap(0, null);
@@ -137,7 +137,7 @@ internal sealed unsafe partial class DirectX12RHI
             Type = RaytracingAccelerationStructureType.TopLevel,
             Flags = RaytracingAccelerationStructureBuildFlags.AllowUpdate | RaytracingAccelerationStructureBuildFlags.PreferFastTrace,
             DescsLayout = ElementsLayout.Array,
-            NumDescs = (uint)Scene.Objects.Length,
+            NumDescs = (uint)Resources.Scene.Objects.Length,
             InstanceDescs = frame.RayInstances.Handle->GetGPUVirtualAddress()
         };
 

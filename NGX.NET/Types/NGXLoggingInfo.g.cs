@@ -8,28 +8,24 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_LoggingInfo
 /// </summary>
-[NGXNativeName("NVSDK_NGX_LoggingInfo")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public unsafe partial struct NGXLoggingInfo
 {
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::LoggingCallback
     /// </summary>
-    [NGXNativeName("LoggingCallback")]
     [FieldOffset(0)]
     public delegate* unmanaged[Cdecl]<sbyte*, NGXLoggingLevel, NGXFeature, void> LoggingCallback;
 
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::MinimumLoggingLevel
     /// </summary>
-    [NGXNativeName("MinimumLoggingLevel")]
     [FieldOffset(8)]
     public NGXLoggingLevel MinimumLoggingLevel;
 
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::DisableOtherLoggingSinks
     /// </summary>
-    [NGXNativeName("DisableOtherLoggingSinks")]
     [FieldOffset(12)]
     public NGXBool8 DisableOtherLoggingSinks;
 }

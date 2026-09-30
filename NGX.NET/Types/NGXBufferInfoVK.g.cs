@@ -8,21 +8,18 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_BufferInfo_VK
 /// </summary>
-[NGXNativeName("NVSDK_NGX_BufferInfo_VK")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public unsafe partial struct NGXBufferInfoVK
 {
     /// <summary>
     /// NVSDK_NGX_BufferInfo_VK::Buffer
     /// </summary>
-    [NGXNativeName("Buffer")]
     [FieldOffset(0)]
     public nint Buffer;
 
     /// <summary>
     /// NVSDK_NGX_BufferInfo_VK::SizeInBytes
     /// </summary>
-    [NGXNativeName("SizeInBytes")]
     [FieldOffset(8)]
     public uint SizeInBytes;
 }

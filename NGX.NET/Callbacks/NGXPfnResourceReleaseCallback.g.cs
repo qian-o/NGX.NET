@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_ResourceReleaseCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_ResourceReleaseCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnResourceReleaseCallback(delegate* unmanaged[Cdecl]<nint, void> pointer)
 {

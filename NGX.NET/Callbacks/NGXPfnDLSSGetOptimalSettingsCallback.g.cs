@@ -8,7 +8,6 @@ namespace NGX.NET;
 /// <summary>
 /// PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback. Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.
 /// </summary>
-[NGXNativeName("PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback")]
 [StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct NGXPfnDLSSGetOptimalSettingsCallback(delegate* unmanaged[Cdecl]<NGXParameter*, NGXResult> pointer)
 {
