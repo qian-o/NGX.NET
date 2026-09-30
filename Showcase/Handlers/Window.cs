@@ -1,250 +1,385 @@
-﻿using System.ComponentModel;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
 using ImGuiNET;
+using Silk.NET.GLFW;
+using Silk.NET.Input;
+using Silk.NET.Maths;
+using Silk.NET.Windowing;
+using Key = Silk.NET.Input.Key;
+using MouseButton = Silk.NET.Input.MouseButton;
+using SilkWindow = Silk.NET.Windowing.Window;
 
 namespace Showcase.Handlers;
 
-internal sealed unsafe partial class Window : IDisposable
+internal sealed unsafe class Window : IDisposable
 {
-    public nint Handle { get; private set; }
+    public IWindow SurfaceWindow { get; }
 
-    public nint Instance { get; } = GetModuleHandleW(null);
+    public nint Handle => disposed ? 0 : SurfaceWindow.Native?.Win32?.Hwnd ?? 0;
 
-    public int Width { get; private set; } = 1600;
+    public int Width { get; private set; }
 
-    public int Height { get; private set; } = 900;
+    public int Height { get; private set; }
 
     public bool Closed { get; private set; }
 
-    public bool Looking { get; private set; }
+    public bool Looking => lookMouse is not null;
 
     public Vector2 MouseDelta { get; private set; }
 
-    public float DpiScale => GetDpiForWindow(Handle) / 96f;
+    public float DpiScale { get; private set; } = 1;
 
     // Ordinary Settings navigation focus must not consume the camera's movement keys.
     public bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
 
     public Action? BeforeWindowChange;
-    private readonly bool[] keys = new bool[256];
-    private readonly WindowProcedure procedure;
+
+    private readonly IInputContext input;
+    private readonly Glfw? glfw;
+    private readonly HashSet<Key> keys = [];
+    private IMouse? lookMouse;
+    private CursorMode previousCursorMode;
     private Vector2 mouse;
+    private Vector2 pendingMouseDelta;
     private bool hasMouse;
+    private bool focused = true;
+    private bool disposed;
     private ExceptionDispatchInfo? callbackError;
 
     public Window()
     {
-        SetProcessDpiAwarenessContext(-4);
-        procedure = ProcessMessage;
-        WindowClass wc = new()
+        SurfaceWindow = SilkWindow.Create(WindowOptions.Default with
         {
-            Size = (uint)Marshal.SizeOf<WindowClass>(),
-            Procedure = Marshal.GetFunctionPointerForDelegate(procedure),
-            Instance = Instance,
-            Cursor = LoadCursorW(0, 32512),
-            Name = "NGXShowcase"
-        };
+            Size = new(1600, 900),
+            API = GraphicsAPI.None,
+            Title = "NGX.NET Showcase",
+            ShouldSwapAutomatically = false,
+            VSync = false,
+            UpdatesPerSecond = 0,
+            FramesPerSecond = 0
+        });
 
-        if (RegisterClassExW(ref wc) == 0)
+        try
         {
-            throw new Win32Exception();
+            SurfaceWindow.FramebufferResize += _ => Callback(Resize);
+            SurfaceWindow.StateChanged += _ => Callback(Resize);
+            SurfaceWindow.Closing += () => Callback(Close);
+            SurfaceWindow.FocusChanged += value => Callback(() => Focus(value));
+            SurfaceWindow.Initialize();
+
+            if (SurfaceWindow.Handle == 0)
+            {
+                throw new InvalidOperationException("Silk.NET could not create the native window.");
+            }
+
+            if (SurfaceWindow.Monitor is IMonitor monitor)
+            {
+                SurfaceWindow.Center(monitor);
+            }
+
+            input = SurfaceWindow.CreateInput();
+
+            if (SurfaceWindow.Native?.Glfw is not null)
+            {
+                glfw = Glfw.GetApi();
+            }
+
+            foreach (IKeyboard keyboard in input.Keyboards)
+            {
+                keyboard.KeyDown += (_, key, _) => Callback(() => KeyChanged(key, true));
+                keyboard.KeyUp += (_, key, _) => Callback(() => KeyChanged(key, false));
+                keyboard.KeyChar += (_, value) => Callback(() => ImGui.GetIO().AddInputCharacterUTF16(value));
+            }
+
+            foreach (IMouse pointer in input.Mice)
+            {
+                pointer.MouseDown += (device, button) => Callback(() => MouseButtonChanged(device, button, true));
+                pointer.MouseUp += (device, button) => Callback(() => MouseButtonChanged(device, button, false));
+                pointer.MouseMove += (device, position) => Callback(() => MouseMoved(device, position));
+                pointer.Scroll += (_, wheel) => Callback(() => ImGui.GetIO().AddMouseWheelEvent(wheel.X, wheel.Y));
+            }
+
+            UpdateMetrics();
+            callbackError?.Throw();
+        }
+        catch
+        {
+            Dispose();
+            throw;
+        }
+    }
+
+    public bool Down(Key key) => keys.Contains(key);
+
+    public void Pump()
+    {
+        callbackError?.Throw();
+        SurfaceWindow.DoEvents();
+        SurfaceWindow.DoUpdate();
+        UpdateMetrics();
+        MouseDelta = pendingMouseDelta;
+        pendingMouseDelta = Vector2.Zero;
+        Closed |= SurfaceWindow.IsClosing;
+        callbackError?.Throw();
+    }
+
+    public void Wait()
+    {
+        callbackError?.Throw();
+
+        if (Closed)
+        {
+            return;
         }
 
-        Rect rectangle = new()
-        {
-            Right = Width,
-            Bottom = Height
-        };
+        // DoEvents waits through the window backend while minimized. The next
+        // Pump publishes any accumulated input after the window wakes.
+        SurfaceWindow.IsEventDriven = true;
 
-        AdjustWindowRectEx(ref rectangle, 0x00CF0000, false, 0);
-        Handle = CreateWindowExW(
-            0,
-            wc.Name,
-            "NGX.NET Showcase",
-            0x10CF0000,
-            unchecked((int)0x80000000),
-            unchecked((int)0x80000000),
-            rectangle.Right - rectangle.Left,
-            rectangle.Bottom - rectangle.Top,
-            0,
-            0,
-            Instance,
-            0);
-
-        if (Handle == 0)
+        try
         {
-            throw new Win32Exception();
+            SurfaceWindow.DoEvents();
+        }
+        finally
+        {
+            SurfaceWindow.IsEventDriven = false;
         }
 
         callbackError?.Throw();
     }
 
-    public bool Down(int key) => keys[key];
-
-    public void Pump()
-    {
-        MouseDelta = Vector2.Zero;
-
-        while (PeekMessageW(out Message message, 0, 0, 0, 1))
-        {
-            if (message.Id == 0x12)
-            {
-                Closed = true;
-            }
-
-            TranslateMessage(in message);
-            DispatchMessageW(in message);
-            callbackError?.Throw();
-        }
-    }
-
-    public void Wait() => WaitMessage();
-
-    private nint ProcessMessage(nint hwnd, uint message, nuint wparam, nint lparam)
+    private void Callback(Action action)
     {
         try
         {
-            return HandleMessage(hwnd, message, wparam, lparam);
+            action();
         }
         catch (Exception error)
         {
-            callbackError = ExceptionDispatchInfo.Capture(error);
-
-            return 0;
+            callbackError ??= ExceptionDispatchInfo.Capture(error);
         }
     }
 
-    private nint HandleMessage(nint hwnd, uint message, nuint wparam, nint lparam)
+    private void Resize()
+    {
+        BeforeWindowChange?.Invoke();
+        UpdateMetrics();
+    }
+
+    private void Close()
+    {
+        Closed = true;
+        BeforeWindowChange?.Invoke();
+    }
+
+    private void UpdateMetrics()
+    {
+        Vector2D<int> size = SurfaceWindow.FramebufferSize;
+        bool minimized = SurfaceWindow.WindowState == WindowState.Minimized;
+        Width = minimized ? 0 : size.X;
+        Height = minimized ? 0 : size.Y;
+
+        if (glfw is not null && SurfaceWindow.Monitor is IMonitor monitor)
+        {
+            Silk.NET.GLFW.Monitor** monitors = glfw.GetMonitors(out int count);
+
+            if (monitor.Index >= 0 && monitor.Index < count)
+            {
+                glfw.GetMonitorContentScale(monitors[monitor.Index], out float scale, out _);
+                DpiScale = scale;
+            }
+        }
+        else if (SurfaceWindow.Size.X > 0 && size.X > 0)
+        {
+            DpiScale = (float)size.X / SurfaceWindow.Size.X;
+        }
+    }
+
+    private void Focus(bool value)
+    {
+        focused = value;
+        hasMouse = false;
+        ImGuiIOPtr io = ImGui.GetIO();
+
+        if (!value)
+        {
+            keys.Clear();
+            EndLooking();
+            MouseDelta = Vector2.Zero;
+            pendingMouseDelta = Vector2.Zero;
+            io.ClearInputKeys();
+            io.ClearInputMouse();
+        }
+
+        io.AddFocusEvent(value);
+    }
+
+    private void KeyChanged(Key key, bool pressed)
+    {
+        if (pressed && focused)
+        {
+            keys.Add(key);
+        }
+        else
+        {
+            keys.Remove(key);
+        }
+
+        ImGuiIOPtr io = ImGui.GetIO();
+        io.AddKeyEvent(ImGuiKey.ModShift, Down(Key.ShiftLeft) || Down(Key.ShiftRight));
+        io.AddKeyEvent(ImGuiKey.ModCtrl, Down(Key.ControlLeft) || Down(Key.ControlRight));
+        io.AddKeyEvent(ImGuiKey.ModAlt, Down(Key.AltLeft) || Down(Key.AltRight));
+        io.AddKeyEvent(ImGuiKey.ModSuper, Down(Key.SuperLeft) || Down(Key.SuperRight));
+        ImGuiKey translated = TranslateKey(key);
+
+        if (translated != ImGuiKey.None)
+        {
+            io.AddKeyEvent(translated, pressed && focused);
+        }
+    }
+
+    private void MouseButtonChanged(IMouse device, MouseButton button, bool pressed)
     {
         ImGuiIOPtr io = ImGui.GetIO();
 
-        switch (message)
+        if (button == MouseButton.Right)
         {
-            case 0x0010:
-                BeforeWindowChange?.Invoke();
-                Closed = true;
-                return 0;
-
-            case 0x0112:
-                if ((wparam & 0xFFF0) is 0xF020 or 0xF030 or 0xF120)
-                {
-                    BeforeWindowChange?.Invoke();
-                }
-
-                break;
-
-            case 0x0231:
-                BeforeWindowChange?.Invoke();
-                break;
-
-            case 0x0005:
-                Width = wparam == 1 ? 0 : (int)((long)lparam & 0xFFFF);
-                Height = wparam == 1 ? 0 : (int)(((long)lparam >> 16) & 0xFFFF);
-                return 0;
-
-            case 0x0200:
-                Vector2 current = new((short)((long)lparam & 0xFFFF), (short)(((long)lparam >> 16) & 0xFFFF));
-                if (hasMouse && Looking)
-                {
-                    MouseDelta += current - mouse;
-                }
-
-                mouse = current;
-                hasMouse = true;
-                io.AddMousePosEvent(current.X, current.Y);
-                return 0;
-
-            case 0x0201:
-            case 0x0202:
-                io.AddMouseButtonEvent(0, message == 0x0201);
-                return 0;
-
-            case 0x0204:
-                Looking = !io.WantCaptureMouse;
-                if (Looking)
-                {
-                    SetCapture(hwnd);
-                }
-
-                io.AddMouseButtonEvent(1, true);
-                return 0;
-
-            case 0x0205:
-                Looking = false;
-                ReleaseCapture();
-                io.AddMouseButtonEvent(1, false);
-                return 0;
-
-            case 0x020A:
-                io.AddMouseWheelEvent(0, (short)(wparam >> 16) / 120f);
-                return 0;
-
-            case 0x0100:
-            case 0x0101:
-                if (wparam < 256)
-                {
-                    keys[(int)wparam] = message == 0x0100;
-                }
-
-                ImGuiKey key = Key((int)wparam);
-                if (key != ImGuiKey.None)
-                {
-                    io.AddKeyEvent(key, message == 0x0100);
-                }
-
-                return 0;
-
-            case 0x0102:
-                io.AddInputCharacter((uint)wparam);
-                return 0;
-
-            case 0x0007:
-                io.AddFocusEvent(true);
-                return 0;
-
-            case 0x0008:
-                Array.Clear(keys);
-                Looking = false;
-                ReleaseCapture();
-                io.AddFocusEvent(false);
-                return 0;
+            if (pressed && focused && !io.WantCaptureMouse && !Looking)
+            {
+                previousCursorMode = device.Cursor.CursorMode;
+                lookMouse = device;
+                device.Cursor.CursorMode = CursorMode.Disabled;
+                hasMouse = false;
+            }
+            else if (!pressed)
+            {
+                EndLooking();
+            }
         }
 
-        return DefWindowProcW(hwnd, message, wparam, lparam);
+        if (button is >= MouseButton.Left and <= MouseButton.Button5)
+        {
+            io.AddMouseButtonEvent((int)button, pressed && focused);
+        }
     }
 
-    private static ImGuiKey Key(int key) => key switch
+    private void MouseMoved(IMouse device, Vector2 position)
     {
-        >= 'A' and <= 'Z' => ImGuiKey.A + key - 'A',
-        >= '0' and <= '9' => ImGuiKey._0 + key - '0',
-        112 => ImGuiKey.F1,
-        9 => ImGuiKey.Tab,
-        13 => ImGuiKey.Enter,
-        27 => ImGuiKey.Escape,
-        32 => ImGuiKey.Space,
-        37 => ImGuiKey.LeftArrow,
-        38 => ImGuiKey.UpArrow,
-        39 => ImGuiKey.RightArrow,
-        40 => ImGuiKey.DownArrow,
-        16 => ImGuiKey.ModShift,
-        17 => ImGuiKey.ModCtrl,
-        18 => ImGuiKey.ModAlt,
-        8 => ImGuiKey.Backspace,
-        46 => ImGuiKey.Delete,
+        Vector2D<int> size = SurfaceWindow.Size;
+        Vector2D<int> framebuffer = SurfaceWindow.FramebufferSize;
+        Vector2 scale = size.X > 0 && size.Y > 0 ? new((float)framebuffer.X / size.X, (float)framebuffer.Y / size.Y) : Vector2.One;
+
+        if (hasMouse && ReferenceEquals(device, lookMouse))
+        {
+            pendingMouseDelta += (position - mouse) * scale;
+        }
+
+        mouse = position;
+        hasMouse = true;
+        Vector2 pixels = position * scale;
+        ImGui.GetIO().AddMousePosEvent(pixels.X, pixels.Y);
+    }
+
+    private void EndLooking()
+    {
+        IMouse? captured = lookMouse;
+        lookMouse = null;
+        hasMouse = false;
+
+        if (captured is not null)
+        {
+            captured.Cursor.CursorMode = previousCursorMode;
+        }
+    }
+
+    private static ImGuiKey TranslateKey(Key key) => key switch
+    {
+        >= Key.A and <= Key.Z => ImGuiKey.A + (key - Key.A),
+        >= Key.Number0 and <= Key.Number9 => ImGuiKey._0 + (key - Key.Number0),
+        >= Key.F1 and <= Key.F24 => ImGuiKey.F1 + (key - Key.F1),
+        >= Key.Keypad0 and <= Key.Keypad9 => ImGuiKey.Keypad0 + (key - Key.Keypad0),
+        Key.Tab => ImGuiKey.Tab,
+        Key.Enter => ImGuiKey.Enter,
+        Key.Escape => ImGuiKey.Escape,
+        Key.Space => ImGuiKey.Space,
+        Key.Left => ImGuiKey.LeftArrow,
+        Key.Right => ImGuiKey.RightArrow,
+        Key.Up => ImGuiKey.UpArrow,
+        Key.Down => ImGuiKey.DownArrow,
+        Key.PageUp => ImGuiKey.PageUp,
+        Key.PageDown => ImGuiKey.PageDown,
+        Key.Home => ImGuiKey.Home,
+        Key.End => ImGuiKey.End,
+        Key.Insert => ImGuiKey.Insert,
+        Key.Delete => ImGuiKey.Delete,
+        Key.Backspace => ImGuiKey.Backspace,
+        Key.Apostrophe => ImGuiKey.Apostrophe,
+        Key.Comma => ImGuiKey.Comma,
+        Key.Minus => ImGuiKey.Minus,
+        Key.Period => ImGuiKey.Period,
+        Key.Slash => ImGuiKey.Slash,
+        Key.Semicolon => ImGuiKey.Semicolon,
+        Key.Equal => ImGuiKey.Equal,
+        Key.LeftBracket => ImGuiKey.LeftBracket,
+        Key.BackSlash => ImGuiKey.Backslash,
+        Key.RightBracket => ImGuiKey.RightBracket,
+        Key.GraveAccent => ImGuiKey.GraveAccent,
+        Key.CapsLock => ImGuiKey.CapsLock,
+        Key.ScrollLock => ImGuiKey.ScrollLock,
+        Key.NumLock => ImGuiKey.NumLock,
+        Key.PrintScreen => ImGuiKey.PrintScreen,
+        Key.Pause => ImGuiKey.Pause,
+        Key.KeypadDecimal => ImGuiKey.KeypadDecimal,
+        Key.KeypadDivide => ImGuiKey.KeypadDivide,
+        Key.KeypadMultiply => ImGuiKey.KeypadMultiply,
+        Key.KeypadSubtract => ImGuiKey.KeypadSubtract,
+        Key.KeypadAdd => ImGuiKey.KeypadAdd,
+        Key.KeypadEnter => ImGuiKey.KeypadEnter,
+        Key.KeypadEqual => ImGuiKey.KeypadEqual,
+        Key.ShiftLeft => ImGuiKey.LeftShift,
+        Key.ShiftRight => ImGuiKey.RightShift,
+        Key.ControlLeft => ImGuiKey.LeftCtrl,
+        Key.ControlRight => ImGuiKey.RightCtrl,
+        Key.AltLeft => ImGuiKey.LeftAlt,
+        Key.AltRight => ImGuiKey.RightAlt,
+        Key.SuperLeft => ImGuiKey.LeftSuper,
+        Key.SuperRight => ImGuiKey.RightSuper,
+        Key.Menu => ImGuiKey.Menu,
         _ => ImGuiKey.None
     };
 
     public void Dispose()
     {
-        if (Handle != 0)
+        if (disposed)
         {
-            DestroyWindow(Handle);
-            Handle = 0;
+            return;
         }
 
-        UnregisterClassW("NGXShowcase", Instance);
-        GC.KeepAlive(procedure);
+        disposed = true;
+        Closed = true;
+        BeforeWindowChange = null;
+
+        try
+        {
+            EndLooking();
+        }
+        finally
+        {
+            try
+            {
+                input?.Dispose();
+            }
+            finally
+            {
+                try
+                {
+                    SurfaceWindow.Dispose();
+                }
+                finally
+                {
+                    glfw?.Dispose();
+                }
+            }
+        }
     }
 }

@@ -1,44 +1,44 @@
-﻿using Showcase.Handlers;
+﻿using NGX.NET;
+using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Vortice.Direct3D12;
-using Vortice.Direct3D;
-using Vortice.DXGI;
-using Format = Vortice.DXGI.Format;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D12;
+using Silk.NET.DXGI;
 
 namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface ui) : RHI(window, ui)
 {
-    protected override nint Command => commandList.NativePointer;
+    protected override nint Command => (nint)commandList.Handle;
 
-    private ID3D12CommandAllocator presentAllocator = null!;
-    private ID3D12GraphicsCommandList presentCommands = null!;
-    private ID3D12Fence presentFence = null!;
+    private ComPtr<ID3D12CommandAllocator> presentAllocator;
+    private ComPtr<ID3D12GraphicsCommandList> presentCommands;
+    private ComPtr<ID3D12Fence> presentFence;
     private ulong presentFenceValue;
     private readonly AutoResetEvent presentEvent = new(false);
 
-    private ID3D12Device device = null!;
-    private IDXGIFactory4 factory = null!;
-    private IDXGIAdapter1 adapter = null!;
-    private ID3D12CommandQueue queue = null!;
-    private ID3D12CommandQueue presentQueue = null!;
-    private ID3D12GraphicsCommandList commandList = null!;
-    private ID3D12Fence fence = null!;
-    private IDXGISwapChain3? swapChain;
-    private ID3D12RootSignature root = null!;
-    private ID3D12PipelineState scenePipeline = null!;
-    private ID3D12PipelineState depthPipeline = null!;
-    private ID3D12PipelineState uiPipeline = null!;
-    private ID3D12PipelineState shadowPipeline = null!;
-    private readonly Dictionary<ComputePass, ID3D12PipelineState> pipelines = [];
-    private ID3D12DescriptorHeap descriptors = null!;
-    private ID3D12DescriptorHeap renderTargets = null!;
-    private ID3D12DescriptorHeap depthViews = null!;
+    private ComPtr<ID3D12Device> device;
+    private ComPtr<IDXGIFactory4> factory;
+    private ComPtr<IDXGIAdapter1> adapter;
+    private ComPtr<ID3D12CommandQueue> queue;
+    private ComPtr<ID3D12CommandQueue> presentQueue;
+    private ComPtr<ID3D12GraphicsCommandList> commandList;
+    private ComPtr<ID3D12Fence> fence;
+    private ComPtr<IDXGISwapChain3> swapChain;
+    private ComPtr<ID3D12RootSignature> root;
+    private ComPtr<ID3D12PipelineState> scenePipeline;
+    private ComPtr<ID3D12PipelineState> depthPipeline;
+    private ComPtr<ID3D12PipelineState> uiPipeline;
+    private ComPtr<ID3D12PipelineState> shadowPipeline;
+    private readonly Dictionary<ComputePass, ComPtr<ID3D12PipelineState>> pipelines = [];
+    private ComPtr<ID3D12DescriptorHeap> descriptors;
+    private ComPtr<ID3D12DescriptorHeap> renderTargets;
+    private ComPtr<ID3D12DescriptorHeap> depthViews;
     private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
-    private readonly ID3D12Resource[] sceneBuffers = new ID3D12Resource[4];
-    private readonly List<ID3D12Resource> uploads = [];
-    private readonly List<ID3D12Resource> backBuffers = [];
+    private readonly ComPtr<ID3D12Resource>[] sceneBuffers = new ComPtr<ID3D12Resource>[4];
+    private readonly List<ComPtr<ID3D12Resource>> uploads = [];
+    private readonly List<ComPtr<ID3D12Resource>> backBuffers = [];
     private DxImage font = null!;
     private uint descriptorIncrement;
     private uint rtvIncrement;
@@ -48,116 +48,159 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
     private bool recording;
     private readonly AutoResetEvent fenceEvent = new(false);
     private const int DescriptorsPerFrame = RenderLayout.SrvCount + RenderLayout.UavCount;
+    // SDK constants expressed by macros that Silk does not emit.
+    private const uint ShaderComponentMapping = 0x1688; // D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING
+    private const uint NoAltEnter = 0x2; // DXGI_MWA_NO_ALT_ENTER
+
+    private D3D12 d3d12 = null!;
+    private DXGI dxgi = null!;
 
     protected override void InitializeDevice()
     {
-        factory = Vortice.DXGI.DXGI.CreateDXGIFactory2<IDXGIFactory4>(false);
-        List<IDXGIAdapter1> candidates = [];
+        d3d12 = D3D12.GetApi();
+        dxgi = DXGI.GetApi(null);
 
-        for (uint i = 0; factory.EnumAdapters1(i, out IDXGIAdapter1 candidate).Success; i++)
+        Check(dxgi.CreateDXGIFactory2(0, SilkMarshal.GuidPtrOf<IDXGIFactory4>(), (void**)factory.GetAddressOf()));
+        bool nvidiaSelected = false;
+
+        for (uint i = 0; ; i++)
         {
-            if ((candidate.Description1.Flags & AdapterFlags.Software) == 0)
+            ComPtr<IDXGIAdapter1> candidate = default;
+
+            if (factory.Handle->EnumAdapters1(i, candidate.GetAddressOf()) < 0)
             {
-                candidates.Add(candidate);
+                break;
             }
-            else
+
+            try
+            {
+                AdapterDesc1 description = default;
+                Check(candidate.Handle->GetDesc1(&description));
+                bool nvidia = description.VendorId == 0x10DE;
+
+                if (((AdapterFlag)description.Flags & AdapterFlag.Software) == 0 &&
+                    (adapter.Handle == null || !nvidiaSelected && nvidia))
+                {
+                    adapter.Dispose();
+                    adapter = candidate;
+                    candidate = default;
+                    nvidiaSelected = nvidia;
+                }
+            }
+            finally
             {
                 candidate.Dispose();
             }
         }
 
-        adapter = candidates.OrderByDescending(x => x.Description1.VendorId == 0x10DE).FirstOrDefault()
-            ?? throw new InvalidOperationException("No hardware graphics adapter found.");
-
-        foreach (IDXGIAdapter1 candidate in candidates)
+        if (adapter.Handle == null)
         {
-            if (candidate != adapter)
-            {
-                candidate.Dispose();
-            }
+            throw new InvalidOperationException("No hardware graphics adapter found.");
         }
 
-        AdapterName = adapter.Description1.Description;
-        device = Vortice.Direct3D12.D3D12.D3D12CreateDevice<ID3D12Device>(adapter.NativePointer, FeatureLevel.Level_12_0);
-        NGX.Initialize(device.NativePointer);
-        RayQuerySupported = device.Options5.RaytracingTier >= RaytracingTier.Tier1_1;
+        AdapterDesc1 selected = default;
+        Check(adapter.Handle->GetDesc1(&selected));
+        AdapterName = NGXMarshal.PtrToString(selected.Description, NGXEncoding.NativeWide)!;
+        Check(d3d12.CreateDevice((IUnknown*)adapter.Handle, D3DFeatureLevel.Level120, SilkMarshal.GuidPtrOf<ID3D12Device>(), (void**)device.GetAddressOf()));
+        NGX.Initialize((nint)device.Handle);
+        FeatureDataD3D12Options5 options = default;
+        Check(device.Handle->CheckFeatureSupport(Silk.NET.Direct3D12.Feature.D3D12Options5, &options, (uint)sizeof(FeatureDataD3D12Options5)));
+        RayQuerySupported = options.RaytracingTier >= RaytracingTier.Tier11;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
 
         if (RayQuerySupported)
         {
-            rayDevice = device.QueryInterface<ID3D12Device5>();
+            Check(device.Handle->QueryInterface(SilkMarshal.GuidPtrOf<ID3D12Device5>(), (void**)rayDevice.GetAddressOf()));
         }
 
-        queue = device.CreateCommandQueue(CommandListType.Direct);
-        presentQueue = device.CreateCommandQueue(CommandListType.Direct);
-        fence = device.CreateFence();
-        presentAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-        presentCommands = device.CreateCommandList<ID3D12GraphicsCommandList>(0, CommandListType.Direct, presentAllocator);
-        presentCommands.Close();
-        presentFence = device.CreateFence();
+        CommandQueueDesc queueDescription = new() { Type = CommandListType.Direct };
+        Check(device.Handle->CreateCommandQueue(&queueDescription, SilkMarshal.GuidPtrOf<ID3D12CommandQueue>(), (void**)queue.GetAddressOf()));
+        Check(device.Handle->CreateCommandQueue(&queueDescription, SilkMarshal.GuidPtrOf<ID3D12CommandQueue>(), (void**)presentQueue.GetAddressOf()));
+        Check(device.Handle->CreateFence(0, FenceFlags.None, SilkMarshal.GuidPtrOf<ID3D12Fence>(), (void**)fence.GetAddressOf()));
+        presentAllocator = CreateAllocator();
+        presentCommands = CreateCommands(presentAllocator);
+        Check(presentCommands.Handle->Close());
+        Check(device.Handle->CreateFence(0, FenceFlags.None, SilkMarshal.GuidPtrOf<ID3D12Fence>(), (void**)presentFence.GetAddressOf()));
     }
 
-    private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(
-        HeapType.Upload,
-        ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)),
-        ResourceStates.GenericRead);
+    private ComPtr<ID3D12Resource> UploadBuffer(int bytes) => CreateBuffer((ulong)Math.Max(bytes, 4), HeapType.Upload, ResourceStates.GenericRead);
 
-    private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data)
+    private ComPtr<ID3D12Resource> StaticBuffer<T>(ReadOnlySpan<T> data)
         where T : unmanaged
     {
         int size = data.Length * sizeof(T);
-        ID3D12Resource buffer = device.CreateCommittedResource(HeapType.Default, ResourceDescription.Buffer((ulong)size), ResourceStates.CopyDest);
-        ID3D12Resource upload = UploadBuffer(size);
-        upload.SetData(data);
-        uploads.Add(upload);
-        commandList.CopyBufferRegion(buffer, 0, upload, 0, (ulong)size);
-        commandList.ResourceBarrierTransition(buffer, ResourceStates.CopyDest, ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
+        ComPtr<ID3D12Resource> buffer = CreateBuffer((ulong)size, HeapType.Default, ResourceStates.CopyDest);
+        try
+        {
+            ComPtr<ID3D12Resource> upload = UploadBuffer(size);
+            uploads.Add(upload);
+            SetData(upload, data);
+            commandList.Handle->CopyBufferRegion(buffer.Handle, 0, upload.Handle, 0, (ulong)size);
+            TransitionBarrier(commandList, buffer, ResourceStates.CopyDest, ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
 
-        return buffer;
+            return buffer;
+        }
+        catch
+        {
+            buffer.Dispose();
+            throw;
+        }
     }
 
     protected override void CreateSwapChain()
     {
-        SwapChainDescription1 description = new()
+        SwapChainDesc1 description = new()
         {
             Width = (uint)Window.Width,
             Height = (uint)Window.Height,
-            Format = Format.R8G8B8A8_UNorm,
+            Format = Format.FormatR8G8B8A8Unorm,
             BufferCount = RenderLayout.FramesInFlight,
-            BufferUsage = Usage.RenderTargetOutput,
-            SampleDescription = new(1, 0),
+            BufferUsage = DXGI.UsageRenderTargetOutput,
+            SampleDesc = new(1, 0),
             SwapEffect = SwapEffect.FlipDiscard,
             Scaling = Scaling.Stretch,
-            AlphaMode = Vortice.DXGI.AlphaMode.Ignore
+            AlphaMode = AlphaMode.Ignore
         };
 
-        using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(presentQueue, Window.Handle, description);
-        swapChain = created.QueryInterface<IDXGISwapChain3>();
-        factory.MakeWindowAssociation(Window.Handle, WindowAssociationFlags.IgnoreAltEnter).CheckError();
+        using ComPtr<IDXGISwapChain1> created = default;
+        Check(factory.Handle->CreateSwapChainForHwnd((IUnknown*)presentQueue.Handle, Window.Handle, &description, null, null, created.GetAddressOf()));
+        Check(created.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGISwapChain3>(), (void**)swapChain.GetAddressOf()));
+        Check(factory.Handle->MakeWindowAssociation(Window.Handle, NoAltEnter));
 
         for (uint i = 0; i < RenderLayout.FramesInFlight; i++)
         {
-            backBuffers.Add(swapChain.GetBuffer<ID3D12Resource>(i));
+            ComPtr<ID3D12Resource> buffer = default;
+            Check(swapChain.Handle->GetBuffer(i, SilkMarshal.GuidPtrOf<ID3D12Resource>(), (void**)buffer.GetAddressOf()));
+            backBuffers.Add(buffer);
         }
     }
 
     protected override void DestroySwapChain()
     {
-        foreach (ID3D12Resource buffer in backBuffers)
+        foreach (ComPtr<ID3D12Resource> buffer in backBuffers)
         {
             buffer.Dispose();
         }
 
         backBuffers.Clear();
-        swapChain?.Dispose();
-        swapChain = null;
+        swapChain.Dispose();
     }
 
     protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
         ResourceFlags flags = format == ImageFormat.Depth ? ResourceFlags.AllowDepthStencil : ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess;
-        Format resourceFormat = format == ImageFormat.Depth ? Format.R32_Typeless : NativeFormat(format);
-        ResourceDescription description = ResourceDescription.Texture2D(resourceFormat, (uint)width, (uint)height, (ushort)layers, 1, flags: flags);
+        Format resourceFormat = format == ImageFormat.Depth ? Format.FormatR32Typeless : NativeFormat(format);
+        ResourceDesc description = new()
+        {
+            Dimension = ResourceDimension.Texture2D,
+            Width = (uint)width,
+            Height = (uint)height,
+            DepthOrArraySize = (ushort)layers,
+            MipLevels = 1,
+            Format = resourceFormat,
+            SampleDesc = new(1, 0),
+            Flags = flags
+        };
 
         return new DxImage
         {
@@ -165,18 +208,18 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             Height = height,
             Layers = layers,
             Format = format,
-            Texture = device.CreateCommittedResource(HeapType.Default, description, ResourceStates.Common),
+            Texture = CreateResource(HeapType.Default, description, ResourceStates.Common),
             State = ResourceStates.Common
         };
     }
 
     private static Format NativeFormat(ImageFormat format) => format switch
     {
-        ImageFormat.Rgba16 => Format.R16G16B16A16_Float,
-        ImageFormat.Rgba32 => Format.R32G32B32A32_Float,
-        ImageFormat.Rg16 => Format.R16G16_Float,
-        ImageFormat.Float => Format.R32_Float,
-        ImageFormat.Depth => Format.D32_Float,
-        _ => Format.R8G8B8A8_UNorm
+        ImageFormat.Rgba16 => Format.FormatR16G16B16A16Float,
+        ImageFormat.Rgba32 => Format.FormatR32G32B32A32Float,
+        ImageFormat.Rg16 => Format.FormatR16G16Float,
+        ImageFormat.Float => Format.FormatR32Float,
+        ImageFormat.Depth => Format.FormatD32Float,
+        _ => Format.FormatR8G8B8A8Unorm
     };
 }

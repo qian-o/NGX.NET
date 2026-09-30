@@ -415,7 +415,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 Height = (uint)outputHeight,
                 RenderWidth = (uint)inputWidth,
                 RenderHeight = (uint)inputHeight,
-                NativeBackbufferFormat = IsVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Vortice.DXGI.Format.R8G8B8A8_UNorm
+                NativeBackbufferFormat = IsVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
             };
 
             NGXHandle* created = null;

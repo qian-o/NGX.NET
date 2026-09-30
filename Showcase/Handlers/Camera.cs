@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Silk.NET.Input;
 
 namespace Showcase.Handlers;
 
@@ -59,34 +60,34 @@ internal sealed class Camera
         }
 
         Vector3 right = Vector3.Normalize(Vector3.Cross(Forward, Vector3.UnitY));
-        float distance = speed * delta * (window.Down(0x10) ? 3 : 1);
+        float distance = speed * delta * ((window.Down(Key.ShiftLeft) || window.Down(Key.ShiftRight)) ? 3 : 1);
 
-        if (window.Down('W'))
+        if (window.Down(Key.W))
         {
             Position += Forward * distance;
         }
 
-        if (window.Down('S'))
+        if (window.Down(Key.S))
         {
             Position -= Forward * distance;
         }
 
-        if (window.Down('D'))
+        if (window.Down(Key.D))
         {
             Position += right * distance;
         }
 
-        if (window.Down('A'))
+        if (window.Down(Key.A))
         {
             Position -= right * distance;
         }
 
-        if (window.Down('E'))
+        if (window.Down(Key.E))
         {
             Position += Vector3.UnitY * distance;
         }
 
-        if (window.Down('Q'))
+        if (window.Down(Key.Q))
         {
             Position -= Vector3.UnitY * distance;
         }

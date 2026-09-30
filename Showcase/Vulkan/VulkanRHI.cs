@@ -1,10 +1,12 @@
-﻿using System.Runtime.InteropServices;
-using NGX.NET;
+﻿using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+using Silk.NET.Core;
+using Silk.NET.Core.Contexts;
+using Silk.NET.Vulkan;
+using Silk.NET.Vulkan.Extensions.KHR;
+using Semaphore = Silk.NET.Vulkan.Semaphore;
 
 namespace Showcase.Vulkan;
 
@@ -12,42 +14,44 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 {
     protected override nint Command => commandBuffer.Handle;
 
-    private VkInstance instance;
-    private VkInstanceApi instanceApi = null!;
-    private VkDevice device;
-    private VkDeviceApi api = null!;
-    private VkPhysicalDevice physical;
-    private VkPhysicalDeviceMemoryProperties memoryProperties;
-    private VkQueue queue;
-    private VkQueue presentQueue;
+    private Instance instance;
+    private Device device;
+    private Vk api = null!;
+    private KhrSurface surfaceApi = null!;
+    private KhrSwapchain swapChainApi = null!;
+    private KhrAccelerationStructure accelerationApi = null!;
+    private PhysicalDevice physical;
+    private PhysicalDeviceMemoryProperties memoryProperties;
+    private Queue queue;
+    private Queue presentQueue;
     private bool separatePresentQueue;
     private uint queueFamily;
-    private VkSurfaceKHR surface;
-    private VkSwapchainKHR swapChain;
-    private VkImage[] backBuffers = [];
-    private VkImageLayout[] backLayouts = [];
-    private VkSemaphore[] presentSemaphores = [];
-    private VkCommandBuffer commandBuffer;
+    private SurfaceKHR surface;
+    private SwapchainKHR swapChain;
+    private Image[] backBuffers = [];
+    private ImageLayout[] backLayouts = [];
+    private Semaphore[] presentSemaphores = [];
+    private CommandBuffer commandBuffer;
     private readonly VkFrame[] slots = new VkFrame[RenderLayout.FramesInFlight];
     private readonly VkBufferResource[] sceneBuffers = new VkBufferResource[4];
     private readonly List<VkBufferResource> uploads = [];
     private VkTexture font = null!;
-    private VkDescriptorSetLayout descriptorLayout;
-    private VkDescriptorPool descriptorPool;
-    private VkPipelineLayout pipelineLayout;
-    private VkPipeline scenePipeline;
-    private VkPipeline depthPipeline;
-    private VkPipeline uiPipeline;
-    private VkPipeline shadowPipeline;
-    private readonly Dictionary<ComputePass, VkPipeline> pipelines = [];
-    private VkSampler sampler;
+    private DescriptorSetLayout descriptorLayout;
+    private DescriptorPool descriptorPool;
+    private PipelineLayout pipelineLayout;
+    private Pipeline scenePipeline;
+    private Pipeline depthPipeline;
+    private Pipeline uiPipeline;
+    private Pipeline shadowPipeline;
+    private readonly Dictionary<ComputePass, Pipeline> pipelines = [];
+    private Sampler sampler;
     private int uniformStride = RenderLayout.UniformStride;
     private int constantIndex;
     private bool recording;
 
-    private static void Check(VkResult result, string operation)
+    private static void Check(Result result, string operation)
     {
-        if (result != VkResult.Success)
+        if (result != Result.Success)
         {
             throw new InvalidOperationException($"{operation}: {result}");
         }
@@ -55,108 +59,140 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
     protected override void InitializeDevice()
     {
-        string loader = Path.Combine(Environment.SystemDirectory, "vulkan-1.dll");
-        Check(vkInitialize(loader), "vkInitialize");
-        vulkanModule = NativeLibrary.Load(loader);
-        VkApplicationInfo application = new()
+        api = Vk.GetApi();
+        IVkSurface windowSurface = Window.SurfaceWindow.VkSurface
+            ?? throw new NotSupportedException("The window does not support Vulkan surfaces.");
+        byte** requiredExtensions = windowSurface.GetRequiredExtensions(out uint requiredExtensionCount);
+        List<string> instanceExtensions = [];
+
+        for (int i = 0; i < requiredExtensionCount; i++)
         {
-            apiVersion = VkVersion.Version_1_3
+            instanceExtensions.Add(NGXMarshal.PtrToString(requiredExtensions[i], NGXEncoding.Utf8)!);
+        }
+
+        instanceExtensions.AddRange(NGX.VulkanExtensions());
+        ApplicationInfo application = new()
+        {
+            SType = StructureType.ApplicationInfo,
+            ApiVersion = Vk.Version13
         };
 
-        using NativeNames extensions = new([.. new[] { "VK_KHR_surface", "VK_KHR_win32_surface" }.Concat(NGX.VulkanExtensions()).Distinct()]);
-        VkInstanceCreateInfo create = new()
+        using NativeNames extensions = new([.. instanceExtensions.Distinct()]);
+        InstanceCreateInfo create = new()
         {
-            pApplicationInfo = &application,
-            enabledExtensionCount = extensions.Length,
-            ppEnabledExtensionNames = extensions.Pointer
+            SType = StructureType.InstanceCreateInfo,
+            PApplicationInfo = &application,
+            EnabledExtensionCount = extensions.Length,
+            PpEnabledExtensionNames = extensions.Pointer
         };
 
-        Check(vkCreateInstance(&create, out instance), "vkCreateInstance");
-        instanceApi = GetApi(instance);
-        VkWin32SurfaceCreateInfoKHR surfaceInfo = new()
-        {
-            hwnd = Window.Handle,
-            hinstance = Window.Instance
-        };
+        Check(api.CreateInstance(&create, null, out instance), "vkCreateInstance");
 
-        Check(instanceApi.vkCreateWin32SurfaceKHR(&surfaceInfo, null, out surface), "vkCreateWin32SurfaceKHR");
-        Check(instanceApi.vkEnumeratePhysicalDevices(out uint count), "vkEnumeratePhysicalDevices(count)");
-        VkPhysicalDevice[] devices = new VkPhysicalDevice[count];
-        Check(instanceApi.vkEnumeratePhysicalDevices(devices), "vkEnumeratePhysicalDevices");
+        if (!api.TryGetInstanceExtension(instance, out surfaceApi))
+        {
+            throw new NotSupportedException("VK_KHR_surface is unavailable.");
+        }
+
+        surface = windowSurface.Create<AllocationCallbacks>(instance.ToHandle(), null).ToSurface();
+        uint count = 0;
+        Check(api.EnumeratePhysicalDevices(instance, &count, null), "vkEnumeratePhysicalDevices(count)");
+        PhysicalDevice[] devices = new PhysicalDevice[count];
+
+        fixed (PhysicalDevice* pointer = devices)
+        {
+            Check(api.EnumeratePhysicalDevices(instance, &count, pointer), "vkEnumeratePhysicalDevices");
+        }
+
         int bestScore = -1;
 
-        foreach (VkPhysicalDevice candidate in devices)
+        foreach (PhysicalDevice candidate in devices)
         {
-            instanceApi.vkGetPhysicalDeviceProperties(candidate, out VkPhysicalDeviceProperties properties);
+            api.GetPhysicalDeviceProperties(candidate, out PhysicalDeviceProperties properties);
 
-            if (properties.apiVersion < VkVersion.Version_1_3)
+            if (properties.ApiVersion < Vk.Version13)
             {
                 continue;
             }
 
-            VkPhysicalDeviceRayQueryFeaturesKHR queryFeatures = new();
-            VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationFeatures = new()
+            PhysicalDeviceRayQueryFeaturesKHR queryFeatures = new() { SType = StructureType.PhysicalDeviceRayQueryFeaturesKhr };
+            PhysicalDeviceAccelerationStructureFeaturesKHR accelerationFeatures = new()
             {
-                pNext = &queryFeatures
+                SType = StructureType.PhysicalDeviceAccelerationStructureFeaturesKhr,
+                PNext = &queryFeatures
             };
 
-            Vortice.Vulkan.VkPhysicalDeviceVulkan13Features features13 = new()
+            PhysicalDeviceVulkan13Features features13 = new()
             {
-                pNext = &accelerationFeatures
+                SType = StructureType.PhysicalDeviceVulkan13Features,
+                PNext = &accelerationFeatures
             };
 
-            Vortice.Vulkan.VkPhysicalDeviceVulkan12Features features12 = new()
+            PhysicalDeviceVulkan12Features features12 = new()
             {
-                pNext = &features13
+                SType = StructureType.PhysicalDeviceVulkan12Features,
+                PNext = &features13
             };
 
-            VkPhysicalDeviceVulkan11Features features11 = new()
+            PhysicalDeviceVulkan11Features features11 = new()
             {
-                pNext = &features12
+                SType = StructureType.PhysicalDeviceVulkan11Features,
+                PNext = &features12
             };
 
-            VkPhysicalDeviceFeatures2 features = new()
+            PhysicalDeviceFeatures2 features = new()
             {
-                pNext = &features11
+                SType = StructureType.PhysicalDeviceFeatures2,
+                PNext = &features11
             };
 
-            instanceApi.vkGetPhysicalDeviceFeatures2(candidate, &features);
+            api.GetPhysicalDeviceFeatures2(candidate, &features);
 
-            if (!features11.shaderDrawParameters || !features13.dynamicRendering || !features13.synchronization2 ||
-                !features.features.shaderStorageImageReadWithoutFormat || !features.features.shaderStorageImageWriteWithoutFormat ||
-                !features.features.shaderStorageImageExtendedFormats)
+            if (!features11.ShaderDrawParameters || !features13.DynamicRendering || !features13.Synchronization2 ||
+                !features.Features.ShaderStorageImageReadWithoutFormat || !features.Features.ShaderStorageImageWriteWithoutFormat ||
+                !features.Features.ShaderStorageImageExtendedFormats)
             {
                 continue;
             }
 
-            Check(instanceApi.vkEnumerateDeviceExtensionProperties(candidate, out uint extensionCount), "vkEnumerateDeviceExtensionProperties(count)");
-            VkExtensionProperties[] availableExtensions = new VkExtensionProperties[extensionCount];
-            Check(instanceApi.vkEnumerateDeviceExtensionProperties(candidate, availableExtensions), "vkEnumerateDeviceExtensionProperties");
+            uint extensionCount = 0;
+            Check(api.EnumerateDeviceExtensionProperties(candidate, (byte*)null, &extensionCount, null), "vkEnumerateDeviceExtensionProperties(count)");
+            ExtensionProperties[] availableExtensions = new ExtensionProperties[extensionCount];
+
+            fixed (ExtensionProperties* pointer = availableExtensions)
+            {
+                Check(api.EnumerateDeviceExtensionProperties(candidate, (byte*)null, &extensionCount, pointer), "vkEnumerateDeviceExtensionProperties");
+            }
+
             HashSet<string> extensionNames = [];
 
-            foreach (VkExtensionProperties extension in availableExtensions)
+            foreach (ExtensionProperties extension in availableExtensions)
             {
-                extensionNames.Add(NGXMarshal.PtrToString(extension.extensionName, NGXEncoding.Utf8)!);
+                extensionNames.Add(NGXMarshal.PtrToString(extension.ExtensionName, NGXEncoding.Utf8)!);
             }
 
-            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure
-                && features12.bufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
-            instanceApi.vkGetPhysicalDeviceFormatProperties(candidate, VkFormat.R32G32B32Sfloat, out VkFormatProperties vertexFormat);
-            rayQuery &= (vertexFormat.bufferFeatures & VkFormatFeatureFlags.AccelerationStructureVertexBufferKHR) != 0;
-            instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, out uint familyCount);
-            VkQueueFamilyProperties[] families = new VkQueueFamilyProperties[familyCount];
-            instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, families);
+            bool rayQuery = queryFeatures.RayQuery && accelerationFeatures.AccelerationStructure
+                && features12.BufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
+            api.GetPhysicalDeviceFormatProperties(candidate, Format.R32G32B32Sfloat, out FormatProperties vertexFormat);
+            rayQuery &= (vertexFormat.BufferFeatures & FormatFeatureFlags.AccelerationStructureVertexBufferBitKhr) != 0;
+            uint familyCount = 0;
+            api.GetPhysicalDeviceQueueFamilyProperties(candidate, &familyCount, null);
+            QueueFamilyProperties[] families = new QueueFamilyProperties[familyCount];
+
+            fixed (QueueFamilyProperties* pointer = families)
+            {
+                api.GetPhysicalDeviceQueueFamilyProperties(candidate, &familyCount, pointer);
+            }
 
             for (uint i = 0; i < familyCount; i++)
             {
-                Check(instanceApi.vkGetPhysicalDeviceSurfaceSupportKHR(candidate, i, surface, out VkBool32 present), "vkGetPhysicalDeviceSurfaceSupportKHR");
+                Check(surfaceApi.GetPhysicalDeviceSurfaceSupport(candidate, i, surface, out Bool32 present), "vkGetPhysicalDeviceSurfaceSupportKHR");
 
-                if (!present || (families[i].queueFlags & (VkQueueFlags.Graphics | VkQueueFlags.Compute)) != (VkQueueFlags.Graphics | VkQueueFlags.Compute))
+                if (!present || (families[i].QueueFlags & (QueueFlags.GraphicsBit | QueueFlags.ComputeBit)) != (QueueFlags.GraphicsBit | QueueFlags.ComputeBit))
                 {
                     continue;
                 }
 
-                int score = properties.vendorID == 0x10DE ? 2 : properties.deviceType == VkPhysicalDeviceType.DiscreteGpu ? 1 : 0;
+                int score = properties.VendorID == 0x10DE ? 2 : properties.DeviceType == PhysicalDeviceType.DiscreteGpu ? 1 : 0;
 
                 if (score <= bestScore)
                 {
@@ -166,77 +202,89 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 bestScore = score;
                 physical = candidate;
                 queueFamily = i;
-                separatePresentQueue = families[i].queueCount > 1;
+                separatePresentQueue = families[i].QueueCount > 1;
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
-                AdapterName = NGXMarshal.PtrToString(properties.deviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
-                ulong alignment = properties.limits.minUniformBufferOffsetAlignment;
+                AdapterName = NGXMarshal.PtrToString(properties.DeviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
+                ulong alignment = properties.Limits.MinUniformBufferOffsetAlignment;
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
             }
         }
 
-        if (physical.IsNull)
+        if (physical.Handle == 0)
         {
             throw new NotSupportedException("A Vulkan 1.3 graphics/compute/present queue and storage-image support are required.");
         }
 
-        instanceApi.vkGetPhysicalDeviceMemoryProperties(physical, out memoryProperties);
-        Check(instanceApi.vkEnumerateDeviceExtensionProperties(physical, out uint supportedCount), "vkEnumerateDeviceExtensionProperties");
-        VkExtensionProperties[] supported = new VkExtensionProperties[supportedCount];
-        Check(instanceApi.vkEnumerateDeviceExtensionProperties(physical, supported), "vkEnumerateDeviceExtensionProperties");
+        api.GetPhysicalDeviceMemoryProperties(physical, out memoryProperties);
+        uint supportedCount = 0;
+        Check(api.EnumerateDeviceExtensionProperties(physical, (byte*)null, &supportedCount, null), "vkEnumerateDeviceExtensionProperties");
+        ExtensionProperties[] supported = new ExtensionProperties[supportedCount];
+
+        fixed (ExtensionProperties* pointer = supported)
+        {
+            Check(api.EnumerateDeviceExtensionProperties(physical, (byte*)null, &supportedCount, pointer), "vkEnumerateDeviceExtensionProperties");
+        }
         HashSet<string> supportedNames = [];
 
-        foreach (VkExtensionProperties extension in supported)
+        foreach (ExtensionProperties extension in supported)
         {
-            supportedNames.Add(NGXMarshal.PtrToString(extension.extensionName, NGXEncoding.Utf8)!);
+            supportedNames.Add(NGXMarshal.PtrToString(extension.ExtensionName, NGXEncoding.Utf8)!);
         }
 
         float* priorities = stackalloc float[] { 1, 1 };
-        VkDeviceQueueCreateInfo queueInfo = new()
+        DeviceQueueCreateInfo queueInfo = new()
         {
-            queueFamilyIndex = queueFamily,
-            queueCount = separatePresentQueue ? 2u : 1u,
-            pQueuePriorities = priorities
+            SType = StructureType.DeviceQueueCreateInfo,
+            QueueFamilyIndex = queueFamily,
+            QueueCount = separatePresentQueue ? 2u : 1u,
+            PQueuePriorities = priorities
         };
 
-        VkPhysicalDeviceRayQueryFeaturesKHR enabledRayQuery = new()
+        PhysicalDeviceRayQueryFeaturesKHR enabledRayQuery = new()
         {
-            rayQuery = true
+            SType = StructureType.PhysicalDeviceRayQueryFeaturesKhr,
+            RayQuery = true
         };
 
-        VkPhysicalDeviceAccelerationStructureFeaturesKHR enabledAcceleration = new()
+        PhysicalDeviceAccelerationStructureFeaturesKHR enabledAcceleration = new()
         {
-            accelerationStructure = true,
-            pNext = &enabledRayQuery
+            SType = StructureType.PhysicalDeviceAccelerationStructureFeaturesKhr,
+            AccelerationStructure = true,
+            PNext = &enabledRayQuery
         };
 
-        Vortice.Vulkan.VkPhysicalDeviceVulkan13Features enabled13 = new()
+        PhysicalDeviceVulkan13Features enabled13 = new()
         {
-            dynamicRendering = true,
-            synchronization2 = true,
-            pNext = RayQuerySupported ? &enabledAcceleration : null
+            SType = StructureType.PhysicalDeviceVulkan13Features,
+            DynamicRendering = true,
+            Synchronization2 = true,
+            PNext = RayQuerySupported ? &enabledAcceleration : null
         };
 
-        Vortice.Vulkan.VkPhysicalDeviceVulkan12Features enabled12 = new()
+        PhysicalDeviceVulkan12Features enabled12 = new()
         {
-            pNext = &enabled13,
-            bufferDeviceAddress = RayQuerySupported
+            SType = StructureType.PhysicalDeviceVulkan12Features,
+            PNext = &enabled13,
+            BufferDeviceAddress = RayQuerySupported
         };
 
-        VkPhysicalDeviceVulkan11Features enabled11 = new()
+        PhysicalDeviceVulkan11Features enabled11 = new()
         {
-            pNext = &enabled12,
-            shaderDrawParameters = true
+            SType = StructureType.PhysicalDeviceVulkan11Features,
+            PNext = &enabled12,
+            ShaderDrawParameters = true
         };
 
-        VkPhysicalDeviceFeatures2 enabled = new()
+        PhysicalDeviceFeatures2 enabled = new()
         {
-            pNext = &enabled11,
-            features = new()
+            SType = StructureType.PhysicalDeviceFeatures2,
+            PNext = &enabled11,
+            Features = new()
             {
-                shaderStorageImageReadWithoutFormat = true,
-                shaderStorageImageWriteWithoutFormat = true,
-                shaderStorageImageExtendedFormats = true
+                ShaderStorageImageReadWithoutFormat = true,
+                ShaderStorageImageWriteWithoutFormat = true,
+                ShaderStorageImageExtendedFormats = true
             }
         };
 
@@ -250,16 +298,17 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 "VK_KHR_ray_query",
                 "VK_KHR_deferred_host_operations"
             ]);
-            VkPhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new();
-            VkPhysicalDeviceProperties2 properties = new()
+            PhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new() { SType = StructureType.PhysicalDeviceAccelerationStructurePropertiesKhr };
+            PhysicalDeviceProperties2 properties = new()
             {
-                pNext = &accelerationProperties
+                SType = StructureType.PhysicalDeviceProperties2,
+                PNext = &accelerationProperties
             };
 
-            instanceApi.vkGetPhysicalDeviceProperties2(physical, &properties);
-            scratchAlignment = accelerationProperties.minAccelerationStructureScratchOffsetAlignment;
-            maxRayInstances = accelerationProperties.maxInstanceCount;
-            maxRayPrimitives = accelerationProperties.maxPrimitiveCount;
+            api.GetPhysicalDeviceProperties2(physical, &properties);
+            scratchAlignment = accelerationProperties.MinAccelerationStructureScratchOffsetAlignment;
+            maxRayInstances = accelerationProperties.MaxInstanceCount;
+            maxRayPrimitives = accelerationProperties.MaxPrimitiveCount;
         }
 
         foreach (string extension in NGX.VulkanExtensions(instance.Handle, physical.Handle))
@@ -276,30 +325,39 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         using NativeNames deviceExtensions = new([.. requestedExtensions.Distinct()]);
-        VkDeviceCreateInfo deviceInfo = new()
+        DeviceCreateInfo deviceInfo = new()
         {
-            pNext = &enabled,
-            queueCreateInfoCount = 1,
-            pQueueCreateInfos = &queueInfo,
-            enabledExtensionCount = deviceExtensions.Length,
-            ppEnabledExtensionNames = deviceExtensions.Pointer
+            SType = StructureType.DeviceCreateInfo,
+            PNext = &enabled,
+            QueueCreateInfoCount = 1,
+            PQueueCreateInfos = &queueInfo,
+            EnabledExtensionCount = deviceExtensions.Length,
+            PpEnabledExtensionNames = deviceExtensions.Pointer
         };
 
-        Check(instanceApi.vkCreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
-        api = GetApi(instance, device);
-        api.vkGetDeviceQueue(queueFamily, 0, out queue);
-        api.vkGetDeviceQueue(queueFamily, separatePresentQueue ? 1u : 0u, out presentQueue);
-        NGX.Initialize(device.Handle, instance.Handle, physical.Handle,
-            NativeLibrary.GetExport(vulkanModule, "vkGetInstanceProcAddr"), NativeLibrary.GetExport(vulkanModule, "vkGetDeviceProcAddr"));
-        InitializePresentation();
+        Check(api.CreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
+        if (!api.TryGetDeviceExtension(instance, device, out swapChainApi))
+        {
+            throw new NotSupportedException("VK_KHR_swapchain is unavailable.");
+        }
 
+        if (RayQuerySupported && !api.TryGetDeviceExtension(instance, device, out accelerationApi))
+        {
+            throw new NotSupportedException("VK_KHR_acceleration_structure is unavailable.");
+        }
+
+        api.GetDeviceQueue(device, queueFamily, 0, out queue);
+        api.GetDeviceQueue(device, queueFamily, separatePresentQueue ? 1u : 0u, out presentQueue);
+        NGX.Initialize(device.Handle, instance.Handle, physical.Handle,
+            api.Context.GetProcAddress("vkGetInstanceProcAddr"), api.Context.GetProcAddress("vkGetDeviceProcAddr"));
+        InitializePresentation();
     }
 
-    private uint MemoryType(uint bits, VkMemoryPropertyFlags flags)
+    private uint MemoryType(uint bits, MemoryPropertyFlags flags)
     {
-        for (uint i = 0; i < memoryProperties.memoryTypeCount; i++)
+        for (uint i = 0; i < memoryProperties.MemoryTypeCount; i++)
         {
-            if ((bits & (1u << (int)i)) != 0 && (memoryProperties.memoryTypes[(int)i].propertyFlags & flags) == flags)
+            if ((bits & (1u << (int)i)) != 0 && (memoryProperties.MemoryTypes[(int)i].PropertyFlags & flags) == flags)
             {
                 return i;
             }
@@ -308,49 +366,54 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         throw new NotSupportedException($"No Vulkan memory type supports {flags}.");
     }
 
-    private VkBufferResource CreateBuffer(ulong size, VkBufferUsageFlags usage, bool host)
+    private VkBufferResource CreateBuffer(ulong size, BufferUsageFlags usage, bool host)
     {
         VkBufferResource resource = new()
         {
             Api = api,
+            Device = device,
             Size = Math.Max(size, 4)
         };
 
-        VkBufferCreateInfo info = new()
+        BufferCreateInfo info = new()
         {
-            size = resource.Size,
-            usage = usage,
-            sharingMode = VkSharingMode.Exclusive
+            SType = StructureType.BufferCreateInfo,
+            Size = resource.Size,
+            Usage = usage,
+            SharingMode = SharingMode.Exclusive
         };
 
-        Check(api.vkCreateBuffer(&info, null, out resource.Buffer), "vkCreateBuffer");
-        api.vkGetBufferMemoryRequirements(resource.Buffer, out VkMemoryRequirements requirements);
-        bool addressable = (usage & VkBufferUsageFlags.ShaderDeviceAddress) != 0;
-        VkMemoryAllocateFlagsInfo flags = new()
+        Check(api.CreateBuffer(device, &info, null, out resource.Buffer), "vkCreateBuffer");
+        api.GetBufferMemoryRequirements(device, resource.Buffer, out MemoryRequirements requirements);
+        bool addressable = (usage & BufferUsageFlags.ShaderDeviceAddressBit) != 0;
+        MemoryAllocateFlagsInfo flags = new()
         {
-            flags = VkMemoryAllocateFlags.DeviceAddress
+            SType = StructureType.MemoryAllocateFlagsInfo,
+            Flags = MemoryAllocateFlags.DeviceAddressBit
         };
 
-        VkMemoryAllocateInfo allocation = new()
+        MemoryAllocateInfo allocation = new()
         {
-            pNext = addressable ? &flags : null,
-            allocationSize = requirements.size,
-            memoryTypeIndex = MemoryType(
-                requirements.memoryTypeBits,
-                host ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent : VkMemoryPropertyFlags.DeviceLocal)
+            SType = StructureType.MemoryAllocateInfo,
+            PNext = addressable ? &flags : null,
+            AllocationSize = requirements.Size,
+            MemoryTypeIndex = MemoryType(
+                requirements.MemoryTypeBits,
+                host ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit)
         };
 
-        Check(api.vkAllocateMemory(&allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
-        Check(api.vkBindBufferMemory(resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
+        Check(api.AllocateMemory(device, &allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
+        Check(api.BindBufferMemory(device, resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
 
         if (addressable)
         {
-            VkBufferDeviceAddressInfo address = new()
+            BufferDeviceAddressInfo address = new()
             {
-                buffer = resource.Buffer
+                SType = StructureType.BufferDeviceAddressInfoKhr,
+                Buffer = resource.Buffer
             };
 
-            resource.Address = api.vkGetBufferDeviceAddress(&address);
+            resource.Address = api.GetBufferDeviceAddress(device, &address);
 
             if (resource.Address == 0)
             {
@@ -361,7 +424,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         if (host)
         {
             void* mapped;
-            Check(api.vkMapMemory(resource.Memory, 0, resource.Size, 0, &mapped), "vkMapMemory");
+            Check(api.MapMemory(device, resource.Memory, 0, resource.Size, 0, &mapped), "vkMapMemory");
             resource.Mapped = mapped;
         }
 
@@ -372,34 +435,35 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         where T : unmanaged
     {
         ulong size = (ulong)(data.Length * sizeof(T));
-        VkBufferUsageFlags usage = VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferDst;
+        BufferUsageFlags usage = BufferUsageFlags.StorageBufferBit | BufferUsageFlags.TransferDstBit;
 
         if (rayGeometry && RayQuerySupported)
         {
-            usage |= VkBufferUsageFlags.ShaderDeviceAddress | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR;
+            usage |= BufferUsageFlags.ShaderDeviceAddressBit | BufferUsageFlags.AccelerationStructureBuildInputReadOnlyBitKhr;
         }
 
         VkBufferResource buffer = CreateBuffer(size, usage, false);
-        VkBufferResource upload = CreateBuffer(size, VkBufferUsageFlags.TransferSrc, true);
+        VkBufferResource upload = CreateBuffer(size, BufferUsageFlags.TransferSrcBit, true);
         upload.Write(data);
         uploads.Add(upload);
-        VkBufferCopy copy = new()
+        BufferCopy copy = new()
         {
-            size = size
+            Size = size
         };
 
-        api.vkCmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
+        api.CmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
 
         return buffer;
     }
 
     protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
     {
-        VkImageUsageFlags usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst;
-        usage |= format == ImageFormat.Depth ? VkImageUsageFlags.DepthStencilAttachment : VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Storage;
+        ImageUsageFlags usage = ImageUsageFlags.SampledBit | ImageUsageFlags.TransferSrcBit | ImageUsageFlags.TransferDstBit;
+        usage |= format == ImageFormat.Depth ? ImageUsageFlags.DepthStencilAttachmentBit : ImageUsageFlags.ColorAttachmentBit | ImageUsageFlags.StorageBit;
         VkTexture texture = new()
         {
             Api = api,
+            Device = device,
             Width = width,
             Height = height,
             Layers = layers,
@@ -407,37 +471,40 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Usage = usage
         };
 
-        VkImageCreateInfo info = new()
+        ImageCreateInfo info = new()
         {
-            imageType = VkImageType.Image2D,
-            format = NativeFormat(format),
-            extent = new((uint)width, (uint)height, 1),
-            mipLevels = 1,
-            arrayLayers = (uint)layers,
-            samples = VkSampleCountFlags.Count1,
-            tiling = VkImageTiling.Optimal,
-            usage = usage
+            SType = StructureType.ImageCreateInfo,
+            ImageType = ImageType.Type2D,
+            Format = NativeFormat(format),
+            Extent = new((uint)width, (uint)height, 1),
+            MipLevels = 1,
+            ArrayLayers = (uint)layers,
+            Samples = SampleCountFlags.Count1Bit,
+            Tiling = ImageTiling.Optimal,
+            Usage = usage
         };
 
-        Check(api.vkCreateImage(&info, null, out texture.Texture), "vkCreateImage");
-        api.vkGetImageMemoryRequirements(texture.Texture, out VkMemoryRequirements requirements);
-        VkMemoryAllocateInfo allocation = new()
+        Check(api.CreateImage(device, &info, null, out texture.Texture), "vkCreateImage");
+        api.GetImageMemoryRequirements(device, texture.Texture, out MemoryRequirements requirements);
+        MemoryAllocateInfo allocation = new()
         {
-            allocationSize = requirements.size,
-            memoryTypeIndex = MemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal)
+            SType = StructureType.MemoryAllocateInfo,
+            AllocationSize = requirements.Size,
+            MemoryTypeIndex = MemoryType(requirements.MemoryTypeBits, MemoryPropertyFlags.DeviceLocalBit)
         };
 
-        Check(api.vkAllocateMemory(&allocation, null, out texture.Memory), "vkAllocateMemory(image)");
-        Check(api.vkBindImageMemory(texture.Texture, texture.Memory, 0), "vkBindImageMemory");
-        VkImageViewCreateInfo view = new()
+        Check(api.AllocateMemory(device, &allocation, null, out texture.Memory), "vkAllocateMemory(image)");
+        Check(api.BindImageMemory(device, texture.Texture, texture.Memory, 0), "vkBindImageMemory");
+        ImageViewCreateInfo view = new()
         {
-            image = texture.Texture,
-            viewType = layers > 1 ? VkImageViewType.Image2DArray : VkImageViewType.Image2D,
-            format = NativeFormat(format),
-            subresourceRange = Range(format, layers)
+            SType = StructureType.ImageViewCreateInfo,
+            Image = texture.Texture,
+            ViewType = layers > 1 ? ImageViewType.Type2DArray : ImageViewType.Type2D,
+            Format = NativeFormat(format),
+            SubresourceRange = Range(format, layers)
         };
 
-        Check(api.vkCreateImageView(&view, null, out texture.View), "vkCreateImageView");
+        Check(api.CreateImageView(device, &view, null, out texture.View), "vkCreateImageView");
 
         return texture;
     }
@@ -445,105 +512,118 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
     protected override void CreateSwapChain()
     {
         Check(
-            instanceApi.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, out VkSurfaceCapabilitiesKHR capabilities),
+            surfaceApi.GetPhysicalDeviceSurfaceCapabilities(physical, surface, out SurfaceCapabilitiesKHR capabilities),
             "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-        Check(instanceApi.vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, out uint count), "vkGetPhysicalDeviceSurfaceFormatsKHR(count)");
-        VkSurfaceFormatKHR[] formats = new VkSurfaceFormatKHR[count];
-        Check(instanceApi.vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, formats), "vkGetPhysicalDeviceSurfaceFormatsKHR");
-        VkSurfaceFormatKHR selected = formats.FirstOrDefault(x => x.format == VkFormat.R8G8B8A8Unorm && x.colorSpace == VkColorSpaceKHR.SrgbNonLinear);
+        uint count = 0;
+        Check(surfaceApi.GetPhysicalDeviceSurfaceFormats(physical, surface, &count, null), "vkGetPhysicalDeviceSurfaceFormatsKHR(count)");
+        SurfaceFormatKHR[] formats = new SurfaceFormatKHR[count];
 
-        if (selected.format == VkFormat.Undefined)
+        fixed (SurfaceFormatKHR* pointer = formats)
         {
-            selected = formats.FirstOrDefault(x => x.format == VkFormat.B8G8R8A8Unorm && x.colorSpace == VkColorSpaceKHR.SrgbNonLinear);
+            Check(surfaceApi.GetPhysicalDeviceSurfaceFormats(physical, surface, &count, pointer), "vkGetPhysicalDeviceSurfaceFormatsKHR");
+        }
+        SurfaceFormatKHR selected = formats.FirstOrDefault(x => x.Format == Format.R8G8B8A8Unorm && x.ColorSpace == ColorSpaceKHR.SpaceSrgbNonlinearKhr);
+
+        if (selected.Format == Format.Undefined)
+        {
+            selected = formats.FirstOrDefault(x => x.Format == Format.B8G8R8A8Unorm && x.ColorSpace == ColorSpaceKHR.SpaceSrgbNonlinearKhr);
         }
 
-        if (selected.format == VkFormat.Undefined)
+        if (selected.Format == Format.Undefined)
         {
             throw new NotSupportedException("The surface must support an SDR UNORM format.");
         }
 
-        if ((capabilities.supportedUsageFlags & VkImageUsageFlags.TransferDst) == 0)
+        if ((capabilities.SupportedUsageFlags & ImageUsageFlags.TransferDstBit) == 0)
         {
             throw new NotSupportedException("The swap chain does not support transfer destinations.");
         }
 
-        Check(instanceApi.vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, out count), "vkGetPhysicalDeviceSurfacePresentModesKHR(count)");
-        VkPresentModeKHR[] modes = new VkPresentModeKHR[count];
-        Check(instanceApi.vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, modes), "vkGetPhysicalDeviceSurfacePresentModesKHR");
-        uint imageCount = Math.Max(capabilities.minImageCount, RenderLayout.FramesInFlight);
+        Check(surfaceApi.GetPhysicalDeviceSurfacePresentModes(physical, surface, &count, null), "vkGetPhysicalDeviceSurfacePresentModesKHR(count)");
+        PresentModeKHR[] modes = new PresentModeKHR[count];
 
-        if (capabilities.maxImageCount > 0)
+        fixed (PresentModeKHR* pointer = modes)
         {
-            imageCount = Math.Min(imageCount, capabilities.maxImageCount);
+            Check(surfaceApi.GetPhysicalDeviceSurfacePresentModes(physical, surface, &count, pointer), "vkGetPhysicalDeviceSurfacePresentModesKHR");
+        }
+        uint imageCount = Math.Max(capabilities.MinImageCount, RenderLayout.FramesInFlight);
+
+        if (capabilities.MaxImageCount > 0)
+        {
+            imageCount = Math.Min(imageCount, capabilities.MaxImageCount);
         }
 
-        VkSwapchainCreateInfoKHR create = new()
+        SwapchainCreateInfoKHR create = new()
         {
-            surface = surface,
-            minImageCount = imageCount,
-            imageFormat = selected.format,
-            imageColorSpace = selected.colorSpace,
-            imageExtent = new((uint)Window.Width, (uint)Window.Height),
-            imageArrayLayers = 1,
-            imageUsage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferDst,
-            imageSharingMode = VkSharingMode.Exclusive,
-            preTransform = capabilities.currentTransform,
-            compositeAlpha = VkCompositeAlphaFlagsKHR.Opaque,
-            presentMode = modes.Contains(VkPresentModeKHR.Immediate) ? VkPresentModeKHR.Immediate
-                : modes.Contains(VkPresentModeKHR.Mailbox) ? VkPresentModeKHR.Mailbox
-                : VkPresentModeKHR.Fifo,
-            clipped = true
+            SType = StructureType.SwapchainCreateInfoKhr,
+            Surface = surface,
+            MinImageCount = imageCount,
+            ImageFormat = selected.Format,
+            ImageColorSpace = selected.ColorSpace,
+            ImageExtent = new((uint)Window.Width, (uint)Window.Height),
+            ImageArrayLayers = 1,
+            ImageUsage = ImageUsageFlags.ColorAttachmentBit | ImageUsageFlags.TransferDstBit,
+            ImageSharingMode = SharingMode.Exclusive,
+            PreTransform = capabilities.CurrentTransform,
+            CompositeAlpha = CompositeAlphaFlagsKHR.OpaqueBitKhr,
+            PresentMode = modes.Contains(PresentModeKHR.ImmediateKhr) ? PresentModeKHR.ImmediateKhr
+                : modes.Contains(PresentModeKHR.MailboxKhr) ? PresentModeKHR.MailboxKhr
+                : PresentModeKHR.FifoKhr,
+            Clipped = true
         };
 
-        Check(api.vkCreateSwapchainKHR(&create, null, out swapChain), "vkCreateSwapchainKHR");
-        Check(api.vkGetSwapchainImagesKHR(swapChain, out count), "vkGetSwapchainImagesKHR(count)");
-        backBuffers = new VkImage[count];
-        backLayouts = new VkImageLayout[count];
-        presentSemaphores = new VkSemaphore[count];
-        Check(api.vkGetSwapchainImagesKHR(swapChain, backBuffers), "vkGetSwapchainImagesKHR");
-        VkSemaphoreCreateInfo semaphore = new();
+        Check(swapChainApi.CreateSwapchain(device, &create, null, out swapChain), "vkCreateSwapchainKHR");
+        Check(swapChainApi.GetSwapchainImages(device, swapChain, &count, null), "vkGetSwapchainImagesKHR(count)");
+        backBuffers = new Image[count];
+        backLayouts = new ImageLayout[count];
+        presentSemaphores = new Semaphore[count];
+        fixed (Image* pointer = backBuffers)
+        {
+            Check(swapChainApi.GetSwapchainImages(device, swapChain, &count, pointer), "vkGetSwapchainImagesKHR");
+        }
+        SemaphoreCreateInfo semaphore = new() { SType = StructureType.SemaphoreCreateInfo };
 
         for (int i = 0; i < presentSemaphores.Length; i++)
         {
-            Check(api.vkCreateSemaphore(&semaphore, null, out presentSemaphores[i]), "vkCreateSemaphore(present)");
+            Check(api.CreateSemaphore(device, &semaphore, null, out presentSemaphores[i]), "vkCreateSemaphore(present)");
         }
     }
 
     protected override void DestroySwapChain()
     {
-        if (api is null)
+        if (device.Handle == 0)
         {
             return;
         }
 
-        foreach (VkSemaphore semaphore in presentSemaphores)
+        foreach (Semaphore semaphore in presentSemaphores)
         {
-            api.vkDestroySemaphore(semaphore);
+            api.DestroySemaphore(device, semaphore, null);
         }
 
         presentSemaphores = [];
         backBuffers = [];
         backLayouts = [];
 
-        if (!swapChain.IsNull)
+        if (swapChain.Handle != 0)
         {
-            api.vkDestroySwapchainKHR(swapChain);
+            swapChainApi.DestroySwapchain(device, swapChain, null);
             swapChain = default;
         }
     }
 
-    private static VkFormat NativeFormat(ImageFormat format) => format switch
+    private static Format NativeFormat(ImageFormat format) => format switch
     {
-        ImageFormat.Rgba16 => VkFormat.R16G16B16A16Sfloat,
-        ImageFormat.Rgba32 => VkFormat.R32G32B32A32Sfloat,
-        ImageFormat.Rg16 => VkFormat.R16G16Sfloat,
-        ImageFormat.Float => VkFormat.R32Sfloat,
-        ImageFormat.Depth => VkFormat.D32Sfloat,
-        _ => VkFormat.R8G8B8A8Unorm
+        ImageFormat.Rgba16 => Format.R16G16B16A16Sfloat,
+        ImageFormat.Rgba32 => Format.R32G32B32A32Sfloat,
+        ImageFormat.Rg16 => Format.R16G16Sfloat,
+        ImageFormat.Float => Format.R32Sfloat,
+        ImageFormat.Depth => Format.D32Sfloat,
+        _ => Format.R8G8B8A8Unorm
     };
 
-    private static VkImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(
-        format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color,
+    private static ImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(
+        format == ImageFormat.Depth ? ImageAspectFlags.DepthBit : ImageAspectFlags.ColorBit,
         0,
         1,
         0,

@@ -1,17 +1,17 @@
 ﻿using Showcase.Models;
-using Vortice.Direct3D12;
-using Vortice.DXGI;
-using Vortice.Mathematics;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D12;
+using Silk.NET.DXGI;
 
 namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI
 {
-    private ID3D12Device5? rayDevice;
-    private ID3D12GraphicsCommandList4? rayCommands;
-    private readonly List<ID3D12Resource> bottomLevels = [];
+    private ComPtr<ID3D12Device5> rayDevice;
+    private ComPtr<ID3D12GraphicsCommandList4> rayCommands;
+    private readonly List<ComPtr<ID3D12Resource>> bottomLevels = [];
 
-    private ID3D12Resource AccelerationBuffer(ulong size, ResourceStates state)
+    private ComPtr<ID3D12Resource> AccelerationBuffer(ulong size, ResourceStates state)
     {
         if (size == 0)
         {
@@ -21,7 +21,7 @@ internal sealed unsafe partial class DirectX12RHI
         ulong alignment = D3D12.RaytracingAccelerationStructureByteAlignment;
         ulong alignedSize = (size + alignment - 1) / alignment * alignment;
 
-        return device.CreateCommittedResource(HeapType.Default, ResourceDescription.Buffer(alignedSize, ResourceFlags.AllowUnorderedAccess), state);
+        return CreateBuffer(alignedSize, HeapType.Default, state, ResourceFlags.AllowUnorderedAccess);
     }
 
     private void InitializeAccelerationStructures()
@@ -29,101 +29,116 @@ internal sealed unsafe partial class DirectX12RHI
         foreach (SceneObject instance in Scene.Objects)
         {
             GeometryRange range = instance.Geometry;
-            RaytracingGeometryDescription geometry = new(new RaytracingGeometryTrianglesDescription
+            RaytracingGeometryDesc geometry = new()
             {
-                VertexFormat = Format.R32G32B32_Float,
-                VertexCount = range.VertexCount,
-                VertexBuffer = new()
+                Type = RaytracingGeometryType.Triangles,
+                Flags = range.Opaque != 0 ? RaytracingGeometryFlags.Opaque : RaytracingGeometryFlags.None,
+                Triangles = new()
                 {
-                    StartAddress = sceneBuffers[0].GPUVirtualAddress + (ulong)range.FirstVertex * (uint)sizeof(SceneVertex),
-                    StrideInBytes = (uint)sizeof(SceneVertex)
+                    VertexFormat = Format.FormatR32G32B32Float,
+                    VertexCount = range.VertexCount,
+                    VertexBuffer = new()
+                    {
+                        StartAddress = sceneBuffers[0].Handle->GetGPUVirtualAddress() + (ulong)range.FirstVertex * (uint)sizeof(SceneVertex),
+                        StrideInBytes = (uint)sizeof(SceneVertex)
+                    }
                 }
-            }, range.Opaque != 0 ? RaytracingGeometryFlags.Opaque : RaytracingGeometryFlags.None);
+            };
 
             BuildRaytracingAccelerationStructureInputs inputs = new()
             {
                 Type = RaytracingAccelerationStructureType.BottomLevel,
                 Flags = RaytracingAccelerationStructureBuildFlags.PreferFastTrace,
-                Layout = ElementsLayout.Array,
-                DescriptorsCount = 1,
-                GeometryDescriptions = [geometry]
+                DescsLayout = ElementsLayout.Array,
+                NumDescs = 1,
+                PGeometryDescs = &geometry
             };
 
-            RaytracingAccelerationStructurePrebuildInfo sizes = rayDevice!.GetRaytracingAccelerationStructurePrebuildInfo(inputs);
-            ID3D12Resource bottom = AccelerationBuffer(sizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
+            RaytracingAccelerationStructurePrebuildInfo sizes = default;
+            rayDevice.Handle->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &sizes);
+            ComPtr<ID3D12Resource> bottom = AccelerationBuffer(sizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
             bottomLevels.Add(bottom);
-            ID3D12Resource scratch = AccelerationBuffer(sizes.ScratchDataSizeInBytes, ResourceStates.UnorderedAccess);
+            ComPtr<ID3D12Resource> scratch = AccelerationBuffer(sizes.ScratchDataSizeInBytes, ResourceStates.UnorderedAccess);
 
             // Startup submission owns this scratch storage until WaitIdle releases the upload batch.
             uploads.Add(scratch);
-            rayCommands!.BuildRaytracingAccelerationStructure(new()
+            BuildRaytracingAccelerationStructureDesc build = new()
             {
                 Inputs = inputs,
-                DestinationAccelerationStructureData = bottom.GPUVirtualAddress,
-                ScratchAccelerationStructureData = scratch.GPUVirtualAddress
-            });
-            commandList.ResourceBarrierUnorderedAccessView(bottom);
+                DestAccelerationStructureData = bottom.Handle->GetGPUVirtualAddress(),
+                ScratchAccelerationStructureData = scratch.Handle->GetGPUVirtualAddress()
+            };
+            rayCommands.Handle->BuildRaytracingAccelerationStructure(&build, 0, null);
+            UavBarrier(bottom);
         }
 
         BuildRaytracingAccelerationStructureInputs topInputs = new()
         {
             Type = RaytracingAccelerationStructureType.TopLevel,
             Flags = RaytracingAccelerationStructureBuildFlags.AllowUpdate | RaytracingAccelerationStructureBuildFlags.PreferFastTrace,
-            Layout = ElementsLayout.Array,
-            DescriptorsCount = (uint)Scene.Objects.Length
+            DescsLayout = ElementsLayout.Array,
+            NumDescs = (uint)Scene.Objects.Length
         };
 
-        RaytracingAccelerationStructurePrebuildInfo topSizes = rayDevice!.GetRaytracingAccelerationStructurePrebuildInfo(topInputs);
+        RaytracingAccelerationStructurePrebuildInfo topSizes = default;
+        rayDevice.Handle->GetRaytracingAccelerationStructurePrebuildInfo(&topInputs, &topSizes);
 
         foreach (DxFrame frame in slots)
         {
             frame.Tlas = AccelerationBuffer(topSizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
             frame.RayScratch = AccelerationBuffer(Math.Max(topSizes.ScratchDataSizeInBytes, topSizes.UpdateScratchDataSizeInBytes), ResourceStates.UnorderedAccess);
-            frame.RayInstances = UploadBuffer(Scene.Objects.Length * sizeof(RaytracingInstanceDescription));
+            frame.RayInstances = UploadBuffer(Scene.Objects.Length * sizeof(RaytracingInstanceDesc));
         }
     }
 
-    private static RaytracingInstanceDescription CreateRayInstance(SceneObject instance, uint id, ulong address)
+    private static RaytracingInstanceDesc CreateRayInstance(SceneObject instance, uint id, ulong address)
     {
         System.Numerics.Vector4 offset = instance.Offset;
 
-        return new()
+        RaytracingInstanceDesc description = new()
         {
-            Transform = new Matrix3x4(1, 0, 0, offset.X, 0, 1, 0, offset.Y, 0, 0, 1, offset.Z),
-            InstanceID = (Vortice.UInt24)id,
+            InstanceID = id,
             InstanceMask = byte.MaxValue,
             // Default ray facing matches dot(direction, cross(edge1, edge2)) < 0.
-            Flags = instance.Geometry.DoubleSided != 0 ? RaytracingInstanceFlags.TriangleCullDisable : RaytracingInstanceFlags.None,
+            Flags = instance.Geometry.DoubleSided != 0 ? (uint)RaytracingInstanceFlags.TriangleCullDisable : 0,
             AccelerationStructure = address
         };
+        description.Transform[0] = 1;
+        description.Transform[3] = offset.X;
+        description.Transform[5] = 1;
+        description.Transform[7] = offset.Y;
+        description.Transform[10] = 1;
+        description.Transform[11] = offset.Z;
+
+        return description;
     }
 
     private void UpdateAccelerationStructure(DxFrame frame)
     {
         // BeginCommands has already waited for this frame slot's fence. Other slots
         // retain their own TLAS, scratch and instance data until their GPU work ends.
-        Span<RaytracingInstanceDescription> instances = frame.RayInstances!.Map<RaytracingInstanceDescription>(0, Scene.Objects.Length);
+        Span<RaytracingInstanceDesc> instances = new(Map<RaytracingInstanceDesc>(frame.RayInstances), Scene.Objects.Length);
 
         for (int i = 0; i < instances.Length; i++)
         {
-            instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].GPUVirtualAddress);
+            instances[i] = CreateRayInstance(Scene.Objects[i], (uint)i, bottomLevels[i].Handle->GetGPUVirtualAddress());
         }
 
-        frame.RayInstances.Unmap(0);
+        frame.RayInstances.Handle->Unmap(0, null);
 
         if (frame.TlasBuilt)
         {
-            commandList.ResourceBarrierUnorderedAccessView(frame.Tlas!);
-            commandList.ResourceBarrierUnorderedAccessView(frame.RayScratch!);
+            UavBarrier(frame.Tlas);
+            UavBarrier(frame.RayScratch);
         }
 
         BuildRaytracingAccelerationStructureInputs inputs = new()
         {
             Type = RaytracingAccelerationStructureType.TopLevel,
             Flags = RaytracingAccelerationStructureBuildFlags.AllowUpdate | RaytracingAccelerationStructureBuildFlags.PreferFastTrace,
-            Layout = ElementsLayout.Array,
-            DescriptorsCount = (uint)Scene.Objects.Length,
-            InstanceDescriptions = frame.RayInstances.GPUVirtualAddress
+            DescsLayout = ElementsLayout.Array,
+            NumDescs = (uint)Scene.Objects.Length,
+            InstanceDescs = frame.RayInstances.Handle->GetGPUVirtualAddress()
         };
 
         if (frame.TlasBuilt)
@@ -131,14 +146,15 @@ internal sealed unsafe partial class DirectX12RHI
             inputs.Flags |= RaytracingAccelerationStructureBuildFlags.PerformUpdate;
         }
 
-        rayCommands!.BuildRaytracingAccelerationStructure(new()
+        BuildRaytracingAccelerationStructureDesc build = new()
         {
             Inputs = inputs,
-            DestinationAccelerationStructureData = frame.Tlas!.GPUVirtualAddress,
-            SourceAccelerationStructureData = frame.TlasBuilt ? frame.Tlas.GPUVirtualAddress : 0,
-            ScratchAccelerationStructureData = frame.RayScratch!.GPUVirtualAddress
-        });
-        commandList.ResourceBarrierUnorderedAccessView(frame.Tlas);
+            DestAccelerationStructureData = frame.Tlas.Handle->GetGPUVirtualAddress(),
+            SourceAccelerationStructureData = frame.TlasBuilt ? frame.Tlas.Handle->GetGPUVirtualAddress() : 0,
+            ScratchAccelerationStructureData = frame.RayScratch.Handle->GetGPUVirtualAddress()
+        };
+        rayCommands.Handle->BuildRaytracingAccelerationStructure(&build, 0, null);
+        UavBarrier(frame.Tlas);
         frame.TlasBuilt = true;
     }
 }

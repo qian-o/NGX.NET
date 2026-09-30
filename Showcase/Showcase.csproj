@@ -12,11 +12,15 @@
     <ItemGroup>
         <PackageReference Include="ImGui.NET" />
         <PackageReference Include="SharpGLTF.Core" />
+        <PackageReference Include="Silk.NET.Direct3D12" />
+        <PackageReference Include="Silk.NET.DXGI" />
+        <PackageReference Include="Silk.NET.GLFW" />
+        <PackageReference Include="Silk.NET.Input" />
+        <PackageReference Include="Silk.NET.Vulkan" />
+        <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" />
+        <PackageReference Include="Silk.NET.Windowing" />
         <PackageReference Include="Slangc.NET" />
         <PackageReference Include="StbImageSharp" />
-        <PackageReference Include="Vortice.Direct3D12" />
-        <PackageReference Include="Vortice.DXGI" />
-        <PackageReference Include="Vortice.Vulkan" />
     </ItemGroup>
 
     <ItemGroup>

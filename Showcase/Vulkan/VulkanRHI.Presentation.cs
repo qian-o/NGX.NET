@@ -1,139 +1,146 @@
 ﻿using Showcase.Models;
-using Vortice.Vulkan;
+using Silk.NET.Vulkan;
+using Semaphore = Silk.NET.Vulkan.Semaphore;
 
 namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI
 {
     private readonly object queueSync = new();
-    private nint vulkanModule;
-    private VkCommandPool presentPool;
-    private VkCommandBuffer presentCommand;
-    private VkFence presentFence;
-    private VkSemaphore presentAcquire;
+    private CommandPool presentPool;
+    private CommandBuffer presentCommand;
+    private Fence presentFence;
+    private Semaphore presentAcquire;
     private bool presentationPending;
 
     private void InitializePresentation()
     {
-        VkCommandPoolCreateInfo poolInfo = new()
+        CommandPoolCreateInfo poolInfo = new()
         {
-            queueFamilyIndex = queueFamily
+            SType = StructureType.CommandPoolCreateInfo,
+            QueueFamilyIndex = queueFamily
         };
 
-        Check(api.vkCreateCommandPool(&poolInfo, null, out presentPool), "vkCreateCommandPool(present)");
-        VkCommandBufferAllocateInfo commandInfo = new()
+        Check(api.CreateCommandPool(device, &poolInfo, null, out presentPool), "vkCreateCommandPool(present)");
+        CommandBufferAllocateInfo commandInfo = new()
         {
-            commandPool = presentPool,
-            level = VkCommandBufferLevel.Primary,
-            commandBufferCount = 1
+            SType = StructureType.CommandBufferAllocateInfo,
+            CommandPool = presentPool,
+            Level = CommandBufferLevel.Primary,
+            CommandBufferCount = 1
         };
 
-        VkCommandBuffer command = default;
-        Check(api.vkAllocateCommandBuffers(&commandInfo, &command), "vkAllocateCommandBuffers(present)");
+        CommandBuffer command = default;
+        Check(api.AllocateCommandBuffers(device, &commandInfo, &command), "vkAllocateCommandBuffers(present)");
         presentCommand = command;
-        VkFenceCreateInfo fenceInfo = new();
-        Check(api.vkCreateFence(&fenceInfo, null, out presentFence), "vkCreateFence(present)");
-        VkSemaphoreCreateInfo semaphoreInfo = new();
-        Check(api.vkCreateSemaphore(&semaphoreInfo, null, out presentAcquire), "vkCreateSemaphore(acquire)");
+        FenceCreateInfo fenceInfo = new() { SType = StructureType.FenceCreateInfo };
+        Check(api.CreateFence(device, &fenceInfo, null, out presentFence), "vkCreateFence(present)");
+        SemaphoreCreateInfo semaphoreInfo = new() { SType = StructureType.SemaphoreCreateInfo };
+        Check(api.CreateSemaphore(device, &semaphoreInfo, null, out presentAcquire), "vkCreateSemaphore(acquire)");
     }
 
     protected override void WaitRenderedFrame(int slot)
     {
-        VkFence fence = slots[slot].Fence;
-        Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(render)");
-        VkSemaphore complete = slots[slot].RenderComplete;
-        VkPipelineStageFlags stage = VkPipelineStageFlags.AllCommands;
-        VkSubmitInfo wait = new()
+        Fence fence = slots[slot].Fence;
+        Check(api.WaitForFences(device, 1, &fence, true, ulong.MaxValue), "vkWaitForFences(render)");
+        Semaphore complete = slots[slot].RenderComplete;
+        PipelineStageFlags stage = PipelineStageFlags.AllCommandsBit;
+        SubmitInfo wait = new()
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = &complete,
-            pWaitDstStageMask = &stage
+            SType = StructureType.SubmitInfo,
+            WaitSemaphoreCount = 1,
+            PWaitSemaphores = &complete,
+            PWaitDstStageMask = &stage
         };
 
         lock (queueSync)
         {
-            Check(api.vkQueueSubmit(presentQueue, 1, &wait, default), "vkQueueSubmit(render dependency)");
+            Check(api.QueueSubmit(presentQueue, 1, &wait, default), "vkQueueSubmit(render dependency)");
         }
     }
 
     protected override bool PresentImage(GpuImage image)
     {
         WaitPresentation();
-        VkResult acquire = api.vkAcquireNextImageKHR(swapChain, ulong.MaxValue, presentAcquire, default, out uint index);
+        uint index = 0;
+        Result acquire = swapChainApi.AcquireNextImage(device, swapChain, ulong.MaxValue, presentAcquire, default, &index);
 
-        if (acquire == VkResult.ErrorOutOfDateKHR)
+        if (acquire == Result.ErrorOutOfDateKhr)
         {
             return false;
         }
 
-        if (acquire != VkResult.SuboptimalKHR)
+        if (acquire != Result.SuboptimalKhr)
         {
             Check(acquire, "vkAcquireNextImageKHR");
         }
 
-        Check(api.vkResetCommandPool(presentPool, 0), "vkResetCommandPool(present)");
-        VkCommandBufferBeginInfo begin = new()
+        Check(api.ResetCommandPool(device, presentPool, 0), "vkResetCommandPool(present)");
+        CommandBufferBeginInfo begin = new()
         {
-            flags = VkCommandBufferUsageFlags.OneTimeSubmit
+            SType = StructureType.CommandBufferBeginInfo,
+            Flags = CommandBufferUsageFlags.OneTimeSubmitBit
         };
 
-        Check(api.vkBeginCommandBuffer(presentCommand, &begin), "vkBeginCommandBuffer(present)");
-        Barrier(backBuffers[index], backLayouts[index], VkImageLayout.TransferDstOptimal, Range(ImageFormat.Rgba8), presentCommand);
-        VkImageBlit blit = new()
+        Check(api.BeginCommandBuffer(presentCommand, &begin), "vkBeginCommandBuffer(present)");
+        Barrier(backBuffers[index], backLayouts[index], ImageLayout.TransferDstOptimal, Range(ImageFormat.Rgba8), presentCommand);
+        ImageBlit blit = new()
         {
-            srcSubresource = new(VkImageAspectFlags.Color, 0, 0, 1),
-            dstSubresource = new(VkImageAspectFlags.Color, 0, 0, 1)
+            SrcSubresource = new(ImageAspectFlags.ColorBit, 0, 0, 1),
+            DstSubresource = new(ImageAspectFlags.ColorBit, 0, 0, 1)
         };
 
-        blit.srcOffsets[1] = new(image.Width, image.Height, 1);
-        blit.dstOffsets[1] = new(image.Width, image.Height, 1);
-        api.vkCmdBlitImage(
+        blit.SrcOffsets[1] = new(image.Width, image.Height, 1);
+        blit.DstOffsets[1] = new(image.Width, image.Height, 1);
+        api.CmdBlitImage(
             presentCommand,
             ((VkTexture)image).Texture,
-            VkImageLayout.TransferSrcOptimal,
+            ImageLayout.TransferSrcOptimal,
             backBuffers[index],
-            VkImageLayout.TransferDstOptimal,
+            ImageLayout.TransferDstOptimal,
             1,
             &blit,
-            VkFilter.Nearest);
-        Barrier(backBuffers[index], VkImageLayout.TransferDstOptimal, VkImageLayout.PresentSrcKHR, Range(ImageFormat.Rgba8), presentCommand);
-        backLayouts[index] = VkImageLayout.PresentSrcKHR;
-        Check(api.vkEndCommandBuffer(presentCommand), "vkEndCommandBuffer(present)");
-        VkCommandBuffer command = presentCommand;
-        VkSemaphore acquireSemaphore = presentAcquire, complete = presentSemaphores[index];
-        VkFence fence = presentFence;
-        Check(api.vkResetFences(1, &fence), "vkResetFences(present)");
-        VkPipelineStageFlags stage = VkPipelineStageFlags.Transfer;
-        VkSubmitInfo submit = new()
+            Filter.Nearest);
+        Barrier(backBuffers[index], ImageLayout.TransferDstOptimal, ImageLayout.PresentSrcKhr, Range(ImageFormat.Rgba8), presentCommand);
+        backLayouts[index] = ImageLayout.PresentSrcKhr;
+        Check(api.EndCommandBuffer(presentCommand), "vkEndCommandBuffer(present)");
+        CommandBuffer command = presentCommand;
+        Semaphore acquireSemaphore = presentAcquire, complete = presentSemaphores[index];
+        Fence fence = presentFence;
+        Check(api.ResetFences(device, 1, &fence), "vkResetFences(present)");
+        PipelineStageFlags stage = PipelineStageFlags.TransferBit;
+        SubmitInfo submit = new()
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = &acquireSemaphore,
-            pWaitDstStageMask = &stage,
-            commandBufferCount = 1,
-            pCommandBuffers = &command,
-            signalSemaphoreCount = 1,
-            pSignalSemaphores = &complete
+            SType = StructureType.SubmitInfo,
+            WaitSemaphoreCount = 1,
+            PWaitSemaphores = &acquireSemaphore,
+            PWaitDstStageMask = &stage,
+            CommandBufferCount = 1,
+            PCommandBuffers = &command,
+            SignalSemaphoreCount = 1,
+            PSignalSemaphores = &complete
         };
 
-        VkSwapchainKHR swap = swapChain;
-        VkPresentInfoKHR present = new()
+        SwapchainKHR swap = swapChain;
+        PresentInfoKHR present = new()
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = &complete,
-            swapchainCount = 1,
-            pSwapchains = &swap,
-            pImageIndices = &index
+            SType = StructureType.PresentInfoKhr,
+            WaitSemaphoreCount = 1,
+            PWaitSemaphores = &complete,
+            SwapchainCount = 1,
+            PSwapchains = &swap,
+            PImageIndices = &index
         };
 
-        VkResult result;
+        Result result;
         lock (queueSync)
         {
-            Check(api.vkQueueSubmit(presentQueue, 1, &submit, fence), "vkQueueSubmit(present)");
+            Check(api.QueueSubmit(presentQueue, 1, &submit, fence), "vkQueueSubmit(present)");
             presentationPending = true;
-            result = api.vkQueuePresentKHR(presentQueue, &present);
+            result = swapChainApi.QueuePresent(presentQueue, &present);
         }
 
-        if (result is VkResult.ErrorOutOfDateKHR or VkResult.SuboptimalKHR)
+        if (result is Result.ErrorOutOfDateKhr or Result.SuboptimalKhr)
         {
             return false;
         }
@@ -147,27 +154,27 @@ internal sealed unsafe partial class VulkanRHI
     {
         if (presentationPending)
         {
-            VkFence fence = presentFence;
-            Check(api.vkWaitForFences(1, &fence, true, ulong.MaxValue), "vkWaitForFences(present copy)");
+            Fence fence = presentFence;
+            Check(api.WaitForFences(device, 1, &fence, true, ulong.MaxValue), "vkWaitForFences(present copy)");
             presentationPending = false;
         }
     }
 
     private void DisposePresentation()
     {
-        if (!presentAcquire.IsNull)
+        if (presentAcquire.Handle != 0)
         {
-            api.vkDestroySemaphore(presentAcquire);
+            api.DestroySemaphore(device, presentAcquire, null);
         }
 
-        if (!presentFence.IsNull)
+        if (presentFence.Handle != 0)
         {
-            api.vkDestroyFence(presentFence);
+            api.DestroyFence(device, presentFence, null);
         }
 
-        if (!presentPool.IsNull)
+        if (presentPool.Handle != 0)
         {
-            api.vkDestroyCommandPool(presentPool);
+            api.DestroyCommandPool(device, presentPool, null);
         }
     }
 }

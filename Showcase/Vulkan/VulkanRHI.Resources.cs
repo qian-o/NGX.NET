@@ -1,7 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using NGX.NET;
 using Showcase.Models;
-using Vortice.Vulkan;
+using Silk.NET.Vulkan;
+using Silk.NET.Vulkan.Extensions.KHR;
+using Buffer = Silk.NET.Vulkan.Buffer;
+using Semaphore = Silk.NET.Vulkan.Semaphore;
 
 namespace Showcase.Vulkan;
 
@@ -18,28 +21,32 @@ internal sealed unsafe partial class VulkanRHI
 
     private sealed class VkAcceleration : IDisposable
     {
-        public required VkDeviceApi Api;
+        public required KhrAccelerationStructure Api;
+
+        public required Device Device;
 
         public required VkBufferResource Storage;
 
-        public VkAccelerationStructureKHR Handle;
+        public AccelerationStructureKHR Handle;
 
         public ulong Address;
 
         public void Dispose()
         {
-            Api.vkDestroyAccelerationStructureKHR(Handle);
+            Api.DestroyAccelerationStructure(Device, Handle, null);
             Storage.Dispose();
         }
     }
 
     private sealed class VkBufferResource : IDisposable
     {
-        public required VkDeviceApi Api;
+        public required Vk Api;
 
-        public VkBuffer Buffer;
+        public required Device Device;
 
-        public VkDeviceMemory Memory;
+        public Buffer Buffer;
+
+        public DeviceMemory Memory;
 
         public ulong Size;
 
@@ -54,34 +61,36 @@ internal sealed unsafe partial class VulkanRHI
         {
             if (Mapped != null)
             {
-                Api.vkUnmapMemory(Memory);
+                Api.UnmapMemory(Device, Memory);
             }
 
-            Api.vkDestroyBuffer(Buffer);
-            Api.vkFreeMemory(Memory);
+            Api.DestroyBuffer(Device, Buffer, null);
+            Api.FreeMemory(Device, Memory, null);
         }
     }
 
     private sealed class VkTexture : GpuImage
     {
-        public required VkDeviceApi Api;
+        public required Vk Api;
 
-        public VkImage Texture;
+        public required Device Device;
 
-        public VkImageView View;
+        public Image Texture;
 
-        public VkDeviceMemory Memory;
+        public ImageView View;
 
-        public VkImageLayout Layout;
+        public DeviceMemory Memory;
 
-        public VkImageUsageFlags Usage;
+        public ImageLayout Layout;
+
+        public ImageUsageFlags Usage;
 
         public override NativeImage Describe() => new()
         {
             Vulkan = new()
             {
                 Type = NGXResourceVKType.VKIMAGEVIEW,
-                ReadWrite = (Usage & VkImageUsageFlags.Storage) != 0,
+                ReadWrite = (Usage & ImageUsageFlags.StorageBit) != 0,
                 Resource = new()
                 {
                     ImageViewInfo = new()
@@ -93,7 +102,7 @@ internal sealed unsafe partial class VulkanRHI
                         Height = (uint)Height,
                         SubresourceRange = new()
                         {
-                            AspectMask = (uint)(Format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color),
+                            AspectMask = (uint)(Format == ImageFormat.Depth ? ImageAspectFlags.DepthBit : ImageAspectFlags.ColorBit),
                             LevelCount = 1,
                             LayerCount = (uint)Layers
                         }
@@ -104,25 +113,27 @@ internal sealed unsafe partial class VulkanRHI
 
         public override void Dispose()
         {
-            Api.vkDestroyImageView(View);
-            Api.vkDestroyImage(Texture);
-            Api.vkFreeMemory(Memory);
+            Api.DestroyImageView(Device, View, null);
+            Api.DestroyImage(Device, Texture, null);
+            Api.FreeMemory(Device, Memory, null);
         }
     }
 
     private sealed class VkFrame : IDisposable
     {
-        public required VkDeviceApi Api;
+        public required Vk Api;
 
-        public VkCommandPool Pool;
+        public required Device Device;
 
-        public VkCommandBuffer Command;
+        public CommandPool Pool;
 
-        public VkFence Fence;
+        public CommandBuffer Command;
 
-        public VkSemaphore RenderComplete;
+        public Fence Fence;
 
-        public VkDescriptorSet Descriptors;
+        public Semaphore RenderComplete;
+
+        public DescriptorSet Descriptors;
 
         public required VkBufferResource Constants;
 
@@ -149,9 +160,9 @@ internal sealed unsafe partial class VulkanRHI
             Indices?.Dispose();
             Constants.Dispose();
             Objects.Dispose();
-            Api.vkDestroySemaphore(RenderComplete);
-            Api.vkDestroyFence(Fence);
-            Api.vkDestroyCommandPool(Pool);
+            Api.DestroySemaphore(Device, RenderComplete, null);
+            Api.DestroyFence(Device, Fence, null);
+            Api.DestroyCommandPool(Device, Pool, null);
         }
     }
 }

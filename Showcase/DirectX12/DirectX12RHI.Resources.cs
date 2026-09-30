@@ -1,5 +1,6 @@
 ﻿using Showcase.Models;
-using Vortice.Direct3D12;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D12;
 
 namespace Showcase.DirectX12;
 
@@ -7,15 +8,15 @@ internal sealed unsafe partial class DirectX12RHI
 {
     private sealed class DxFrame : IDisposable
     {
-        public required ID3D12CommandAllocator Allocator;
+        public ComPtr<ID3D12CommandAllocator> Allocator;
 
-        public required ID3D12Resource Constants;
+        public ComPtr<ID3D12Resource> Constants;
 
-        public required ID3D12Resource Objects;
+        public ComPtr<ID3D12Resource> Objects;
 
-        public ID3D12Resource? Vertices;
+        public ComPtr<ID3D12Resource> Vertices;
 
-        public ID3D12Resource? Indices;
+        public ComPtr<ID3D12Resource> Indices;
 
         public int VertexCapacity;
 
@@ -23,21 +24,21 @@ internal sealed unsafe partial class DirectX12RHI
 
         public ulong Fence;
 
-        public ID3D12Resource? Tlas;
+        public ComPtr<ID3D12Resource> Tlas;
 
-        public ID3D12Resource? RayScratch;
+        public ComPtr<ID3D12Resource> RayScratch;
 
-        public ID3D12Resource? RayInstances;
+        public ComPtr<ID3D12Resource> RayInstances;
 
         public bool TlasBuilt;
 
         public void Dispose()
         {
-            Tlas?.Dispose();
-            RayScratch?.Dispose();
-            RayInstances?.Dispose();
-            Vertices?.Dispose();
-            Indices?.Dispose();
+            Tlas.Dispose();
+            RayScratch.Dispose();
+            RayInstances.Dispose();
+            Vertices.Dispose();
+            Indices.Dispose();
             Constants.Dispose();
             Objects.Dispose();
             Allocator.Dispose();
@@ -46,7 +47,7 @@ internal sealed unsafe partial class DirectX12RHI
 
     private sealed class DxImage : GpuImage
     {
-        public required ID3D12Resource Texture;
+        public required ComPtr<ID3D12Resource> Texture;
 
         public ResourceStates State;
 
@@ -56,7 +57,7 @@ internal sealed unsafe partial class DirectX12RHI
 
         public override NativeImage Describe() => new()
         {
-            DirectX = Texture.NativePointer
+            DirectX = (nint)Texture.Handle
         };
 
         public override void Dispose() => Texture.Dispose();
