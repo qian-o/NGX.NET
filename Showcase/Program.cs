@@ -2,6 +2,7 @@
 using Showcase.DirectX12;
 using Showcase.Handlers;
 using Showcase.Vulkan;
+using GraphicsAPI = Silk.NET.Windowing.GraphicsAPI;
 
 namespace Showcase;
 
@@ -22,7 +23,7 @@ internal static class Program
             bool vulkan = choice?.Trim() == "2";
 
             using UserInterface ui = new();
-            using Window window = new();
+            using Window window = new(vulkan ? GraphicsAPI.DefaultVulkan : GraphicsAPI.None);
             using RHI rhi = vulkan ? new VulkanRHI(window, ui) : new DirectX12RHI(window, ui);
             rhi.Initialize();
 

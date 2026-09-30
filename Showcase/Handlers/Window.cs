@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.ExceptionServices;
 using ImGuiNET;
-using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -35,7 +34,6 @@ internal sealed unsafe class Window : IDisposable
     public Action? BeforeWindowChange;
 
     private readonly IInputContext input;
-    private readonly Glfw? glfw;
     private readonly HashSet<Key> keys = [];
     private IMouse? lookMouse;
     private CursorMode previousCursorMode;
@@ -46,12 +44,12 @@ internal sealed unsafe class Window : IDisposable
     private bool disposed;
     private ExceptionDispatchInfo? callbackError;
 
-    public Window()
+    public Window(GraphicsAPI graphicsApi)
     {
         SurfaceWindow = SilkWindow.Create(WindowOptions.Default with
         {
             Size = new(1600, 900),
-            API = GraphicsAPI.None,
+            API = graphicsApi,
             Title = "NGX.NET Showcase",
             ShouldSwapAutomatically = false,
             VSync = false,
@@ -78,11 +76,6 @@ internal sealed unsafe class Window : IDisposable
             }
 
             input = SurfaceWindow.CreateInput();
-
-            if (SurfaceWindow.Native?.Glfw is not null)
-            {
-                glfw = Glfw.GetApi();
-            }
 
             foreach (IKeyboard keyboard in input.Keyboards)
             {
@@ -179,17 +172,7 @@ internal sealed unsafe class Window : IDisposable
         Width = minimized ? 0 : size.X;
         Height = minimized ? 0 : size.Y;
 
-        if (glfw is not null && SurfaceWindow.Monitor is IMonitor monitor)
-        {
-            Silk.NET.GLFW.Monitor** monitors = glfw.GetMonitors(out int count);
-
-            if (monitor.Index >= 0 && monitor.Index < count)
-            {
-                glfw.GetMonitorContentScale(monitors[monitor.Index], out float scale, out _);
-                DpiScale = scale;
-            }
-        }
-        else if (SurfaceWindow.Size.X > 0 && size.X > 0)
+        if (SurfaceWindow.Size.X > 0 && size.X > 0)
         {
             DpiScale = (float)size.X / SurfaceWindow.Size.X;
         }
@@ -371,14 +354,7 @@ internal sealed unsafe class Window : IDisposable
             }
             finally
             {
-                try
-                {
-                    SurfaceWindow.Dispose();
-                }
-                finally
-                {
-                    glfw?.Dispose();
-                }
+                SurfaceWindow.Dispose();
             }
         }
     }
