@@ -1,6 +1,6 @@
 ﻿# NGX.NET Showcase
 
-A Windows x64 Sponza renderer using .NET 10 and Silk.NET for DirectX 12, Vulkan, windowing and input. Scene assets are included.
+A Sponza renderer using .NET 10 and Silk.NET for DirectX 12, Vulkan, windowing and input. Scene assets are included.
 
 ```shell
 dotnet run --project Showcase -c Release
