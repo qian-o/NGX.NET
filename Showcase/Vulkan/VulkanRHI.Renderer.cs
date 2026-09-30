@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using ImGuiNET;
-using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
 using Silk.NET.Vulkan;
@@ -15,22 +14,22 @@ internal sealed unsafe partial class VulkanRHI
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            VkFrame frame = new()
+            VkFrame frame = slots[i] = new()
             {
                 Api = api,
-                Device = device,
-                Constants = CreateBuffer((ulong)(uniformStride * RenderLayout.UniformSlots), BufferUsageFlags.UniformBufferBit, true),
-                Objects = CreateBuffer((ulong)(Scene.Objects.Length * sizeof(SceneObject)), BufferUsageFlags.StorageBufferBit, true)
+                Device = device
             };
 
-            slots[i] = frame;
+            frame.Constants = CreateBuffer((ulong)(uniformStride * RenderLayout.UniformSlots), BufferUsageFlags.UniformBufferBit, true);
+            frame.Objects = CreateBuffer((ulong)(Scene.Objects.Length * sizeof(SceneObject)), BufferUsageFlags.StorageBufferBit, true);
             CommandPoolCreateInfo pool = new()
             {
                 SType = StructureType.CommandPoolCreateInfo,
                 QueueFamilyIndex = queueFamily
             };
 
-            Check(api.CreateCommandPool(device, &pool, null, out frame.Pool), "vkCreateCommandPool");
+            Check(api.CreateCommandPool(device, &pool, null, out CommandPool createdPool), "vkCreateCommandPool");
+            frame.Pool = createdPool;
             CommandBufferAllocateInfo allocate = new()
             {
                 SType = StructureType.CommandBufferAllocateInfo,
@@ -48,9 +47,11 @@ internal sealed unsafe partial class VulkanRHI
                 Flags = FenceCreateFlags.SignaledBit
             };
 
-            Check(api.CreateFence(device, &fence, null, out frame.Fence), "vkCreateFence");
+            Check(api.CreateFence(device, &fence, null, out Fence createdFence), "vkCreateFence");
+            frame.Fence = createdFence;
             SemaphoreCreateInfo semaphore = new() { SType = StructureType.SemaphoreCreateInfo };
-            Check(api.CreateSemaphore(device, &semaphore, null, out frame.RenderComplete), "vkCreateSemaphore(render complete)");
+            Check(api.CreateSemaphore(device, &semaphore, null, out Semaphore createdSemaphore), "vkCreateSemaphore(render complete)");
+            frame.RenderComplete = createdSemaphore;
         }
 
         commandBuffer = slots[0].Command;
@@ -177,7 +178,8 @@ internal sealed unsafe partial class VulkanRHI
                 PBindings = pointer
             };
 
-            Check(api.CreateDescriptorSetLayout(device, &create, null, out descriptorLayout), "vkCreateDescriptorSetLayout");
+            Check(api.CreateDescriptorSetLayout(device, &create, null, out DescriptorSetLayout createdLayout), "vkCreateDescriptorSetLayout");
+            descriptorLayout = createdLayout;
         }
 
         List<DescriptorPoolSize> sizes =
@@ -206,7 +208,8 @@ internal sealed unsafe partial class VulkanRHI
                 PPoolSizes = pointer
             };
 
-            Check(api.CreateDescriptorPool(device, &poolInfo, null, out descriptorPool), "vkCreateDescriptorPool");
+            Check(api.CreateDescriptorPool(device, &poolInfo, null, out DescriptorPool createdPool), "vkCreateDescriptorPool");
+            descriptorPool = createdPool;
         }
 
         DescriptorSetLayout setLayout = descriptorLayout;
@@ -236,7 +239,8 @@ internal sealed unsafe partial class VulkanRHI
             MaxLod = 1
         };
 
-        Check(api.CreateSampler(device, &samplerInfo, null, out sampler), "vkCreateSampler");
+        Check(api.CreateSampler(device, &samplerInfo, null, out Sampler createdSampler), "vkCreateSampler");
+        sampler = createdSampler;
         PipelineLayoutCreateInfo layoutInfo = new()
         {
             SType = StructureType.PipelineLayoutCreateInfo,
@@ -244,7 +248,8 @@ internal sealed unsafe partial class VulkanRHI
             PSetLayouts = &setLayout
         };
 
-        Check(api.CreatePipelineLayout(device, &layoutInfo, null, out pipelineLayout), "vkCreatePipelineLayout");
+        Check(api.CreatePipelineLayout(device, &layoutInfo, null, out PipelineLayout createdPipelineLayout), "vkCreatePipelineLayout");
+        pipelineLayout = createdPipelineLayout;
         scenePipeline = GraphicsPipeline(GraphicsPass.Scene);
         depthPipeline = GraphicsPipeline(GraphicsPass.Depth);
         shadowPipeline = GraphicsPipeline(GraphicsPass.Shadow);
@@ -253,8 +258,8 @@ internal sealed unsafe partial class VulkanRHI
         foreach (ComputePass pass in Enum.GetValues<ComputePass>())
         {
             string entry = pass.ToString();
+            using NativeNames name = new([entry]);
             ShaderModule shader = Shader(entry, "compute");
-            using NativeText name = new(entry);
             ComputePipelineCreateInfo create = new()
             {
                 SType = StructureType.ComputePipelineCreateInfo,
@@ -264,7 +269,7 @@ internal sealed unsafe partial class VulkanRHI
                     SType = StructureType.PipelineShaderStageCreateInfo,
                     Stage = ShaderStageFlags.ComputeBit,
                     Module = shader,
-                    PName = name.Pointer
+                    PName = name.Pointer[0]
                 }
             };
 
@@ -305,12 +310,12 @@ internal sealed unsafe partial class VulkanRHI
         bool depthOnly = pass is GraphicsPass.Depth or GraphicsPass.Shadow;
         (string vertexName, string fragmentName) = RenderLayout.Shaders(pass);
         ReadOnlySpan<ImageSlot> targets = RenderLayout.ColorTargets(pass);
-        ShaderModule vertex = Shader(vertexName, "vertex"), fragment = Shader(fragmentName, "fragment");
+        using NativeNames names = new([vertexName, fragmentName]);
+        ShaderModule vertex = Shader(vertexName, "vertex"), fragment = default;
 
         try
         {
-            using NativeText vsName = new(vertexName);
-            using NativeText psName = new(fragmentName);
+            fragment = Shader(fragmentName, "fragment");
             PipelineShaderStageCreateInfo* stages = stackalloc PipelineShaderStageCreateInfo[2]
             {
                 new()
@@ -318,14 +323,14 @@ internal sealed unsafe partial class VulkanRHI
                     SType = StructureType.PipelineShaderStageCreateInfo,
                     Stage = ShaderStageFlags.VertexBit,
                     Module = vertex,
-                    PName = vsName.Pointer
+                    PName = names.Pointer[0]
                 },
                 new()
                 {
                     SType = StructureType.PipelineShaderStageCreateInfo,
                     Stage = ShaderStageFlags.FragmentBit,
                     Module = fragment,
-                    PName = psName.Pointer
+                    PName = names.Pointer[1]
                 }
             };
 
@@ -475,8 +480,9 @@ internal sealed unsafe partial class VulkanRHI
 
     protected override void UpdateDescriptors()
     {
-        foreach ((VkFrame frame, int index) in slots.Select((frame, index) => (frame, index)))
+        for (int index = 0; index < slots.Length; index++)
         {
+            VkFrame frame = slots[index];
             void Buffer(uint binding, DescriptorType type, VkBufferResource buffer, ulong range)
             {
                 DescriptorBufferInfo info = new()
@@ -589,7 +595,7 @@ internal sealed unsafe partial class VulkanRHI
         }
     }
 
-    protected override bool BeginCommands()
+    protected override void BeginCommands()
     {
         VkFrame frame = slots[FrameSlot];
         Fence fence = frame.Fence;
@@ -607,8 +613,6 @@ internal sealed unsafe partial class VulkanRHI
         recording = true;
         frame.Objects.Write<SceneObject>(Scene.Objects);
         constantIndex = 0;
-
-        return true;
     }
 
     private void Bind(PipelineBindPoint point, Pipeline pipeline, FrameConstants constants)
@@ -741,8 +745,9 @@ internal sealed unsafe partial class VulkanRHI
                 return;
             }
 
+            VkBufferResource replacement = CreateBuffer(Math.Max(4096, size * 2), usage, true);
             buffer?.Dispose();
-            buffer = CreateBuffer(Math.Max(4096, size * 2), usage, true);
+            buffer = replacement;
         }
 
         Ensure(ref frame.Vertices, (ulong)(data.TotalVtxCount * sizeof(ImDrawVert)), BufferUsageFlags.VertexBufferBit);
@@ -925,45 +930,14 @@ internal sealed unsafe partial class VulkanRHI
                 api.DestroyPipeline(device, pipeline, null);
             }
 
-            if (shadowPipeline.Handle != 0)
-            {
-                api.DestroyPipeline(device, shadowPipeline, null);
-            }
-
-            if (scenePipeline.Handle != 0)
-            {
-                api.DestroyPipeline(device, scenePipeline, null);
-            }
-
-            if (depthPipeline.Handle != 0)
-            {
-                api.DestroyPipeline(device, depthPipeline, null);
-            }
-
-            if (uiPipeline.Handle != 0)
-            {
-                api.DestroyPipeline(device, uiPipeline, null);
-            }
-
-            if (pipelineLayout.Handle != 0)
-            {
-                api.DestroyPipelineLayout(device, pipelineLayout, null);
-            }
-
-            if (descriptorPool.Handle != 0)
-            {
-                api.DestroyDescriptorPool(device, descriptorPool, null);
-            }
-
-            if (descriptorLayout.Handle != 0)
-            {
-                api.DestroyDescriptorSetLayout(device, descriptorLayout, null);
-            }
-
-            if (sampler.Handle != 0)
-            {
-                api.DestroySampler(device, sampler, null);
-            }
+            api.DestroyPipeline(device, shadowPipeline, null);
+            api.DestroyPipeline(device, scenePipeline, null);
+            api.DestroyPipeline(device, depthPipeline, null);
+            api.DestroyPipeline(device, uiPipeline, null);
+            api.DestroyPipelineLayout(device, pipelineLayout, null);
+            api.DestroyDescriptorPool(device, descriptorPool, null);
+            api.DestroyDescriptorSetLayout(device, descriptorLayout, null);
+            api.DestroySampler(device, sampler, null);
 
             foreach (VkFrame? frame in slots)
             {

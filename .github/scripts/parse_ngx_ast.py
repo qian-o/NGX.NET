@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import ctypes
-import json
 import os
 from pathlib import Path
-import re
+import subprocess
 
 
 # These headers implement the optional header-only CUDA loader, not additional
@@ -23,7 +22,6 @@ def extract(sdk: Path, scratch: Path, rid: str):
     if windows:
         # Use the runner's matching LLVM library and builtin headers with its
         # current MSVC headers (Clang 18 predates the ARM64 intrinsics).
-        import subprocess
         llvm = Path(os.environ["ProgramFiles"]) / "LLVM"
         cx.Config.set_compatibility_check(False)
         cx.Config.set_library_file(str(llvm / "bin/libclang.dll"))
@@ -39,7 +37,6 @@ def extract(sdk: Path, scratch: Path, rid: str):
         for path in os.environ["INCLUDE"].split(";"):
             flags += ["-isystem", path]
     else:
-        import subprocess
         search = subprocess.run(["g++", "-E", "-x", "c++", "-", "-v"], input="", text=True, capture_output=True, check=True).stderr
         for line in search.split("#include <...> search starts here:")[1].split("End of search list.")[0].splitlines():
             flags += ["-isystem", line.strip()]

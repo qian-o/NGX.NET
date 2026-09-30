@@ -91,11 +91,6 @@ groupshared uint illuminationHistogram[64];
 [numthreads(8, 8, 1)]
 void MeterExposure(uint index : SV_GroupIndex)
 {
-    if (g.exposure.x == 0)
-    {
-        if (index == 0) exposureOutput[uint2(0, 0)] = 0;
-        return;
-    }
     const float middleGray = 0.18;
     const float maximumExposureStops = 8;
     const float histogramMinimum = -16, histogramRange = 32;

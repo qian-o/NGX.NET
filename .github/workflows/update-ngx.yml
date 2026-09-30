@@ -111,9 +111,7 @@ jobs:
           pattern: ngx-*-*
           path: ${{ runner.temp }}/artifacts
       - name: Merge the four verified targets
-        run: |
-          python -c "from pathlib import Path; root = Path(r'${{ runner.temp }}/artifacts'); [path.rename(root / path.name.removeprefix('ngx-')) for path in root.glob('ngx-*-*')]"
-          python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
+        run: python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
       - name: Generate bindings from the merged SDK
         run: dotnet run --project NGX.NET.Generator -- .
       - name: Configure Windows compiler
@@ -149,12 +147,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Merge the four verified targets
-        shell: bash
-        run: |
-          for rid in win-x64 win-arm64 linux-x64 linux-arm64; do
-            mv "${{ runner.temp }}/artifacts/ngx-$rid" "${{ runner.temp }}/artifacts/$rid"
-          done
-          python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
+        run: python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
       - name: Regenerate and independently verify the compiled API
         run: |
           dotnet run --project NGX.NET.Generator -- .

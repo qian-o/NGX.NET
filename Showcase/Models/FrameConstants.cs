@@ -30,7 +30,7 @@ internal struct FrameConstants
 
     public Vector4 Lighting;
 
-    public Vector4 Exposure; // automatic metering enabled, delta seconds, reset history, reserved
+    public Vector4 Exposure; // reserved, delta seconds, reset history, reserved
 
     public Vector4 EnvironmentMinimum;
 

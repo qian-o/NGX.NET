@@ -8,7 +8,6 @@ internal sealed class FrameStatistics
 
     private long startedAt;
     private ulong presentedFrames;
-    private bool presentationKnown = true;
 
     public void Reset(long timestamp)
     {
@@ -16,17 +15,9 @@ internal sealed class FrameStatistics
         PresentedFps = null;
     }
 
-    public void RecordFrame(long timestamp, uint? presented)
+    public void RecordFrame(long timestamp, uint presented)
     {
-        if (presented is uint count)
-        {
-            presentedFrames += count;
-        }
-        else
-        {
-            presentationKnown = false;
-        }
-
+        presentedFrames += presented;
         double seconds = Stopwatch.GetElapsedTime(startedAt, timestamp).TotalSeconds;
 
         if (seconds < 0.5)
@@ -36,7 +27,7 @@ internal sealed class FrameStatistics
 
         // Count successful presentation calls, including zero-frame samples.
         // The configured FG multiplier is never used to estimate FPS.
-        PresentedFps = presentationKnown ? presentedFrames / seconds : null;
+        PresentedFps = presentedFrames / seconds;
         StartInterval(timestamp);
     }
 
@@ -44,6 +35,5 @@ internal sealed class FrameStatistics
     {
         startedAt = timestamp;
         presentedFrames = 0;
-        presentationKnown = true;
     }
 }

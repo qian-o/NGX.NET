@@ -21,7 +21,8 @@ internal sealed unsafe partial class VulkanRHI
             QueueFamilyIndex = queueFamily
         };
 
-        Check(api.CreateCommandPool(device, &poolInfo, null, out presentPool), "vkCreateCommandPool(present)");
+        Check(api.CreateCommandPool(device, &poolInfo, null, out CommandPool createdPool), "vkCreateCommandPool(present)");
+        presentPool = createdPool;
         CommandBufferAllocateInfo commandInfo = new()
         {
             SType = StructureType.CommandBufferAllocateInfo,
@@ -34,9 +35,11 @@ internal sealed unsafe partial class VulkanRHI
         Check(api.AllocateCommandBuffers(device, &commandInfo, &command), "vkAllocateCommandBuffers(present)");
         presentCommand = command;
         FenceCreateInfo fenceInfo = new() { SType = StructureType.FenceCreateInfo };
-        Check(api.CreateFence(device, &fenceInfo, null, out presentFence), "vkCreateFence(present)");
+        Check(api.CreateFence(device, &fenceInfo, null, out Fence createdFence), "vkCreateFence(present)");
+        presentFence = createdFence;
         SemaphoreCreateInfo semaphoreInfo = new() { SType = StructureType.SemaphoreCreateInfo };
-        Check(api.CreateSemaphore(device, &semaphoreInfo, null, out presentAcquire), "vkCreateSemaphore(acquire)");
+        Check(api.CreateSemaphore(device, &semaphoreInfo, null, out Semaphore createdSemaphore), "vkCreateSemaphore(acquire)");
+        presentAcquire = createdSemaphore;
     }
 
     protected override void WaitRenderedFrame(int slot)
@@ -162,19 +165,8 @@ internal sealed unsafe partial class VulkanRHI
 
     private void DisposePresentation()
     {
-        if (presentAcquire.Handle != 0)
-        {
-            api.DestroySemaphore(device, presentAcquire, null);
-        }
-
-        if (presentFence.Handle != 0)
-        {
-            api.DestroyFence(device, presentFence, null);
-        }
-
-        if (presentPool.Handle != 0)
-        {
-            api.DestroyCommandPool(device, presentPool, null);
-        }
+        api.DestroySemaphore(device, presentAcquire, null);
+        api.DestroyFence(device, presentFence, null);
+        api.DestroyCommandPool(device, presentPool, null);
     }
 }

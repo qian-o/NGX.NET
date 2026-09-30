@@ -86,7 +86,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             PpEnabledExtensionNames = extensions.Pointer
         };
 
-        Check(api.CreateInstance(&create, null, out instance), "vkCreateInstance");
+        Check(api.CreateInstance(&create, null, out Instance createdInstance), "vkCreateInstance");
+        instance = createdInstance;
 
         if (!api.TryGetInstanceExtension(instance, out surfaceApi))
         {
@@ -104,6 +105,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         int bestScore = -1;
+        HashSet<string> supportedNames = [];
 
         foreach (PhysicalDevice candidate in devices)
         {
@@ -200,6 +202,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 }
 
                 bestScore = score;
+                supportedNames = extensionNames;
                 physical = candidate;
                 queueFamily = i;
                 separatePresentQueue = families[i].QueueCount > 1;
@@ -217,21 +220,6 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         api.GetPhysicalDeviceMemoryProperties(physical, out memoryProperties);
-        uint supportedCount = 0;
-        Check(api.EnumerateDeviceExtensionProperties(physical, (byte*)null, &supportedCount, null), "vkEnumerateDeviceExtensionProperties");
-        ExtensionProperties[] supported = new ExtensionProperties[supportedCount];
-
-        fixed (ExtensionProperties* pointer = supported)
-        {
-            Check(api.EnumerateDeviceExtensionProperties(physical, (byte*)null, &supportedCount, pointer), "vkEnumerateDeviceExtensionProperties");
-        }
-        HashSet<string> supportedNames = [];
-
-        foreach (ExtensionProperties extension in supported)
-        {
-            supportedNames.Add(NGXMarshal.PtrToString(extension.ExtensionName, NGXEncoding.Utf8)!);
-        }
-
         float* priorities = stackalloc float[] { 1, 1 };
         DeviceQueueCreateInfo queueInfo = new()
         {
@@ -292,12 +280,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
         if (RayQuerySupported)
         {
-            requestedExtensions.AddRange(
-            [
-                "VK_KHR_acceleration_structure",
-                "VK_KHR_ray_query",
-                "VK_KHR_deferred_host_operations"
-            ]);
+            requestedExtensions.AddRange(RayExtensions);
             PhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new() { SType = StructureType.PhysicalDeviceAccelerationStructurePropertiesKhr };
             PhysicalDeviceProperties2 properties = new()
             {
@@ -335,7 +318,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             PpEnabledExtensionNames = deviceExtensions.Pointer
         };
 
-        Check(api.CreateDevice(physical, &deviceInfo, null, out device), "vkCreateDevice");
+        Check(api.CreateDevice(physical, &deviceInfo, null, out Device createdDevice), "vkCreateDevice");
+        device = createdDevice;
         if (!api.TryGetDeviceExtension(instance, device, out swapChainApi))
         {
             throw new NotSupportedException("VK_KHR_swapchain is unavailable.");
@@ -384,51 +368,61 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         };
 
         Check(api.CreateBuffer(device, &info, null, out resource.Buffer), "vkCreateBuffer");
-        api.GetBufferMemoryRequirements(device, resource.Buffer, out MemoryRequirements requirements);
-        bool addressable = (usage & BufferUsageFlags.ShaderDeviceAddressBit) != 0;
-        MemoryAllocateFlagsInfo flags = new()
+        try
         {
-            SType = StructureType.MemoryAllocateFlagsInfo,
-            Flags = MemoryAllocateFlags.DeviceAddressBit
-        };
-
-        MemoryAllocateInfo allocation = new()
-        {
-            SType = StructureType.MemoryAllocateInfo,
-            PNext = addressable ? &flags : null,
-            AllocationSize = requirements.Size,
-            MemoryTypeIndex = MemoryType(
-                requirements.MemoryTypeBits,
-                host ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit)
-        };
-
-        Check(api.AllocateMemory(device, &allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
-        Check(api.BindBufferMemory(device, resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
-
-        if (addressable)
-        {
-            BufferDeviceAddressInfo address = new()
+            api.GetBufferMemoryRequirements(device, resource.Buffer, out MemoryRequirements requirements);
+            bool addressable = (usage & BufferUsageFlags.ShaderDeviceAddressBit) != 0;
+            MemoryAllocateFlagsInfo flags = new()
             {
-                SType = StructureType.BufferDeviceAddressInfoKhr,
-                Buffer = resource.Buffer
+                SType = StructureType.MemoryAllocateFlagsInfo,
+                Flags = MemoryAllocateFlags.DeviceAddressBit
             };
 
-            resource.Address = api.GetBufferDeviceAddress(device, &address);
-
-            if (resource.Address == 0)
+            MemoryAllocateInfo allocation = new()
             {
-                throw new InvalidOperationException("Vulkan returned a null buffer device address.");
+                SType = StructureType.MemoryAllocateInfo,
+                PNext = addressable ? &flags : null,
+                AllocationSize = requirements.Size,
+                MemoryTypeIndex = MemoryType(
+                    requirements.MemoryTypeBits,
+                    host ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit)
+            };
+
+            Check(api.AllocateMemory(device, &allocation, null, out DeviceMemory memory), "vkAllocateMemory(buffer)");
+            resource.Memory = memory;
+            Check(api.BindBufferMemory(device, resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
+
+            if (addressable)
+            {
+                BufferDeviceAddressInfo address = new()
+                {
+                    SType = StructureType.BufferDeviceAddressInfoKhr,
+                    Buffer = resource.Buffer
+                };
+
+                resource.Address = api.GetBufferDeviceAddress(device, &address);
+
+                if (resource.Address == 0)
+                {
+                    throw new InvalidOperationException("Vulkan returned a null buffer device address.");
+                }
             }
-        }
 
-        if (host)
+            if (host)
+            {
+                void* mapped;
+                Check(api.MapMemory(device, resource.Memory, 0, resource.Size, 0, &mapped), "vkMapMemory");
+                resource.Mapped = mapped;
+            }
+
+            return resource;
+        }
+        catch
         {
-            void* mapped;
-            Check(api.MapMemory(device, resource.Memory, 0, resource.Size, 0, &mapped), "vkMapMemory");
-            resource.Mapped = mapped;
-        }
+            resource.Dispose();
 
-        return resource;
+            throw;
+        }
     }
 
     private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false)
@@ -443,17 +437,26 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         }
 
         VkBufferResource buffer = CreateBuffer(size, usage, false);
-        VkBufferResource upload = CreateBuffer(size, BufferUsageFlags.TransferSrcBit, true);
-        upload.Write(data);
-        uploads.Add(upload);
-        BufferCopy copy = new()
+        try
         {
-            Size = size
-        };
+            VkBufferResource upload = CreateBuffer(size, BufferUsageFlags.TransferSrcBit, true);
+            uploads.Add(upload);
+            upload.Write(data);
+            BufferCopy copy = new()
+            {
+                Size = size
+            };
 
-        api.CmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
+            api.CmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
 
-        return buffer;
+            return buffer;
+        }
+        catch
+        {
+            buffer.Dispose();
+
+            throw;
+        }
     }
 
     protected override GpuImage CreateImage(int width, int height, ImageFormat format, int layers = 1)
@@ -485,28 +488,39 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         };
 
         Check(api.CreateImage(device, &info, null, out texture.Texture), "vkCreateImage");
-        api.GetImageMemoryRequirements(device, texture.Texture, out MemoryRequirements requirements);
-        MemoryAllocateInfo allocation = new()
+        try
         {
-            SType = StructureType.MemoryAllocateInfo,
-            AllocationSize = requirements.Size,
-            MemoryTypeIndex = MemoryType(requirements.MemoryTypeBits, MemoryPropertyFlags.DeviceLocalBit)
-        };
+            api.GetImageMemoryRequirements(device, texture.Texture, out MemoryRequirements requirements);
+            MemoryAllocateInfo allocation = new()
+            {
+                SType = StructureType.MemoryAllocateInfo,
+                AllocationSize = requirements.Size,
+                MemoryTypeIndex = MemoryType(requirements.MemoryTypeBits, MemoryPropertyFlags.DeviceLocalBit)
+            };
 
-        Check(api.AllocateMemory(device, &allocation, null, out texture.Memory), "vkAllocateMemory(image)");
-        Check(api.BindImageMemory(device, texture.Texture, texture.Memory, 0), "vkBindImageMemory");
-        ImageViewCreateInfo view = new()
+            Check(api.AllocateMemory(device, &allocation, null, out DeviceMemory memory), "vkAllocateMemory(image)");
+            texture.Memory = memory;
+            Check(api.BindImageMemory(device, texture.Texture, texture.Memory, 0), "vkBindImageMemory");
+            ImageViewCreateInfo view = new()
+            {
+                SType = StructureType.ImageViewCreateInfo,
+                Image = texture.Texture,
+                ViewType = layers > 1 ? ImageViewType.Type2DArray : ImageViewType.Type2D,
+                Format = NativeFormat(format),
+                SubresourceRange = Range(format, layers)
+            };
+
+            Check(api.CreateImageView(device, &view, null, out ImageView imageView), "vkCreateImageView");
+            texture.View = imageView;
+
+            return texture;
+        }
+        catch
         {
-            SType = StructureType.ImageViewCreateInfo,
-            Image = texture.Texture,
-            ViewType = layers > 1 ? ImageViewType.Type2DArray : ImageViewType.Type2D,
-            Format = NativeFormat(format),
-            SubresourceRange = Range(format, layers)
-        };
+            texture.Dispose();
 
-        Check(api.CreateImageView(device, &view, null, out texture.View), "vkCreateImageView");
-
-        return texture;
+            throw;
+        }
     }
 
     protected override void CreateSwapChain()
@@ -562,7 +576,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             ImageColorSpace = selected.ColorSpace,
             ImageExtent = new((uint)Window.Width, (uint)Window.Height),
             ImageArrayLayers = 1,
-            ImageUsage = ImageUsageFlags.ColorAttachmentBit | ImageUsageFlags.TransferDstBit,
+            ImageUsage = ImageUsageFlags.TransferDstBit,
             ImageSharingMode = SharingMode.Exclusive,
             PreTransform = capabilities.CurrentTransform,
             CompositeAlpha = CompositeAlphaFlagsKHR.OpaqueBitKhr,
@@ -572,7 +586,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Clipped = true
         };
 
-        Check(swapChainApi.CreateSwapchain(device, &create, null, out swapChain), "vkCreateSwapchainKHR");
+        Check(swapChainApi.CreateSwapchain(device, &create, null, out SwapchainKHR createdSwapChain), "vkCreateSwapchainKHR");
+        swapChain = createdSwapChain;
         Check(swapChainApi.GetSwapchainImages(device, swapChain, &count, null), "vkGetSwapchainImagesKHR(count)");
         backBuffers = new Image[count];
         backLayouts = new ImageLayout[count];
@@ -585,7 +600,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
         for (int i = 0; i < presentSemaphores.Length; i++)
         {
-            Check(api.CreateSemaphore(device, &semaphore, null, out presentSemaphores[i]), "vkCreateSemaphore(present)");
+            Check(api.CreateSemaphore(device, &semaphore, null, out Semaphore createdSemaphore), "vkCreateSemaphore(present)");
+            presentSemaphores[i] = createdSemaphore;
         }
     }
 

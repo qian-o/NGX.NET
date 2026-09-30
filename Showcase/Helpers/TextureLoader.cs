@@ -20,7 +20,7 @@ internal static class TextureLoader
 
         while (true)
         {
-            texels.AddRange(MemoryMarshal.Cast<byte, uint>(pixels).ToArray());
+            texels.AddRange(MemoryMarshal.Cast<byte, uint>(pixels));
             mipCount++;
 
             if (width == 1 && height == 1)

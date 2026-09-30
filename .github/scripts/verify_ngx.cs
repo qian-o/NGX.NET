@@ -32,6 +32,10 @@ Dictionary<string, MethodInfo> imports = assembly.GetTypes()
     .Where(m => m.GetCustomAttribute<LibraryImportAttribute>() is not null)
     .ToDictionary(m => m.GetCustomAttribute<LibraryImportAttribute>()!.EntryPoint!);
 
+Dictionary<string, FieldInfo> constants = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public)
+    .Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null)
+    .ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
+
 HashSet<string> expectedImports = ["NGX_Bridge_Parameter_Reset"];
 HashSet<string> opaqueTypes = document.RootElement.GetProperty("platforms").EnumerateObject()
     .SelectMany(p => p.Value.GetProperty("records").EnumerateArray())
@@ -366,9 +370,6 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         }
     }
 
-    Dictionary<string, FieldInfo> constants = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public)
-        .Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null)
-        .ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
     HashSet<string> stringConstants = [];
 
     foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray())
@@ -467,7 +468,8 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
     foreach (JsonElement binary in platform.Value.GetProperty("binaries").EnumerateArray())
     {
         string path = Path.Combine(root, "native", rid, binary.GetProperty("name").GetString()!);
-        string checksum = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path)));
+        using FileStream stream = File.OpenRead(path);
+        string checksum = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(stream));
         Require(checksum == binary.GetProperty("sha256").GetString(), "binary checksum " + path);
     }
 }

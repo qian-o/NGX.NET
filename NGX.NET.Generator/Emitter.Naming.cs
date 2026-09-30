@@ -5,10 +5,13 @@ namespace NGX.NET.Generator;
 
 internal sealed partial class Emitter
 {
-    internal static string Name(string name)
+    private static readonly HashSet<string> acronyms = ["NGX", "DLSS", "DLSSD", "DLSSG", "DLAA", "DLISP", "CUDA", "D3D11", "D3D12", "VK", "UI", "ULL", "F", "D", "I", "API", "HDR", "SR", "RR", "RW", "VRAM"];
+    private static readonly string[] functionGroups = ["D3D11", "D3D12", "CUDA", "VULKAN", "VK", "Parameter", "DLSSD", "DLSS"];
+
+    // PascalCase names cannot collide with C#'s lowercase keywords.
+    private static string Name(string name)
     {
         name = name.Replace("NVSDK_NGX_", "", StringComparison.Ordinal);
-        HashSet<string> acronyms = ["NGX", "DLSS", "DLSSD", "DLSSG", "DLAA", "DLISP", "CUDA", "D3D11", "D3D12", "VK", "UI", "ULL", "F", "D", "I", "API", "HDR", "SR", "RR", "RW", "VRAM"];
 
         return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(p => acronyms.Contains(p) || p.Any(char.IsLower) ? char.ToUpperInvariant(p[0]) + p[1..] : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(p.ToLowerInvariant())));
     }
@@ -19,9 +22,6 @@ internal sealed partial class Emitter
 
         return name.StartsWith("NGX", StringComparison.Ordinal) ? name : "NGX" + name;
     }
-
-    // PascalCase names cannot collide with C#'s lowercase keywords.
-    private static string FieldName(string name) => name == "v" ? "V" : Name(name);
 
     private static string ParameterName(string native)
     {
@@ -52,7 +52,7 @@ internal sealed partial class Emitter
 
         string name = native.StartsWith("NVSDK_NGX_", StringComparison.Ordinal) ? native[10..] : native[4..];
 
-        foreach (string prefix in new[] { "D3D11", "D3D12", "CUDA", "VULKAN", "VK", "Parameter", "DLSSD", "DLSS" })
+        foreach (string prefix in functionGroups)
         {
             if (name.StartsWith(prefix + "_", StringComparison.Ordinal))
             {

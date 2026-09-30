@@ -10,15 +10,6 @@ namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI
 {
-    private sealed class NativeText(string text) : IDisposable
-    {
-        private readonly void* memory = NGXMarshal.StringToPtr(text, NGXEncoding.Utf8);
-
-        public byte* Pointer => (byte*)memory;
-
-        public void Dispose() => NGXMarshal.Free(memory);
-    }
-
     private sealed class VkAcceleration : IDisposable
     {
         public required KhrAccelerationStructure Api;
@@ -135,9 +126,9 @@ internal sealed unsafe partial class VulkanRHI
 
         public DescriptorSet Descriptors;
 
-        public required VkBufferResource Constants;
+        public VkBufferResource Constants = null!;
 
-        public required VkBufferResource Objects;
+        public VkBufferResource Objects = null!;
 
         public VkBufferResource? Vertices;
 
@@ -158,8 +149,8 @@ internal sealed unsafe partial class VulkanRHI
             RayInstances?.Dispose();
             Vertices?.Dispose();
             Indices?.Dispose();
-            Constants.Dispose();
-            Objects.Dispose();
+            Constants?.Dispose();
+            Objects?.Dispose();
             Api.DestroySemaphore(Device, RenderComplete, null);
             Api.DestroyFence(Device, Fence, null);
             Api.DestroyCommandPool(Device, Pool, null);

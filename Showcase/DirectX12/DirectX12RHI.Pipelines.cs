@@ -161,21 +161,18 @@ internal sealed unsafe partial class DirectX12RHI
             DSVFormat = ui ? Format.FormatUnknown : Format.FormatD32Float
         };
 
-        for (int i = 0; i < 8; i++)
+        description.BlendState.RenderTarget[0] = new()
         {
-            description.BlendState.RenderTarget[i] = new()
-            {
-                BlendEnable = true,
-                SrcBlend = Blend.One,
-                DestBlend = ui ? Blend.InvSrcAlpha : Blend.Zero,
-                BlendOp = BlendOp.Add,
-                SrcBlendAlpha = Blend.One,
-                DestBlendAlpha = ui ? Blend.InvSrcAlpha : Blend.Zero,
-                BlendOpAlpha = BlendOp.Add,
-                LogicOp = LogicOp.Noop,
-                RenderTargetWriteMask = (byte)ColorWriteEnable.All
-            };
-        }
+            BlendEnable = ui,
+            SrcBlend = Blend.One,
+            DestBlend = Blend.InvSrcAlpha,
+            BlendOp = BlendOp.Add,
+            SrcBlendAlpha = Blend.One,
+            DestBlendAlpha = Blend.InvSrcAlpha,
+            BlendOpAlpha = BlendOp.Add,
+            LogicOp = LogicOp.Noop,
+            RenderTargetWriteMask = (byte)ColorWriteEnable.All
+        };
 
         for (int i = 0; i < targets.Length; i++)
         {

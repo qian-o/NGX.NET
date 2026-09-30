@@ -242,7 +242,7 @@ internal sealed unsafe partial class DirectX12RHI
         device.Handle->CreateShaderResourceView(image.Texture.Handle, &description, descriptor);
     }
 
-    protected override bool BeginCommands()
+    protected override void BeginCommands()
     {
         DxFrame frame = slots[FrameSlot];
         WaitFence(frame.Fence);
@@ -251,8 +251,6 @@ internal sealed unsafe partial class DirectX12RHI
         recording = true;
         SetData<SceneObject>(frame.Objects, Scene.Objects);
         constantIndex = 0;
-
-        return true;
     }
 
     private void Bind(bool graphics, ComPtr<ID3D12PipelineState> pipeline, FrameConstants constants)

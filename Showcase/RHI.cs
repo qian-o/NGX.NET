@@ -234,13 +234,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         UpdateScene(delta);
 
-        if (!BeginCommands())
-        {
-            recreateSwapChain = true;
-
-            return;
-        }
-
+        BeginCommands();
         RenderLighting();
         Reconstruct();
         PostProcess();
@@ -253,11 +247,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         if (Settings.FrameGeneration)
         {
-            foreach (ImageSlot slot in new[] { ImageSlot.Final, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Hudless, ImageSlot.UI })
-            {
-                Transition(Image(slot), ImageUse.ShaderRead);
-            }
-
+            Transition(Image(ImageSlot.Final), ImageUse.ShaderRead);
             Transition(GeneratedFrames[FrameSlot], ImageUse.Storage);
             generated = NGX.Generate(Command, Frames[FrameSlot], GeneratedFrames[FrameSlot], Camera, reset);
             Transition(GeneratedFrames[FrameSlot], ImageUse.CopySource);
@@ -302,7 +292,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             Jitter = new(Camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, RenderLayout.TextureMipBias(InputWidth, outputWidth, temporal)),
             SunViewProjection = Scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, Scene.Scale * ContactShadowRadiusScale),
-            Exposure = new(1, delta, reset ? 1 : 0, 0),
+            Exposure = new(0, delta, reset ? 1 : 0, 0),
             EnvironmentMinimum = new(Scene.Minimum, 0),
             EnvironmentMaximum = new(Scene.Maximum, 0),
             PreviousCamera = new(Camera.PreviousPosition, 0)
@@ -353,20 +343,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         if (Settings.Reconstruction == Reconstruction.Native)
         {
             return;
-        }
-
-        foreach (ImageSlot slot in new[]
-        {
-            ImageSlot.Scene,
-            ImageSlot.Depth,
-            ImageSlot.Motion,
-            ImageSlot.Diffuse,
-            ImageSlot.Specular,
-            ImageSlot.Normal,
-            ImageSlot.SpecularMotion
-        })
-        {
-            Transition(Image(slot), ImageUse.ShaderRead);
         }
 
         Transition(Image(ImageSlot.Reconstructed), ImageUse.Storage);
@@ -448,7 +424,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     protected abstract void UpdateDescriptors();
 
-    protected abstract bool BeginCommands();
+    protected abstract void BeginCommands();
 
     protected abstract void UpdateRayTracingScene();
 
@@ -495,11 +471,6 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             finally
             {
                 WaitIdle();
-            }
-
-            if (ready)
-            {
-                NGX.ReleaseReconstruction();
             }
         }
         finally

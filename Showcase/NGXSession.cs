@@ -59,7 +59,6 @@ internal sealed unsafe class NGXSession : IDisposable
     {
         IsVulkan = instance != 0;
         device = nativeDevice;
-        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
         *paths = runtimePath;
         NGXFeatureCommonInfo common = new()
         {
@@ -514,19 +513,39 @@ internal sealed unsafe class NGXSession : IDisposable
 
     public void Dispose()
     {
+        List<Exception> failures = [];
+
+        void Check(NGXResult result, string operation)
+        {
+            if (Ngx.Failed(result))
+            {
+                failures.Add(new NGXException(result, operation));
+            }
+        }
+
         if (initialized)
         {
-            ReleaseReconstruction();
+            // Complete shutdown even when an individual native release fails.
+            foreach (nint value in new nint[] { (nint)reconstruction, (nint)generation })
+            {
+                if (value != 0)
+                {
+                    Check(IsVulkan ? Ngx.Vulkan.ReleaseFeature((NGXHandle*)value) : Ngx.D3D12.ReleaseFeature((NGXHandle*)value), "ReleaseFeature");
+                }
+            }
+
+            reconstruction = generation = null;
 
             foreach (nint value in new nint[] { (nint)frameParameters, (nint)parameters, (nint)capabilities })
             {
                 if (value != 0)
                 {
-                    Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.DestroyParameters((NGXParameter*)value) : Ngx.D3D12.DestroyParameters((NGXParameter*)value));
+                    Check(IsVulkan ? Ngx.Vulkan.DestroyParameters((NGXParameter*)value) : Ngx.D3D12.DestroyParameters((NGXParameter*)value), "DestroyParameters");
                 }
             }
 
-            Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device));
+            frameParameters = parameters = capabilities = null;
+            Check(IsVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device), "Shutdown1");
             initialized = false;
         }
 
@@ -540,5 +559,10 @@ internal sealed unsafe class NGXSession : IDisposable
         projectId = null;
         NGXMarshal.Free(engineVersion);
         engineVersion = null;
+
+        if (failures.Count != 0)
+        {
+            throw new AggregateException("NGX shutdown failed.", failures);
+        }
     }
 }

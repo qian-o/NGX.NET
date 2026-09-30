@@ -21,7 +21,7 @@ struct Globals
     float4 jitter; // pixel jitter.xy; RR guides enabled.z; texture mip bias.w
     row_major float4x4 sunViewProjection;
     float4 lighting; // sun irradiance, sky radiance, reserved, raster AO radius
-    float4 exposure; // automatic metering enabled, delta seconds, reset history, reserved
+    float4 exposure; // reserved, delta seconds, reset history, reserved
     float4 environmentMinimum;
     float4 environmentMaximum;
     float4 previousCamera;
@@ -649,28 +649,26 @@ float3 sampleHdr(float2 uv)
 }
 #include "Exposure.slang"
 
-float3 sampleDisplay(float2 uv, bool toneMap)
+float3 sampleDisplay(float2 uv)
 {
-    if (!toneMap) return displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
-    float3 hdr = sampleHdr(uv);
-    return linearToSrgb(displayToneMap(hdr * exp2(localExposure(uv, hdr))));
+    return displayInputImage.SampleLevel(linearSampler, uv, 0).rgb;
 }
 float luminance(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
 // FXAA edge filter for the native raster path.
-float3 antialias(float2 uv, float2 step, bool toneMap)
+float3 antialias(float2 uv, float2 step)
 {
-    float3 center = sampleDisplay(uv, toneMap);
-    float3 nw = sampleDisplay(uv - step, toneMap);
-    float3 ne = sampleDisplay(uv + step * float2(1, -1), toneMap);
-    float3 sw = sampleDisplay(uv + step * float2(-1, 1), toneMap);
-    float3 se = sampleDisplay(uv + step, toneMap);
+    float3 center = sampleDisplay(uv);
+    float3 nw = sampleDisplay(uv - step);
+    float3 ne = sampleDisplay(uv + step * float2(1, -1));
+    float3 sw = sampleDisplay(uv + step * float2(-1, 1));
+    float3 se = sampleDisplay(uv + step);
     float l = luminance(center), lnw = luminance(nw), lne = luminance(ne), lsw = luminance(sw), lse = luminance(se);
     float lo = min(l, min(min(lnw, lne), min(lsw, lse))), hi = max(l, max(max(lnw, lne), max(lsw, lse)));
     float2 direction = float2(-((lnw + lne) - (lsw + lse)), (lnw + lsw) - (lne + lse));
     float reduce = max((lnw + lne + lsw + lse) * (0.25 / 8), 1.0 / 128);
     direction = clamp(direction / (min(abs(direction.x), abs(direction.y)) + reduce), -8, 8) * step;
-    float3 a = 0.5 * (sampleDisplay(uv + direction * (1.0 / 3 - 0.5), toneMap) + sampleDisplay(uv + direction * (2.0 / 3 - 0.5), toneMap));
-    float3 b = a * 0.5 + 0.25 * (sampleDisplay(uv - direction * 0.5, toneMap) + sampleDisplay(uv + direction * 0.5, toneMap));
+    float3 a = 0.5 * (sampleDisplay(uv + direction * (1.0 / 3 - 0.5)) + sampleDisplay(uv + direction * (2.0 / 3 - 0.5)));
+    float3 b = a * 0.5 + 0.25 * (sampleDisplay(uv - direction * 0.5) + sampleDisplay(uv + direction * 0.5));
     float lb = luminance(b);
     return hi - lo < max(1.0 / 32, hi / 8) ? center : (lb < lo || lb > hi ? a : b);
 }
@@ -681,7 +679,8 @@ void ToneMap(uint3 id : SV_DispatchThreadID)
     uint width, height; displayInputOutput.GetDimensions(width, height);
     if (any(id.xy >= uint2(width, height))) return;
     float2 uv = (id.xy + 0.5) / float2(width, height);
-    float3 color = sampleDisplay(uv, true);
+    float3 hdr = sampleHdr(uv);
+    float3 color = linearToSrgb(displayToneMap(hdr * exp2(localExposure(uv, hdr))));
     displayInputOutput[id.xy] = float4(color, 1);
 }
 [shader("compute")]
@@ -690,7 +689,7 @@ void NativeResolve(uint3 id : SV_DispatchThreadID)
 {
     if (any(id.xy >= (uint2)g.size.zw)) return;
     float2 uv = (id.xy + 0.5) / g.size.zw;
-    hudlessOutput[id.xy] = float4(antialias(uv, 1 / g.size.zw, false), 1);
+    hudlessOutput[id.xy] = float4(antialias(uv, 1 / g.size.zw), 1);
 }
 [shader("compute")]
 [numthreads(8, 8, 1)]

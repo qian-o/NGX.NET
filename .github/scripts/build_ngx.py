@@ -238,7 +238,8 @@ def build(root, scratch, output, rid):
 def merge(root, output):
     source, platforms = None, {}
     for rid in PLATFORMS:
-        fragment = json.loads((root / rid / "ast.json").read_text())
+        artifact = root / f"ngx-{rid}"
+        fragment = json.loads((artifact / "ast.json").read_text())
         if source is not None and source != fragment["source"]:
             raise RuntimeError("Targets were not built from the same SDK inputs.")
         source = fragment["source"]
@@ -246,7 +247,7 @@ def merge(root, output):
         if platform["rid"] != rid or not platform.get("exports"):
             raise RuntimeError("Missing successful target: " + rid)
         for binary in platform["binaries"]:
-            path = root / rid / "native" / rid / binary["name"]
+            path = artifact / "native" / rid / binary["name"]
             if sha256(path) != binary["sha256"]:
                 raise RuntimeError("Artifact checksum mismatch: " + str(path))
         platforms[rid] = platform
@@ -256,7 +257,7 @@ def merge(root, output):
         destination = output / "native" / rid
         if destination.exists():
             shutil.rmtree(destination)
-        shutil.copytree(root / rid / "native" / rid, destination)
+        shutil.copytree(root / f"ngx-{rid}" / "native" / rid, destination)
     save(output / "NGX.NET.Generator" / "ast.json", {"schemaVersion": 1, "source": source, "platforms": platforms})
 
 

@@ -86,7 +86,7 @@ internal sealed partial class Emitter
 
             if (MathFieldType(name, field) is string mathType)
             {
-                text.AppendLine($"    public {mathType} {FieldName(fieldName)};");
+                text.AppendLine($"    public {mathType} {Name(fieldName)};");
             }
             else if (type.Text("kind") == "CONSTANTARRAY")
             {
@@ -102,7 +102,7 @@ internal sealed partial class Emitter
 
                 if (element is "float" or "double" or "int" or "uint" or "sbyte" or "byte" or "long" or "ulong" or "short" or "ushort")
                 {
-                    text.AppendLine($"    public fixed {element} {FieldName(fieldName)}[{count}];");
+                    text.AppendLine($"    public fixed {element} {Name(fieldName)}[{count}];");
                 }
                 else
                 {
@@ -114,7 +114,7 @@ internal sealed partial class Emitter
                     }
 
                     string arrayName = TypeName(fieldName) + "Buffer";
-                    text.AppendLine($"    public {arrayName} {FieldName(fieldName)};");
+                    text.AppendLine($"    public {arrayName} {Name(fieldName)};");
                     text.AppendLine();
                     text.Append(Summary($"Inline storage for {count} native elements.", 4));
                     text.AppendLine($"    [InlineArray({count})]\n    public struct {arrayName}\n    {{\n        private {element} element;\n    }}");
@@ -122,7 +122,7 @@ internal sealed partial class Emitter
             }
             else
             {
-                text.AppendLine($"    public {Type(type)} {FieldName(fieldName)};");
+                text.AppendLine($"    public {Type(type)} {Name(fieldName)};");
             }
         }
 
@@ -139,7 +139,7 @@ internal sealed partial class Emitter
 
             if (Regex.IsMatch(expression, @"^-?\d+(?:\.\d+f)?$"))
             {
-                initializers.Add((FieldName(field.Text("name")), expression));
+                initializers.Add((Name(field.Text("name")), expression));
             }
             else if (!Regex.IsMatch(expression, @"^\{[0 ,.f]+\}$"))
             {
