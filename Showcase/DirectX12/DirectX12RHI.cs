@@ -1,10 +1,9 @@
-﻿using System.Runtime.InteropServices;
-using Showcase.Handlers;
+﻿using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Vortice.DXGI;
-using Vortice.Direct3D;
 using Vortice.Direct3D12;
+using Vortice.Direct3D;
+using Vortice.DXGI;
 using Format = Vortice.DXGI.Format;
 
 namespace Showcase.DirectX12;
@@ -67,7 +66,8 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             }
         }
 
-        adapter = candidates.OrderByDescending(x => x.Description1.VendorId == 0x10DE).FirstOrDefault() ?? throw new InvalidOperationException("No hardware graphics adapter found.");
+        adapter = candidates.OrderByDescending(x => x.Description1.VendorId == 0x10DE).FirstOrDefault()
+            ?? throw new InvalidOperationException("No hardware graphics adapter found.");
 
         foreach (IDXGIAdapter1 candidate in candidates)
         {
@@ -97,7 +97,10 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
         presentFence = device.CreateFence();
     }
 
-    private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(HeapType.Upload, ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)), ResourceStates.GenericRead);
+    private ID3D12Resource UploadBuffer(int bytes) => device.CreateCommittedResource(
+        HeapType.Upload,
+        ResourceDescription.Buffer((ulong)Math.Max(bytes, 4)),
+        ResourceStates.GenericRead);
 
     private ID3D12Resource StaticBuffer<T>(ReadOnlySpan<T> data)
         where T : unmanaged
@@ -127,6 +130,7 @@ internal sealed unsafe partial class DirectX12RHI(Window window, UserInterface u
             Scaling = Scaling.Stretch,
             AlphaMode = Vortice.DXGI.AlphaMode.Ignore
         };
+
         using IDXGISwapChain1 created = factory.CreateSwapChainForHwnd(presentQueue, Window.Handle, description);
         swapChain = created.QueryInterface<IDXGISwapChain3>();
         factory.MakeWindowAssociation(Window.Handle, WindowAssociationFlags.IgnoreAltEnter).CheckError();

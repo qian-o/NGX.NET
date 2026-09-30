@@ -40,6 +40,5 @@ public static unsafe partial class NGX
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_2")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult GetStats2(NGXParameter* pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel, uint* isDevSnippetBranch);
-
     }
 }

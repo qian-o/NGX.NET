@@ -74,5 +74,4 @@ public enum NGXDLSSGResourceFlags : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSSG_ResourceFlags_OutputDisableInterpolation")]
     OutputDisableInterpolation = 67108864,
-
 }

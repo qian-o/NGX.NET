@@ -19,8 +19,11 @@ internal sealed unsafe partial class VulkanRHI
     private sealed class VkAcceleration : IDisposable
     {
         public required VkDeviceApi Api;
+
         public required VkBufferResource Storage;
+
         public VkAccelerationStructureKHR Handle;
+
         public ulong Address;
 
         public void Dispose()
@@ -33,10 +36,15 @@ internal sealed unsafe partial class VulkanRHI
     private sealed class VkBufferResource : IDisposable
     {
         public required VkDeviceApi Api;
+
         public VkBuffer Buffer;
+
         public VkDeviceMemory Memory;
+
         public ulong Size;
+
         public ulong Address;
+
         public void* Mapped;
 
         public void Write<T>(ReadOnlySpan<T> values, int offset = 0)
@@ -57,10 +65,15 @@ internal sealed unsafe partial class VulkanRHI
     private sealed class VkTexture : GpuImage
     {
         public required VkDeviceApi Api;
+
         public VkImage Texture;
+
         public VkImageView View;
+
         public VkDeviceMemory Memory;
+
         public VkImageLayout Layout;
+
         public VkImageUsageFlags Usage;
 
         public override NativeImage Describe() => new()
@@ -100,18 +113,31 @@ internal sealed unsafe partial class VulkanRHI
     private sealed class VkFrame : IDisposable
     {
         public required VkDeviceApi Api;
+
         public VkCommandPool Pool;
+
         public VkCommandBuffer Command;
+
         public VkFence Fence;
+
         public VkSemaphore RenderComplete;
+
         public VkDescriptorSet Descriptors;
+
         public required VkBufferResource Constants;
+
         public required VkBufferResource Objects;
+
         public VkBufferResource? Vertices;
+
         public VkBufferResource? Indices;
+
         public VkAcceleration? Tlas;
+
         public VkBufferResource? RayScratch;
+
         public VkBufferResource? RayInstances;
+
         public bool TlasBuilt;
 
         public void Dispose()

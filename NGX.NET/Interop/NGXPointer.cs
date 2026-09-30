@@ -16,10 +16,19 @@ public unsafe struct NGXPointer<T> where T : unmanaged
     /// <summary>
     /// Wraps a borrowed pointer.
     /// </summary>
-    public static implicit operator NGXPointer<T>(T* value) => new() { Value = value };
+    public static implicit operator NGXPointer<T>(T* value)
+    {
+        return new()
+        {
+            Value = value
+        };
+    }
 
     /// <summary>
     /// Retrieves the borrowed pointer.
     /// </summary>
-    public static implicit operator T*(NGXPointer<T> value) => value.Value;
+    public static implicit operator T*(NGXPointer<T> value)
+    {
+        return value.Value;
+    }
 }

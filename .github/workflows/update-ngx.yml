@@ -66,17 +66,8 @@ jobs:
           }
       - name: Install extraction dependency
         run: python -m pip install libclang==18.1.1
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '10.0.x'
       - name: Extract, link and verify
         run: python .github/scripts/build_ngx.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
-      - name: Verify deterministic managed generation on the host
-        run: |
-          dotnet run --project NGX.NET.Generator -- .
-          git diff --exit-code -- NGX.NET
-      - name: Publish and exercise the NativeAOT binding
-        run: python .github/scripts/build_ngx.py smoke --root . --scratch "${{ runner.temp }}/aot" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
       - uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
@@ -85,9 +76,62 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  verify:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2022
+            arch: x64
+          - rid: win-arm64
+            runner: windows-2022
+            arch: arm64
+          - rid: linux-x64
+            runner: ubuntu-24.04
+          - rid: linux-arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify checked-in managed generation
+        run: |
+          dotnet run --project NGX.NET.Generator -- .
+          python -c "import subprocess; changes = subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all', '--', 'NGX.NET'], text=True); print(changes, end=''); raise SystemExit(bool(changes))"
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: ngx-*-*
+          path: ${{ runner.temp }}/artifacts
+      - name: Merge the four verified targets
+        run: |
+          python -c "from pathlib import Path; root = Path(r'${{ runner.temp }}/artifacts'); [path.rename(root / path.name.removeprefix('ngx-')) for path in root.glob('ngx-*-*')]"
+          python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
+      - name: Generate bindings from the merged SDK
+        run: dotnet run --project NGX.NET.Generator -- .
+      - name: Configure Windows compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installation = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          Import-Module "$installation\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $installation -SkipAutomaticLocation -DevCmdArguments '-arch=${{ matrix.arch }} -host_arch=x64'
+          foreach ($name in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH')) {
+              "$name=$([Environment]::GetEnvironmentVariable($name))" >> $env:GITHUB_ENV
+          }
+      - name: Publish and exercise the updated NativeAOT binding
+        run: python .github/scripts/build_ngx.py smoke --root . --scratch "${{ runner.temp }}/aot" --output . --rid ${{ matrix.rid }}
+
   update:
     if: github.ref_type == 'branch'
-    needs: build
+    needs: verify
     runs-on: ubuntu-24.04
     permissions:
       contents: write

@@ -50,6 +50,7 @@ internal sealed class FramePresenter(
             Name = "NGX presentation",
             IsBackground = true
         };
+
         worker.Start();
 
         return worker;

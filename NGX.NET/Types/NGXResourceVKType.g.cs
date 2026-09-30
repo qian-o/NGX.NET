@@ -20,5 +20,4 @@ public enum NGXResourceVKType : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER")]
     VKBUFFER = 1,
-
 }

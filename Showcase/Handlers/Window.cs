@@ -57,8 +57,21 @@ internal sealed unsafe partial class Window : IDisposable
             Right = Width,
             Bottom = Height
         };
+
         AdjustWindowRectEx(ref rectangle, 0x00CF0000, false, 0);
-        Handle = CreateWindowExW(0, wc.Name, "NGX.NET Showcase", 0x10CF0000, unchecked((int)0x80000000), unchecked((int)0x80000000), rectangle.Right - rectangle.Left, rectangle.Bottom - rectangle.Top, 0, 0, Instance, 0);
+        Handle = CreateWindowExW(
+            0,
+            wc.Name,
+            "NGX.NET Showcase",
+            0x10CF0000,
+            unchecked((int)0x80000000),
+            unchecked((int)0x80000000),
+            rectangle.Right - rectangle.Left,
+            rectangle.Bottom - rectangle.Top,
+            0,
+            0,
+            Instance,
+            0);
 
         if (Handle == 0)
         {
@@ -113,6 +126,7 @@ internal sealed unsafe partial class Window : IDisposable
                 BeforeWindowChange?.Invoke();
                 Closed = true;
                 return 0;
+
             case 0x0112:
                 if ((wparam & 0xFFF0) is 0xF020 or 0xF030 or 0xF120)
                 {
@@ -120,13 +134,16 @@ internal sealed unsafe partial class Window : IDisposable
                 }
 
                 break;
+
             case 0x0231:
                 BeforeWindowChange?.Invoke();
                 break;
+
             case 0x0005:
                 Width = wparam == 1 ? 0 : (int)((long)lparam & 0xFFFF);
                 Height = wparam == 1 ? 0 : (int)(((long)lparam >> 16) & 0xFFFF);
                 return 0;
+
             case 0x0200:
                 Vector2 current = new((short)((long)lparam & 0xFFFF), (short)(((long)lparam >> 16) & 0xFFFF));
                 if (hasMouse && Looking)
@@ -138,10 +155,12 @@ internal sealed unsafe partial class Window : IDisposable
                 hasMouse = true;
                 io.AddMousePosEvent(current.X, current.Y);
                 return 0;
+
             case 0x0201:
             case 0x0202:
                 io.AddMouseButtonEvent(0, message == 0x0201);
                 return 0;
+
             case 0x0204:
                 Looking = !io.WantCaptureMouse;
                 if (Looking)
@@ -151,14 +170,17 @@ internal sealed unsafe partial class Window : IDisposable
 
                 io.AddMouseButtonEvent(1, true);
                 return 0;
+
             case 0x0205:
                 Looking = false;
                 ReleaseCapture();
                 io.AddMouseButtonEvent(1, false);
                 return 0;
+
             case 0x020A:
                 io.AddMouseWheelEvent(0, (short)(wparam >> 16) / 120f);
                 return 0;
+
             case 0x0100:
             case 0x0101:
                 if (wparam < 256)
@@ -173,12 +195,15 @@ internal sealed unsafe partial class Window : IDisposable
                 }
 
                 return 0;
+
             case 0x0102:
                 io.AddInputCharacter((uint)wparam);
                 return 0;
+
             case 0x0007:
                 io.AddFocusEvent(true);
                 return 0;
+
             case 0x0008:
                 Array.Clear(keys);
                 Looking = false;

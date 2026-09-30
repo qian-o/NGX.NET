@@ -44,5 +44,4 @@ public enum NGXPerfQualityValue : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_PerfQuality_Value_DLAA")]
     DLAA = 5,
-
 }

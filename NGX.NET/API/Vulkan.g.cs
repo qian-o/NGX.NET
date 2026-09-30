@@ -208,6 +208,5 @@ public static unsafe partial class NGX
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult Shutdown1(nint inDevice);
-
     }
 }

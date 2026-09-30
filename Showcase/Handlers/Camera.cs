@@ -9,7 +9,9 @@ internal sealed class Camera
     public Vector3 PreviousPosition { get; private set; }
 
     public float Yaw;
+
     public float Pitch;
+
     public const float FieldOfView = MathF.PI / 3;
 
     public float Near { get; private set; }

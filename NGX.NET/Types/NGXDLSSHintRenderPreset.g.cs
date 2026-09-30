@@ -80,5 +80,4 @@ public enum NGXDLSSHintRenderPreset : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Hint_Render_Preset_O")]
     O = 15,
-
 }

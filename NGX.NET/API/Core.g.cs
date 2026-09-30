@@ -35,5 +35,4 @@ public static unsafe partial class NGX
     [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_UpdateFeature")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial NGXResult UpdateFeature(NGXApplicationIdentifier* applicationId, NGXFeature featureID);
-
 }

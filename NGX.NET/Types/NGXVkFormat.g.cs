@@ -1946,5 +1946,4 @@ public enum NGXVkFormat : int
     /// </summary>
     [NGXNativeName("VK_FORMAT_MAX_ENUM")]
     MAXENUM = 2147483647,
-
 }

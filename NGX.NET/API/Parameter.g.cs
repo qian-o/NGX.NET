@@ -124,6 +124,5 @@ public static unsafe partial class NGX
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void SetVoidPointer(NGXParameter* inParameter, sbyte* inName, void* inValue);
-
     }
 }

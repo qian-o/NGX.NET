@@ -3070,5 +3070,4 @@ public static unsafe partial class NGX
     /// </summary>
     [NGXNativeName("NVSDK_NGX_VERSION_API_MACRO")]
     public const uint VersionAPI = 0x0000015;
-
 }

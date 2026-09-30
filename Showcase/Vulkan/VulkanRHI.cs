@@ -3,7 +3,6 @@ using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-
 using Vortice.Vulkan;
 using static Vortice.Vulkan.Vulkan;
 
@@ -63,6 +62,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         {
             apiVersion = VkVersion.Version_1_3
         };
+
         using NativeNames extensions = new([.. new[] { "VK_KHR_surface", "VK_KHR_win32_surface" }.Concat(NGX.VulkanExtensions()).Distinct()]);
         VkInstanceCreateInfo create = new()
         {
@@ -70,6 +70,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             enabledExtensionCount = extensions.Length,
             ppEnabledExtensionNames = extensions.Pointer
         };
+
         Check(vkCreateInstance(&create, out instance), "vkCreateInstance");
         instanceApi = GetApi(instance);
         VkWin32SurfaceCreateInfoKHR surfaceInfo = new()
@@ -77,6 +78,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             hwnd = Window.Handle,
             hinstance = Window.Instance
         };
+
         Check(instanceApi.vkCreateWin32SurfaceKHR(&surfaceInfo, null, out surface), "vkCreateWin32SurfaceKHR");
         Check(instanceApi.vkEnumeratePhysicalDevices(out uint count), "vkEnumeratePhysicalDevices(count)");
         VkPhysicalDevice[] devices = new VkPhysicalDevice[count];
@@ -97,22 +99,27 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             {
                 pNext = &queryFeatures
             };
+
             Vortice.Vulkan.VkPhysicalDeviceVulkan13Features features13 = new()
             {
                 pNext = &accelerationFeatures
             };
+
             Vortice.Vulkan.VkPhysicalDeviceVulkan12Features features12 = new()
             {
                 pNext = &features13
             };
+
             VkPhysicalDeviceVulkan11Features features11 = new()
             {
                 pNext = &features12
             };
+
             VkPhysicalDeviceFeatures2 features = new()
             {
                 pNext = &features11
             };
+
             instanceApi.vkGetPhysicalDeviceFeatures2(candidate, &features);
 
             if (!features11.shaderDrawParameters || !features13.dynamicRendering || !features13.synchronization2 ||
@@ -132,7 +139,8 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 extensionNames.Add(NGXMarshal.PtrToString(extension.extensionName, NGXEncoding.Utf8)!);
             }
 
-            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure && features12.bufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
+            bool rayQuery = queryFeatures.rayQuery && accelerationFeatures.accelerationStructure
+                && features12.bufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
             instanceApi.vkGetPhysicalDeviceFormatProperties(candidate, VkFormat.R32G32B32Sfloat, out VkFormatProperties vertexFormat);
             rayQuery &= (vertexFormat.bufferFeatures & VkFormatFeatureFlags.AccelerationStructureVertexBufferKHR) != 0;
             instanceApi.vkGetPhysicalDeviceQueueFamilyProperties(candidate, out uint familyCount);
@@ -190,31 +198,37 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             queueCount = separatePresentQueue ? 2u : 1u,
             pQueuePriorities = priorities
         };
+
         VkPhysicalDeviceRayQueryFeaturesKHR enabledRayQuery = new()
         {
             rayQuery = true
         };
+
         VkPhysicalDeviceAccelerationStructureFeaturesKHR enabledAcceleration = new()
         {
             accelerationStructure = true,
             pNext = &enabledRayQuery
         };
+
         Vortice.Vulkan.VkPhysicalDeviceVulkan13Features enabled13 = new()
         {
             dynamicRendering = true,
             synchronization2 = true,
             pNext = RayQuerySupported ? &enabledAcceleration : null
         };
+
         Vortice.Vulkan.VkPhysicalDeviceVulkan12Features enabled12 = new()
         {
             pNext = &enabled13,
             bufferDeviceAddress = RayQuerySupported
         };
+
         VkPhysicalDeviceVulkan11Features enabled11 = new()
         {
             pNext = &enabled12,
             shaderDrawParameters = true
         };
+
         VkPhysicalDeviceFeatures2 enabled = new()
         {
             pNext = &enabled11,
@@ -225,6 +239,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
                 shaderStorageImageExtendedFormats = true
             }
         };
+
         List<string> requestedExtensions = ["VK_KHR_swapchain"];
 
         if (RayQuerySupported)
@@ -240,6 +255,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             {
                 pNext = &accelerationProperties
             };
+
             instanceApi.vkGetPhysicalDeviceProperties2(physical, &properties);
             scratchAlignment = accelerationProperties.minAccelerationStructureScratchOffsetAlignment;
             maxRayInstances = accelerationProperties.maxInstanceCount;
@@ -299,12 +315,14 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Api = api,
             Size = Math.Max(size, 4)
         };
+
         VkBufferCreateInfo info = new()
         {
             size = resource.Size,
             usage = usage,
             sharingMode = VkSharingMode.Exclusive
         };
+
         Check(api.vkCreateBuffer(&info, null, out resource.Buffer), "vkCreateBuffer");
         api.vkGetBufferMemoryRequirements(resource.Buffer, out VkMemoryRequirements requirements);
         bool addressable = (usage & VkBufferUsageFlags.ShaderDeviceAddress) != 0;
@@ -312,12 +330,16 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         {
             flags = VkMemoryAllocateFlags.DeviceAddress
         };
+
         VkMemoryAllocateInfo allocation = new()
         {
             pNext = addressable ? &flags : null,
             allocationSize = requirements.size,
-            memoryTypeIndex = MemoryType(requirements.memoryTypeBits, host ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent : VkMemoryPropertyFlags.DeviceLocal)
+            memoryTypeIndex = MemoryType(
+                requirements.memoryTypeBits,
+                host ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent : VkMemoryPropertyFlags.DeviceLocal)
         };
+
         Check(api.vkAllocateMemory(&allocation, null, out resource.Memory), "vkAllocateMemory(buffer)");
         Check(api.vkBindBufferMemory(resource.Buffer, resource.Memory, 0), "vkBindBufferMemory");
 
@@ -327,6 +349,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             {
                 buffer = resource.Buffer
             };
+
             resource.Address = api.vkGetBufferDeviceAddress(&address);
 
             if (resource.Address == 0)
@@ -364,6 +387,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         {
             size = size
         };
+
         api.vkCmdCopyBuffer(commandBuffer, upload.Buffer, buffer.Buffer, 1, &copy);
 
         return buffer;
@@ -382,6 +406,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             Format = format,
             Usage = usage
         };
+
         VkImageCreateInfo info = new()
         {
             imageType = VkImageType.Image2D,
@@ -393,6 +418,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             tiling = VkImageTiling.Optimal,
             usage = usage
         };
+
         Check(api.vkCreateImage(&info, null, out texture.Texture), "vkCreateImage");
         api.vkGetImageMemoryRequirements(texture.Texture, out VkMemoryRequirements requirements);
         VkMemoryAllocateInfo allocation = new()
@@ -400,6 +426,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             allocationSize = requirements.size,
             memoryTypeIndex = MemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal)
         };
+
         Check(api.vkAllocateMemory(&allocation, null, out texture.Memory), "vkAllocateMemory(image)");
         Check(api.vkBindImageMemory(texture.Texture, texture.Memory, 0), "vkBindImageMemory");
         VkImageViewCreateInfo view = new()
@@ -409,6 +436,7 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             format = NativeFormat(format),
             subresourceRange = Range(format, layers)
         };
+
         Check(api.vkCreateImageView(&view, null, out texture.View), "vkCreateImageView");
 
         return texture;
@@ -416,7 +444,9 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
 
     protected override void CreateSwapChain()
     {
-        Check(instanceApi.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, out VkSurfaceCapabilitiesKHR capabilities), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+        Check(
+            instanceApi.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, out VkSurfaceCapabilitiesKHR capabilities),
+            "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
         Check(instanceApi.vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, out uint count), "vkGetPhysicalDeviceSurfaceFormatsKHR(count)");
         VkSurfaceFormatKHR[] formats = new VkSurfaceFormatKHR[count];
         Check(instanceApi.vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, formats), "vkGetPhysicalDeviceSurfaceFormatsKHR");
@@ -459,9 +489,12 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
             imageSharingMode = VkSharingMode.Exclusive,
             preTransform = capabilities.currentTransform,
             compositeAlpha = VkCompositeAlphaFlagsKHR.Opaque,
-            presentMode = modes.Contains(VkPresentModeKHR.Immediate) ? VkPresentModeKHR.Immediate : modes.Contains(VkPresentModeKHR.Mailbox) ? VkPresentModeKHR.Mailbox : VkPresentModeKHR.Fifo,
+            presentMode = modes.Contains(VkPresentModeKHR.Immediate) ? VkPresentModeKHR.Immediate
+                : modes.Contains(VkPresentModeKHR.Mailbox) ? VkPresentModeKHR.Mailbox
+                : VkPresentModeKHR.Fifo,
             clipped = true
         };
+
         Check(api.vkCreateSwapchainKHR(&create, null, out swapChain), "vkCreateSwapchainKHR");
         Check(api.vkGetSwapchainImagesKHR(swapChain, out count), "vkGetSwapchainImagesKHR(count)");
         backBuffers = new VkImage[count];
@@ -509,5 +542,10 @@ internal sealed unsafe partial class VulkanRHI(Window window, UserInterface ui) 
         _ => VkFormat.R8G8B8A8Unorm
     };
 
-    private static VkImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color, 0, 1, 0, (uint)layers);
+    private static VkImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(
+        format == ImageFormat.Depth ? VkImageAspectFlags.Depth : VkImageAspectFlags.Color,
+        0,
+        1,
+        0,
+        (uint)layers);
 }

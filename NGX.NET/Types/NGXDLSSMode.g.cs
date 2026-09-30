@@ -32,5 +32,4 @@ public enum NGXDLSSMode : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Mode_DLSS")]
     DLSS = 3,
-
 }

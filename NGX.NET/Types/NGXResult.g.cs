@@ -128,5 +128,4 @@ public enum NGXResult : uint
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Result_FAIL_NotImplemented")]
     FAILNotImplemented = 3134193682,
-
 }

@@ -38,5 +38,4 @@ public enum NGXGraphicsAPI : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_GRAPHICS_API_COUNT")]
     COUNT = 4,
-
 }

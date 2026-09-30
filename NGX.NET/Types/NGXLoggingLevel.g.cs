@@ -32,5 +32,4 @@ public enum NGXLoggingLevel : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_LOGGING_LEVEL_NUM")]
     NUM = 3,
-
 }

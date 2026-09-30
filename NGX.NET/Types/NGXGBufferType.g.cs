@@ -98,5 +98,4 @@ public enum NGXGBufferType : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_GBUFFERTYPE_NUM")]
     NUM = 17,
-
 }

@@ -14,5 +14,4 @@ public enum NGXVersion : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Version_API")]
     API = 21,
-
 }

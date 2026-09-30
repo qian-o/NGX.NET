@@ -21,7 +21,10 @@ public static unsafe partial class NGX
     {
         get
         {
-            string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+            string os = OperatingSystem.IsWindows() ? "win"
+                : OperatingSystem.IsLinux() ? "linux"
+                : throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+
             string arch = RuntimeInformation.ProcessArchitecture switch
             {
                 Architecture.X64 => "x64",
@@ -56,12 +59,18 @@ public static unsafe partial class NGX
     /// <summary>
     /// Applies the official NVSDK_NGX_SUCCEED macro. NGX success is not zero.
     /// </summary>
-    public static bool Succeeded(NGXResult result) => ((uint)result & 0xFFF00000u) != (uint)NGXResult.Fail;
+    public static bool Succeeded(NGXResult result)
+    {
+        return ((uint)result & 0xFFF00000u) != (uint)NGXResult.Fail;
+    }
 
     /// <summary>
     /// Applies the official NVSDK_NGX_FAILED macro.
     /// </summary>
-    public static bool Failed(NGXResult result) => !Succeeded(result);
+    public static bool Failed(NGXResult result)
+    {
+        return !Succeeded(result);
+    }
 
     /// <summary>
     /// Throws an NGXException only when the official failure predicate is true.
@@ -77,7 +86,10 @@ public static unsafe partial class NGX
     /// <summary>
     /// Counts elements, equivalent to NVSDK_NGX_ARRAY_LEN for a managed span.
     /// </summary>
-    public static nuint ArrayLength<T>(ReadOnlySpan<T> values) => (nuint)values.Length;
+    public static nuint ArrayLength<T>(ReadOnlySpan<T> values)
+    {
+        return (nuint)values.Length;
+    }
 
     public static partial class Parameter
     {

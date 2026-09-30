@@ -86,5 +86,4 @@ public enum NGXRayReconstructionHintRenderPreset : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_RayReconstruction_Hint_Render_Preset_O")]
     O = 15,
-
 }

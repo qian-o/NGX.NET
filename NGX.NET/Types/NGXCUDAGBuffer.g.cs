@@ -28,5 +28,4 @@ public unsafe partial struct NGXCUDAGBuffer
     {
         private NGXPointer<ulong> element;
     }
-
 }

@@ -30,6 +30,7 @@ internal sealed unsafe partial class VulkanRHI
             size = size,
             type = type
         };
+
         VkAccelerationStructureKHR handle;
 
         try
@@ -39,6 +40,7 @@ internal sealed unsafe partial class VulkanRHI
         catch
         {
             storage.Dispose();
+
             throw;
         }
 
@@ -48,15 +50,18 @@ internal sealed unsafe partial class VulkanRHI
             Storage = storage,
             Handle = handle
         };
+
         VkAccelerationStructureDeviceAddressInfoKHR address = new()
         {
             accelerationStructure = handle
         };
+
         acceleration.Address = api.vkGetAccelerationStructureDeviceAddressKHR(&address);
 
         if (acceleration.Address == 0)
         {
             acceleration.Dispose();
+
             throw new InvalidOperationException("Vulkan returned a null acceleration-structure address.");
         }
 
@@ -75,7 +80,11 @@ internal sealed unsafe partial class VulkanRHI
 
     private ulong ScratchAddress(VkBufferResource scratch) => (scratch.Address + scratchAlignment - 1) / scratchAlignment * scratchAlignment;
 
-    private void RayBarrier(VkPipelineStageFlags2 sourceStage, VkAccessFlags2 sourceAccess, VkPipelineStageFlags2 destinationStage, VkAccessFlags2 destinationAccess)
+    private void RayBarrier(
+        VkPipelineStageFlags2 sourceStage,
+        VkAccessFlags2 sourceAccess,
+        VkPipelineStageFlags2 destinationStage,
+        VkAccessFlags2 destinationAccess)
     {
         VkMemoryBarrier2 memory = new()
         {
@@ -84,11 +93,13 @@ internal sealed unsafe partial class VulkanRHI
             dstStageMask = destinationStage,
             dstAccessMask = destinationAccess
         };
+
         VkDependencyInfo dependency = new()
         {
             memoryBarrierCount = 1,
             pMemoryBarriers = &memory
         };
+
         api.vkCmdPipelineBarrier2(commandBuffer, &dependency);
     }
 
@@ -128,6 +139,7 @@ internal sealed unsafe partial class VulkanRHI
                     }
                 }
             };
+
             VkAccelerationStructureBuildGeometryInfoKHR build = new()
             {
                 type = VkAccelerationStructureTypeKHR.BottomLevel,
@@ -136,6 +148,7 @@ internal sealed unsafe partial class VulkanRHI
                 geometryCount = 1,
                 pGeometries = &geometry
             };
+
             VkAccelerationStructureBuildSizesInfoKHR sizes = new();
             api.vkGetAccelerationStructureBuildSizesKHR(VkAccelerationStructureBuildTypeKHR.Device, &build, &primitiveCount, &sizes);
             VkAcceleration bottom = CreateAcceleration(VkAccelerationStructureTypeKHR.BottomLevel, sizes.accelerationStructureSize);
@@ -150,11 +163,16 @@ internal sealed unsafe partial class VulkanRHI
             {
                 primitiveCount = primitiveCount
             };
+
             VkAccelerationStructureBuildRangeInfoKHR* ranges = &rangeInfo;
             api.vkCmdBuildAccelerationStructuresKHR(commandBuffer, 1, &build, &ranges);
         }
 
-        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR, VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR);
+        RayBarrier(
+            VkPipelineStageFlags2.AccelerationStructureBuildKHR,
+            VkAccessFlags2.AccelerationStructureWriteKHR,
+            VkPipelineStageFlags2.AccelerationStructureBuildKHR,
+            VkAccessFlags2.AccelerationStructureReadKHR);
         uint count = (uint)Scene.Objects.Length;
         VkAccelerationStructureGeometryKHR instances = InstanceGeometry(0);
         VkAccelerationStructureBuildGeometryInfoKHR topBuild = new()
@@ -165,6 +183,7 @@ internal sealed unsafe partial class VulkanRHI
             geometryCount = 1,
             pGeometries = &instances
         };
+
         VkAccelerationStructureBuildSizesInfoKHR topSizes = new();
         api.vkGetAccelerationStructureBuildSizesKHR(VkAccelerationStructureBuildTypeKHR.Device, &topBuild, &count, &topSizes);
 
@@ -172,7 +191,10 @@ internal sealed unsafe partial class VulkanRHI
         {
             frame.Tlas = CreateAcceleration(VkAccelerationStructureTypeKHR.TopLevel, topSizes.accelerationStructureSize);
             frame.RayScratch = CreateRayScratch(Math.Max(topSizes.buildScratchSize, topSizes.updateScratchSize));
-            frame.RayInstances = CreateBuffer((ulong)(Scene.Objects.Length * sizeof(VkAccelerationStructureInstanceKHR)), VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR | VkBufferUsageFlags.ShaderDeviceAddress, true);
+            frame.RayInstances = CreateBuffer(
+                (ulong)(Scene.Objects.Length * sizeof(VkAccelerationStructureInstanceKHR)),
+                VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR | VkBufferUsageFlags.ShaderDeviceAddress,
+                true);
         }
     }
 
@@ -238,13 +260,19 @@ internal sealed unsafe partial class VulkanRHI
                 deviceAddress = ScratchAddress(frame.RayScratch!)
             }
         };
+
         VkAccelerationStructureBuildRangeInfoKHR range = new()
         {
             primitiveCount = (uint)Scene.Objects.Length
         };
+
         VkAccelerationStructureBuildRangeInfoKHR* ranges = &range;
         api.vkCmdBuildAccelerationStructuresKHR(commandBuffer, 1, &build, &ranges);
-        RayBarrier(VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.AccelerationStructureReadKHR);
+        RayBarrier(
+            VkPipelineStageFlags2.AccelerationStructureBuildKHR,
+            VkAccessFlags2.AccelerationStructureWriteKHR,
+            VkPipelineStageFlags2.ComputeShader,
+            VkAccessFlags2.AccelerationStructureReadKHR);
         frame.TlasBuilt = true;
     }
 }

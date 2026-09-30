@@ -265,7 +265,16 @@ def smoke(root, scratch, output, rid):
     scratch.mkdir(parents=True, exist_ok=True)
     source = scratch / "Smoke.cs"
     # Reuse the verifier's CPU byte/layout checks under NativeAOT on each RID.
-    math_checks = "static unsafe class MathAbiChecks" + (root / ".github/scripts/verify_ngx.cs").read_text(encoding="utf-8-sig").split("static unsafe class MathAbiChecks", 1)[1]
+    verification = (root / ".github/scripts/verify_ngx.cs").read_text(encoding="utf-8-sig")
+    begin = "// BEGIN NATIVE AOT MATH CHECKS"
+    end = "// END NATIVE AOT MATH CHECKS"
+    if verification.count(begin) != 1 or verification.count(end) != 1:
+        raise RuntimeError("Expected one shared NativeAOT math-check block.")
+    start = verification.index(begin) + len(begin)
+    stop = verification.index(end)
+    if stop <= start:
+        raise RuntimeError("Invalid shared NativeAOT math-check boundaries.")
+    math_checks = verification[start:stop].strip()
     source.write_text(f"#:project {root / 'NGX.NET/NGX.NET.csproj'}\n#:property PublishAot=true\n#:property AllowUnsafeBlocks=true\n" + r"""
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -351,7 +360,9 @@ static unsafe class Callbacks
     published = scratch / "published"
     print(run(["dotnet", "publish", source, "-r", rid, "-c", "Release", "-o", published, "-p:GeneratePackageOnBuild=false"], root))
     destination = published / "runtimes" / rid / "native"
-    shutil.copytree(output / "native" / rid, destination, dirs_exist_ok=True)
+    if destination.exists():
+        shutil.rmtree(destination)
+    shutil.copytree(output / "native" / rid, destination)
     if rid != "win-arm64":
         print(run([published / ("Smoke.exe" if rid.startswith("win-") else "Smoke")], published))
 
@@ -374,8 +385,6 @@ def verify_package(root):
 
 
 def main():
-    if os.environ.get("GITHUB_ACTIONS") != "true":
-        raise SystemExit("SDK extraction and native builds run exclusively in GitHub Actions.")
     parser = argparse.ArgumentParser()
     parser.add_argument("operation", choices=("prepare", "build", "merge", "smoke", "verify-package"))
     parser.add_argument("--root", required=True, type=Path)
@@ -383,6 +392,8 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--rid", choices=PLATFORMS)
     args = parser.parse_args()
+    if args.operation != "verify-package" and os.environ.get("GITHUB_ACTIONS") != "true":
+        raise SystemExit("SDK extraction and native builds run exclusively in GitHub Actions.")
     try:
         if args.operation == "prepare":
             prepare(args.root)

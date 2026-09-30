@@ -26,5 +26,4 @@ public enum NGXDLSSGFullscreenMode : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSSG_FullscreenMode_Exclusive")]
     Exclusive = 2,
-
 }

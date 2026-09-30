@@ -55,5 +55,12 @@ internal sealed partial class PresentationTimer : WaitHandle
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static partial int SetWaitableTimerEx(SafeWaitHandle timer, in long dueTime, int period, nint callback, nint argument, nint wakeContext, uint tolerableDelay);
+    private static partial int SetWaitableTimerEx(
+        SafeWaitHandle timer,
+        in long dueTime,
+        int period,
+        nint callback,
+        nint argument,
+        nint wakeContext,
+        uint tolerableDelay);
 }

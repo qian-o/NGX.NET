@@ -7,6 +7,8 @@ namespace Showcase.Models;
 internal struct SceneObject
 {
     public Vector4 Offset; // xyz: translation; w: analytic sphere radius, or 0 for a mesh
+
     public Vector4 PreviousOffset;
+
     public GeometryRange Geometry;
 }

@@ -14,5 +14,4 @@ public enum NGXDLSSGEvalFlags : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSSG_EvalFlags_UpdateOnlyInsideExtents")]
     UpdateOnlyInsideExtents = 1,
-
 }

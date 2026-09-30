@@ -58,6 +58,7 @@ internal sealed unsafe class UserInterface : IDisposable
             "segoeui.ttf",
             "arial.ttf"
         }.Select(name => Path.Combine(fonts, name)).FirstOrDefault(File.Exists);
+
         ImFontConfigPtr config = ImGuiNative.ImFontConfig_ImFontConfig();
 
         try

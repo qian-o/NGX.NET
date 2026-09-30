@@ -20,5 +20,4 @@ public enum NGXRtxValue : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_RTX_Value_On")]
     On = 1,
-
 }

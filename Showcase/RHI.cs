@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
+using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using NGX.NET;
 
 namespace Showcase;
 
@@ -14,10 +14,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     private const float SkyRadiance = 0.65f;
     private const float ContactShadowRadiusScale = 0.012f;
 
-    public bool RayQuerySupported
-    {
-        get; protected set;
-    }
+    public bool RayQuerySupported { get; protected set; }
 
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
@@ -33,6 +30,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     public NGXSession NGX { get; } = new();
 
     protected FramePresenter Presenter = null!;
+
     protected readonly GpuImage[] GeneratedFrames = new GpuImage[RenderLayout.FramesInFlight];
 
     public RenderSettings Settings { get; } = new();
@@ -42,15 +40,9 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
     public string AdapterName { get; protected set; } = "Unknown";
 
-    public int InputWidth
-    {
-        get; private set;
-    }
+    public int InputWidth { get; private set; }
 
-    public int InputHeight
-    {
-        get; private set;
-    }
+    public int InputHeight { get; private set; }
 
     public double? PresentedFps => statistics.PresentedFps;
 
@@ -59,16 +51,16 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected Camera Camera { get; } = new();
 
     protected readonly GpuImage[][] Frames = new GpuImage[RenderLayout.FramesInFlight][];
+
     // Scratch data is consumed entirely on the graphics queue before the next
     // frame writes it. One shared allocation avoids multiplying it by frame slots.
     protected GpuImage LightingSamples = null!;
+
     protected int FrameSlot;
+
     protected FrameConstants Constants;
 
-    protected abstract nint Command
-    {
-        get;
-    }
+    protected abstract nint Command { get; }
 
     private RenderSettings? applied;
     private int outputWidth;
@@ -142,9 +134,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
 
         // Discard presentation counts from before the configuration change.
         _ = Presenter.ReadPresentedCount();
-        applied = Settings with
-        {
-        };
+        applied = Settings with { };
         reset = true;
         recreateSwapChain = false;
         Scene.CommitHistory();
@@ -243,6 +233,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         }
 
         UpdateScene(delta);
+
         if (!BeginCommands())
         {
             recreateSwapChain = true;
@@ -364,7 +355,16 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
             return;
         }
 
-        foreach (ImageSlot slot in new[] { ImageSlot.Scene, ImageSlot.Depth, ImageSlot.Motion, ImageSlot.Diffuse, ImageSlot.Specular, ImageSlot.Normal, ImageSlot.SpecularMotion })
+        foreach (ImageSlot slot in new[]
+        {
+            ImageSlot.Scene,
+            ImageSlot.Depth,
+            ImageSlot.Motion,
+            ImageSlot.Diffuse,
+            ImageSlot.Specular,
+            ImageSlot.Normal,
+            ImageSlot.SpecularMotion
+        })
         {
             Transition(Image(slot), ImageUse.ShaderRead);
         }
@@ -400,7 +400,11 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Transition(Image(ImageSlot.Hudless), ImageUse.Storage);
 
         // Keep native, un-reconstructed RT samples intact for the RR comparison.
-        Dispatch(Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay, outputWidth, outputHeight, post);
+        Dispatch(
+            Settings.Reconstruction == Reconstruction.Native && !RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay,
+            outputWidth,
+            outputHeight,
+            post);
         Transition(Image(ImageSlot.Hudless), ImageUse.ShaderRead);
     }
 

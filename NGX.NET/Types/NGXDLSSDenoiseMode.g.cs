@@ -20,5 +20,4 @@ public enum NGXDLSSDenoiseMode : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Denoise_Mode_DLUnified")]
     DLUnified = 1,
-
 }

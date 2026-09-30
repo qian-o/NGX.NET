@@ -38,5 +38,4 @@ public enum NGXToneMapperType : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_TONEMAPPERTYPE_NUM")]
     NUM = 4,
-
 }

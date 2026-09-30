@@ -19,6 +19,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             queueFamilyIndex = queueFamily
         };
+
         Check(api.vkCreateCommandPool(&poolInfo, null, out presentPool), "vkCreateCommandPool(present)");
         VkCommandBufferAllocateInfo commandInfo = new()
         {
@@ -26,6 +27,7 @@ internal sealed unsafe partial class VulkanRHI
             level = VkCommandBufferLevel.Primary,
             commandBufferCount = 1
         };
+
         VkCommandBuffer command = default;
         Check(api.vkAllocateCommandBuffers(&commandInfo, &command), "vkAllocateCommandBuffers(present)");
         presentCommand = command;
@@ -74,6 +76,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             flags = VkCommandBufferUsageFlags.OneTimeSubmit
         };
+
         Check(api.vkBeginCommandBuffer(presentCommand, &begin), "vkBeginCommandBuffer(present)");
         Barrier(backBuffers[index], backLayouts[index], VkImageLayout.TransferDstOptimal, Range(ImageFormat.Rgba8), presentCommand);
         VkImageBlit blit = new()
@@ -81,9 +84,18 @@ internal sealed unsafe partial class VulkanRHI
             srcSubresource = new(VkImageAspectFlags.Color, 0, 0, 1),
             dstSubresource = new(VkImageAspectFlags.Color, 0, 0, 1)
         };
+
         blit.srcOffsets[1] = new(image.Width, image.Height, 1);
         blit.dstOffsets[1] = new(image.Width, image.Height, 1);
-        api.vkCmdBlitImage(presentCommand, ((VkTexture)image).Texture, VkImageLayout.TransferSrcOptimal, backBuffers[index], VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Nearest);
+        api.vkCmdBlitImage(
+            presentCommand,
+            ((VkTexture)image).Texture,
+            VkImageLayout.TransferSrcOptimal,
+            backBuffers[index],
+            VkImageLayout.TransferDstOptimal,
+            1,
+            &blit,
+            VkFilter.Nearest);
         Barrier(backBuffers[index], VkImageLayout.TransferDstOptimal, VkImageLayout.PresentSrcKHR, Range(ImageFormat.Rgba8), presentCommand);
         backLayouts[index] = VkImageLayout.PresentSrcKHR;
         Check(api.vkEndCommandBuffer(presentCommand), "vkEndCommandBuffer(present)");
@@ -102,6 +114,7 @@ internal sealed unsafe partial class VulkanRHI
             signalSemaphoreCount = 1,
             pSignalSemaphores = &complete
         };
+
         VkSwapchainKHR swap = swapChain;
         VkPresentInfoKHR present = new()
         {
@@ -111,6 +124,7 @@ internal sealed unsafe partial class VulkanRHI
             pSwapchains = &swap,
             pImageIndices = &index
         };
+
         VkResult result;
         lock (queueSync)
         {

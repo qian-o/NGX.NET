@@ -44,5 +44,4 @@ public enum NGXFeatureSupportResult : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_FeatureSupportResult_NotImplemented")]
     NotImplemented = 16,
-
 }

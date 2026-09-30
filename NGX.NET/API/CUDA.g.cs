@@ -159,6 +159,5 @@ public static unsafe partial class NGX
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial NGXResult Shutdown1(NGXCUDADevice* inDevice);
-
     }
 }

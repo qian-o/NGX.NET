@@ -11,10 +11,7 @@ internal sealed unsafe class NGXSession : IDisposable
 {
     public Dictionary<NGXFeature, string> Unavailable { get; } = [];
 
-    public bool IsVulkan
-    {
-        get; private set;
-    }
+    public bool IsVulkan { get; private set; }
 
     private nint device;
     private NGXParameter* capabilities;
@@ -51,6 +48,7 @@ internal sealed unsafe class NGXSession : IDisposable
             NGXMarshal.Free(projectId);
             NGXMarshal.Free(dataPath);
             NGXMarshal.Free(runtimePath);
+
             throw;
         }
     }
@@ -71,11 +69,13 @@ internal sealed unsafe class NGXSession : IDisposable
                 Length = 1
             }
         };
+
         NGXResult result = IsVulkan
             ? Ngx.Vulkan.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, instance, physical, device,
                 (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr,
                 (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NGXVersion)Ngx.VersionAPI)
             : Ngx.D3D12.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, device, &common, (NGXVersion)Ngx.VersionAPI);
+
         if (result is NGXResult.FAILFeatureNotSupported or NGXResult.FAILPlatformError or NGXResult.FAILOutOfDate)
         {
             foreach (NGXFeature feature in new[] { NGXFeature.SuperSampling, NGXFeature.RayReconstruction, NGXFeature.FrameGeneration })
@@ -84,6 +84,7 @@ internal sealed unsafe class NGXSession : IDisposable
             }
 
             Console.WriteLine($"NGX features unavailable: {result}. Native rendering remains available.");
+
             return;
         }
 
@@ -139,6 +140,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 ApplicationDataPath = dataPath,
                 FeatureInfo = &common
             };
+
             uint count = 0;
             NGXVkExtensionProperties* properties = null;
             NGXResult result = instance == 0
@@ -185,9 +187,7 @@ internal sealed unsafe class NGXSession : IDisposable
 
     public (int Width, int Height) Configure(RenderSettings value, int width, int height)
     {
-        settings = value with
-        {
-        };
+        settings = value with { };
         outputWidth = width;
         outputHeight = height;
         uint renderWidth = 0, renderHeight = 0;
@@ -237,6 +237,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 InPerfQualityValue = settings.ReconstructionQuality,
                 InFeatureCreateFlags = flags
             };
+
             result = IsVulkan
                 ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, &created, parameters, &create)
                 : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, &created, parameters, &create);
@@ -255,6 +256,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 },
                 InFeatureCreateFlags = flags
             };
+
             result = IsVulkan
                 ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, &created, parameters, &create)
                 : Ngx.D3D12.CreateDLSSExt(command, 1, 1, &created, parameters, &create);
@@ -290,6 +292,7 @@ internal sealed unsafe class NGXSession : IDisposable
             Width = (uint)inputWidth,
             Height = (uint)inputHeight
         };
+
         if (!IsVulkan)
         {
             if (settings.Reconstruction == Reconstruction.RayReconstruction)
@@ -316,6 +319,7 @@ internal sealed unsafe class NGXSession : IDisposable
                     InExposureScale = 1,
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
+
                 Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, &evaluate));
             }
             else
@@ -339,6 +343,7 @@ internal sealed unsafe class NGXSession : IDisposable
                     InExposureScale = 1,
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
+
                 Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, &evaluate));
             }
         }
@@ -368,6 +373,7 @@ internal sealed unsafe class NGXSession : IDisposable
                     InExposureScale = 1,
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
+
                 Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, &evaluate));
             }
             else
@@ -391,6 +397,7 @@ internal sealed unsafe class NGXSession : IDisposable
                     InExposureScale = 1,
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
+
                 Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, &evaluate));
             }
         }
@@ -410,6 +417,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 RenderHeight = (uint)inputHeight,
                 NativeBackbufferFormat = IsVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Vortice.DXGI.Format.R8G8B8A8_UNorm
             };
+
             NGXHandle* created = null;
             Ngx.ThrowIfFailed(IsVulkan
                 ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, &created, frameParameters, &create)
@@ -446,6 +454,7 @@ internal sealed unsafe class NGXSession : IDisposable
             DepthInverted = true,
             Reset = reset
         };
+
         NativeImage back = images[(int)ImageSlot.Final].Describe();
         NativeImage depth = images[(int)ImageSlot.Depth].Describe();
         NativeImage motion = images[(int)ImageSlot.Motion].Describe();
@@ -465,6 +474,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 PUI = &ui.Vulkan,
                 POutputInterpFrame = &generated.Vulkan
             };
+
             Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, &evaluate, &options));
         }
         else
@@ -478,6 +488,7 @@ internal sealed unsafe class NGXSession : IDisposable
                 PUI = ui.DirectX,
                 POutputInterpFrame = generated.DirectX
             };
+
             Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, &evaluate, &options));
         }
 

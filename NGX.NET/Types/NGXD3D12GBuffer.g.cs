@@ -28,5 +28,4 @@ public unsafe partial struct NGXD3D12GBuffer
     {
         private nint element;
     }
-
 }

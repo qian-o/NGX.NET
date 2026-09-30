@@ -28,5 +28,4 @@ public unsafe partial struct NGXVKGBuffer
     {
         private NGXPointer<NGXResourceVK> element;
     }
-
 }

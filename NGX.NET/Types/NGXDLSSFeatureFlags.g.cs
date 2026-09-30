@@ -74,5 +74,4 @@ public enum NGXDLSSFeatureFlags : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Feature_Flags_Reserved_8")]
     Reserved8 = 256,
-
 }

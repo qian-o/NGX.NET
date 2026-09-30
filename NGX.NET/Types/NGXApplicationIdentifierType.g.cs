@@ -20,5 +20,4 @@ public enum NGXApplicationIdentifierType : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Application_Identifier_Type_Project_Id")]
     ProjectId = 1,
-
 }

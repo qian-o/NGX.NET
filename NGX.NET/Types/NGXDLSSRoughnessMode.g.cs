@@ -20,5 +20,4 @@ public enum NGXDLSSRoughnessMode : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_DLSS_Roughness_Mode_Packed")]
     Packed = 1,
-
 }

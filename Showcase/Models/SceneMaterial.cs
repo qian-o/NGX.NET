@@ -7,7 +7,10 @@ namespace Showcase.Models;
 internal struct SceneMaterial
 {
     public Vector4 BaseColor;
+
     public Vector4 EmissiveMetallic;
+
     public Vector4 Parameters;
+
     public Vector4 Textures;
 }

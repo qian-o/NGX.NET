@@ -1,6 +1,6 @@
 ﻿using Showcase.Models;
-using Vortice.DXGI;
 using Vortice.Direct3D12;
+using Vortice.DXGI;
 using Vortice.Mathematics;
 
 namespace Showcase.DirectX12;
@@ -39,6 +39,7 @@ internal sealed unsafe partial class DirectX12RHI
                     StrideInBytes = (uint)sizeof(SceneVertex)
                 }
             }, range.Opaque != 0 ? RaytracingGeometryFlags.Opaque : RaytracingGeometryFlags.None);
+
             BuildRaytracingAccelerationStructureInputs inputs = new()
             {
                 Type = RaytracingAccelerationStructureType.BottomLevel,
@@ -47,6 +48,7 @@ internal sealed unsafe partial class DirectX12RHI
                 DescriptorsCount = 1,
                 GeometryDescriptions = [geometry]
             };
+
             RaytracingAccelerationStructurePrebuildInfo sizes = rayDevice!.GetRaytracingAccelerationStructurePrebuildInfo(inputs);
             ID3D12Resource bottom = AccelerationBuffer(sizes.ResultDataMaxSizeInBytes, ResourceStates.RaytracingAccelerationStructure);
             bottomLevels.Add(bottom);
@@ -70,6 +72,7 @@ internal sealed unsafe partial class DirectX12RHI
             Layout = ElementsLayout.Array,
             DescriptorsCount = (uint)Scene.Objects.Length
         };
+
         RaytracingAccelerationStructurePrebuildInfo topSizes = rayDevice!.GetRaytracingAccelerationStructurePrebuildInfo(topInputs);
 
         foreach (DxFrame frame in slots)

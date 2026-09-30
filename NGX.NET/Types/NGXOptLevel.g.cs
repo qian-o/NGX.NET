@@ -32,5 +32,4 @@ public enum NGXOptLevel : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_OPT_LEVEL_RELEASE")]
     RELEASE = 40,
-
 }

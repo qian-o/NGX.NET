@@ -69,14 +69,22 @@ public static unsafe class NGXMarshal
     /// Releases memory allocated by StringToPtr. Null is allowed. Do not free
     /// borrowed SDK pointers or pinned managed buffers with this method.
     /// </summary>
-    public static void Free(void* pointer) => NativeMemory.Free(pointer);
-
-    private static Encoding GetEncoding(NGXEncoding encoding) => encoding switch
+    public static void Free(void* pointer)
     {
-        NGXEncoding.Utf8 => Encoding.UTF8,
-        NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? Encoding.Unicode : OperatingSystem.IsLinux() ? Encoding.UTF32 : throw new PlatformNotSupportedException("NativeWide supports Windows and Linux wchar_t encodings."),
-        _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported native string encoding.")
-    };
+        NativeMemory.Free(pointer);
+    }
+
+    private static Encoding GetEncoding(NGXEncoding encoding)
+    {
+        return encoding switch
+        {
+            NGXEncoding.Utf8 => Encoding.UTF8,
+            NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? Encoding.Unicode
+                : OperatingSystem.IsLinux() ? Encoding.UTF32
+                : throw new PlatformNotSupportedException("NativeWide supports Windows and Linux wchar_t encodings."),
+            _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported native string encoding.")
+        };
+    }
 
     private static int Utf32ByteCount(uint* pointer)
     {

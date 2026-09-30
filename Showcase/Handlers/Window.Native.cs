@@ -11,16 +11,27 @@ internal sealed unsafe partial class Window
     private struct WindowClass
     {
         public uint Size;
+
         public uint Style;
+
         public nint Procedure;
+
         public int ClassExtra;
+
         public int WindowExtra;
+
         public nint Instance;
+
         public nint Icon;
+
         public nint Cursor;
+
         public nint Background;
+
         public string? Menu;
+
         public string Name;
+
         public nint SmallIcon;
     }
 
@@ -28,8 +39,11 @@ internal sealed unsafe partial class Window
     private struct Rect
     {
         public int Left;
+
         public int Top;
+
         public int Right;
+
         public int Bottom;
     }
 
@@ -37,12 +51,19 @@ internal sealed unsafe partial class Window
     private struct Message
     {
         public nint Hwnd;
+
         public uint Id;
+
         public nuint WParam;
+
         public nint LParam;
+
         public uint Time;
+
         public int X;
+
         public int Y;
+
         public uint Private;
     }
 
@@ -56,7 +77,19 @@ internal sealed unsafe partial class Window
     private static extern bool UnregisterClassW(string name, nint instance);
 
     [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern nint CreateWindowExW(uint ex, string name, string title, uint style, int x, int y, int w, int h, nint parent, nint menu, nint instance, nint parameter);
+    private static extern nint CreateWindowExW(
+        uint ex,
+        string name,
+        string title,
+        uint style,
+        int x,
+        int y,
+        int w,
+        int h,
+        nint parent,
+        nint menu,
+        nint instance,
+        nint parameter);
 
     [DllImport("user32")]
     private static extern nint DefWindowProcW(nint hwnd, uint message, nuint wparam, nint lparam);

@@ -146,5 +146,4 @@ public enum NGXFeature : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Feature_Reserved_Unknown")]
     ReservedUnknown = 32766,
-
 }

@@ -34,18 +34,31 @@ internal static class RenderLayout
     public static float TextureMipBias(int inputWidth, int outputWidth, bool temporal) => temporal ? MathF.Log2((float)inputWidth / outputWidth) - 1 : 0;
 
     public const int FramesInFlight = 3;
+
     public const int PreviousExposureSrv = 6 + (int)ImageSlot.Count;
+
     public const int FontSrv = PreviousExposureSrv + 1;
+
     public const int LightingSamplesSrv = FontSrv + 1;
+
     public const int SrvCount = LightingSamplesSrv + 1;
+
     public const int PrimarySamples = 1; // PathTracing.slang; strata advance across frames
+
     public const int LightingPaths = PrimarySamples * 2; // diffuse and specular
+
     public const int ShadowMapSize = 2048;
+
     public const int LuminanceTileSize = 16;
+
     public const int LightingSamplesUav = 12;
+
     public const int UavCount = LightingSamplesUav + 1;
+
     public const int UniformStride = 512;
+
     public const int UniformSlots = 16;
+
     public static readonly ImageSlot[] GeometryOutputs =
     [
         ImageSlot.Albedo,
@@ -54,6 +67,7 @@ internal static class RenderLayout
         ImageSlot.Depth,
         ImageSlot.SurfaceGeometry
     ];
+
     public static readonly ImageSlot[] LightingOutputs =
     [
         ImageSlot.Scene,
@@ -62,6 +76,7 @@ internal static class RenderLayout
         ImageSlot.Motion,
         ImageSlot.Diffuse
     ];
+
     public static readonly ImageSlot[] StorageImages =
     [
         ImageSlot.Scene,
@@ -82,7 +97,9 @@ internal static class RenderLayout
     {
         ImageSlot.Exposure => (1, 1),
         ImageSlot.Shadow => (ShadowMapSize, ShadowMapSize),
-        ImageSlot.Luminance or ImageSlot.FilteredLuminance => ((outputWidth + LuminanceTileSize - 1) / LuminanceTileSize, (outputHeight + LuminanceTileSize - 1) / LuminanceTileSize),
+        ImageSlot.Luminance or ImageSlot.FilteredLuminance => (
+            (outputWidth + LuminanceTileSize - 1) / LuminanceTileSize,
+            (outputHeight + LuminanceTileSize - 1) / LuminanceTileSize),
         ImageSlot.Reconstructed or ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => (outputWidth, outputHeight),
         _ => (inputWidth, inputHeight)
     };

@@ -5,15 +5,9 @@ namespace Showcase.Helpers;
 
 internal sealed unsafe class NativeNames : IDisposable
 {
-    public byte** Pointer
-    {
-        get; private set;
-    }
+    public byte** Pointer { get; private set; }
 
-    public uint Length
-    {
-        get;
-    }
+    public uint Length { get; }
 
     public NativeNames(string[] names)
     {
@@ -30,6 +24,7 @@ internal sealed unsafe class NativeNames : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

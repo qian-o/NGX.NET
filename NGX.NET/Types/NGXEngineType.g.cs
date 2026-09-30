@@ -38,5 +38,4 @@ public enum NGXEngineType : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_ENGINE_COUNT")]
     ENGINECOUNT = 4,
-
 }

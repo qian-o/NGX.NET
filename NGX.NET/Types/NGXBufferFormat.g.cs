@@ -50,5 +50,4 @@ public enum NGXBufferFormat : int
     /// </summary>
     [NGXNativeName("NVSDK_NGX_Buffer_Format_RGBA32F")]
     RGBA32F = 6,
-
 }

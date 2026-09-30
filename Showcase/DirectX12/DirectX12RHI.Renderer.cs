@@ -3,9 +3,9 @@ using ImGuiNET;
 using Showcase.Handlers;
 using Showcase.Helpers;
 using Showcase.Models;
-using Vortice.DXGI;
-using Vortice.Direct3D;
 using Vortice.Direct3D12;
+using Vortice.Direct3D;
+using Vortice.DXGI;
 using Vortice.Mathematics;
 using Format = Vortice.DXGI.Format;
 
@@ -15,7 +15,10 @@ internal sealed unsafe partial class DirectX12RHI
 {
     protected override void InitializeRenderer()
     {
-        descriptors = device.CreateDescriptorHeap(new(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView, RenderLayout.FramesInFlight * DescriptorsPerFrame, DescriptorHeapFlags.ShaderVisible));
+        descriptors = device.CreateDescriptorHeap(new(
+            DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+            RenderLayout.FramesInFlight * DescriptorsPerFrame,
+            DescriptorHeapFlags.ShaderVisible));
         renderTargets = device.CreateDescriptorHeap(new(DescriptorHeapType.RenderTargetView, RenderLayout.FramesInFlight * (int)ImageSlot.Count));
         depthViews = device.CreateDescriptorHeap(new(DescriptorHeapType.DepthStencilView, RenderLayout.FramesInFlight * 2));
         descriptorIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
@@ -74,6 +77,7 @@ internal sealed unsafe partial class DirectX12RHI
                 RowPitch = (uint)rowPitch
             }
         };
+
         commandList.CopyTextureRegion(new(font.Texture, 0), 0, 0, 0, new(fontUpload, footprint));
         Transition(font, ImageUse.ShaderRead);
         commandList.Close();
@@ -90,9 +94,14 @@ internal sealed unsafe partial class DirectX12RHI
         RootParameter1[] parameters =
         [
             new(RootParameterType.ConstantBufferView, new RootDescriptor1(0, 0, RootDescriptorFlags.DataVolatile), ShaderVisibility.All),
-            new(new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.ShaderResourceView, RenderLayout.SrvCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)), ShaderVisibility.All),
-            new(new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.UnorderedAccessView, RenderLayout.UavCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)), ShaderVisibility.All)
+            new(
+                new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.ShaderResourceView, RenderLayout.SrvCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)),
+                ShaderVisibility.All),
+            new(
+                new RootDescriptorTable1(new DescriptorRange1(DescriptorRangeType.UnorderedAccessView, RenderLayout.UavCount, 0, 0, flags: DescriptorRangeFlags.DataVolatile)),
+                ShaderVisibility.All)
         ];
+
         StaticSamplerDescription sampler = new(ShaderVisibility.All, 0, 0)
         {
             Filter = Filter.MinMagMipLinear,
@@ -101,6 +110,7 @@ internal sealed unsafe partial class DirectX12RHI
             AddressW = TextureAddressMode.Clamp,
             MaxLOD = float.MaxValue
         };
+
         root = device.CreateRootSignature(new RootSignatureDescription1(RootSignatureFlags.AllowInputAssemblerInputLayout, parameters, [sampler]));
         depthPipeline = GraphicsPipeline(GraphicsPass.Depth);
         scenePipeline = GraphicsPipeline(GraphicsPass.Scene);
@@ -158,9 +168,11 @@ internal sealed unsafe partial class DirectX12RHI
 
     private byte[] Compile(string entry, string stage) => ShaderCompiler.Compile("Scene.slang", entry, stage, false, RayQuerySupported);
 
-    private CpuDescriptorHandle Cpu(int frame, int index) => descriptors.GetCPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+    private CpuDescriptorHandle Cpu(int frame, int index) =>
+        descriptors.GetCPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
 
-    private GpuDescriptorHandle Gpu(int frame, int index) => descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
+    private GpuDescriptorHandle Gpu(int frame, int index) =>
+        descriptors.GetGPUDescriptorHandleForHeapStart() + (int)((frame * DescriptorsPerFrame + index) * descriptorIncrement);
 
     protected override void UpdateDescriptors()
     {
@@ -172,6 +184,7 @@ internal sealed unsafe partial class DirectX12RHI
             (uint)sizeof(TextureDescription),
             (uint)sizeof(SceneObject)
         ];
+
         uint[] counts =
         [
             (uint)Scene.Vertices.Length,
@@ -435,7 +448,10 @@ internal sealed unsafe partial class DirectX12RHI
                 }
 
                 Vector4 clip = draw.ClipRect;
-                int left = Math.Max(0, (int)clip.X), top = Math.Max(0, (int)clip.Y), right = Math.Min(Window.Width, (int)clip.Z), bottom = Math.Min(Window.Height, (int)clip.W);
+                int left = Math.Max(0, (int)clip.X),
+                    top = Math.Max(0, (int)clip.Y),
+                    right = Math.Min(Window.Width, (int)clip.Z),
+                    bottom = Math.Min(Window.Height, (int)clip.W);
 
                 if (right <= left || bottom <= top)
                 {

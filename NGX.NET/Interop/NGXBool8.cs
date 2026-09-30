@@ -13,22 +13,40 @@ public readonly struct NGXBool8(byte value) : IEquatable<NGXBool8>
     /// <summary>
     /// Converts a managed Boolean to the native representation.
     /// </summary>
-    public static implicit operator NGXBool8(bool value) => new(value ? (byte)1 : (byte)0);
+    public static implicit operator NGXBool8(bool value)
+    {
+        return new(value ? (byte)1 : (byte)0);
+    }
 
     /// <summary>
     /// Treats any nonzero native value as true.
     /// </summary>
-    public static implicit operator bool(NGXBool8 value) => value.value != 0;
+    public static implicit operator bool(NGXBool8 value)
+    {
+        return value.value != 0;
+    }
 
     /// <inheritdoc/>
-    public bool Equals(NGXBool8 other) => (bool)this == (bool)other;
+    public bool Equals(NGXBool8 other)
+    {
+        return (bool)this == (bool)other;
+    }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj) => obj is NGXBool8 other && Equals(other);
+    public override bool Equals(object? obj)
+    {
+        return obj is NGXBool8 other && Equals(other);
+    }
 
     /// <inheritdoc/>
-    public override int GetHashCode() => ((bool)this).GetHashCode();
+    public override int GetHashCode()
+    {
+        return ((bool)this).GetHashCode();
+    }
 
     /// <inheritdoc/>
-    public override string ToString() => ((bool)this).ToString();
+    public override string ToString()
+    {
+        return ((bool)this).ToString();
+    }
 }
