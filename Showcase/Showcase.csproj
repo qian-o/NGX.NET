@@ -14,7 +14,6 @@
         <PackageReference Include="SharpGLTF.Core" />
         <PackageReference Include="Silk.NET.Direct3D12" />
         <PackageReference Include="Silk.NET.DXGI" />
-        <PackageReference Include="Silk.NET.GLFW" />
         <PackageReference Include="Silk.NET.Input" />
         <PackageReference Include="Silk.NET.Vulkan" />
         <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" />
