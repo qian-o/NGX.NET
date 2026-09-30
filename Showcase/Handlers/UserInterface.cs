@@ -8,7 +8,6 @@ namespace Showcase.Handlers;
 internal sealed unsafe class UserInterface : IDisposable
 {
     private readonly nint context;
-    private float uiScale = 1;
     private const float TextSize = 16;
     private const float AtlasTextSize = 32;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
@@ -93,20 +92,11 @@ internal sealed unsafe class UserInterface : IDisposable
     public void Build(RHI rhi, float delta)
     {
         ImGuiIOPtr io = ImGui.GetIO();
-        io.DisplaySize = new(rhi.Window.Width, rhi.Window.Height);
-        io.DisplayFramebufferScale = Vector2.One;
+        io.DisplaySize = new Vector2(rhi.Window.Width, rhi.Window.Height) / rhi.Window.DpiScale;
+        io.DisplayFramebufferScale = rhi.Window.DpiScale;
         io.DeltaTime = Math.Max(delta, 1e-4f);
-        float scale = rhi.Window.DpiScale;
-
-        if (scale != uiScale)
-        {
-            ImGui.GetStyle().ScaleAllSizes(scale / uiScale);
-            uiScale = scale;
-        }
-
-        io.FontGlobalScale = TextSize / AtlasTextSize * uiScale;
         ImGui.NewFrame();
-        Vector2 margin = new Vector2(12) * uiScale;
+        Vector2 margin = new(12);
         ImGui.SetNextWindowPos(margin, ImGuiCond.FirstUseEver);
         Vector2 available = Vector2.Max(new(1), io.DisplaySize - margin * 2);
         ImGui.SetNextWindowSizeConstraints(Vector2.Zero, available);

@@ -779,7 +779,10 @@ internal sealed unsafe partial class VulkanRHI
         };
 
         api.CmdBeginRendering(commandBuffer, &rendering);
-        Bind(PipelineBindPoint.Graphics, uiPipeline, Constants);
+        FrameConstants uiConstants = Constants;
+        uiConstants.Size.Z = data.DisplaySize.X;
+        uiConstants.Size.W = data.DisplaySize.Y;
+        Bind(PipelineBindPoint.Graphics, uiPipeline, uiConstants);
         Viewport(Window.Width, Window.Height);
         Buffer vertexBuffer = frame.Vertices!.Buffer;
         ulong offset = 0;
@@ -801,7 +804,7 @@ internal sealed unsafe partial class VulkanRHI
                     throw new NotSupportedException("Unexpected UI draw callback.");
                 }
 
-                Vector4 clip = draw.ClipRect;
+                Vector4 clip = draw.ClipRect * new Vector4(data.FramebufferScale, data.FramebufferScale.X, data.FramebufferScale.Y);
                 int left = Math.Max(0, (int)clip.X),
                     top = Math.Max(0, (int)clip.Y),
                     right = Math.Min(Window.Width, (int)clip.Z),

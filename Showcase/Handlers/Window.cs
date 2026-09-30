@@ -26,7 +26,7 @@ internal sealed unsafe class Window : IDisposable
 
     public Vector2 MouseDelta { get; private set; }
 
-    public float DpiScale { get; private set; } = 1;
+    public Vector2 DpiScale => (Vector2)SurfaceWindow.FramebufferSize / (Vector2)SurfaceWindow.Size;
 
     // Ordinary Settings navigation focus must not consume the camera's movement keys.
     public bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
@@ -171,11 +171,6 @@ internal sealed unsafe class Window : IDisposable
         bool minimized = SurfaceWindow.WindowState == WindowState.Minimized;
         Width = minimized ? 0 : size.X;
         Height = minimized ? 0 : size.Y;
-
-        if (SurfaceWindow.Size.X > 0 && size.X > 0)
-        {
-            DpiScale = (float)size.X / SurfaceWindow.Size.X;
-        }
     }
 
     private void Focus(bool value)
@@ -248,19 +243,14 @@ internal sealed unsafe class Window : IDisposable
 
     private void MouseMoved(IMouse device, Vector2 position)
     {
-        Vector2D<int> size = SurfaceWindow.Size;
-        Vector2D<int> framebuffer = SurfaceWindow.FramebufferSize;
-        Vector2 scale = size.X > 0 && size.Y > 0 ? new((float)framebuffer.X / size.X, (float)framebuffer.Y / size.Y) : Vector2.One;
-
         if (hasMouse && ReferenceEquals(device, lookMouse))
         {
-            pendingMouseDelta += (position - mouse) * scale;
+            pendingMouseDelta += position - mouse;
         }
 
         mouse = position;
         hasMouse = true;
-        Vector2 pixels = position * scale;
-        ImGui.GetIO().AddMousePosEvent(pixels.X, pixels.Y);
+        ImGui.GetIO().AddMousePosEvent(position.X, position.Y);
     }
 
     private void EndLooking()
