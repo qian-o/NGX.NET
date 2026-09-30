@@ -1,0 +1,21 @@
+﻿<Project>
+
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageVersion Include="ImGui.NET" Version="1.91.6.1" />
+        <PackageVersion Include="Roslynator.Analyzers" Version="5.0.0" />
+        <PackageVersion Include="SharpGLTF.Core" Version="1.0.7" />
+        <PackageVersion Include="Silk.NET.Direct3D12" Version="2.23.0" />
+        <PackageVersion Include="Silk.NET.DXGI" Version="2.23.0" />
+        <PackageVersion Include="Silk.NET.Input" Version="2.23.0" />
+        <PackageVersion Include="Silk.NET.Vulkan" Version="2.23.0" />
+        <PackageVersion Include="Silk.NET.Vulkan.Extensions.KHR" Version="2.23.0" />
+        <PackageVersion Include="Silk.NET.Windowing" Version="2.23.0" />
+        <PackageVersion Include="Slangc.NET" Version="2026.18.0" />
+        <PackageVersion Include="StbImageSharp" Version="2.30.16" />
+    </ItemGroup>
+
+</Project>

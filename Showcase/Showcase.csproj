@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\NGX.NET\NGX.NET.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ImGui.NET" />
+        <PackageReference Include="SharpGLTF.Core" />
+        <PackageReference Include="Silk.NET.Direct3D12" />
+        <PackageReference Include="Silk.NET.DXGI" />
+        <PackageReference Include="Silk.NET.Input" />
+        <PackageReference Include="Silk.NET.Vulkan" />
+        <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" />
+        <PackageReference Include="Silk.NET.Windowing" />
+        <PackageReference Include="Slangc.NET" />
+        <PackageReference Include="StbImageSharp" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Assets\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>
