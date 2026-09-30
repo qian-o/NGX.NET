@@ -298,6 +298,35 @@ unsafe
         NGXMarshal.Free(wide);
         NGXMarshal.Free(utf8);
     }
+    // This macro contains a payload NUL before the added string terminator.
+    const string reservedName = Ngx.EParameterReserved00;
+    void* reserved = NGXMarshal.StringToPtr(reservedName, NGXEncoding.Utf8);
+    try
+    {
+        if (!new ReadOnlySpan<byte>(reserved, 3).SequenceEqual<byte>([0x23, 0, 0]) || NGXMarshal.PtrToString(reserved, NGXEncoding.Utf8) != "#") throw new Exception("String constant NUL fidelity");
+    }
+    finally
+    {
+        NGXMarshal.Free(reserved);
+    }
+    utf8 = NGXMarshal.StringToPtr("A\0\0B", NGXEncoding.Utf8);
+    wide = null;
+    try
+    {
+        wide = NGXMarshal.StringToPtr("A\0\0B", NGXEncoding.NativeWide);
+        if (!new ReadOnlySpan<byte>(utf8, 5).SequenceEqual<byte>([0x41, 0, 0, 0x42, 0]) || NGXMarshal.PtrToString(utf8, NGXEncoding.Utf8) != "A") throw new Exception("UTF-8 embedded NUL");
+        if (NGXMarshal.PtrToString(wide, NGXEncoding.NativeWide) != "A") throw new Exception("Native wchar_t NUL prefix");
+        if (OperatingSystem.IsWindows())
+        {
+            if (!new ReadOnlySpan<ushort>(wide, 5).SequenceEqual<ushort>([0x41, 0, 0, 0x42, 0])) throw new Exception("Windows wchar_t NUL payload");
+        }
+        else if (!new ReadOnlySpan<uint>(wide, 5).SequenceEqual<uint>([0x41, 0, 0, 0x42, 0])) throw new Exception("Linux wchar_t NUL payload");
+    }
+    finally
+    {
+        NGXMarshal.Free(wide);
+        NGXMarshal.Free(utf8);
+    }
     // The loader owns this returned string; conversion must not free it.
     void* description = Ngx.GetResultAsString(NGXResult.Success);
     string? message = NGXMarshal.PtrToString(description, NGXEncoding.NativeWide);

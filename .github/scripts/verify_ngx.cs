@@ -12,6 +12,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using NGX.NET;
 using Ngx = NGX.NET.NGX;
@@ -55,8 +56,8 @@ foreach (MethodInfo method in imports.Values)
     }
 }
 
-// Constants are exposed as properties, and top-level macro/runtime helpers are
-// independent of SDK entry points. All other API-group methods must be imports.
+// Constant fields and top-level macro/runtime helpers are independent of SDK
+// entry points. All other API-group methods must be imports.
 HashSet<string> standaloneHelpers = [nameof(Ngx.Succeeded), nameof(Ngx.Failed), nameof(Ngx.ThrowIfFailed), nameof(Ngx.ArrayLength)];
 foreach (Type type in assembly.GetExportedTypes().Where(t => t == typeof(Ngx) || t.DeclaringType == typeof(Ngx) && t.IsAbstract && t.IsSealed))
 {
@@ -259,13 +260,18 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
         foreach (JsonElement member in virtualMembers.EnumerateArray()) Require(imports.ContainsKey(member.GetProperty("binding").GetString()!), "Missing C++ member adapter");
     }
 
-    Dictionary<string, PropertyInfo> strings = typeof(Ngx).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(p => p.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(p => p.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
+    Dictionary<string, FieldInfo> constants = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public).Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
+    HashSet<string> stringConstants = [];
     foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray())
     {
         string[] tokens = [.. macro.GetProperty("tokens").EnumerateArray().Select(t => t.GetString()!)];
         if (tokens.Length == 0 || !tokens.All(t => t.StartsWith('"'))) continue;
         string nativeName = macro.GetProperty("name").GetString()!;
-        Require(strings.TryGetValue(nativeName, out PropertyInfo? property), "Missing parameter constant " + nativeName);
+        stringConstants.Add(nativeName);
+        Require(constants.TryGetValue(nativeName, out FieldInfo? field), "Missing parameter constant " + nativeName);
+        Require(field!.IsLiteral && field.FieldType == typeof(string), "Const string field " + nativeName);
+        string? value = (string?)field.GetRawConstantValue();
+        Require(value is not null, "Non-null string constant " + nativeName);
         List<byte> bytes = [];
         foreach (string literal in tokens)
         {
@@ -288,17 +294,32 @@ foreach (JsonProperty platform in document.RootElement.GetProperty("platforms").
                 bytes.Add(checked((byte)c));
             }
         }
-        ReadOnlySpan<byte> actual = property!.GetMethod!.CreateDelegate<SpanGetter>()();
-        Require(actual.SequenceEqual(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(bytes)), "Parameter constant bytes " + nativeName);
+        Require(Encoding.UTF8.GetByteCount(value!) == bytes.Count, "Complete constant payload length " + nativeName);
+        // Preserve the C literal's payload, including embedded NUL, then append
+        // its terminator. Comparing raw bytes rejects accidental UTF-8 recoding.
+        bytes.Add(0);
+        unsafe
+        {
+            void* pointer = NGXMarshal.StringToPtr(value, NGXEncoding.Utf8);
+            try
+            {
+                Require(pointer != null, "Allocated constant " + nativeName);
+                Require(new ReadOnlySpan<byte>(pointer, bytes.Count).SequenceEqual(CollectionsMarshal.AsSpan(bytes)), "Parameter constant payload and terminator " + nativeName);
+            }
+            finally
+            {
+                NGXMarshal.Free(pointer);
+            }
+        }
     }
+    Require(stringConstants.SetEquals(constants.Where(p => p.Value.FieldType == typeof(string)).Select(p => p.Key)), rid + " string constant coverage");
 
-    Dictionary<string, FieldInfo> numbers = typeof(Ngx).GetFields(BindingFlags.Static | BindingFlags.Public).Where(f => f.GetCustomAttribute<NGXNativeNameAttribute>() is not null).ToDictionary(f => f.GetCustomAttribute<NGXNativeNameAttribute>()!.Name);
     foreach (JsonElement macro in platform.Value.GetProperty("macros").EnumerateArray().Where(m => m.GetProperty("name").GetString() is "NVSDK_NGX_VERSION_API_MACRO" or "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET"))
     {
         string name = macro.GetProperty("name").GetString()!;
         string literal = string.Concat(macro.GetProperty("tokens").EnumerateArray().Select(t => t.GetString()));
         long expected = literal.StartsWith("0x", StringComparison.Ordinal) ? Convert.ToInt64(literal[2..], 16) : long.Parse(literal, System.Globalization.CultureInfo.InvariantCulture);
-        Require(numbers.TryGetValue(name, out FieldInfo? field), "Missing numeric macro " + name);
+        Require(constants.TryGetValue(name, out FieldInfo? field), "Missing numeric macro " + name);
         Require(Convert.ToInt64(field!.GetRawConstantValue()) == expected, "Numeric macro value " + name);
     }
 
@@ -357,38 +378,31 @@ void RequireThrows<TException>(Action action, string message) where TException :
     Require(false, message);
 }
 
-unsafe void VerifyStrings(NGXEncoding encoding, ReadOnlySpan<byte> expected, int terminatorSize)
+unsafe void VerifyEncodedString(string value, string decoded, NGXEncoding encoding, ReadOnlySpan<byte> expected, string context)
 {
-    const string value = "NGX 中文 🚀";
     void* pointer = NGXMarshal.StringToPtr(value, encoding);
 
     try
     {
-        Require(pointer != null, encoding + " allocation");
-        Require(new ReadOnlySpan<byte>(pointer, expected.Length).SequenceEqual(expected), encoding + " bytes and terminator without BOM");
-        Require(NGXMarshal.PtrToString(pointer, encoding) == value, encoding + " round trip");
+        Require(pointer != null, encoding + " allocation: " + context);
+        Require(new ReadOnlySpan<byte>(pointer, expected.Length).SequenceEqual(expected), encoding + " complete bytes and terminator without BOM: " + context);
+        Require(NGXMarshal.PtrToString(pointer, encoding) == decoded, encoding + " decoded prefix: " + context);
     }
     finally
     {
         NGXMarshal.Free(pointer);
     }
+}
 
-    pointer = NGXMarshal.StringToPtr(string.Empty, encoding);
-
-    try
-    {
-        Require(pointer != null, encoding + " empty string allocation");
-        Require(new ReadOnlySpan<byte>(pointer, terminatorSize).IndexOfAnyExcept((byte)0) == -1, encoding + " empty terminator");
-        Require(NGXMarshal.PtrToString(pointer, encoding) == string.Empty, encoding + " empty round trip");
-    }
-    finally
-    {
-        NGXMarshal.Free(pointer);
-    }
-
+unsafe void VerifyStrings(NGXEncoding encoding, ReadOnlySpan<byte> expected, int terminatorSize, ReadOnlySpan<byte> embedded)
+{
+    const string value = "NGX 中文 🚀";
+    VerifyEncodedString(value, value, encoding, expected, "Unicode");
+    VerifyEncodedString(string.Empty, string.Empty, encoding, new byte[terminatorSize], "empty");
+    VerifyEncodedString("A\0🚀\0\0B\0", "A", encoding, embedded, "embedded and trailing NUL");
+    VerifyEncodedString("\0\0", string.Empty, encoding, new byte[terminatorSize * 3], "repeated leading NUL");
     Require(NGXMarshal.StringToPtr(null, encoding) == null, encoding + " null input");
     Require(NGXMarshal.PtrToString(null, encoding) is null, encoding + " null pointer");
-    RequireThrows<ArgumentException>(() => NGXMarshal.StringToPtr("before\0after", encoding), encoding + " embedded NUL rejection");
     byte* borrowed = stackalloc byte[expected.Length];
     expected.CopyTo(new Span<byte>(borrowed, expected.Length));
     Require(NGXMarshal.PtrToString(borrowed, encoding) == value, encoding + " borrowed pointer read");
@@ -398,7 +412,7 @@ unsafe void VerifyStrings(NGXEncoding encoding, ReadOnlySpan<byte> expected, int
 
 unsafe
 {
-    VerifyStrings(NGXEncoding.Utf8, [0x4E, 0x47, 0x58, 0x20, 0xE4, 0xB8, 0xAD, 0xE6, 0x96, 0x87, 0x20, 0xF0, 0x9F, 0x9A, 0x80, 0], 1);
+    VerifyStrings(NGXEncoding.Utf8, [0x4E, 0x47, 0x58, 0x20, 0xE4, 0xB8, 0xAD, 0xE6, 0x96, 0x87, 0x20, 0xF0, 0x9F, 0x9A, 0x80, 0], 1, [0x41, 0, 0xF0, 0x9F, 0x9A, 0x80, 0, 0, 0x42, 0, 0]);
     NGXEncoding invalid = (NGXEncoding)(-1);
     RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.StringToPtr("text", invalid), "invalid input encoding");
     RequireThrows<ArgumentOutOfRangeException>(() => NGXMarshal.StringToPtr(null, invalid), "invalid encoding with null input");
@@ -411,11 +425,11 @@ unsafe
 
     if (OperatingSystem.IsWindows())
     {
-        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0x47, 0, 0x58, 0, 0x20, 0, 0x2D, 0x4E, 0x87, 0x65, 0x20, 0, 0x3D, 0xD8, 0x80, 0xDE, 0, 0], 2);
+        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0x47, 0, 0x58, 0, 0x20, 0, 0x2D, 0x4E, 0x87, 0x65, 0x20, 0, 0x3D, 0xD8, 0x80, 0xDE, 0, 0], 2, [0x41, 0, 0, 0, 0x3D, 0xD8, 0x80, 0xDE, 0, 0, 0, 0, 0x42, 0, 0, 0, 0, 0]);
     }
     else if (OperatingSystem.IsLinux())
     {
-        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0, 0, 0x47, 0, 0, 0, 0x58, 0, 0, 0, 0x20, 0, 0, 0, 0x2D, 0x4E, 0, 0, 0x87, 0x65, 0, 0, 0x20, 0, 0, 0, 0x80, 0xF6, 1, 0, 0, 0, 0, 0], 4);
+        VerifyStrings(NGXEncoding.NativeWide, [0x4E, 0, 0, 0, 0x47, 0, 0, 0, 0x58, 0, 0, 0, 0x20, 0, 0, 0, 0x2D, 0x4E, 0, 0, 0x87, 0x65, 0, 0, 0x20, 0, 0, 0, 0x80, 0xF6, 1, 0, 0, 0, 0, 0], 4, [0x41, 0, 0, 0, 0, 0, 0, 0, 0x80, 0xF6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
     else
     {
@@ -430,8 +444,6 @@ Require(Marshal.SizeOf<NGXBool8>() == 1, "bool8 size");
 NGXDLSSGOptEvalParams defaults = new();
 Require(defaults.MultiFrameCount == 1 && defaults.MultiFrameIndex == 1 && defaults.MinRelativeLinearDepthObjectSeparation == 40, "official FG defaults");
 Console.WriteLine($"Verified {checks} compiled API/ABI checks across four RIDs; {imports.Count} imports.");
-
-delegate ReadOnlySpan<byte> SpanGetter();
 
 // Shared verbatim with the NativeAOT smoke so each RID exercises the same bytes.
 static unsafe class MathAbiChecks

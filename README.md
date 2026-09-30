@@ -41,7 +41,7 @@ unsafe
 
 Serialize NGX calls and release features only after their GPU work completes. Use `NGX.Succeeded` / `NGX.Failed` for native results.
 
-Use `NGXMarshal.StringToPtr` and `NGXMarshal.PtrToString` with an explicit `NGXEncoding.Utf8` or `NGXEncoding.NativeWide`. Native wide strings use Windows UTF-16 or Linux UTF-32 `wchar_t`; other platforms reject `NativeWide`. Strings are NUL-terminated without a BOM, null maps to null, and managed input containing an embedded NUL is rejected.
+String constants, including parameter keys, are exposed as `const string`. Use `NGXMarshal.StringToPtr` and `NGXMarshal.PtrToString` with an explicit `NGXEncoding.Utf8` or `NGXEncoding.NativeWide`. Native wide strings use Windows UTF-16 or Linux UTF-32 `wchar_t`; other platforms reject `NativeWide`. `StringToPtr` encodes the entire managed string, preserves embedded NUL characters and appends a final NUL terminator without a BOM. Null maps to null.
 
 ```csharp
 unsafe
@@ -63,9 +63,9 @@ unsafe
 }
 ```
 
-`StringToPtr` allocates with `NativeMemory.Alloc`; pair each owned allocation with `NGXMarshal.Free`, which uses `NativeMemory.Free`. Reading a pointer does not transfer ownership. Do not free SDK-owned, borrowed or pinned pointers with this helper.
+`StringToPtr` allocates with `NativeMemory.Alloc`; pair each owned allocation with `NGXMarshal.Free`, which uses `NativeMemory.Free`. Reuse an allocated pointer across calls while its value is unchanged, and free it after native code no longer uses it. Reading a pointer does not transfer ownership. Do not free SDK-owned, borrowed or pinned pointers with this helper.
 
-Parameter-key constants remain byte spans that can be pinned with `fixed`. Keep `EParameter` keys as raw bytes, including their embedded control bytes, instead of converting them through the text helpers.
+Use `NGXEncoding.Utf8` for parameter-key constants. For example, encoding `NGX.EParameterReserved00` (`"#\x00"`) must preserve the bytes `23 00 00`, including the original embedded NUL and the appended terminator. `PtrToString` reads only through the first NUL, so reading this key returns `"#"`; it is not a lossless round trip for keys containing embedded NUL characters.
 
 [Showcase](Showcase) demonstrates DirectX 12 and Vulkan with Sponza, SR, RR and frame generation. The manual **Update NGX** workflow rebuilds all four native targets and refreshes the checked-in AST and binaries together.
 

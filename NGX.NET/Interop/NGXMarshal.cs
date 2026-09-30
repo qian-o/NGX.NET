@@ -9,9 +9,9 @@ namespace NGX.NET;
 public static unsafe class NGXMarshal
 {
     /// <summary>
-    /// Allocates and encodes text, including its terminator. Null maps to a null
-    /// pointer; embedded null characters are rejected. Release the allocation
-    /// with Free after native code no longer uses it.
+    /// Allocates and encodes the complete string, preserving embedded null
+    /// characters and appending a terminator. Null maps to a null pointer.
+    /// Release the allocation with Free after native code no longer uses it.
     /// </summary>
     public static void* StringToPtr(string? value, NGXEncoding encoding)
     {
@@ -20,11 +20,6 @@ public static unsafe class NGXMarshal
         if (value is null)
         {
             return null;
-        }
-
-        if (value.Contains('\0'))
-        {
-            throw new ArgumentException("Null-terminated text cannot contain embedded null characters.", nameof(value));
         }
 
         int length = codec.GetByteCount(value);
@@ -46,9 +41,10 @@ public static unsafe class NGXMarshal
     }
 
     /// <summary>
-    /// Copies null-terminated native text into a managed string without freeing
-    /// the source. The pointer must remain readable through its terminator.
-    /// A null pointer returns null.
+    /// Copies native text up to the first null character into a managed string
+    /// without freeing the source. The pointer must remain readable through its
+    /// terminator. A null pointer returns null. This does not round-trip strings
+    /// containing embedded null characters.
     /// </summary>
     public static string? PtrToString(void* pointer, NGXEncoding encoding)
     {
@@ -71,7 +67,7 @@ public static unsafe class NGXMarshal
 
     /// <summary>
     /// Releases memory allocated by StringToPtr. Null is allowed. Do not free
-    /// borrowed SDK pointers or fixed UTF-8 literals with this method.
+    /// borrowed SDK pointers or pinned managed buffers with this method.
     /// </summary>
     public static void Free(void* pointer) => NativeMemory.Free(pointer);
 
