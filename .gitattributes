@@ -63,3 +63,4 @@
 #*.RTF   diff=astextplain
 
 native/** filter=lfs diff=lfs merge=lfs -text
+Showcase/Assets/Fonts/*.ttf filter=lfs diff=lfs merge=lfs -text

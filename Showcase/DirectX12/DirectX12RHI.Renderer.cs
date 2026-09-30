@@ -48,7 +48,27 @@ internal sealed unsafe partial class DirectX12RHI
             InitializeAccelerationStructures();
         }
 
-        font = (DxImage)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
+        UploadFont();
+        ExecuteUploads();
+        InitializePipelines();
+    }
+
+    protected override void UpdateFontTexture()
+    {
+        DxFrame frame = slots[FrameSlot];
+        Check(frame.Allocator.Handle->Reset());
+        Check(commandList.Handle->Reset(frame.Allocator.Handle, null));
+        recording = true;
+        UploadFont();
+        ExecuteUploads();
+        UpdateDescriptors();
+    }
+
+    private void UploadFont()
+    {
+        DxImage replacement = (DxImage)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
+        font?.Dispose();
+        font = replacement;
         int rowPitch = (UI.FontWidth * 4 + 255) & ~255;
         ComPtr<ID3D12Resource> fontUpload = UploadBuffer(rowPitch * UI.FontHeight);
         uploads.Add(fontUpload);
@@ -77,6 +97,10 @@ internal sealed unsafe partial class DirectX12RHI
         TextureCopyLocation destination = new() { PResource = font.Texture.Handle, Type = TextureCopyType.SubresourceIndex };
         commandList.Handle->CopyTextureRegion(&destination, 0, 0, 0, &source, null);
         Transition(font, ImageUse.ShaderRead);
+    }
+
+    private void ExecuteUploads()
+    {
         Check(commandList.Handle->Close());
         recording = false;
         Execute(queue, commandList);
@@ -88,7 +112,6 @@ internal sealed unsafe partial class DirectX12RHI
         }
 
         uploads.Clear();
-        InitializePipelines();
     }
 
     private CpuDescriptorHandle Cpu(int frame, int index) =>

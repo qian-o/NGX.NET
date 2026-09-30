@@ -8,8 +8,8 @@ namespace Showcase.Handlers;
 internal sealed unsafe class UserInterface : IDisposable
 {
     private readonly nint context;
-    private const float TextSize = 16;
-    private const float AtlasTextSize = 32;
+    private float fontDensity;
+    private const float TextSize = 20;
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
     private static readonly QualityMode[] QualityModes =
     [
@@ -20,11 +20,11 @@ internal sealed unsafe class UserInterface : IDisposable
         QualityMode.UltraPerformance
     ];
 
-    public byte[] FontPixels { get; }
+    public byte[] FontPixels { get; private set; } = [];
 
-    public int FontWidth { get; }
+    public int FontWidth { get; private set; }
 
-    public int FontHeight { get; }
+    public int FontHeight { get; private set; }
 
     public UserInterface()
     {
@@ -51,29 +51,37 @@ internal sealed unsafe class UserInterface : IDisposable
         style.Colors[(int)ImGuiCol.Button] = new(0.19f, 0.23f, 0.27f, 1);
         style.Colors[(int)ImGuiCol.ButtonHovered] = new(0.28f, 0.33f, 0.37f, 1);
         style.Colors[(int)ImGuiCol.CheckMark] = Accent;
-        string fonts = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-        string? fontPath = new[]
-        {
-            "segoeui.ttf",
-            "arial.ttf"
-        }.Select(name => Path.Combine(fonts, name)).FirstOrDefault(File.Exists);
+        UpdateFont(Vector2.One);
+    }
 
+    // Rebuild before NewFrame; the renderer replaces the GPU atlas before drawing.
+    public bool UpdateFont(Vector2 framebufferScale)
+    {
+        float density = framebufferScale.X;
+
+        if (!float.IsFinite(density) || density <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(framebufferScale));
+        }
+
+        if (fontDensity == density)
+        {
+            return false;
+        }
+
+        ImGuiIOPtr io = ImGui.GetIO();
+        io.Fonts.Clear();
         ImFontConfigPtr config = ImGuiNative.ImFontConfig_ImFontConfig();
 
         try
         {
-            config.SizePixels = AtlasTextSize;
+            config.SizePixels = TextSize;
+            config.RasterizerDensity = density;
             config.OversampleH = 2;
             config.OversampleV = 1;
 
-            if (fontPath is not null)
-            {
-                io.Fonts.AddFontFromFileTTF(fontPath, config.SizePixels, config, io.Fonts.GetGlyphRangesDefault());
-            }
-            else
-            {
-                io.Fonts.AddFontDefault(config);
-            }
+            io.Fonts.AddFontFromFileTTF(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "msyh.ttf"),
+                config.SizePixels, config, io.Fonts.GetGlyphRangesDefault());
 
             io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int bytesPerPixel);
             FontWidth = width;
@@ -86,14 +94,16 @@ internal sealed unsafe class UserInterface : IDisposable
         }
 
         io.Fonts.SetTexID(1);
-        io.FontGlobalScale = TextSize / AtlasTextSize;
+        fontDensity = density;
+
+        return true;
     }
 
     public void Build(RHI rhi, float delta)
     {
         ImGuiIOPtr io = ImGui.GetIO();
         Vector2 dpiScale = rhi.Window.DpiScale;
-        // Layout stays in 96-DPI units; rendering and mouse input use the same scale.
+        // ImGui and Silk input share window coordinates; drawing scales to framebuffer pixels.
         io.DisplaySize = new Vector2(rhi.Window.Width, rhi.Window.Height) / dpiScale;
         io.DisplayFramebufferScale = dpiScale;
         io.DeltaTime = Math.Max(delta, 1e-4f);

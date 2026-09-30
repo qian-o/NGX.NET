@@ -67,19 +67,7 @@ internal sealed unsafe partial class VulkanRHI
         sceneBuffers[1] = StaticBuffer<SceneMaterial>(Scene.Materials);
         sceneBuffers[2] = StaticBuffer<uint>(Scene.Texels);
         sceneBuffers[3] = StaticBuffer<TextureDescription>(Scene.TextureInfo);
-        font = (VkTexture)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
-        VkBufferResource fontUpload = CreateBuffer((ulong)UI.FontPixels.Length, BufferUsageFlags.TransferSrcBit, true);
-        fontUpload.Write<byte>(UI.FontPixels);
-        uploads.Add(fontUpload);
-        Transition(font, ImageUse.CopyDestination);
-        BufferImageCopy copy = new()
-        {
-            ImageSubresource = new(ImageAspectFlags.ColorBit, 0, 0, 1),
-            ImageExtent = new((uint)UI.FontWidth, (uint)UI.FontHeight, 1)
-        };
-
-        api.CmdCopyBufferToImage(commandBuffer, fontUpload.Buffer, font.Texture, ImageLayout.TransferDstOptimal, 1, &copy);
-        Transition(font, ImageUse.ShaderRead);
+        UploadFont();
         MemoryBarrier2 memory = new()
         {
             SType = StructureType.MemoryBarrier2Khr,
@@ -103,25 +91,7 @@ internal sealed unsafe partial class VulkanRHI
             InitializeAccelerationStructures();
         }
 
-        Check(api.EndCommandBuffer(commandBuffer), "vkEndCommandBuffer(upload)");
-        recording = false;
-        CommandBuffer uploadCommand = commandBuffer;
-        SubmitInfo submit = new()
-        {
-            SType = StructureType.SubmitInfo,
-            CommandBufferCount = 1,
-            PCommandBuffers = &uploadCommand
-        };
-
-        Check(api.QueueSubmit(queue, 1, &submit, default), "vkQueueSubmit(upload)");
-        WaitIdle();
-
-        foreach (VkBufferResource upload in uploads)
-        {
-            upload.Dispose();
-        }
-
-        uploads.Clear();
+        ExecuteUploads();
         List<DescriptorSetLayoutBinding> bindings =
         [
             new()
@@ -283,6 +253,66 @@ internal sealed unsafe partial class VulkanRHI
                 api.DestroyShaderModule(device, shader, null);
             }
         }
+    }
+
+    protected override void UpdateFontTexture()
+    {
+        VkFrame frame = slots[FrameSlot];
+        Check(api.ResetCommandPool(device, frame.Pool, 0), "vkResetCommandPool(font upload)");
+        commandBuffer = frame.Command;
+        CommandBufferBeginInfo begin = new()
+        {
+            SType = StructureType.CommandBufferBeginInfo,
+            Flags = CommandBufferUsageFlags.OneTimeSubmitBit
+        };
+
+        Check(api.BeginCommandBuffer(commandBuffer, &begin), "vkBeginCommandBuffer(font upload)");
+        recording = true;
+        UploadFont();
+        ExecuteUploads();
+        UpdateDescriptors();
+    }
+
+    private void UploadFont()
+    {
+        VkTexture replacement = (VkTexture)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
+        font?.Dispose();
+        font = replacement;
+        VkBufferResource fontUpload = CreateBuffer((ulong)UI.FontPixels.Length, BufferUsageFlags.TransferSrcBit, true);
+        uploads.Add(fontUpload);
+        fontUpload.Write<byte>(UI.FontPixels);
+        Transition(font, ImageUse.CopyDestination);
+        BufferImageCopy copy = new()
+        {
+            ImageSubresource = new(ImageAspectFlags.ColorBit, 0, 0, 1),
+            ImageExtent = new((uint)UI.FontWidth, (uint)UI.FontHeight, 1)
+        };
+
+        api.CmdCopyBufferToImage(commandBuffer, fontUpload.Buffer, font.Texture, ImageLayout.TransferDstOptimal, 1, &copy);
+        Transition(font, ImageUse.ShaderRead);
+    }
+
+    private void ExecuteUploads()
+    {
+        Check(api.EndCommandBuffer(commandBuffer), "vkEndCommandBuffer(upload)");
+        recording = false;
+        CommandBuffer uploadCommand = commandBuffer;
+        SubmitInfo submit = new()
+        {
+            SType = StructureType.SubmitInfo,
+            CommandBufferCount = 1,
+            PCommandBuffers = &uploadCommand
+        };
+
+        Check(api.QueueSubmit(queue, 1, &submit, default), "vkQueueSubmit(upload)");
+        WaitIdle();
+
+        foreach (VkBufferResource upload in uploads)
+        {
+            upload.Dispose();
+        }
+
+        uploads.Clear();
     }
 
     private ShaderModule Shader(string entry, string stage)

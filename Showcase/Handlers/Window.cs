@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
 using ImGuiNET;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -11,10 +10,8 @@ using SilkWindow = Silk.NET.Windowing.Window;
 
 namespace Showcase.Handlers;
 
-internal sealed unsafe partial class Window : IDisposable
+internal sealed unsafe class Window : IDisposable
 {
-    private const uint DefaultScreenDpi = 96;
-
     public IWindow SurfaceWindow { get; }
 
     public nint Handle => disposed ? 0 : SurfaceWindow.Native?.Win32?.Hwnd ?? 0;
@@ -42,9 +39,7 @@ internal sealed unsafe partial class Window : IDisposable
     private CursorMode previousCursorMode;
     private Vector2 mouse;
     private Vector2 pendingMouseDelta;
-    private Vector2 framebufferScale = Vector2.One;
     private bool hasMouse;
-    private bool hasMousePosition;
     private bool focused = true;
     private bool disposed;
     private ExceptionDispatchInfo? callbackError;
@@ -53,7 +48,7 @@ internal sealed unsafe partial class Window : IDisposable
     {
         SurfaceWindow = SilkWindow.Create(WindowOptions.Default with
         {
-            Size = new(1600, 900),
+            Size = new(1280, 720),
             API = graphicsApi,
             Title = "NGX.NET Showcase",
             ShouldSwapAutomatically = false,
@@ -75,11 +70,7 @@ internal sealed unsafe partial class Window : IDisposable
                 throw new InvalidOperationException("Silk.NET could not create the native window.");
             }
 
-            if (SurfaceWindow.Monitor is IMonitor monitor)
-            {
-                SurfaceWindow.Center(monitor);
-            }
-
+            SurfaceWindow.Center();
             input = SurfaceWindow.CreateInput();
 
             foreach (IKeyboard keyboard in input.Keyboards)
@@ -175,40 +166,14 @@ internal sealed unsafe partial class Window : IDisposable
         Vector2D<int> size = SurfaceWindow.FramebufferSize;
         Vector2D<int> windowSize = SurfaceWindow.Size;
         bool unavailable = SurfaceWindow.WindowState == WindowState.Minimized || size.X <= 0 || size.Y <= 0 || windowSize.X <= 0 || windowSize.Y <= 0;
-        int width = unavailable ? 0 : size.X;
-        int height = unavailable ? 0 : size.Y;
-        bool changed = Width != width || Height != height;
-        Width = width;
-        Height = height;
-        nint handle = Handle;
+        Width = unavailable ? 0 : size.X;
+        Height = unavailable ? 0 : size.Y;
 
-        if (unavailable || handle == 0 || Closed || SurfaceWindow.IsClosing)
+        if (!unavailable)
         {
-            return;
-        }
-
-        uint dpi = GetDpiForWindow(handle);
-
-        if (dpi == 0)
-        {
-            throw new InvalidOperationException("Could not determine the window DPI.");
-        }
-
-        Vector2 scale = new(dpi / (float)DefaultScreenDpi);
-        Vector2 pixelsPerWindowUnit = (Vector2)size / (Vector2)windowSize;
-        changed |= DpiScale != scale || framebufferScale != pixelsPerWindowUnit;
-        DpiScale = scale;
-        framebufferScale = pixelsPerWindowUnit;
-
-        if (changed && focused && hasMousePosition)
-        {
-            PublishMousePosition();
+            DpiScale = (Vector2)size / (Vector2)windowSize;
         }
     }
-
-    [LibraryImport("user32.dll")]
-    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static partial uint GetDpiForWindow(nint window);
 
     private void Focus(bool value)
     {
@@ -220,7 +185,6 @@ internal sealed unsafe partial class Window : IDisposable
         {
             keys.Clear();
             EndLooking();
-            hasMousePosition = false;
             MouseDelta = Vector2.Zero;
             pendingMouseDelta = Vector2.Zero;
             io.ClearInputKeys();
@@ -256,7 +220,6 @@ internal sealed unsafe partial class Window : IDisposable
 
     private void MouseButtonChanged(IMouse device, MouseButton button, bool pressed)
     {
-        UpdateMetrics();
         ImGuiIOPtr io = ImGui.GetIO();
 
         if (button == MouseButton.Right)
@@ -282,8 +245,6 @@ internal sealed unsafe partial class Window : IDisposable
 
     private void MouseMoved(IMouse device, Vector2 position)
     {
-        UpdateMetrics();
-
         if (hasMouse && ReferenceEquals(device, lookMouse))
         {
             pendingMouseDelta += position - mouse;
@@ -291,18 +252,7 @@ internal sealed unsafe partial class Window : IDisposable
 
         mouse = position;
         hasMouse = true;
-        hasMousePosition = true;
-        PublishMousePosition();
-    }
-
-    private void PublishMousePosition()
-    {
-        if (Width > 0 && Height > 0)
-        {
-            // Silk mouse coordinates are window units; ImGui uses 96-DPI units.
-            Vector2 position = mouse * framebufferScale / DpiScale;
-            ImGui.GetIO().AddMousePosEvent(position.X, position.Y);
-        }
+        ImGui.GetIO().AddMousePosEvent(position.X, position.Y);
     }
 
     private void EndLooking()

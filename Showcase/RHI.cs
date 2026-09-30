@@ -86,6 +86,7 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         Scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
         Camera.Reset(Scene);
         Settings.Reset(Capabilities);
+        UI.UpdateFont(Window.DpiScale);
         InitializeRenderer();
         Presenter = new(WaitRenderedFrame, PresentImage, WaitPresentation);
         ready = true;
@@ -219,6 +220,14 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
         long start = Stopwatch.GetTimestamp();
         float delta = (float)Stopwatch.GetElapsedTime(previousTick, start).TotalSeconds;
         previousTick = start;
+
+        if (UI.UpdateFont(Window.DpiScale))
+        {
+            Presenter.Drain();
+            WaitIdle();
+            UpdateFontTexture();
+        }
+
         UI.Build(this, delta);
 
         recreateSwapChain |= Presenter.NeedsRecreation;
@@ -415,6 +424,8 @@ internal abstract class RHI(Window window, UserInterface ui) : IDisposable
     protected abstract void InitializeDevice();
 
     protected abstract void InitializeRenderer();
+
+    protected abstract void UpdateFontTexture();
 
     protected abstract void CreateSwapChain();
 
