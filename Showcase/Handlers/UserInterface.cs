@@ -92,8 +92,10 @@ internal sealed unsafe class UserInterface : IDisposable
     public void Build(RHI rhi, float delta)
     {
         ImGuiIOPtr io = ImGui.GetIO();
-        io.DisplaySize = new Vector2(rhi.Window.Width, rhi.Window.Height) / rhi.Window.DpiScale;
-        io.DisplayFramebufferScale = rhi.Window.DpiScale;
+        Vector2 dpiScale = rhi.Window.DpiScale;
+        // Layout stays in 96-DPI units; rendering and mouse input use the same scale.
+        io.DisplaySize = new Vector2(rhi.Window.Width, rhi.Window.Height) / dpiScale;
+        io.DisplayFramebufferScale = dpiScale;
         io.DeltaTime = Math.Max(delta, 1e-4f);
         ImGui.NewFrame();
         Vector2 margin = new(12);
