@@ -14,12 +14,12 @@
         <Description>C# bindings for NVIDIA NGX.</Description>
 
         <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>https://github.com/qian-o/Streamline.NET.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/qian-o/NGX.NET.git</RepositoryUrl>
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>NGX;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
-        <PackageProjectUrl>https://github.com/qian-o/Streamline.NET</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/qian-o/NGX.NET</PackageProjectUrl>
 
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
