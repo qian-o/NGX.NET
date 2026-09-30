@@ -358,7 +358,7 @@ static unsafe class Callbacks
 }
 """ + "\n" + math_checks)
     published = scratch / "published"
-    print(run(["dotnet", "publish", source, "-r", rid, "-c", "Release", "-o", published, "-p:GeneratePackageOnBuild=false"], root))
+    print(run(["dotnet", "publish", source, "-r", rid, "-c", "Release", "-o", published], root))
     destination = published / "runtimes" / rid / "native"
     if destination.exists():
         shutil.rmtree(destination)

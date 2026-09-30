@@ -157,9 +157,8 @@ jobs:
       - name: Regenerate and independently verify the compiled API
         run: |
           dotnet run --project NGX.NET.Generator -- .
-          dotnet build NGX.NET.slnx -c Release -warnaserror -p:GeneratePackageOnBuild=false
-          dotnet run .github/scripts/verify_ngx.cs -c Release -p:GeneratePackageOnBuild=false -- .
-          dotnet pack NGX.NET -c Release --no-build
+          dotnet build NGX.NET.slnx -c Release -warnaserror
+          dotnet run .github/scripts/verify_ngx.cs -c Release -- .
           python .github/scripts/build_ngx.py verify-package --root .
       - uses: actions/upload-artifact@v7.0.1
         with:
