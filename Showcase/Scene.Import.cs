@@ -183,17 +183,17 @@ internal sealed partial class Scene
 
     private static Vector4 TriangleTangent(Vector3 normal, Vector3 edge1, Vector3 edge2, Vector2 uv1, Vector2 uv2)
     {
-        float determinant = uv1.X * uv2.Y - uv1.Y * uv2.X;
+        float determinant = (uv1.X * uv2.Y) - (uv1.Y * uv2.X);
 
         if (determinant != 0)
         {
-            Vector3 tangent = (edge1 * uv2.Y - edge2 * uv1.Y) / determinant;
+            Vector3 tangent = ((edge1 * uv2.Y) - (edge2 * uv1.Y)) / determinant;
             tangent -= normal * Vector3.Dot(normal, tangent);
 
             if (tangent.LengthSquared() > 0)
             {
                 tangent = Vector3.Normalize(tangent);
-                Vector3 bitangent = (edge2 * uv1.X - edge1 * uv2.X) / determinant;
+                Vector3 bitangent = ((edge2 * uv1.X) - (edge1 * uv2.X)) / determinant;
 
                 return new(tangent, Vector3.Dot(Vector3.Cross(normal, tangent), bitangent) < 0 ? -1 : 1);
             }
@@ -279,22 +279,12 @@ internal sealed partial class Scene
             {
                 if (y > 0)
                 {
-                    result.AddRange(
-                    [
-                        Vertex(x, y),
-                        Vertex(x + 1, y),
-                        Vertex(x, y + 1)
-                    ]);
+                    result.AddRange([Vertex(x, y), Vertex(x + 1, y), Vertex(x, y + 1)]);
                 }
 
                 if (y + 1 < rings)
                 {
-                    result.AddRange(
-                    [
-                        Vertex(x + 1, y),
-                        Vertex(x + 1, y + 1),
-                        Vertex(x, y + 1)
-                    ]);
+                    result.AddRange([Vertex(x + 1, y), Vertex(x + 1, y + 1), Vertex(x, y + 1)]);
                 }
             }
         }

@@ -79,9 +79,7 @@ public static unsafe class NGXMarshal
         return encoding switch
         {
             NGXEncoding.Utf8 => Encoding.UTF8,
-            NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? Encoding.Unicode
-                : OperatingSystem.IsLinux() ? Encoding.UTF32
-                : throw new PlatformNotSupportedException("NativeWide supports Windows and Linux wchar_t encodings."),
+            NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? Encoding.Unicode : OperatingSystem.IsLinux() ? Encoding.UTF32 : throw new PlatformNotSupportedException("NativeWide supports Windows and Linux wchar_t encodings."),
             _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported native string encoding.")
         };
     }

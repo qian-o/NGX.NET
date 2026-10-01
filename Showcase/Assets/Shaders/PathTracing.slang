@@ -10,8 +10,7 @@ Surface hitSurface(Hit hit, float3 direction)
     float3 n = normalize(a.normal.xyz * weights.x + b.normal.xyz * weights.y + c.normal.xyz * weights.z);
     float4 tangent = a.tangent * weights.x + b.tangent * weights.y + c.tangent * weights.z;
     float footprint = hit.distance * 2 * g.camera.w / g.size.y;
-    float uvScale = max(length(b.uv.xy - a.uv.xy) / max(length(b.position.xyz - a.position.xyz), g.scene.z),
-                        length(c.uv.xy - a.uv.xy) / max(length(c.position.xyz - a.position.xyz), g.scene.z));
+    float uvScale = max(length(b.uv.xy - a.uv.xy) / max(length(b.position.xyz - a.position.xyz), g.scene.z), length(c.uv.xy - a.uv.xy) / max(length(c.position.xyz - a.position.xyz), g.scene.z));
     Material material = materials[(uint)a.normal.w];
     float4 lod;
     for (uint i = 0; i < 4; i++)
@@ -46,8 +45,7 @@ float3 secondaryRadiance(float3 origin, float3 direction, float escapeWeight, fl
         if (bounce == surfaceBounces) break;
         float3 p = origin + direction * hit.distance;
         float3 view = -direction;
-        radiance += throughput * (directLight(s, p, view, sampleSun(rng))
-            + skyLighting(s, p, view, float2(random(rng), random(rng)), false));
+        radiance += throughput * (directLight(s, p, view, sampleSun(rng)) + skyLighting(s, p, view, float2(random(rng), random(rng)), false));
         float probability = specularProbability(s);
         float3 halfVector;
         float2 u = float2(random(rng), random(rng));
@@ -119,8 +117,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
         {
             float pdf = max(dot(s.normal, direction), 0) / 3.14159265;
             Hit unused;
-            color += secondaryRadiance(rayOrigin(p, s), direction,
-                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, true, rng, unused);
+            color += secondaryRadiance(rayOrigin(p, s), direction, powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, true, rng, unused);
         }
     }
     else
@@ -136,8 +133,7 @@ void TraceLighting(uint3 id : SV_DispatchThreadID)
             float nv = max(dot(s.normal, view), 1e-4), vh = saturate(dot(view, halfVector));
             float3 weight = specularWeight(f0, nv, nl, vh, s.roughness * s.roughness) * shadowTerm(s, direction);
             float pdf = bsdfPdfs(s, view, direction).y;
-            color = secondaryRadiance(rayOrigin(p, s), direction,
-                powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, firstHit);
+            color = secondaryRadiance(rayOrigin(p, s), direction, powerHeuristic(pdf, skyPortalPdf(p, direction)), weight, false, rng, firstHit);
         }
         // One lane owns the reflection guide; other paths never race to write it.
         if (sample == 0 && g.jitter.z > 0)

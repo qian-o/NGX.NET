@@ -97,9 +97,7 @@ internal static class RenderLayout
     {
         ImageSlot.Exposure => (1, 1),
         ImageSlot.Shadow => (ShadowMapSize, ShadowMapSize),
-        ImageSlot.Luminance or ImageSlot.FilteredLuminance => (
-            (outputWidth + LuminanceTileSize - 1) / LuminanceTileSize,
-            (outputHeight + LuminanceTileSize - 1) / LuminanceTileSize),
+        ImageSlot.Luminance or ImageSlot.FilteredLuminance => ((outputWidth + LuminanceTileSize - 1) / LuminanceTileSize, (outputHeight + LuminanceTileSize - 1) / LuminanceTileSize),
         ImageSlot.Reconstructed or ImageSlot.DisplayInput or ImageSlot.Hudless or ImageSlot.UI or ImageSlot.Final => (outputWidth, outputHeight),
         _ => (inputWidth, inputHeight)
     };

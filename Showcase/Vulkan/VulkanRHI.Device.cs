@@ -26,8 +26,7 @@ internal sealed unsafe partial class VulkanRHI
     protected override void InitializeDevice()
     {
         api = Vk.GetApi();
-        IVkSurface windowSurface = Window.VkSurface
-            ?? throw new NotSupportedException("The window does not support Vulkan surfaces.");
+        IVkSurface windowSurface = Window.VkSurface ?? throw new NotSupportedException("The window does not support Vulkan surfaces.");
         byte** requiredExtensions = windowSurface.GetRequiredExtensions(out uint requiredExtensionCount);
         List<string> instanceExtensions = [];
 
@@ -76,8 +75,9 @@ internal sealed unsafe partial class VulkanRHI
         foreach (PhysicalDevice candidate in devices)
         {
             api.GetPhysicalDeviceProperties(candidate, out PhysicalDeviceProperties properties);
+            int score = properties.VendorID == 0x10DE ? 2 : properties.DeviceType == PhysicalDeviceType.DiscreteGpu ? 1 : 0;
 
-            if (properties.ApiVersion < Vk.Version13)
+            if (properties.ApiVersion < Vk.Version13 || score <= bestScore)
             {
                 continue;
             }
@@ -115,9 +115,7 @@ internal sealed unsafe partial class VulkanRHI
 
             api.GetPhysicalDeviceFeatures2(candidate, &features);
 
-            if (!features11.ShaderDrawParameters || !features13.DynamicRendering || !features13.Synchronization2 ||
-                !features.Features.ShaderStorageImageReadWithoutFormat || !features.Features.ShaderStorageImageWriteWithoutFormat ||
-                !features.Features.ShaderStorageImageExtendedFormats)
+            if (!features11.ShaderDrawParameters || !features13.DynamicRendering || !features13.Synchronization2 || !features.Features.ShaderStorageImageReadWithoutFormat || !features.Features.ShaderStorageImageWriteWithoutFormat || !features.Features.ShaderStorageImageExtendedFormats)
             {
                 continue;
             }
@@ -138,8 +136,7 @@ internal sealed unsafe partial class VulkanRHI
                 extensionNames.Add(NGXMarshal.PtrToString(extension.ExtensionName, NGXEncoding.Utf8)!);
             }
 
-            bool rayQuery = queryFeatures.RayQuery && accelerationFeatures.AccelerationStructure
-                && features12.BufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
+            bool rayQuery = queryFeatures.RayQuery && accelerationFeatures.AccelerationStructure && features12.BufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
             api.GetPhysicalDeviceFormatProperties(candidate, Format.R32G32B32Sfloat, out FormatProperties vertexFormat);
             rayQuery &= (vertexFormat.BufferFeatures & FormatFeatureFlags.AccelerationStructureVertexBufferBitKhr) != 0;
             uint familyCount = 0;
@@ -160,13 +157,6 @@ internal sealed unsafe partial class VulkanRHI
                     continue;
                 }
 
-                int score = properties.VendorID == 0x10DE ? 2 : properties.DeviceType == PhysicalDeviceType.DiscreteGpu ? 1 : 0;
-
-                if (score <= bestScore)
-                {
-                    continue;
-                }
-
                 bestScore = score;
                 supportedNames = extensionNames;
                 physical = candidate;
@@ -177,6 +167,7 @@ internal sealed unsafe partial class VulkanRHI
                 AdapterName = NGXMarshal.PtrToString(properties.DeviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
                 ulong alignment = properties.Limits.MinUniformBufferOffsetAlignment;
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
+                break;
             }
         }
 
@@ -242,11 +233,11 @@ internal sealed unsafe partial class VulkanRHI
             }
         };
 
-        List<string> requestedExtensions = ["VK_KHR_swapchain"];
+        HashSet<string> requestedExtensions = ["VK_KHR_swapchain"];
 
         if (RayQuerySupported)
         {
-            requestedExtensions.AddRange(RayExtensions);
+            requestedExtensions.UnionWith(RayExtensions);
             PhysicalDeviceAccelerationStructurePropertiesKHR accelerationProperties = new() { SType = StructureType.PhysicalDeviceAccelerationStructurePropertiesKhr };
             PhysicalDeviceProperties2 properties = new()
             {
@@ -267,13 +258,10 @@ internal sealed unsafe partial class VulkanRHI
                 throw new NotSupportedException($"NGX requires Vulkan device extension {extension}.");
             }
 
-            if (!requestedExtensions.Contains(extension))
-            {
-                requestedExtensions.Add(extension);
-            }
+            requestedExtensions.Add(extension);
         }
 
-        using NativeNames deviceExtensions = new([.. requestedExtensions.Distinct()]);
+        using NativeNames deviceExtensions = new([.. requestedExtensions]);
         DeviceCreateInfo deviceInfo = new()
         {
             SType = StructureType.DeviceCreateInfo,
@@ -298,8 +286,7 @@ internal sealed unsafe partial class VulkanRHI
 
         api.GetDeviceQueue(device, queueFamily, 0, out queue);
         api.GetDeviceQueue(device, queueFamily, separatePresentQueue ? 1u : 0u, out presentQueue);
-        NGX.Initialize(device.Handle, instance.Handle, physical.Handle,
-            api.Context.GetProcAddress("vkGetInstanceProcAddr"), api.Context.GetProcAddress("vkGetDeviceProcAddr"));
+        NGX.Initialize(device.Handle, instance.Handle, physical.Handle, api.Context.GetProcAddress("vkGetInstanceProcAddr"), api.Context.GetProcAddress("vkGetDeviceProcAddr"));
         InitializePresentation();
     }
 

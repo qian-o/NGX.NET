@@ -14,8 +14,7 @@ bool projectReflectionMotion(float3 current, float3 previous, bool sky, out floa
 // to the camera and the reflected point (or sky direction). Newton steps in
 // the normal's tangent plane account for curvature rather than treating the
 // sphere as a translating flat mirror. The radius comes from CreateSphere.
-bool sphereReflectionPoint(float3 center, float radius, float3 camera, float3 target,
-                           bool sky, float3 normal, out float3 point)
+bool sphereReflectionPoint(float3 center, float radius, float3 camera, float3 target, bool sky, float3 normal, out float3 point)
 {
     point = center + radius * normal;
     if (length(camera - center) <= radius || (!sky && length(target - center) <= radius)) return false;
@@ -73,11 +72,9 @@ float2 reflectionMotion(uint2 pixel, Surface s, float3 p, float3 view, Hit sampl
         if (!sky) previousTarget += objects[hit.object].previousOffset.xyz - objects[hit.object].offset.xyz;
 
         float3 currentPoint, previousPoint;
-        if (!sphereReflectionPoint(object.offset.xyz, object.offset.w, g.camera.xyz, target,
-            sky, s.normal, currentPoint)) return fallback;
+        if (!sphereReflectionPoint(object.offset.xyz, object.offset.w, g.camera.xyz, target, sky, s.normal, currentPoint)) return fallback;
         float3 normal = normalize(currentPoint - object.offset.xyz);
-        if (!sphereReflectionPoint(object.previousOffset.xyz, object.offset.w, g.previousCamera.xyz,
-            previousTarget, sky, normal, previousPoint)) return fallback;
+        if (!sphereReflectionPoint(object.previousOffset.xyz, object.offset.w, g.previousCamera.xyz, previousTarget, sky, normal, previousPoint)) return fallback;
         // Solve both frames to cancel the small difference between the smooth
         // analytic sphere and its rasterized triangle mesh, including at rest.
         float2 motion;

@@ -10,10 +10,7 @@ internal sealed unsafe partial class DirectX12RHI
 {
     protected override void InitializeRendererCore()
     {
-        descriptors = CreateDescriptorHeap(
-            DescriptorHeapType.CbvSrvUav,
-            RenderLayout.FramesInFlight * DescriptorsPerFrame,
-            DescriptorHeapFlags.ShaderVisible);
+        descriptors = CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, RenderLayout.FramesInFlight * DescriptorsPerFrame, DescriptorHeapFlags.ShaderVisible);
         renderTargets = CreateDescriptorHeap(DescriptorHeapType.Rtv, RenderLayout.FramesInFlight * (int)ImageSlot.Count);
         depthViews = CreateDescriptorHeap(DescriptorHeapType.Dsv, RenderLayout.FramesInFlight * 2);
         descriptorIncrement = device.Handle->GetDescriptorHandleIncrementSize(DescriptorHeapType.CbvSrvUav);
@@ -67,14 +64,14 @@ internal sealed unsafe partial class DirectX12RHI
         DxImage replacement = (DxImage)CreateImage(UI.FontWidth, UI.FontHeight, ImageFormat.Rgba8);
         font?.Dispose();
         font = replacement;
-        int rowPitch = (UI.FontWidth * 4 + 255) & ~255;
+        int rowPitch = ((UI.FontWidth * 4) + 255) & ~255;
         ComPtr<ID3D12Resource> fontUpload = UploadBuffer(rowPitch * UI.FontHeight);
         uploads.Add(fontUpload);
         byte* mapped = Map<byte>(fontUpload);
 
         for (int row = 0; row < UI.FontHeight; row++)
         {
-            UI.FontPixels.AsSpan(row * UI.FontWidth * 4, UI.FontWidth * 4).CopyTo(new Span<byte>(mapped + row * rowPitch, UI.FontWidth * 4));
+            UI.FontPixels.AsSpan(row * UI.FontWidth * 4, UI.FontWidth * 4).CopyTo(new Span<byte>(mapped + (row * rowPitch), UI.FontWidth * 4));
         }
 
         fontUpload.Handle->Unmap(0, null);

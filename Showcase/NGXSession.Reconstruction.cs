@@ -19,11 +19,7 @@ internal sealed unsafe partial class NGXSession
         {
             uint maxWidth = 0, maxHeight = 0, minWidth = 0, minHeight = 0;
             float sharpness = 0;
-            NGXResult result = value.Reconstruction == Reconstruction.DLSS
-                ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality,
-                    &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness)
-                : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality,
-                    &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness);
+            NGXResult result = value.Reconstruction == Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness);
             Ngx.ThrowIfFailed(result);
         }
         else
@@ -42,7 +38,7 @@ internal sealed unsafe partial class NGXSession
     {
         Ngx.Parameter.Reset(parameters);
         // Camera.Projection maps the near plane to 1 and the far plane to 0.
-        int flags = (int)(NGXDLSSFeatureFlags.IsHDR | NGXDLSSFeatureFlags.MVLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
+        const int flags = (int)(NGXDLSSFeatureFlags.IsHDR | NGXDLSSFeatureFlags.MVLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
         NGXHandle* created = null;
         NGXResult result;
 
@@ -61,9 +57,7 @@ internal sealed unsafe partial class NGXSession
                 InFeatureCreateFlags = flags
             };
 
-            result = IsVulkan
-                ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, &created, parameters, &create)
-                : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, &created, parameters, &create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, &created, parameters, &create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, &created, parameters, &create);
         }
         else
         {
@@ -80,9 +74,7 @@ internal sealed unsafe partial class NGXSession
                 InFeatureCreateFlags = flags
             };
 
-            result = IsVulkan
-                ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, &created, parameters, &create)
-                : Ngx.D3D12.CreateDLSSExt(command, 1, 1, &created, parameters, &create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, &created, parameters, &create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, &created, parameters, &create);
         }
 
         Ngx.ThrowIfFailed(result);
@@ -116,7 +108,7 @@ internal sealed unsafe partial class NGXSession
             Height = (uint)inputHeight
         };
 
-        if (!IsVulkan)
+        if (!isVulkan)
         {
             if (settings.Reconstruction == Reconstruction.RayReconstruction)
             {

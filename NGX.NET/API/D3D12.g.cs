@@ -13,6 +13,11 @@ public static unsafe partial class NGX
     /// </summary>
     public static partial class D3D12
     {
+        static D3D12()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);
+        }
+
         /// <summary>
         /// NGX_D3D12_CREATE_DLISP_EXT. Source: nvsdk_ngx_helpers_d3d.h:363.
         /// </summary>

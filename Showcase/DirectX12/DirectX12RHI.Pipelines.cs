@@ -181,8 +181,7 @@ internal sealed unsafe partial class DirectX12RHI
 
         using NativeNames semantics = new(["POSITION", "TEXCOORD", "COLOR"]);
 
-        fixed (byte* vs = vertexCode)
-        fixed (byte* ps = fragmentCode)
+        fixed (byte* vs = vertexCode, ps = fragmentCode)
         {
             InputElementDesc* elements = stackalloc InputElementDesc[3];
             elements[0] = new()

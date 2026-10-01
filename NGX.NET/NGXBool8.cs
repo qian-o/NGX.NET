@@ -26,6 +26,16 @@ public readonly struct NGXBool8(byte value) : IEquatable<NGXBool8>
         return value.value != 0;
     }
 
+    /// <summary>
+    /// Compares the Boolean values of two native representations.
+    /// </summary>
+    public static bool operator ==(NGXBool8 left, NGXBool8 right) => left.Equals(right);
+
+    /// <summary>
+    /// Compares the Boolean values of two native representations.
+    /// </summary>
+    public static bool operator !=(NGXBool8 left, NGXBool8 right) => !left.Equals(right);
+
     /// <inheritdoc/>
     public bool Equals(NGXBool8 other)
     {

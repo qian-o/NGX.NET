@@ -48,16 +48,7 @@ internal sealed class Renderer : IDisposable
         ];
         Settings.Reset(Capabilities);
 
-        try
-        {
-            context.InitializeRenderer(resources);
-        }
-        catch
-        {
-            presenter.Dispose();
-            resources.Dispose();
-            throw;
-        }
+        context.InitializeRenderer(resources);
     }
 
     public RenderSettings Settings { get; } = new();
@@ -199,8 +190,7 @@ internal sealed class Renderer : IDisposable
 
         int slot = (int)(frameIndex % RenderLayout.FramesInFlight);
         presenter.WaitSlot(slot);
-        camera.Update(resources.InputWidth, resources.InputHeight, width, height, frameIndex,
-            Settings.Reconstruction != Reconstruction.Native, reset);
+        camera.Update(resources.InputWidth, resources.InputHeight, width, height, frameIndex, Settings.Reconstruction != Reconstruction.Native, reset);
         PassArgs args = CreateArgs(slot, camera, drawData);
         context.BeginFrame(args);
 
@@ -240,8 +230,7 @@ internal sealed class Renderer : IDisposable
             Size = new(resources.InputWidth, resources.InputHeight, width, height),
             Sun = new(sun, solarAngularRadius),
             Scene = new(scene.Objects.Length, frameIndex, scene.RayEpsilon, scene.Scale),
-            Jitter = new(camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0,
-                RenderLayout.TextureMipBias(resources.InputWidth, width, temporal)),
+            Jitter = new(camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, RenderLayout.TextureMipBias(resources.InputWidth, width, temporal)),
             SunViewProjection = scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, scene.Scale * ContactShadowRadiusScale),
             Exposure = new(0, elapsed, reset ? 1 : 0, 0),
@@ -272,29 +261,10 @@ internal sealed class Renderer : IDisposable
 
         disposed = true;
 
-        try
-        {
-            presenter.Drain();
-        }
-        finally
-        {
-            try
-            {
-                context.WaitIdle();
-            }
-            finally
-            {
-                try
-                {
-                    presenter.Dispose();
-                    context.NGX.ReleaseFrameGeneration();
-                    context.NGX.ReleaseReconstruction();
-                }
-                finally
-                {
-                    resources.Dispose();
-                }
-            }
-        }
+        presenter.Dispose();
+        context.WaitIdle();
+        context.NGX.ReleaseFrameGeneration();
+        context.NGX.ReleaseReconstruction();
+        resources.Dispose();
     }
 }

@@ -20,13 +20,11 @@ internal sealed unsafe partial class NGXSession
                 Height = (uint)outputHeight,
                 RenderWidth = (uint)inputWidth,
                 RenderHeight = (uint)inputHeight,
-                NativeBackbufferFormat = IsVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
+                NativeBackbufferFormat = isVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
             };
 
             NGXHandle* created = null;
-            Ngx.ThrowIfFailed(IsVulkan
-                ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, &created, frameParameters, &create)
-                : Ngx.D3D12.CreateDLSSG(command, 1, 1, &created, frameParameters, &create));
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, &created, frameParameters, &create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, &created, frameParameters, &create));
             generation = created;
             reset = true;
         }
@@ -68,7 +66,7 @@ internal sealed unsafe partial class NGXSession
         NativeImage generated = output.Describe();
         generated.Vulkan.ReadWrite = true;
 
-        if (IsVulkan)
+        if (isVulkan)
         {
             NGXVKDLSSGEvalParams evaluate = new()
             {

@@ -79,13 +79,13 @@ internal sealed unsafe partial class DirectX12RHI(IWindow window, ImGuiHandler u
                 Check(candidate.Handle->GetDesc1(&description));
                 bool nvidia = description.VendorId == 0x10DE;
 
-                if (((AdapterFlag)description.Flags & AdapterFlag.Software) == 0 &&
-                    (adapter.Handle == null || !nvidiaSelected && nvidia))
+                if ((description.Flags & (uint)AdapterFlag.Software) == 0 && (adapter.Handle == null || (!nvidiaSelected && nvidia)))
                 {
                     adapter.Dispose();
                     adapter = candidate;
                     candidate = default;
                     nvidiaSelected = nvidia;
+                    AdapterName = NGXMarshal.PtrToString(description.Description, NGXEncoding.NativeWide)!;
                 }
             }
             finally
@@ -99,9 +99,6 @@ internal sealed unsafe partial class DirectX12RHI(IWindow window, ImGuiHandler u
             throw new InvalidOperationException("No hardware graphics adapter found.");
         }
 
-        AdapterDesc1 selected = default;
-        Check(adapter.Handle->GetDesc1(&selected));
-        AdapterName = NGXMarshal.PtrToString(selected.Description, NGXEncoding.NativeWide)!;
         Check(d3d12.CreateDevice((IUnknown*)adapter.Handle, D3DFeatureLevel.Level120, SilkMarshal.GuidPtrOf<ID3D12Device>(), (void**)device.GetAddressOf()));
         NGX.Initialize((nint)device.Handle);
         FeatureDataD3D12Options5 options = default;

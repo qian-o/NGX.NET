@@ -6,6 +6,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_ResourceFlags
 /// </summary>
+[Flags]
 public enum NGXDLSSGResourceFlags : int
 {
     /// <summary>

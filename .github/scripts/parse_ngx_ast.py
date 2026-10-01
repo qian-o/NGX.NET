@@ -9,9 +9,7 @@ import subprocess
 
 # These headers implement the optional header-only CUDA loader, not additional
 # application APIs. Its Core signatures must never enter the application ABI.
-IMPLEMENTATION_HEADERS = {
-    "nvsdk_ngx_loader.h", "nvsdk_ngx_standalone_common.h", "nvsdk_ngx_standalone_cuda.h"
-}
+IMPLEMENTATION_HEADERS = {"nvsdk_ngx_loader.h", "nvsdk_ngx_standalone_common.h", "nvsdk_ngx_standalone_cuda.h"}
 
 
 def extract(sdk: Path, scratch: Path, rid: str):
@@ -27,12 +25,9 @@ def extract(sdk: Path, scratch: Path, rid: str):
         resource = subprocess.check_output([str(llvm / "bin/clang.exe"), "-print-resource-dir"], text=True).strip()
 
     target = ("aarch64" if rid.endswith("arm64") else "x86_64") + ("-pc-windows-msvc" if windows else "-linux-gnu")
-    flags = ["-x", "c++", "-std=c++17", "--target=" + target,
-             "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"),
-             "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
+    flags = ["-x", "c++", "-std=c++17", "--target=" + target, "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"), "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
     if windows:
-        flags += ["-resource-dir=" + resource, "-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40",
-                  "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", "-DNOMINMAX"]
+        flags += ["-resource-dir=" + resource, "-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40", "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", "-DNOMINMAX"]
         for path in os.environ["INCLUDE"].split(";"):
             flags += ["-isystem", path]
     else:
@@ -73,16 +68,14 @@ def extract(sdk: Path, scratch: Path, rid: str):
         if kind in ("STRUCT_DECL", "UNION_DECL", "CLASS_DECL"):
             if name in records and (records[name].get("fields") or not c.is_definition()):
                 return
-            record = {"name": name, "kind": kind, "size": c.type.get_size(),
-                      "opaque": not c.is_definition() or name in ("NVSDK_NGX_Handle", "NVSDK_NGX_Parameter"), "fields": []}
+            record = {"name": name, "kind": kind, "size": c.type.get_size(), "opaque": not c.is_definition() or name in ("NVSDK_NGX_Handle", "NVSDK_NGX_Parameter"), "fields": []}
             records[name] = record
             if not record["opaque"]:
                 for field in c.get_children():
                     if field.kind == cx.CursorKind.FIELD_DECL:
                         record["fields"].append({"name": field.spelling, "offset": field.get_field_offsetof(), "type": type_info(field.type), "declaration": " ".join(t.spelling for t in field.get_tokens())})
         elif kind == "ENUM_DECL" and name not in enums:
-            enums[name] = {"name": name,
-                           "values": [{"name": e.spelling, "value": e.enum_value} for e in c.get_children() if e.kind == cx.CursorKind.ENUM_CONSTANT_DECL]}
+            enums[name] = {"name": name, "values": [{"name": e.spelling, "value": e.enum_value} for e in c.get_children() if e.kind == cx.CursorKind.ENUM_CONSTANT_DECL]}
 
     def walk(c):
         header = source(c)
@@ -95,24 +88,22 @@ def extract(sdk: Path, scratch: Path, rid: str):
                     aliases[c.spelling] = alias
             elif c.kind == cx.CursorKind.FUNCTION_DECL:
                 name = c.spelling
-                if windows or "D3D" not in name:
-                    functions.setdefault(name, {
+                if name not in functions and (windows or "D3D" not in name):
+                    functions[name] = {
                         "name": name, "header": header, "line": c.location.line,
                         "result": type_info(c.result_type),
                         "parameters": [{"name": p.spelling or f"arg{i}", "type": type_info(p.type)} for i, p in enumerate(c.get_arguments())],
-                        "inline": c.is_definition()})
+                        "inline": c.is_definition()}
             elif c.kind == cx.CursorKind.MACRO_DEFINITION:
                 tokens = list(c.get_tokens())
-                macros[c.spelling] = {"name": c.spelling, "tokens": [t.spelling for t in tokens[1:]],
-                                     "functionLike": len(tokens) > 1 and tokens[1].spelling == "(" and tokens[0].extent.end.offset == tokens[1].extent.start.offset}
+                macros[c.spelling] = {"name": c.spelling, "tokens": [t.spelling for t in tokens[1:]], "functionLike": len(tokens) > 1 and tokens[1].spelling == "(" and tokens[0].extent.end.offset == tokens[1].extent.start.offset}
         if c.kind in (cx.CursorKind.TRANSLATION_UNIT, cx.CursorKind.LINKAGE_SPEC, cx.CursorKind.UNEXPOSED_DECL, cx.CursorKind.NAMESPACE):
             for child in c.get_children():
                 walk(child)
 
     # Parse helpers individually: upstream repeats some shared inline helpers in
     # the D3D/CUDA/Vulkan headers. Compiling all headers together is not supported.
-    headers = sorted(p.relative_to(sdk / "include").as_posix() for p in (sdk / "include").rglob("*.h")
-                     if p.relative_to(sdk / "include").as_posix() not in IMPLEMENTATION_HEADERS)
+    headers = sorted(p.relative_to(sdk / "include").as_posix() for p in (sdk / "include").rglob("*.h") if p.relative_to(sdk / "include").as_posix() not in IMPLEMENTATION_HEADERS)
     for header in headers:
         if not windows and ("_d3d" in header or header in ("nvsdk_ngx_helpers_dlssd.h", "nvsdk_ngx_helpers_dlssg.h")):
             continue

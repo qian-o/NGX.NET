@@ -14,6 +14,12 @@ internal sealed partial class Emitter
         bool unsigned = name == "NVSDK_NGX_Result" || values.Any(v => v.GetProperty("value").GetInt64() > int.MaxValue);
         string prefix = name + "_";
         StringBuilder text = new(Header + Namespace + Summary(name));
+
+        if (name is "NVSDK_NGX_DLSS_Feature_Flags" or "NVSDK_NGX_DLSSG_ResourceFlags" or "NVSDK_NGX_DLSSG_EvalFlags" or "NVSDK_NGX_Feature_Support_Result")
+        {
+            text.AppendLine("[Flags]");
+        }
+
         text.AppendLine($"public enum {managed} : {(unsigned ? "uint" : "int")}\n{{");
 
         for (int i = 0; i < values.Length; i++)
@@ -25,9 +31,10 @@ internal sealed partial class Emitter
 
             JsonElement item = values[i];
             string native = item.Text("name");
-            string member = native.StartsWith(prefix, StringComparison.Ordinal) ? native[prefix.Length..] : native.Replace("NVSDK_NGX_", "", StringComparison.Ordinal);
+            bool hasPrefix = native.StartsWith(prefix, StringComparison.Ordinal);
+            string member = hasPrefix ? native[prefix.Length..] : native.Replace("NVSDK_NGX_", "", StringComparison.Ordinal);
 
-            if (!native.StartsWith(prefix, StringComparison.Ordinal))
+            if (!hasPrefix)
             {
                 string[] parts = native.Split('_');
                 string normalized = name.Replace("_", "", StringComparison.Ordinal);
@@ -61,7 +68,7 @@ internal sealed partial class Emitter
 
         string managed = unionNames.GetValueOrDefault(name, TypeName(name));
         JsonElement[] fields = [.. value.Items("fields")];
-        bool hasNumerics = fields.Any(field => MathFieldType(name, field) is not null);
+        bool hasNumerics = false;
         bool hasInlineArrays = false;
         StringBuilder text = new(Summary(opaque ? name + ". Opaque native object; pass only pointers returned by NGX." : name));
         text.AppendLine(opaque ? "[StructLayout(LayoutKind.Sequential)]" : $"[StructLayout(LayoutKind.Explicit, Size = {value.Number("size")})]");
@@ -82,6 +89,7 @@ internal sealed partial class Emitter
 
             if (MathFieldType(name, field) is string mathType)
             {
+                hasNumerics = true;
                 text.AppendLine($"    public {mathType} {Name(fieldName)};");
             }
             else if (type.Text("kind") == "CONSTANTARRAY")
@@ -133,11 +141,11 @@ internal sealed partial class Emitter
 
             string expression = declaration.GetString()!.Split('=', 2)[1].Trim();
 
-            if (Regex.IsMatch(expression, @"^-?\d+(?:\.\d+f)?$"))
+            if (NumericInitializerRegex().IsMatch(expression))
             {
                 initializers.Add((Name(field.Text("name")), expression));
             }
-            else if (!Regex.IsMatch(expression, @"^\{[0 ,.f]+\}$"))
+            else if (!ZeroInitializerRegex().IsMatch(expression))
             {
                 throw new InvalidOperationException("Unsupported native initializer: " + expression);
             }
@@ -174,10 +182,13 @@ internal sealed partial class Emitter
 
             string name = TypeName(native);
             string pointer = Type(type);
-            files[$"Callbacks/{name}.g.cs"] = Header + "using System.Runtime.InteropServices;\n\n" + Namespace + Summary(native + ". Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.") +
-                $"[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" +
-                Summary("Native C callback pointer. C++ reference parameters use their pointer ABI.", 4) +
-                $"    public readonly {pointer} Pointer = pointer;\n}}\n";
+            files[$"Callbacks/{name}.g.cs"] = Header + "using System.Runtime.InteropServices;\n\n" + Namespace + Summary(native + ". Keep callback code alive while NGX retains it; never let managed exceptions cross this ABI.") + $"[StructLayout(LayoutKind.Sequential)]\npublic readonly unsafe struct {name}({pointer} pointer)\n{{\n" + Summary("Native C callback pointer. C++ reference parameters use their pointer ABI.", 4) + $"    public readonly {pointer} Pointer = pointer;\n}}\n";
         }
     }
+
+    [GeneratedRegex(@"^-?\d+(?:\.\d+f)?$")]
+    private static partial Regex NumericInitializerRegex();
+
+    [GeneratedRegex(@"^\{[0 ,.f]+\}$")]
+    private static partial Regex ZeroInitializerRegex();
 }

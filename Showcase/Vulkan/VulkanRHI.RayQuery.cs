@@ -18,11 +18,6 @@ internal sealed unsafe partial class VulkanRHI
 
     private VkAcceleration CreateAcceleration(AccelerationStructureTypeKHR type, ulong size)
     {
-        if (size == 0)
-        {
-            throw new InvalidOperationException("Vulkan returned an empty acceleration-structure allocation size.");
-        }
-
         VkBufferResource storage = CreateBuffer(size, BufferUsageFlags.AccelerationStructureStorageBitKhr | BufferUsageFlags.ShaderDeviceAddressBit, false);
         AccelerationStructureCreateInfoKHR create = new()
         {
@@ -61,33 +56,14 @@ internal sealed unsafe partial class VulkanRHI
 
         acceleration.Address = accelerationApi.GetAccelerationStructureDeviceAddress(device, &address);
 
-        if (acceleration.Address == 0)
-        {
-            acceleration.Dispose();
-
-            throw new InvalidOperationException("Vulkan returned a null acceleration-structure address.");
-        }
-
         return acceleration;
     }
 
-    private VkBufferResource CreateRayScratch(ulong size)
-    {
-        if (size == 0 || scratchAlignment == 0)
-        {
-            throw new InvalidOperationException("Invalid Vulkan ray-tracing scratch requirements.");
-        }
-
-        return CreateBuffer(checked(size + scratchAlignment - 1), BufferUsageFlags.StorageBufferBit | BufferUsageFlags.ShaderDeviceAddressBit, false);
-    }
+    private VkBufferResource CreateRayScratch(ulong size) => CreateBuffer(size + scratchAlignment - 1, BufferUsageFlags.StorageBufferBit | BufferUsageFlags.ShaderDeviceAddressBit, false);
 
     private ulong ScratchAddress(VkBufferResource scratch) => (scratch.Address + scratchAlignment - 1) / scratchAlignment * scratchAlignment;
 
-    private void RayBarrier(
-        PipelineStageFlags2 sourceStage,
-        AccessFlags2 sourceAccess,
-        PipelineStageFlags2 destinationStage,
-        AccessFlags2 destinationAccess)
+    private void RayBarrier(PipelineStageFlags2 sourceStage, AccessFlags2 sourceAccess, PipelineStageFlags2 destinationStage, AccessFlags2 destinationAccess)
     {
         MemoryBarrier2 memory = new()
         {
@@ -138,7 +114,7 @@ internal sealed unsafe partial class VulkanRHI
                         VertexFormat = Format.R32G32B32Sfloat,
                         VertexData = new()
                         {
-                            DeviceAddress = sceneBuffers[0].Address + (ulong)range.FirstVertex * (uint)sizeof(SceneVertex)
+                            DeviceAddress = sceneBuffers[0].Address + ((ulong)range.FirstVertex * (uint)sizeof(SceneVertex))
                         },
                         VertexStride = (uint)sizeof(SceneVertex),
                         MaxVertex = range.VertexCount - 1,
@@ -176,11 +152,7 @@ internal sealed unsafe partial class VulkanRHI
             accelerationApi.CmdBuildAccelerationStructures(commandBuffer, 1, &build, &ranges);
         }
 
-        RayBarrier(
-            PipelineStageFlags2.AccelerationStructureBuildBitKhr,
-            AccessFlags2.AccelerationStructureWriteBitKhr,
-            PipelineStageFlags2.AccelerationStructureBuildBitKhr,
-            AccessFlags2.AccelerationStructureReadBitKhr);
+        RayBarrier(PipelineStageFlags2.AccelerationStructureBuildBitKhr, AccessFlags2.AccelerationStructureWriteBitKhr, PipelineStageFlags2.AccelerationStructureBuildBitKhr, AccessFlags2.AccelerationStructureReadBitKhr);
         uint count = (uint)Resources.Scene.Objects.Length;
         AccelerationStructureGeometryKHR instances = InstanceGeometry(0);
         AccelerationStructureBuildGeometryInfoKHR topBuild = new()
@@ -200,10 +172,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             frame.Tlas = CreateAcceleration(AccelerationStructureTypeKHR.TopLevelKhr, topSizes.AccelerationStructureSize);
             frame.RayScratch = CreateRayScratch(Math.Max(topSizes.BuildScratchSize, topSizes.UpdateScratchSize));
-            frame.RayInstances = CreateBuffer(
-                (ulong)(Resources.Scene.Objects.Length * sizeof(AccelerationStructureInstanceKHR)),
-                BufferUsageFlags.AccelerationStructureBuildInputReadOnlyBitKhr | BufferUsageFlags.ShaderDeviceAddressBit,
-                true);
+            frame.RayInstances = CreateBuffer((ulong)(Resources.Scene.Objects.Length * sizeof(AccelerationStructureInstanceKHR)), BufferUsageFlags.AccelerationStructureBuildInputReadOnlyBitKhr | BufferUsageFlags.ShaderDeviceAddressBit, true);
         }
     }
 
@@ -257,11 +226,7 @@ internal sealed unsafe partial class VulkanRHI
             instances[i] = CreateRayInstance(Resources.Scene.Objects[i], (uint)i, bottomLevels[i].Address);
         }
 
-        RayBarrier(
-            PipelineStageFlags2.HostBit | PipelineStageFlags2.ComputeShaderBit | PipelineStageFlags2.AccelerationStructureBuildBitKhr,
-            AccessFlags2.HostWriteBit | AccessFlags2.AccelerationStructureReadBitKhr | AccessFlags2.AccelerationStructureWriteBitKhr,
-            PipelineStageFlags2.AccelerationStructureBuildBitKhr,
-            AccessFlags2.ShaderReadBit | AccessFlags2.AccelerationStructureReadBitKhr | AccessFlags2.AccelerationStructureWriteBitKhr);
+        RayBarrier(PipelineStageFlags2.HostBit | PipelineStageFlags2.ComputeShaderBit | PipelineStageFlags2.AccelerationStructureBuildBitKhr, AccessFlags2.HostWriteBit | AccessFlags2.AccelerationStructureReadBitKhr | AccessFlags2.AccelerationStructureWriteBitKhr, PipelineStageFlags2.AccelerationStructureBuildBitKhr, AccessFlags2.ShaderReadBit | AccessFlags2.AccelerationStructureReadBitKhr | AccessFlags2.AccelerationStructureWriteBitKhr);
         AccelerationStructureGeometryKHR geometry = InstanceGeometry(frame.RayInstances.Address);
         AccelerationStructureBuildGeometryInfoKHR build = new()
         {
@@ -286,11 +251,7 @@ internal sealed unsafe partial class VulkanRHI
 
         AccelerationStructureBuildRangeInfoKHR* ranges = &range;
         accelerationApi.CmdBuildAccelerationStructures(commandBuffer, 1, &build, &ranges);
-        RayBarrier(
-            PipelineStageFlags2.AccelerationStructureBuildBitKhr,
-            AccessFlags2.AccelerationStructureWriteBitKhr,
-            PipelineStageFlags2.ComputeShaderBit,
-            AccessFlags2.AccelerationStructureReadBitKhr);
+        RayBarrier(PipelineStageFlags2.AccelerationStructureBuildBitKhr, AccessFlags2.AccelerationStructureWriteBitKhr, PipelineStageFlags2.ComputeShaderBit, AccessFlags2.AccelerationStructureReadBitKhr);
         frame.TlasBuilt = true;
     }
 }

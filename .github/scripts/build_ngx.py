@@ -68,14 +68,14 @@ def prepare(root):
     tree = api(f"KhronosGroup/Vulkan-Headers/git/trees/{VULKAN_COMMIT}?recursive=1")
     headers = [item["path"] for item in tree["tree"] if item["type"] == "blob" and item["path"].startswith("include/")]
     download("KhronosGroup/Vulkan-Headers", VULKAN_COMMIT, headers, root / "vulkan")
-    save(root / "source.json", {"repository": "https://github.com/NVIDIA/DLSS", "release": release["tag_name"],
-                               "commit": commit, "vulkanCommit": VULKAN_COMMIT})
+    save(root / "source.json", {"repository": "https://github.com/NVIDIA/DLSS", "release": release["tag_name"], "commit": commit, "vulkanCommit": VULKAN_COMMIT})
     print(f"Using {release['tag_name']} at {commit}", flush=True)
 
 
 def run(command, cwd):
-    print(" ".join(map(str, command)), flush=True)
-    subprocess.run(list(map(str, command)), cwd=cwd, check=True)
+    command = list(map(str, command))
+    print(" ".join(command), flush=True)
+    subprocess.run(command, cwd=cwd, check=True)
 
 
 def build(root, scratch, output, rid):
@@ -123,18 +123,11 @@ def build(root, scratch, output, rid):
     if windows:
         definition = scratch / "ngx-bridge.def"
         definition.write_text("LIBRARY ngx-bridge\nEXPORTS\n" + "\n".join(exports) + "\n")
-        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++17", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS",
-             "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader,
-             "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib",
-             "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
+        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++17", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
     else:
         script = scratch / "ngx-bridge.map"
         script.write_text("{\n global:\n" + "\n".join("    " + n + ";" for n in exports) + "\n local: *;\n};\n")
-        run(["g++", "-shared", "-fPIC", "-O2", "-std=c++17", "-fvisibility=hidden",
-             "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS",
-             "-I" + str(root / "include"), "-I" + str(root / "vulkan/include"), *sources,
-             "-Wl,--whole-archive", loader, "-Wl,--no-whole-archive", "-ldl", "-pthread",
-             "-Wl,-z,defs", "-Wl,--version-script=" + str(script), "-o", bridge], scratch)
+        run(["g++", "-shared", "-fPIC", "-O2", "-std=c++17", "-fvisibility=hidden", "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "-I" + str(root / "include"), "-I" + str(root / "vulkan/include"), *sources, "-Wl,--whole-archive", loader, "-Wl,--no-whole-archive", "-ldl", "-pthread", "-Wl,-z,defs", "-Wl,--version-script=" + str(script), "-o", bridge], scratch)
     for p in (root / "lib" / platform / "rel").iterdir():
         shutil.copy2(p, native / p.name)
     save(output / "ast.json", {"source": source, "platform": ast})

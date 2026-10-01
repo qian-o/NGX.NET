@@ -58,18 +58,13 @@ internal sealed partial class Scene
             MaterialChannel? normal = material.FindChannel("Normal");
             MaterialChannel? emissive = material.FindChannel("Emissive");
 
-            float Scalar(MaterialChannel? channel, string name, float fallbackValue) =>
-                channel?.Parameters.FirstOrDefault(parameter => parameter.Name == name)?.Value is float value ? value : fallbackValue;
+            float Scalar(MaterialChannel? channel, string name, float fallbackValue) => channel?.Parameters.FirstOrDefault(parameter => parameter.Name == name)?.Value is float value ? value : fallbackValue;
 
             materials.Add(new()
             {
                 BaseColor = color?.Color ?? Vector4.One,
                 EmissiveMetallic = new((emissive?.Color ?? Vector4.Zero).AsVector3() * Scalar(emissive, "EmissiveStrength", 1), Scalar(metal, "MetallicFactor", 1)),
-                Parameters = new(
-                    Scalar(metal, "RoughnessFactor", 1),
-                    Scalar(normal, "NormalScale", 1),
-                    material.Alpha == AlphaMode.OPAQUE ? -1 : material.AlphaCutoff,
-                    material.DoubleSided ? 1 : 0),
+                Parameters = new(Scalar(metal, "RoughnessFactor", 1), Scalar(normal, "NormalScale", 1), material.Alpha == AlphaMode.OPAQUE ? -1 : material.AlphaCutoff, material.DoubleSided ? 1 : 0),
                 Textures = new(Texture(color, true), Texture(normal, false), Texture(metal, false), Texture(emissive, true))
             });
         }

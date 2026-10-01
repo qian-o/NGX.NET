@@ -1,3 +1,3 @@
 ﻿using Showcase;
 
-App.Run(args);
+App.Run();

@@ -7,11 +7,9 @@ namespace Showcase.DirectX12;
 
 internal sealed unsafe partial class DirectX12RHI
 {
-    private CpuDescriptorHandle Cpu(int frame, int index) =>
-        new() { Ptr = descriptors.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)((frame * DescriptorsPerFrame + index) * descriptorIncrement) };
+    private CpuDescriptorHandle Cpu(int frame, int index) => new() { Ptr = descriptors.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)(((frame * DescriptorsPerFrame) + index) * descriptorIncrement) };
 
-    private GpuDescriptorHandle Gpu(int frame, int index) =>
-        new() { Ptr = descriptors.Handle->GetGPUDescriptorHandleForHeapStart().Ptr + (ulong)((frame * DescriptorsPerFrame + index) * descriptorIncrement) };
+    private GpuDescriptorHandle Gpu(int frame, int index) => new() { Ptr = descriptors.Handle->GetGPUDescriptorHandleForHeapStart().Ptr + (ulong)(((frame * DescriptorsPerFrame) + index) * descriptorIncrement) };
 
     public override void UpdateDescriptors()
     {
@@ -86,7 +84,7 @@ internal sealed unsafe partial class DirectX12RHI
 
                 if (image.Format == ImageFormat.Depth)
                 {
-                    image.Dsv = new() { Ptr = depthViews.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)((frame * 2 + (slot == ImageSlot.Depth ? 0 : 1)) * dsvIncrement) };
+                    image.Dsv = new() { Ptr = depthViews.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)(((frame * 2) + (slot == ImageSlot.Depth ? 0 : 1)) * dsvIncrement) };
                     DepthStencilViewDesc depthView = new()
                     {
                         Format = Format.FormatD32Float,
@@ -96,7 +94,7 @@ internal sealed unsafe partial class DirectX12RHI
                 }
                 else
                 {
-                    image.Rtv = new() { Ptr = renderTargets.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)((frame * (int)ImageSlot.Count + (int)slot) * rtvIncrement) };
+                    image.Rtv = new() { Ptr = renderTargets.Handle->GetCPUDescriptorHandleForHeapStart().Ptr + (nuint)(((frame * (int)ImageSlot.Count) + (int)slot) * rtvIncrement) };
                     device.Handle->CreateRenderTargetView(image.Texture.Handle, null, image.Rtv);
                 }
             }

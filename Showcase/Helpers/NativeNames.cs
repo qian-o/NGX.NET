@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using NGX.NET;
+using System.Text;
 
 namespace Showcase.Helpers;
 
@@ -12,35 +12,30 @@ internal sealed unsafe class NativeNames : IDisposable
     public NativeNames(string[] names)
     {
         Length = (uint)names.Length;
-        Pointer = (byte**)NativeMemory.AllocZeroed(Length, (nuint)sizeof(nint));
+        int size = checked(names.Length * sizeof(nint));
 
-        try
+        foreach (string name in names)
         {
-            for (int i = 0; i < names.Length; i++)
-            {
-                Pointer[i] = (byte*)NGXMarshal.StringToPtr(names[i], NGXEncoding.Utf8);
-            }
+            size = checked(size + Encoding.UTF8.GetByteCount(name) + 1);
         }
-        catch
-        {
-            Dispose();
 
-            throw;
+        // The pointer table and UTF-8 strings share one allocation.
+        Pointer = (byte**)NativeMemory.Alloc((nuint)size);
+        byte* text = (byte*)(Pointer + names.Length);
+        int remaining = size - (names.Length * sizeof(nint));
+
+        for (int i = 0; i < names.Length; i++)
+        {
+            Pointer[i] = text;
+            int count = Encoding.UTF8.GetBytes(names[i].AsSpan(), new Span<byte>(text, remaining));
+            text[count++] = 0;
+            text += count;
+            remaining -= count;
         }
     }
 
     public void Dispose()
     {
-        if (Pointer == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < Length; i++)
-        {
-            NGXMarshal.Free(Pointer[i]);
-        }
-
         NativeMemory.Free(Pointer);
         Pointer = null;
     }

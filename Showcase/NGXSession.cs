@@ -9,8 +9,7 @@ internal sealed unsafe partial class NGXSession : IDisposable
 {
     public Dictionary<NGXFeature, string> Unavailable { get; } = [];
 
-    public bool IsVulkan { get; private set; }
-
+    private bool isVulkan;
     private nint device;
     private NGXParameter* capabilities;
     private NGXParameter* parameters;
@@ -38,14 +37,11 @@ internal sealed unsafe partial class NGXSession : IDisposable
             projectId = (sbyte*)NGXMarshal.StringToPtr("fc6ac847-10b0-48e1-842d-1bc819f8d2f4", NGXEncoding.Utf8);
             engineVersion = (sbyte*)NGXMarshal.StringToPtr("NGX.NET.Showcase.1.0", NGXEncoding.Utf8);
             paths = (void**)NativeMemory.Alloc((nuint)sizeof(nint));
+            *paths = runtimePath;
         }
         catch
         {
-            NativeMemory.Free(paths);
-            NGXMarshal.Free(engineVersion);
-            NGXMarshal.Free(projectId);
-            NGXMarshal.Free(dataPath);
-            NGXMarshal.Free(runtimePath);
+            Dispose();
 
             throw;
         }
@@ -55,9 +51,8 @@ internal sealed unsafe partial class NGXSession : IDisposable
 
     public void Initialize(nint nativeDevice, nint instance = 0, nint physical = 0, nint getInstanceProcAddr = 0, nint getDeviceProcAddr = 0)
     {
-        IsVulkan = instance != 0;
+        isVulkan = instance != 0;
         device = nativeDevice;
-        *paths = runtimePath;
         NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
@@ -67,11 +62,7 @@ internal sealed unsafe partial class NGXSession : IDisposable
             }
         };
 
-        NGXResult result = IsVulkan
-            ? Ngx.Vulkan.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, instance, physical, device,
-                (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr,
-                (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NGXVersion)Ngx.VersionAPI)
-            : Ngx.D3D12.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, device, &common, (NGXVersion)Ngx.VersionAPI);
+        NGXResult result = isVulkan ? Ngx.Vulkan.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, instance, physical, device, (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getInstanceProcAddr, (delegate* unmanaged[Cdecl]<nint, sbyte*, delegate* unmanaged[Cdecl]<void>>)getDeviceProcAddr, &common, (NGXVersion)Ngx.VersionAPI) : Ngx.D3D12.InitWithProjectID(projectId, NGXEngineType.CUSTOM, engineVersion, dataPath, device, &common, (NGXVersion)Ngx.VersionAPI);
 
         if (result is NGXResult.FAILFeatureNotSupported or NGXResult.FAILPlatformError or NGXResult.FAILOutOfDate)
         {
@@ -88,13 +79,13 @@ internal sealed unsafe partial class NGXSession : IDisposable
         Ngx.ThrowIfFailed(result);
         initialized = true;
         NGXParameter* allocated = null;
-        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.GetCapabilityParameters(&allocated) : Ngx.D3D12.GetCapabilityParameters(&allocated));
+        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.GetCapabilityParameters(&allocated) : Ngx.D3D12.GetCapabilityParameters(&allocated));
         capabilities = allocated;
         allocated = null;
-        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
+        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
         parameters = allocated;
         allocated = null;
-        Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
+        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.AllocateParameters(&allocated) : Ngx.D3D12.AllocateParameters(&allocated));
         frameParameters = allocated;
 
         Query(NGXFeature.SuperSampling, Ngx.ParameterSuperSamplingAvailable);
@@ -105,7 +96,6 @@ internal sealed unsafe partial class NGXSession : IDisposable
     public string[] VulkanExtensions(nint instance = 0, nint physical = 0)
     {
         HashSet<string> extensions = [];
-        *paths = runtimePath;
         NGXFeatureCommonInfo common = new()
         {
             PathListInfo = new()
@@ -140,9 +130,7 @@ internal sealed unsafe partial class NGXSession : IDisposable
 
             uint count = 0;
             NGXVkExtensionProperties* properties = null;
-            NGXResult result = instance == 0
-                ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(&discovery, &count, &properties)
-                : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, &discovery, &count, &properties);
+            NGXResult result = instance == 0 ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(&discovery, &count, &properties) : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, &discovery, &count, &properties);
 
             if (Ngx.Failed(result))
             {
@@ -191,46 +179,30 @@ internal sealed unsafe partial class NGXSession : IDisposable
     {
         if (handle != null)
         {
-            Ngx.ThrowIfFailed(IsVulkan ? Ngx.Vulkan.ReleaseFeature(handle) : Ngx.D3D12.ReleaseFeature(handle));
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.ReleaseFeature(handle) : Ngx.D3D12.ReleaseFeature(handle));
             handle = null;
+        }
+    }
+
+    private void DestroyParameters(ref NGXParameter* value)
+    {
+        if (value != null)
+        {
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.DestroyParameters(value) : Ngx.D3D12.DestroyParameters(value));
+            value = null;
         }
     }
 
     public void Dispose()
     {
-        List<Exception> failures = [];
-
-        void Check(NGXResult result, string operation)
-        {
-            if (Ngx.Failed(result))
-            {
-                failures.Add(new NGXException(result, operation));
-            }
-        }
-
         if (initialized)
         {
-            // Complete shutdown even when an individual native release fails.
-            foreach (nint value in new nint[] { (nint)reconstruction, (nint)generation })
-            {
-                if (value != 0)
-                {
-                    Check(IsVulkan ? Ngx.Vulkan.ReleaseFeature((NGXHandle*)value) : Ngx.D3D12.ReleaseFeature((NGXHandle*)value), "ReleaseFeature");
-                }
-            }
-
-            reconstruction = generation = null;
-
-            foreach (nint value in new nint[] { (nint)frameParameters, (nint)parameters, (nint)capabilities })
-            {
-                if (value != 0)
-                {
-                    Check(IsVulkan ? Ngx.Vulkan.DestroyParameters((NGXParameter*)value) : Ngx.D3D12.DestroyParameters((NGXParameter*)value), "DestroyParameters");
-                }
-            }
-
-            frameParameters = parameters = capabilities = null;
-            Check(IsVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device), "Shutdown1");
+            ReleaseReconstruction();
+            ReleaseFrameGeneration();
+            DestroyParameters(ref frameParameters);
+            DestroyParameters(ref parameters);
+            DestroyParameters(ref capabilities);
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device));
             initialized = false;
         }
 
@@ -244,10 +216,5 @@ internal sealed unsafe partial class NGXSession : IDisposable
         projectId = null;
         NGXMarshal.Free(engineVersion);
         engineVersion = null;
-
-        if (failures.Count != 0)
-        {
-            throw new AggregateException("NGX shutdown failed.", failures);
-        }
     }
 }

@@ -2,7 +2,6 @@
 using Hexa.NET.ImGui;
 using Showcase.DirectX12;
 using Showcase.Handlers;
-using Showcase.Models;
 using Showcase.Vulkan;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
@@ -11,44 +10,29 @@ namespace Showcase;
 
 internal static class App
 {
-    public static void Run(string[] args)
+    public static void Run()
     {
-        if (args is ["--help"])
-        {
-            Console.WriteLine("NGX.NET Showcase\nUsage: Showcase [--backend vulkan|directx12]\nDefault backend: Vulkan");
+        Console.WriteLine("NGX.NET Showcase\n1. DirectX 12\n2. Vulkan");
+        string? choice;
 
-            return;
-        }
-
-        try
+        do
         {
-            GraphicsBackend backend = args switch
+            Console.Write("Select backend (1/2): ");
+            choice = Console.ReadLine();
+
+            if (choice is null)
             {
-                [] or ["--backend", "vulkan"] => GraphicsBackend.Vulkan,
-                ["--backend", "directx12"] => GraphicsBackend.DirectX12,
-                _ => throw new ArgumentException("Usage: Showcase [--backend vulkan|directx12]")
-            };
-            Run(backend);
+                return;
+            }
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine(exception);
-            string logs = Path.Combine(AppContext.BaseDirectory, "Logs");
-            Directory.CreateDirectory(logs);
-            string path = Path.Combine(logs, $"showcase-{DateTime.Now:yyyyMMdd-HHmmss}.log");
-            File.WriteAllText(path, exception.ToString());
-            Console.Error.WriteLine($"Failure log: {path}");
-            Environment.ExitCode = 1;
-        }
-    }
+        while (choice is not ("1" or "2"));
 
-    private static void Run(GraphicsBackend backend)
-    {
+        bool vulkan = choice == "2";
         using IWindow window = Window.Create(WindowOptions.Default with
         {
             Size = new(1280, 720),
-            API = backend == GraphicsBackend.Vulkan ? GraphicsAPI.DefaultVulkan : GraphicsAPI.None,
-            Title = $"NGX.NET Showcase - {backend}",
+            API = vulkan ? GraphicsAPI.DefaultVulkan : GraphicsAPI.None,
+            Title = $"NGX.NET Showcase - {(vulkan ? "Vulkan" : "DirectX 12")}",
             ShouldSwapAutomatically = false,
             VSync = false,
             UpdatesPerSecond = 0,
@@ -68,12 +52,7 @@ internal static class App
 
         using IInputContext input = window.CreateInput();
         using InputHandler inputHandler = new(window, input);
-        using RHI context = backend switch
-        {
-            GraphicsBackend.Vulkan => new VulkanRHI(window, imGui),
-            GraphicsBackend.DirectX12 => new DirectX12RHI(window, imGui),
-            _ => throw new ArgumentOutOfRangeException(nameof(backend))
-        };
+        using RHI context = vulkan ? new VulkanRHI(window, imGui) : new DirectX12RHI(window, imGui);
         context.Initialize();
         CameraHandler camera = new();
         using Renderer renderer = new(context, camera);
@@ -89,11 +68,6 @@ internal static class App
 
             if (window.WindowState == WindowState.Minimized || size.X <= 0 || size.Y <= 0 || logicalSize.X <= 0 || logicalSize.Y <= 0)
             {
-                if (active)
-                {
-                    renderer.Suspend();
-                }
-
                 active = false;
                 frameReady = false;
                 window.IsEventDriven = true;
@@ -110,7 +84,6 @@ internal static class App
             }
 
             active = true;
-            renderer.Resize((int)size.X, (int)size.Y);
             Vector2 dpiScale = size / logicalSize;
 
             if (imGui.UpdateFont(dpiScale))
@@ -118,11 +91,9 @@ internal static class App
                 renderer.UpdateFont();
             }
 
-            imGui.Update((float)delta, size, dpiScale);
-            imGui.Build(renderer);
+            imGui.Update((float)delta, size, dpiScale, renderer);
             elapsed = renderer.Update(elapsed);
             camera.Move(inputHandler, elapsed);
-            imGui.Render();
             frameReady = true;
         };
 

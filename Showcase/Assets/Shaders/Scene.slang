@@ -176,9 +176,7 @@ void surfaceGeometry(inout Surface s, Vertex a, Vertex b, Vertex c, float3 weigh
     // visible side. The correction vanishes on flat geometry and at vertices.
     // Use it for visibility rays, not reflection paths or reconstruction guides.
     float3 p = a.position.xyz * weights.x + b.position.xyz * weights.y + c.position.xyz * weights.z;
-    s.shadowOffset = -weights.x * min(dot(p - a.position.xyz, na), 0) * na
-                     -weights.y * min(dot(p - b.position.xyz, nb), 0) * nb
-                     -weights.z * min(dot(p - c.position.xyz, nc), 0) * nc;
+    s.shadowOffset = -weights.x * min(dot(p - a.position.xyz, na), 0) * na - weights.y * min(dot(p - b.position.xyz, nb), 0) * nb - weights.z * min(dot(p - c.position.xyz, nc), 0) * nc;
     s.shadowOffset -= s.geometricNormal * min(dot(s.shadowOffset, s.geometricNormal), 0);
 }
 // Chiang et al. 2019: normal-map shadowing approaches zero smoothly at the
@@ -220,11 +218,7 @@ Surface decodeSurface(Material m, float3 n, float4 tangent, float4 baseColor, fl
 }
 Surface surface(Material m, float2 uv, float3 n, float4 tangent, float4 lod)
 {
-    return decodeSurface(m, n, tangent,
-        sampleTexture((int)m.textures.x, uv, lod.x, true),
-        sampleTexture((int)m.textures.y, uv, lod.y, false),
-        sampleTexture((int)m.textures.z, uv, lod.z, false),
-        sampleTexture((int)m.textures.w, uv, lod.w, true).rgb);
+    return decodeSurface(m, n, tangent, sampleTexture((int)m.textures.x, uv, lod.x, true), sampleTexture((int)m.textures.y, uv, lod.y, false), sampleTexture((int)m.textures.z, uv, lod.z, false), sampleTexture((int)m.textures.w, uv, lod.w, true).rgb);
 }
 struct RasterVertex
 {
@@ -286,11 +280,7 @@ GBuffer ScenePS(RasterVertex input, bool front : SV_IsFrontFace)
     Material m = materials[input.material];
     if (!front && m.parameters.w == 0) discard;
     float2 uvDx = ddx(input.uv), uvDy = ddy(input.uv);
-    Surface s = decodeSurface(m, normalize(input.normal), input.tangent,
-        sampleTextureGrad((int)m.textures.x, input.uv, uvDx, uvDy, g.jitter.w, true),
-        sampleTextureGrad((int)m.textures.y, input.uv, uvDx, uvDy, g.jitter.w, false),
-        sampleTextureGrad((int)m.textures.z, input.uv, uvDx, uvDy, g.jitter.w, false),
-        sampleTextureGrad((int)m.textures.w, input.uv, uvDx, uvDy, g.jitter.w, true).rgb);
+    Surface s = decodeSurface(m, normalize(input.normal), input.tangent, sampleTextureGrad((int)m.textures.x, input.uv, uvDx, uvDy, g.jitter.w, true), sampleTextureGrad((int)m.textures.y, input.uv, uvDx, uvDy, g.jitter.w, false), sampleTextureGrad((int)m.textures.z, input.uv, uvDx, uvDy, g.jitter.w, false), sampleTextureGrad((int)m.textures.w, input.uv, uvDx, uvDy, g.jitter.w, true).rgb);
     clip(s.alpha - m.parameters.z);
     if (dot(s.normal, g.camera.xyz - input.world) < 0) s.normal = -s.normal;
     GBuffer output;
@@ -576,8 +566,7 @@ Surface primarySurface(uint2 pixel, float3 view)
     Surface s = primaryMaterial(pixel, view);
     float3 geometry = surfaceGeometryImage[pixel].xyz;
     uint first = (uint)geometry.z * 3;
-    surfaceGeometry(s, vertices[first], vertices[first + 1], vertices[first + 2],
-        float3(1 - geometry.x - geometry.y, geometry.xy), view);
+    surfaceGeometry(s, vertices[first], vertices[first + 1], vertices[first + 2], float3(1 - geometry.x - geometry.y, geometry.xy), view);
     return s;
 }
 #include "ReflectionMotion.slang"

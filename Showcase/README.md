@@ -4,17 +4,13 @@ A .NET 10 Sponza renderer using Silk.NET. Compare native rendering with DLSS Sup
 
 ## Run
 
-From the repository root, run with Vulkan (default):
+Run from the repository root:
 
 ```shell
 dotnet run --project Showcase -c Release
 ```
 
-Or select DirectX 12:
-
-```shell
-dotnet run --project Showcase -c Release -- --backend directx12
-```
+Select DirectX 12 or Vulkan at startup.
 
 ## Controls
 

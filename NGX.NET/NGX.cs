@@ -21,9 +21,7 @@ public static unsafe partial class NGX
     {
         get
         {
-            string os = OperatingSystem.IsWindows() ? "win"
-                : OperatingSystem.IsLinux() ? "linux"
-                : throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+            string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
 
             string arch = RuntimeInformation.ProcessArchitecture switch
             {
@@ -37,9 +35,7 @@ public static unsafe partial class NGX
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2255", Justification = "Registers the native bridge resolver before generated P/Invoke calls.")]
-    [ModuleInitializer]
-    internal static void InitializeResolver()
+    static NGX()
     {
         NativeLibrary.SetDllImportResolver(typeof(NGX).Assembly, Resolve);
     }
@@ -96,8 +92,10 @@ public static unsafe partial class NGX
         /// <summary>
         /// Resets a parameter map through the SDK's C++ Reset member.
         /// </summary>
+        public static void Reset(NGXParameter* parameters) => ResetNative(parameters);
+
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void Reset(NGXParameter* parameters);
+        private static partial void ResetNative(NGXParameter* parameters);
     }
 }

@@ -6,7 +6,7 @@ namespace Showcase.Vulkan;
 
 internal sealed unsafe partial class VulkanRHI
 {
-    private readonly object queueSync = new();
+    private readonly Lock queueSync = new();
     private CommandPool presentPool;
     private CommandBuffer presentCommand;
     private Fence presentFence;
@@ -106,15 +106,7 @@ internal sealed unsafe partial class VulkanRHI
 
         blit.SrcOffsets[1] = new(image.Width, image.Height, 1);
         blit.DstOffsets[1] = new((int)swapChainExtent.Width, (int)swapChainExtent.Height, 1);
-        api.CmdBlitImage(
-            presentCommand,
-            ((VkTexture)image).Texture,
-            ImageLayout.TransferSrcOptimal,
-            backBuffers[index],
-            ImageLayout.TransferDstOptimal,
-            1,
-            &blit,
-            Filter.Nearest);
+        api.CmdBlitImage(presentCommand, ((VkTexture)image).Texture, ImageLayout.TransferSrcOptimal, backBuffers[index], ImageLayout.TransferDstOptimal, 1, &blit, Filter.Nearest);
         Barrier(backBuffers[index], ImageLayout.TransferDstOptimal, ImageLayout.PresentSrcKhr, Range(ImageFormat.Rgba8), presentCommand);
         backLayouts[index] = ImageLayout.PresentSrcKhr;
         Check(api.EndCommandBuffer(presentCommand), "vkEndCommandBuffer(present)");

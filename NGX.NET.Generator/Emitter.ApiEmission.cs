@@ -15,6 +15,7 @@ internal sealed partial class Emitter
         {
             text.Append(Summary($"{group} application API and native inline helpers.", 4));
             text.AppendLine($"    public static partial class {group}\n    {{");
+            text.AppendLine($"        static {group}()\n        {{\n            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);\n        }}\n");
         }
 
         JsonElement[] ordered = [.. functionsInGroup.OrderBy(f => f.Text("name"), StringComparer.Ordinal)];
@@ -63,14 +64,12 @@ internal sealed partial class Emitter
                 continue;
             }
 
-            string? declaration = tokens.All(t => t.StartsWith('"'))
-                ? $"public const string {Name(native)} = {string.Join(" + ", tokens)};"
-                : native switch
-                {
-                    "NVSDK_NGX_VERSION_API_MACRO" => $"public const uint VersionAPI = {tokens[0]};",
-                    "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET" => $"public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};",
-                    _ => null
-                };
+            string? declaration = tokens.All(t => t.StartsWith('"')) ? $"public const string {Name(native)} = {string.Join(" + ", tokens)};" : native switch
+            {
+                "NVSDK_NGX_VERSION_API_MACRO" => $"public const uint VersionAPI = {tokens[0]};",
+                "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET" => $"public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};",
+                _ => null
+            };
 
             if (declaration is null)
             {

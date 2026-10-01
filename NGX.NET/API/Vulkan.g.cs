@@ -13,6 +13,11 @@ public static unsafe partial class NGX
     /// </summary>
     public static partial class Vulkan
     {
+        static Vulkan()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);
+        }
+
         /// <summary>
         /// NGX_VK_CREATE_DLSSG. Source: nvsdk_ngx_helpers_dlssg_vk.h:45.
         /// </summary>

@@ -13,6 +13,11 @@ public static unsafe partial class NGX
     /// </summary>
     public static partial class CUDA
     {
+        static CUDA()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);
+        }
+
         /// <summary>
         /// NGX_CUDA_CREATE_DLISP_EXT. Source: nvsdk_ngx_helpers_cuda.h:38.
         /// </summary>

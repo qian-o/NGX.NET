@@ -6,6 +6,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSSG_EvalFlags
 /// </summary>
+[Flags]
 public enum NGXDLSSGEvalFlags : int
 {
     /// <summary>

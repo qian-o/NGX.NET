@@ -74,9 +74,7 @@ internal sealed partial class Emitter
             "cameraPos" or "cameraUp" or "cameraRight" or "cameraFwd" => "Vector3",
             _ => null
         },
-        "NVSDK_NGX_CUDA_DLSSD_Eval_Params" or "NVSDK_NGX_D3D11_DLSSD_Eval_Params" or
-        "NVSDK_NGX_D3D12_DLSSD_Eval_Params" or "NVSDK_NGX_VK_DLSSD_Eval_Params"
-            when field.Text("name") is "pInWorldToViewMatrix" or "pInViewToClipMatrix" => "Matrix4x4*",
+        "NVSDK_NGX_CUDA_DLSSD_Eval_Params" or "NVSDK_NGX_D3D11_DLSSD_Eval_Params" or "NVSDK_NGX_D3D12_DLSSD_Eval_Params" or "NVSDK_NGX_VK_DLSSD_Eval_Params" when field.Text("name") is "pInWorldToViewMatrix" or "pInViewToClipMatrix" => "Matrix4x4*",
         _ => null
     };
 }

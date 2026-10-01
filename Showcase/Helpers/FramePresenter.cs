@@ -7,15 +7,12 @@ namespace Showcase.Helpers;
 
 // Presentation runs on one worker. Per-slot completion prevents
 // rendering from overwriting either retained real frames or generated frames.
-internal sealed class FramePresenter(
-    Action<int> waitRendering,
-    Func<GpuImage, bool> present,
-    Action waitPresentation) : IDisposable
+internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, bool> present, Action waitPresentation) : IDisposable
 {
     private sealed record Batch(int Slot, GpuImage Real, GpuImage? Generated, TimeSpan Interval, TaskCompletionSource Completion);
 
     private readonly BlockingCollection<Batch> queue = new(RenderLayout.FramesInFlight);
-    private readonly Task[] slots = Enumerable.Repeat(Task.CompletedTask, RenderLayout.FramesInFlight).ToArray();
+    private readonly Task[] slots = [.. Enumerable.Repeat(Task.CompletedTask, RenderLayout.FramesInFlight)];
     private Thread? thread;
     private ExceptionDispatchInfo? failure;
     private int presented;
@@ -59,7 +56,11 @@ internal sealed class FramePresenter(
         {
             try
             {
-                failure?.Throw();
+                if (failure is not null)
+                {
+                    continue;
+                }
+
                 waitRendering(batch.Slot);
 
                 try
@@ -89,13 +90,14 @@ internal sealed class FramePresenter(
                     // frame slot until every copy has finished reading its images.
                     waitPresentation();
                 }
-
-                batch.Completion.SetResult();
             }
             catch (Exception exception)
             {
                 failure = ExceptionDispatchInfo.Capture(exception);
-                batch.Completion.SetException(exception);
+            }
+            finally
+            {
+                batch.Completion.SetResult();
             }
         }
     }
@@ -135,7 +137,11 @@ internal sealed class FramePresenter(
         }
     }
 
-    public void Drain() => Task.WhenAll(slots).GetAwaiter().GetResult();
+    public void Drain()
+    {
+        Task.WhenAll(slots).GetAwaiter().GetResult();
+        failure?.Throw();
+    }
 
     public void Dispose()
     {

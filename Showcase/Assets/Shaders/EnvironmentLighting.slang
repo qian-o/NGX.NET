@@ -13,8 +13,7 @@ float skyPortalPdf(float3 p, float3 direction)
 }
 float3 sampleSkyPortal(float3 p, float2 u, out float pdf)
 {
-    float3 point = float3(lerp(g.environmentMinimum.x, g.environmentMaximum.x, u.x),
-        g.environmentMaximum.y, lerp(g.environmentMinimum.z, g.environmentMaximum.z, u.y));
+    float3 point = float3(lerp(g.environmentMinimum.x, g.environmentMaximum.x, u.x), g.environmentMaximum.y, lerp(g.environmentMinimum.z, g.environmentMaximum.z, u.y));
     float3 delta = point - p;
     float lengthSquared = dot(delta, delta);
     float3 direction = lengthSquared > 0 ? delta * rsqrt(lengthSquared) : float3(0, 1, 0);
@@ -41,8 +40,7 @@ float2 bsdfPdfs(Surface s, float3 view, float3 direction)
     float nv = max(dot(s.normal, view), 1e-4);
     float3 h = normalize(view + direction);
     float alpha = s.roughness * s.roughness;
-    return float2(nl / 3.14159265,
-        ggxDistribution(saturate(dot(s.normal, h)), alpha) * smithG1(nv, alpha) / (4 * nv));
+    return float2(nl / 3.14159265, ggxDistribution(saturate(dot(s.normal, h)), alpha) * smithG1(nv, alpha) / (4 * nv));
 }
 #if HAS_RAY_QUERY
 float3 skyLighting(Surface s, float3 p, float3 view, float2 u, bool separateLobes)

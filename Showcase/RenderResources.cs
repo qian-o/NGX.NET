@@ -48,10 +48,7 @@ internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
             GeneratedFrames[frame] = ResizeImage(GeneratedFrames[frame], outputWidth, outputHeight, ImageFormat.Rgba8);
         }
 
-        GpuImage lighting = ResizeImage(LightingSamples,
-            context.RayQuerySupported ? inputWidth : 1,
-            context.RayQuerySupported ? inputHeight : 1,
-            ImageFormat.Rgba32, RenderLayout.LightingPaths);
+        GpuImage lighting = ResizeImage(LightingSamples, context.RayQuerySupported ? inputWidth : 1, context.RayQuerySupported ? inputHeight : 1, ImageFormat.Rgba32, RenderLayout.LightingPaths);
         changed |= !ReferenceEquals(LightingSamples, lighting);
         LightingSamples = lighting;
 

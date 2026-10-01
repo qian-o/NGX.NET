@@ -16,8 +16,7 @@ internal sealed class TonemapPass(RHI context, RenderResources resources) : Pass
         Context.Transition(hudless, ImageUse.Storage);
 
         // Keep native ray-traced samples intact for the reconstruction comparison.
-        ComputePass resolve = args.Reconstruction == Reconstruction.Native && !Context.RayQuerySupported
-            ? ComputePass.NativeResolve : ComputePass.CopyDisplay;
+        ComputePass resolve = args.Reconstruction == Reconstruction.Native && !Context.RayQuerySupported ? ComputePass.NativeResolve : ComputePass.CopyDisplay;
         Context.Dispatch(resolve, Resources.OutputWidth, Resources.OutputHeight, constants);
         Context.Transition(hudless, ImageUse.ShaderRead);
     }

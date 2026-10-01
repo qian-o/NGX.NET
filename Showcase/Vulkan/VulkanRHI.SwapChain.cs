@@ -16,17 +16,13 @@ internal sealed unsafe partial class VulkanRHI
 
     public override void CreateSwapChain()
     {
-        Check(
-            surfaceApi.GetPhysicalDeviceSurfaceCapabilities(physical, surface, out SurfaceCapabilitiesKHR capabilities),
-            "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+        Check(surfaceApi.GetPhysicalDeviceSurfaceCapabilities(physical, surface, out SurfaceCapabilitiesKHR capabilities), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
         Extent2D extent = capabilities.CurrentExtent;
 
         if (extent.Width == uint.MaxValue)
         {
             Vector2D<int> framebufferSize = Window.FramebufferSize;
-            extent = new(
-                Math.Clamp((uint)Math.Max(0, framebufferSize.X), capabilities.MinImageExtent.Width, capabilities.MaxImageExtent.Width),
-                Math.Clamp((uint)Math.Max(0, framebufferSize.Y), capabilities.MinImageExtent.Height, capabilities.MaxImageExtent.Height));
+            extent = new(Math.Clamp((uint)Math.Max(0, framebufferSize.X), capabilities.MinImageExtent.Width, capabilities.MaxImageExtent.Width), Math.Clamp((uint)Math.Max(0, framebufferSize.Y), capabilities.MinImageExtent.Height, capabilities.MaxImageExtent.Height));
         }
 
         // A surface can become minimized between the renderer's size check and
@@ -93,9 +89,7 @@ internal sealed unsafe partial class VulkanRHI
             ImageSharingMode = SharingMode.Exclusive,
             PreTransform = capabilities.CurrentTransform,
             CompositeAlpha = SelectCompositeAlpha(capabilities.SupportedCompositeAlpha),
-            PresentMode = modes.Contains(PresentModeKHR.ImmediateKhr) ? PresentModeKHR.ImmediateKhr
-                : modes.Contains(PresentModeKHR.MailboxKhr) ? PresentModeKHR.MailboxKhr
-                : PresentModeKHR.FifoKhr,
+            PresentMode = modes.Contains(PresentModeKHR.ImmediateKhr) ? PresentModeKHR.ImmediateKhr : modes.Contains(PresentModeKHR.MailboxKhr) ? PresentModeKHR.MailboxKhr : PresentModeKHR.FifoKhr,
             Clipped = true
         };
 

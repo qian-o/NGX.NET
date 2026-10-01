@@ -45,8 +45,7 @@ internal sealed unsafe partial class VulkanRHI
 
         public void* Mapped;
 
-        public void Write<T>(ReadOnlySpan<T> values, int offset = 0)
-            where T : unmanaged => MemoryMarshal.AsBytes(values).CopyTo(new Span<byte>((byte*)Mapped + offset, values.Length * sizeof(T)));
+        public void Write<T>(ReadOnlySpan<T> values, int offset = 0) where T : unmanaged => MemoryMarshal.AsBytes(values).CopyTo(new Span<byte>((byte*)Mapped + offset, values.Length * sizeof(T)));
 
         public void Dispose()
         {

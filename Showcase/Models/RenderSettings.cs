@@ -12,9 +12,7 @@ internal sealed record RenderSettings
 
     // RR selects reconstruction only; hardware ray tracing is a renderer capability
     // and continues when this setting is off. RR without upscaling runs natively.
-    public Reconstruction Reconstruction => RayReconstruction ? Reconstruction.RayReconstruction
-        : Quality == QualityMode.Off ? Reconstruction.Native
-        : Reconstruction.DLSS;
+    public Reconstruction Reconstruction => RayReconstruction ? Reconstruction.RayReconstruction : Quality == QualityMode.Off ? Reconstruction.Native : Reconstruction.DLSS;
 
     public NGXPerfQualityValue ReconstructionQuality => Quality switch
     {

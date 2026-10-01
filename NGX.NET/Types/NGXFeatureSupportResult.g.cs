@@ -6,6 +6,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_Feature_Support_Result
 /// </summary>
+[Flags]
 public enum NGXFeatureSupportResult : int
 {
     /// <summary>

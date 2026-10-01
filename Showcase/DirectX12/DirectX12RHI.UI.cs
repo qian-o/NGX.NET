@@ -56,10 +56,7 @@ internal sealed unsafe partial class DirectX12RHI
                 }
 
                 Vector4 clip = draw.ClipRect * new Vector4(data.FramebufferScale, data.FramebufferScale.X, data.FramebufferScale.Y);
-                int left = Math.Max(0, (int)clip.X),
-                    top = Math.Max(0, (int)clip.Y),
-                    right = Math.Min(Resources.OutputWidth, (int)clip.Z),
-                    bottom = Math.Min(Resources.OutputHeight, (int)clip.W);
+                int left = Math.Max(0, (int)clip.X), top = Math.Max(0, (int)clip.Y), right = Math.Min(Resources.OutputWidth, (int)clip.Z), bottom = Math.Min(Resources.OutputHeight, (int)clip.W);
 
                 if (right <= left || bottom <= top)
                 {

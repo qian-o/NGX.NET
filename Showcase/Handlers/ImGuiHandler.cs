@@ -29,6 +29,7 @@ internal sealed unsafe class ImGuiHandler : IDisposable
     public ImGuiHandler()
     {
         context = ImGui.CreateContext();
+        ImGui.SetCurrentContext(context);
         ImGuiIOPtr io = ImGui.GetIO();
         io.Handle->IniFilename = null;
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
@@ -69,6 +70,7 @@ internal sealed unsafe class ImGuiHandler : IDisposable
             return false;
         }
 
+        ImGui.SetCurrentContext(context);
         ImGuiIOPtr io = ImGui.GetIO();
         io.Fonts.Clear();
         ImFontConfigPtr config = ImGui.ImFontConfig();
@@ -80,8 +82,7 @@ internal sealed unsafe class ImGuiHandler : IDisposable
             config.OversampleH = 2;
             config.OversampleV = 1;
 
-            io.Fonts.AddFontFromFileTTF(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "msyh.ttf"),
-                config.SizePixels, config.Handle, io.Fonts.GetGlyphRangesDefault());
+            io.Fonts.AddFontFromFileTTF(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "msyh.ttf"), config.SizePixels, config.Handle, io.Fonts.GetGlyphRangesDefault());
 
             byte* pixels;
             int width, height, bytesPerPixel;
@@ -101,22 +102,25 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         return true;
     }
 
-    public void Update(float delta, Vector2 size, Vector2 dpiScale)
+    public void Update(float delta, Vector2 size, Vector2 dpiScale, Renderer renderer)
     {
+        ImGui.SetCurrentContext(context);
         ImGuiIOPtr io = ImGui.GetIO();
         // ImGui and Silk input share window coordinates; drawing scales to framebuffer pixels.
         io.DisplaySize = size / dpiScale;
         io.DisplayFramebufferScale = dpiScale;
         io.DeltaTime = Math.Max(delta, 1e-4f);
         ImGui.NewFrame();
+        Build(renderer);
+        ImGui.Render();
     }
 
-    public void Build(Renderer renderer)
+    private static void Build(Renderer renderer)
     {
         ImGuiIOPtr io = ImGui.GetIO();
         Vector2 margin = new(12);
         ImGui.SetNextWindowPos(margin, ImGuiCond.FirstUseEver);
-        Vector2 available = Vector2.Max(new(1), io.DisplaySize - margin * 2);
+        Vector2 available = Vector2.Max(new(1), io.DisplaySize - (margin * 2));
         ImGui.SetNextWindowSizeConstraints(Vector2.Zero, available);
 
         if (ImGui.Begin("Settings", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize))
@@ -132,8 +136,6 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         ImGui.End();
     }
 
-    public void Render() => ImGui.Render();
-
     private static void Graphics(Renderer renderer)
     {
         RenderSettings settings = renderer.Settings;
@@ -143,7 +145,7 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         // A content-sized window needs an explicit item width; using the remaining
         // window width here would feed its previous size back into auto-sizing.
         float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(QualityLabel(mode)).X);
-        ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + ImGui.GetStyle().FramePadding.X * 2);
+        ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + (ImGui.GetStyle().FramePadding.X * 2));
         ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayReconstruction);
 
         if (ImGui.BeginCombo("##DLSS", QualityLabel(settings.Quality)))

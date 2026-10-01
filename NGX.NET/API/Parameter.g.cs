@@ -13,6 +13,11 @@ public static unsafe partial class NGX
     /// </summary>
     public static partial class Parameter
     {
+        static Parameter()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);
+        }
+
         /// <summary>
         /// NVSDK_NGX_Parameter_GetD. Source: nvsdk_ngx_params.h:100.
         /// </summary>

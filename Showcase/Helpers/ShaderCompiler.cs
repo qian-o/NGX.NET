@@ -6,7 +6,7 @@ internal static class ShaderCompiler
 {
     private static readonly Dictionary<(string File, string Entry, string Stage, bool Vulkan, bool RayQuery), byte[]> cache = [];
 
-    public static byte[] Compile(string file, string entry, string stage, bool vulkan, bool rayQuery = true)
+    public static byte[] Compile(string file, string entry, string stage, bool vulkan, bool rayQuery)
     {
         (string, string, string, bool, bool) key = (file, entry, stage, vulkan, rayQuery);
 
@@ -35,12 +35,7 @@ internal static class ShaderCompiler
 
         if (vulkan)
         {
-            arguments.AddRange(
-            [
-                "-fvk-use-entrypoint-name",
-                "-fvk-use-dx-position-w",
-                "-fvk-invert-y"
-            ]);
+            arguments.AddRange(["-fvk-use-entrypoint-name", "-fvk-use-dx-position-w", "-fvk-invert-y"]);
         }
 
         byte[] compiled = SlangCompiler.Compile([.. arguments]);

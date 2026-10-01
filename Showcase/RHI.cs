@@ -26,10 +26,7 @@ internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
 
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
-    public RenderCapabilities Capabilities => new(
-        NGX.Available(NGXFeature.SuperSampling),
-        RayQuerySupported && NGX.Available(NGXFeature.RayReconstruction),
-        NGX.Available(NGXFeature.FrameGeneration));
+    public RenderCapabilities Capabilities => new(NGX.Available(NGXFeature.SuperSampling), RayQuerySupported && NGX.Available(NGXFeature.RayReconstruction), NGX.Available(NGXFeature.FrameGeneration));
 
     private bool disposed;
 
@@ -105,20 +102,8 @@ internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
 
         disposed = true;
 
-        try
-        {
-            WaitIdle();
-        }
-        finally
-        {
-            try
-            {
-                NGX.Dispose();
-            }
-            finally
-            {
-                DisposeDevice();
-            }
-        }
+        WaitIdle();
+        NGX.Dispose();
+        DisposeDevice();
     }
 }

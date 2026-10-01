@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.ExceptionServices;
 using Hexa.NET.ImGui;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
@@ -20,14 +19,13 @@ internal sealed class InputHandler : IDisposable
     private bool hasMouse;
     private bool focused = true;
     private bool disposed;
-    private ExceptionDispatchInfo? callbackError;
 
     public bool Looking => lookMouse is not null;
 
     public Vector2 MouseDelta { get; private set; }
 
     // Settings navigation must not consume the camera's movement keys.
-    public bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
+    public static bool KeyboardCaptured => ImGui.GetIO().WantTextInput || ImGui.IsPopupOpen(string.Empty, ImGuiPopupFlags.AnyPopup);
 
     public InputHandler(IWindow window, IInputContext input)
     {
@@ -56,40 +54,23 @@ internal sealed class InputHandler : IDisposable
 
     public void Update()
     {
-        callbackError?.Throw();
         MouseDelta = pendingMouseDelta;
         pendingMouseDelta = Vector2.Zero;
     }
 
-    private void OnFocusChanged(bool value) => Callback(() => Focus(value));
+    private void OnKeyDown(IKeyboard keyboard, Key key, int scanCode) => KeyChanged(keyboard, key, true);
 
-    private void OnKeyDown(IKeyboard keyboard, Key key, int scanCode) => Callback(() => KeyChanged(keyboard, key, true));
+    private void OnKeyUp(IKeyboard keyboard, Key key, int scanCode) => KeyChanged(keyboard, key, false);
 
-    private void OnKeyUp(IKeyboard keyboard, Key key, int scanCode) => Callback(() => KeyChanged(keyboard, key, false));
+    private void OnKeyChar(IKeyboard keyboard, char value) => ImGui.GetIO().AddInputCharacterUTF16(value);
 
-    private void OnKeyChar(IKeyboard keyboard, char value) => Callback(() => ImGui.GetIO().AddInputCharacterUTF16(value));
+    private void OnMouseDown(IMouse mouse, MouseButton button) => MouseButtonChanged(mouse, button, true);
 
-    private void OnMouseDown(IMouse mouse, MouseButton button) => Callback(() => MouseButtonChanged(mouse, button, true));
+    private void OnMouseUp(IMouse mouse, MouseButton button) => MouseButtonChanged(mouse, button, false);
 
-    private void OnMouseUp(IMouse mouse, MouseButton button) => Callback(() => MouseButtonChanged(mouse, button, false));
+    private void OnScroll(IMouse mouse, ScrollWheel wheel) => ImGui.GetIO().AddMouseWheelEvent(wheel.X, wheel.Y);
 
-    private void OnMouseMove(IMouse mouse, Vector2 position) => Callback(() => MouseMoved(mouse, position));
-
-    private void OnScroll(IMouse mouse, ScrollWheel wheel) => Callback(() => ImGui.GetIO().AddMouseWheelEvent(wheel.X, wheel.Y));
-
-    private void Callback(Action action)
-    {
-        try
-        {
-            action();
-        }
-        catch (Exception error)
-        {
-            callbackError ??= ExceptionDispatchInfo.Capture(error);
-        }
-    }
-
-    private void Focus(bool value)
+    private void OnFocusChanged(bool value)
     {
         focused = value;
         hasMouse = false;
@@ -167,7 +148,7 @@ internal sealed class InputHandler : IDisposable
         }
     }
 
-    private void MouseMoved(IMouse device, Vector2 position)
+    private void OnMouseMove(IMouse device, Vector2 position)
     {
         if (ReferenceEquals(device, lookMouse))
         {
@@ -189,10 +170,7 @@ internal sealed class InputHandler : IDisposable
         lookMouse = null;
         hasMouse = false;
 
-        if (captured is not null)
-        {
-            captured.Cursor.CursorMode = previousCursorMode;
-        }
+        captured?.Cursor.CursorMode = previousCursorMode;
     }
 
     private static ImGuiKey TranslateKey(Key key) => key switch

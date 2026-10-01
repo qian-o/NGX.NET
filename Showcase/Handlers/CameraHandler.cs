@@ -38,7 +38,7 @@ internal sealed class CameraHandler
     public void Reset(Scene scene)
     {
         Vector3 center = (scene.Minimum + scene.Maximum) * 0.5f;
-        Position = new(center.X - (scene.Maximum.X - scene.Minimum.X) * 0.3f, scene.GroundHeight + scene.Scale * 0.045f, center.Z);
+        Position = new(center.X - ((scene.Maximum.X - scene.Minimum.X) * 0.3f), scene.GroundHeight + (scene.Scale * 0.045f), center.Z);
         Yaw = 0;
         Pitch = 0.04f;
         Near = scene.Scale * 0.0005f;
@@ -51,10 +51,10 @@ internal sealed class CameraHandler
         if (input.Looking)
         {
             Yaw += input.MouseDelta.X * 0.003f;
-            Pitch = Math.Clamp(Pitch - input.MouseDelta.Y * 0.003f, -1.5f, 1.5f);
+            Pitch = Math.Clamp(Pitch - (input.MouseDelta.Y * 0.003f), -1.5f, 1.5f);
         }
 
-        if (input.KeyboardCaptured)
+        if (InputHandler.KeyboardCaptured)
         {
             return;
         }
@@ -104,7 +104,7 @@ internal sealed class CameraHandler
         projection.M43 = Far * projection.M33;
         Projection = projection;
         ViewProjection = View * Projection;
-        Jitter = temporal ? new(Halton(frame % 32 + 1, 2) - 0.5f, Halton(frame % 32 + 1, 3) - 0.5f) : Vector2.Zero;
+        Jitter = temporal ? new(Halton((frame % 32) + 1, 2) - 0.5f, Halton((frame % 32) + 1, 3) - 0.5f) : Vector2.Zero;
         Matrix4x4 jittered = Projection;
 
         // RH projection: clip.w = -view.z. Positive jitter is right/down in pixel space.

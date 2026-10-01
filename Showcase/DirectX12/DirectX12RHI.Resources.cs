@@ -66,8 +66,7 @@ internal sealed unsafe partial class DirectX12RHI
 
     private ComPtr<ID3D12Resource> UploadBuffer(int bytes) => CreateBuffer((ulong)Math.Max(bytes, 4), HeapType.Upload, ResourceStates.GenericRead);
 
-    private ComPtr<ID3D12Resource> StaticBuffer<T>(ReadOnlySpan<T> data)
-        where T : unmanaged
+    private ComPtr<ID3D12Resource> StaticBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
     {
         int size = data.Length * sizeof(T);
         ComPtr<ID3D12Resource> buffer = CreateBuffer((ulong)size, HeapType.Default, ResourceStates.CopyDest);

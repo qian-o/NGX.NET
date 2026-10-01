@@ -13,6 +13,11 @@ public static unsafe partial class NGX
     /// </summary>
     public static partial class DLSSD
     {
+        static DLSSD()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);
+        }
+
         /// <summary>
         /// NGX_DLSSD_GET_OPTIMAL_SETTINGS. Source: nvsdk_ngx_helpers_dlssd_d3d.h:66.
         /// </summary>

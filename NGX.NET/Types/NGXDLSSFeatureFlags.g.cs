@@ -6,6 +6,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_DLSS_Feature_Flags
 /// </summary>
+[Flags]
 public enum NGXDLSSFeatureFlags : int
 {
     /// <summary>

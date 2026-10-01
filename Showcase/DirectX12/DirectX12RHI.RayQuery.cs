@@ -13,12 +13,7 @@ internal sealed unsafe partial class DirectX12RHI
 
     private ComPtr<ID3D12Resource> AccelerationBuffer(ulong size, ResourceStates state)
     {
-        if (size == 0)
-        {
-            throw new InvalidOperationException("DXR returned an empty acceleration-structure allocation size.");
-        }
-
-        ulong alignment = D3D12.RaytracingAccelerationStructureByteAlignment;
+        const ulong alignment = D3D12.RaytracingAccelerationStructureByteAlignment;
         ulong alignedSize = (size + alignment - 1) / alignment * alignment;
 
         return CreateBuffer(alignedSize, HeapType.Default, state, ResourceFlags.AllowUnorderedAccess);
@@ -39,7 +34,7 @@ internal sealed unsafe partial class DirectX12RHI
                     VertexCount = range.VertexCount,
                     VertexBuffer = new()
                     {
-                        StartAddress = sceneBuffers[0].Handle->GetGPUVirtualAddress() + (ulong)range.FirstVertex * (uint)sizeof(SceneVertex),
+                        StartAddress = sceneBuffers[0].Handle->GetGPUVirtualAddress() + ((ulong)range.FirstVertex * (uint)sizeof(SceneVertex)),
                         StrideInBytes = (uint)sizeof(SceneVertex)
                     }
                 }

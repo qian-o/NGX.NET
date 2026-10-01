@@ -51,9 +51,7 @@ internal sealed unsafe partial class VulkanRHI
                 SType = StructureType.MemoryAllocateInfo,
                 PNext = addressable ? &flags : null,
                 AllocationSize = requirements.Size,
-                MemoryTypeIndex = MemoryType(
-                    requirements.MemoryTypeBits,
-                    host ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit)
+                MemoryTypeIndex = MemoryType(requirements.MemoryTypeBits, host ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit)
             };
 
             Check(api.AllocateMemory(device, &allocation, null, out DeviceMemory memory), "vkAllocateMemory(buffer)");
@@ -69,11 +67,6 @@ internal sealed unsafe partial class VulkanRHI
                 };
 
                 resource.Address = api.GetBufferDeviceAddress(device, &address);
-
-                if (resource.Address == 0)
-                {
-                    throw new InvalidOperationException("Vulkan returned a null buffer device address.");
-                }
             }
 
             if (host)
@@ -93,8 +86,7 @@ internal sealed unsafe partial class VulkanRHI
         }
     }
 
-    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false)
-        where T : unmanaged
+    private VkBufferResource StaticBuffer<T>(ReadOnlySpan<T> data, bool rayGeometry = false) where T : unmanaged
     {
         ulong size = (ulong)(data.Length * sizeof(T));
         BufferUsageFlags usage = BufferUsageFlags.StorageBufferBit | BufferUsageFlags.TransferDstBit;
@@ -201,10 +193,5 @@ internal sealed unsafe partial class VulkanRHI
         _ => Format.R8G8B8A8Unorm
     };
 
-    private static ImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(
-        format == ImageFormat.Depth ? ImageAspectFlags.DepthBit : ImageAspectFlags.ColorBit,
-        0,
-        1,
-        0,
-        (uint)layers);
+    private static ImageSubresourceRange Range(ImageFormat format, int layers = 1) => new(format == ImageFormat.Depth ? ImageAspectFlags.DepthBit : ImageAspectFlags.ColorBit, 0, 1, 0, (uint)layers);
 }
