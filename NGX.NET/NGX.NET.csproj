@@ -4,11 +4,10 @@
         <TargetFramework>$(StandardTargetFramework)</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NGXSdkVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../NGX.NET.Generator/ast.json')), '"release"\s*:\s*"v?([^&quot;]+)"').Groups[1].Value)</NGXSdkVersion>
-        <Version>$(NGXSdkVersion)-alpha</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Version>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../NGX.NET.Generator/ast.json')), '"release"\s*:\s*"v?([^&quot;]+)"').Groups[1].Value)</Version>
         <Authors>qian-o</Authors>
         <Copyright>Copyright (c) 2026 qian-o</Copyright>
         <Description>C# bindings for NVIDIA NGX.</Description>
