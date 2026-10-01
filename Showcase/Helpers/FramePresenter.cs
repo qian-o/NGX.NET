@@ -120,20 +120,10 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, b
 
     private static void WaitUntil(long deadline)
     {
-        long now;
-
-        while ((now = Stopwatch.GetTimestamp()) < deadline)
+        // Use the timestamp deadline directly; timed sleeps can overshoot frame spacing.
+        while (Stopwatch.GetTimestamp() < deadline)
         {
-            double milliseconds = Stopwatch.GetElapsedTime(now, deadline).TotalMilliseconds;
-
-            if (milliseconds >= 1)
-            {
-                Thread.Sleep((int)Math.Min(milliseconds, int.MaxValue));
-            }
-            else
-            {
-                Thread.Yield();
-            }
+            Thread.Yield();
         }
     }
 

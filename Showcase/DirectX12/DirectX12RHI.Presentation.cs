@@ -20,7 +20,8 @@ internal sealed unsafe partial class DirectX12RHI
             SampleDesc = new(1, 0),
             SwapEffect = SwapEffect.FlipDiscard,
             Scaling = Scaling.Stretch,
-            AlphaMode = AlphaMode.Ignore
+            AlphaMode = AlphaMode.Ignore,
+            Flags = tearingSupported ? (uint)SwapChainFlag.AllowTearing : 0
         };
 
         using ComPtr<IDXGISwapChain1> created = default;
@@ -74,7 +75,7 @@ internal sealed unsafe partial class DirectX12RHI
         // The fence protects the copy's command allocator and source texture.
         // Signal before Present so it does not wait for DXGI presentation work.
         Check(presentQueue.Handle->Signal(presentFence.Handle, ++presentFenceValue));
-        Check(swapChain.Handle->Present(0, 0));
+        Check(swapChain.Handle->Present(0, tearingSupported ? DXGI.PresentAllowTearing : 0));
 
         return true;
     }

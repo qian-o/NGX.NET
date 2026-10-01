@@ -9,19 +9,36 @@ internal static class TextureLoader
 {
     private static readonly float[] linearColors = CreateLinearColors();
 
-    public static TextureDescription Load(byte[] data, List<uint> texels, bool srgb)
+    public static (TextureDescription Description, int TexelCount) Describe(Stream data, uint offset)
     {
-        ImageResult image = ImageResult.FromMemory(data, ColorComponents.RedGreenBlueAlpha);
-        int offset = texels.Count;
+        ImageInfo image = ImageInfo.FromStream(data) ?? throw new InvalidDataException("Could not read texture dimensions.");
+        int count = 0;
+        int mips = 0;
+
+        for (int width = image.Width, height = image.Height; ; width = Math.Max(1, width / 2), height = Math.Max(1, height / 2))
+        {
+            count += width * height;
+            mips++;
+
+            if (width == 1 && height == 1)
+            {
+                return (new(offset, (uint)image.Width, (uint)image.Height, (uint)mips), count);
+            }
+        }
+    }
+
+    public static void Load(Stream data, Span<uint> texels, bool srgb)
+    {
+        ImageResult image = ImageResult.FromStream(data, ColorComponents.RedGreenBlueAlpha);
+        int offset = 0;
         int width = image.Width;
         int height = image.Height;
-        int mipCount = 0;
         byte[] pixels = image.Data;
 
         while (true)
         {
-            texels.AddRange(MemoryMarshal.Cast<byte, uint>(pixels));
-            mipCount++;
+            MemoryMarshal.Cast<byte, uint>(pixels).CopyTo(texels[offset..]);
+            offset += width * height;
 
             if (width == 1 && height == 1)
             {
@@ -32,8 +49,6 @@ internal static class TextureLoader
             width = Math.Max(1, width / 2);
             height = Math.Max(1, height / 2);
         }
-
-        return new((uint)offset, (uint)image.Width, (uint)image.Height, (uint)mipCount);
     }
 
     private static byte[] Downsample(byte[] pixels, int width, int height, bool srgb)

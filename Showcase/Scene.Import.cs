@@ -11,7 +11,7 @@ internal sealed partial class Scene
         ModelRoot model = ModelRoot.Load(path);
         Scene scene = new();
 
-        (List<SceneMaterial> materials, List<uint> texels, List<TextureDescription> textureInfo) = ImportMaterials(model);
+        (List<SceneMaterial> materials, uint[] texels, List<TextureDescription> textureInfo) = ImportMaterials(model);
 
         int fallback = materials.Count;
         materials.Add(new()
@@ -165,18 +165,12 @@ internal sealed partial class Scene
         scene.Objects = [.. objects];
         scene.Materials = [.. materials];
 
-        if (textureInfo.Count == 0)
-        {
-            textureInfo.Add(new((uint)texels.Count, 1, 1, 1));
-            texels.Add(uint.MaxValue);
-        }
-
-        scene.Texels = [.. texels];
+        scene.Texels = texels;
         scene.TextureInfo = [.. textureInfo];
         scene.GroundHeight = scene.FindGroundHeight();
         scene.Update(0);
         scene.CommitHistory();
-        Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Count * 4L / 1048576} MiB texels.");
+        Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Length * 4L / 1048576} MiB texels.");
 
         return scene;
     }

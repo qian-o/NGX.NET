@@ -17,6 +17,7 @@ internal sealed unsafe partial class DirectX12RHI(IWindow window, ImGuiHandler u
     private ComPtr<ID3D12GraphicsCommandList> presentCommands;
     private ComPtr<ID3D12Fence> presentFence;
     private ulong presentFenceValue;
+    private bool tearingSupported;
     private readonly AutoResetEvent presentEvent = new(false);
 
     private ComPtr<ID3D12Device> device;
@@ -62,6 +63,9 @@ internal sealed unsafe partial class DirectX12RHI(IWindow window, ImGuiHandler u
         dxgi = DXGI.GetApi(null);
 
         Check(dxgi.CreateDXGIFactory2(0, SilkMarshal.GuidPtrOf<IDXGIFactory4>(), (void**)factory.GetAddressOf()));
+        using ComPtr<IDXGIFactory5> presentationFactory = default;
+        int allowTearing = 0;
+        tearingSupported = factory.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGIFactory5>(), (void**)presentationFactory.GetAddressOf()) >= 0 && presentationFactory.Handle->CheckFeatureSupport(Silk.NET.DXGI.Feature.PresentAllowTearing, &allowTearing, sizeof(int)) >= 0 && allowTearing != 0;
         bool nvidiaSelected = false;
 
         for (uint i = 0; ; i++)
