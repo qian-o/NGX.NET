@@ -1254,9 +1254,174 @@ public enum NGXVkFormat : int
     PVRTC24BPPSRGBBLOCKIMG = 1000054007,
 
     /// <summary>
+    /// VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC3x3x3UNORMBLOCKEXT = 1000288000,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC3x3x3SRGBBLOCKEXT = 1000288001,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC3x3x3SFLOATBLOCKEXT = 1000288002,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC4x3x3UNORMBLOCKEXT = 1000288003,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC4x3x3SRGBBLOCKEXT = 1000288004,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC4x3x3SFLOATBLOCKEXT = 1000288005,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x3UNORMBLOCKEXT = 1000288006,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x3SRGBBLOCKEXT = 1000288007,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x3SFLOATBLOCKEXT = 1000288008,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x4UNORMBLOCKEXT = 1000288009,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x4SRGBBLOCKEXT = 1000288010,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC4x4x4SFLOATBLOCKEXT = 1000288011,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC5x4x4UNORMBLOCKEXT = 1000288012,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC5x4x4SRGBBLOCKEXT = 1000288013,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC5x4x4SFLOATBLOCKEXT = 1000288014,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x4UNORMBLOCKEXT = 1000288015,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x4SRGBBLOCKEXT = 1000288016,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x4SFLOATBLOCKEXT = 1000288017,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x5UNORMBLOCKEXT = 1000288018,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x5SRGBBLOCKEXT = 1000288019,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC5x5x5SFLOATBLOCKEXT = 1000288020,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC6x5x5UNORMBLOCKEXT = 1000288021,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC6x5x5SRGBBLOCKEXT = 1000288022,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC6x5x5SFLOATBLOCKEXT = 1000288023,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x5UNORMBLOCKEXT = 1000288024,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x5SRGBBLOCKEXT = 1000288025,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x5SFLOATBLOCKEXT = 1000288026,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x6UNORMBLOCKEXT = 1000288027,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x6SRGBBLOCKEXT = 1000288028,
+
+    /// <summary>
+    /// VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT
+    /// </summary>
+    ASTC6x6x6SFLOATBLOCKEXT = 1000288029,
+
+    /// <summary>
     /// VK_FORMAT_R8_BOOL_ARM
     /// </summary>
     R8BOOLARM = 1000460000,
+
+    /// <summary>
+    /// VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM
+    /// </summary>
+    R16SFLOATFPENCODINGBFLOAT16ARM = 1000460001,
+
+    /// <summary>
+    /// VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM
+    /// </summary>
+    R8SFLOATFPENCODINGFLOAT8E4M3ARM = 1000460002,
+
+    /// <summary>
+    /// VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM
+    /// </summary>
+    R8SFLOATFPENCODINGFLOAT8E5M2ARM = 1000460003,
 
     /// <summary>
     /// VK_FORMAT_R16G16_SFIXED5_NV

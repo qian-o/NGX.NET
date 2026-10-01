@@ -3,7 +3,7 @@
     "repository": "https://github.com/NVIDIA/DLSS",
     "release": "v310.9.1",
     "commit": "374959484e79a640feaba44c93ac8cfb0a03f5b5",
-    "vulkanCommit": "9a0f3099c8a9607a7c0f3127d8abfdc19a93e8c5"
+    "vulkanCommit": "3c65a01745e4a1134d32b9c2c456472212dba16d"
   },
   "platforms": {
     "win-x64": {
@@ -14503,7 +14503,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed union at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -18581,8 +18581,140 @@
               "value": 1000054007
             },
             {
+              "name": "VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288000
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288001
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288002
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288003
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288004
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288005
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT",
+              "value": 1000288006
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT",
+              "value": 1000288007
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288008
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288009
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288010
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288011
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288012
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288013
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288014
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT",
+              "value": 1000288015
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT",
+              "value": 1000288016
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288017
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288018
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288019
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288020
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288021
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288022
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288023
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT",
+              "value": 1000288024
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT",
+              "value": 1000288025
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288026
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT",
+              "value": 1000288027
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT",
+              "value": 1000288028
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT",
+              "value": 1000288029
+            },
+            {
               "name": "VK_FORMAT_R8_BOOL_ARM",
               "value": 1000460000
+            },
+            {
+              "name": "VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM",
+              "value": 1000460001
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM",
+              "value": 1000460002
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM",
+              "value": 1000460003
             },
             {
               "name": "VK_FORMAT_R16G16_SFIXED5_NV",
@@ -38391,7 +38523,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed union at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -42469,8 +42601,140 @@
               "value": 1000054007
             },
             {
+              "name": "VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288000
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288001
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288002
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288003
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288004
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288005
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT",
+              "value": 1000288006
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT",
+              "value": 1000288007
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288008
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288009
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288010
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288011
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288012
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288013
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288014
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT",
+              "value": 1000288015
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT",
+              "value": 1000288016
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288017
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288018
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288019
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288020
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288021
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288022
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288023
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT",
+              "value": 1000288024
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT",
+              "value": 1000288025
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288026
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT",
+              "value": 1000288027
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT",
+              "value": 1000288028
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT",
+              "value": 1000288029
+            },
+            {
               "name": "VK_FORMAT_R8_BOOL_ARM",
               "value": 1000460000
+            },
+            {
+              "name": "VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM",
+              "value": 1000460001
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM",
+              "value": 1000460002
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM",
+              "value": 1000460003
             },
             {
               "name": "VK_FORMAT_R16G16_SFIXED5_NV",
@@ -56708,7 +56972,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed union at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -60786,8 +61050,140 @@
               "value": 1000054007
             },
             {
+              "name": "VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288000
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288001
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288002
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288003
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288004
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288005
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT",
+              "value": 1000288006
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT",
+              "value": 1000288007
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288008
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288009
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288010
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288011
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288012
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288013
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288014
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT",
+              "value": 1000288015
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT",
+              "value": 1000288016
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288017
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288018
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288019
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288020
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288021
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288022
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288023
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT",
+              "value": 1000288024
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT",
+              "value": 1000288025
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288026
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT",
+              "value": 1000288027
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT",
+              "value": 1000288028
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT",
+              "value": 1000288029
+            },
+            {
               "name": "VK_FORMAT_R8_BOOL_ARM",
               "value": 1000460000
+            },
+            {
+              "name": "VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM",
+              "value": 1000460001
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM",
+              "value": 1000460002
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM",
+              "value": 1000460003
             },
             {
               "name": "VK_FORMAT_R16G16_SFIXED5_NV",
@@ -75013,7 +75409,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed union at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -79091,8 +79487,140 @@
               "value": 1000054007
             },
             {
+              "name": "VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288000
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288001
+            },
+            {
+              "name": "VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288002
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT",
+              "value": 1000288003
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT",
+              "value": 1000288004
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288005
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT",
+              "value": 1000288006
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT",
+              "value": 1000288007
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT",
+              "value": 1000288008
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288009
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288010
+            },
+            {
+              "name": "VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288011
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT",
+              "value": 1000288012
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT",
+              "value": 1000288013
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288014
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT",
+              "value": 1000288015
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT",
+              "value": 1000288016
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT",
+              "value": 1000288017
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288018
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288019
+            },
+            {
+              "name": "VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288020
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT",
+              "value": 1000288021
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT",
+              "value": 1000288022
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288023
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT",
+              "value": 1000288024
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT",
+              "value": 1000288025
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT",
+              "value": 1000288026
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT",
+              "value": 1000288027
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT",
+              "value": 1000288028
+            },
+            {
+              "name": "VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT",
+              "value": 1000288029
+            },
+            {
               "name": "VK_FORMAT_R8_BOOL_ARM",
               "value": 1000460000
+            },
+            {
+              "name": "VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM",
+              "value": 1000460001
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM",
+              "value": 1000460002
+            },
+            {
+              "name": "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM",
+              "value": 1000460003
             },
             {
               "name": "VK_FORMAT_R16G16_SFIXED5_NV",
