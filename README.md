@@ -2,16 +2,15 @@
 
 [![NuGet Version](https://img.shields.io/nuget/vpre/NGX.NET)](https://www.nuget.org/packages/NGX.NET)
 
-C# bindings for NVIDIA NGX, including DLSS Super Resolution, Ray Reconstruction and Frame Generation.
+C# bindings for NVIDIA NGX.
 
 ## Showcase
 
-The [Showcase](Showcase) renders Sponza with DirectX 12 or Vulkan and demonstrates the DLSS features.
+[Showcase](https://github.com/qian-o/NGX.NET/tree/master/Showcase) is a rendering sample built with NGX.NET.
 
 ## References
 
-- [NVIDIA DLSS SDK source](https://github.com/NVIDIA/DLSS)
-- [NVIDIA DLSS technology overview](https://developer.nvidia.com/rtx/dlss)
+[Official NVIDIA SDK](https://github.com/NVIDIA/DLSS)
 
 ## License
 
