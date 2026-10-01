@@ -12,15 +12,22 @@ concurrency:
 
 jobs:
   prepare:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.sdk.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@main
+      - uses: actions/setup-python@main
+        with:
+          python-version: '3.x'
+          check-latest: true
       - name: Download one official SDK
+        id: sdk
         env:
           GH_TOKEN: ${{ github.token }}
         run: python .github/scripts/build_ngx.py prepare --root "${{ runner.temp }}/sdk"
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@main
         with:
           name: ngx-sdk
           path: ${{ runner.temp }}/sdk
@@ -31,26 +38,16 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - rid: win-x64
-            runner: windows-2022
-            arch: x64
-          - rid: win-arm64
-            runner: windows-2022
-            arch: arm64
-          - rid: linux-x64
-            runner: ubuntu-24.04
-          - rid: linux-arm64
-            runner: ubuntu-24.04-arm
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@main
+      - uses: actions/setup-python@main
         with:
-          python-version: '3.12'
-      - uses: actions/download-artifact@v5
+          python-version: '3.x'
+          check-latest: true
+      - uses: actions/download-artifact@main
         with:
           name: ngx-sdk
           path: ${{ runner.temp }}/sdk
@@ -65,10 +62,12 @@ jobs:
               "$name=$([Environment]::GetEnvironmentVariable($name))" >> $env:GITHUB_ENV
           }
       - name: Install extraction dependency
-        run: python -m pip install libclang==18.1.1
+        run: python -m pip install --upgrade pip libclang
       - name: Extract declarations and build the bridge
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python .github/scripts/build_ngx.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@main
         with:
           name: ngx-${{ matrix.rid }}
           path: ${{ runner.temp }}/result
@@ -77,21 +76,26 @@ jobs:
   update:
     if: github.ref_type == 'branch'
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@main
         with:
           lfs: true
-      - uses: actions/download-artifact@v5
+      - uses: actions/setup-python@main
+        with:
+          python-version: '3.x'
+          check-latest: true
+      - uses: actions/download-artifact@main
         with:
           pattern: ngx-*-*
           path: ${{ runner.temp }}/artifacts
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@main
         with:
           dotnet-version: '10.0.x'
+          check-latest: true
       - name: Merge the four targets
         run: python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
       - name: Generate bindings and build

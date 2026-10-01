@@ -11,11 +11,13 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
+import tarfile
 import urllib.request
 
-from parse_ngx_ast import extract
+from parse_ngx_ast import extract, latest_cpp_standard
 
 PLATFORMS = {
     "win-x64": ("Windows_x86_64", "x64/nvsdk_ngx_s.lib"),
@@ -23,7 +25,6 @@ PLATFORMS = {
     "linux-x64": ("Linux_x86_64", "libnvsdk_ngx.a"),
     "linux-arm64": ("Linux_aarch64", "libnvsdk_ngx.a"),
 }
-VULKAN_COMMIT = "9a0f3099c8a9607a7c0f3127d8abfdc19a93e8c5"
 
 
 def request(url):
@@ -65,11 +66,34 @@ def prepare(root):
         selected.extend(path for path in paths if path.startswith(f"lib/{platform}/rel/"))
     download("NVIDIA/DLSS", commit, selected, root)
 
-    tree = api(f"KhronosGroup/Vulkan-Headers/git/trees/{VULKAN_COMMIT}?recursive=1")
+    vulkan_commit = api("KhronosGroup/Vulkan-Headers/commits/HEAD")["sha"]
+    tree = api(f"KhronosGroup/Vulkan-Headers/git/trees/{vulkan_commit}?recursive=1")
     headers = [item["path"] for item in tree["tree"] if item["type"] == "blob" and item["path"].startswith("include/")]
-    download("KhronosGroup/Vulkan-Headers", VULKAN_COMMIT, headers, root / "vulkan")
-    save(root / "source.json", {"repository": "https://github.com/NVIDIA/DLSS", "release": release["tag_name"], "commit": commit, "vulkanCommit": VULKAN_COMMIT})
+    download("KhronosGroup/Vulkan-Headers", vulkan_commit, headers, root / "vulkan")
+    save(root / "source.json", {"repository": "https://github.com/NVIDIA/DLSS", "release": release["tag_name"], "commit": commit, "vulkanCommit": vulkan_commit})
+    if output := os.environ.get("GITHUB_OUTPUT"):
+        catalog = request("https://raw.githubusercontent.com/actions/runner-images/main/README.md").decode()
+        labels = [label for line in catalog.splitlines() if "preview" not in line.lower() and "beta" not in line.lower() for label in re.findall(r"`(ubuntu-\d+\.\d+-arm)`", line)]
+        arm_runner = max(labels, key=lambda label: tuple(map(int, label.split("-")[1].split("."))))
+        matrix = {"include": [{"rid": "win-x64", "runner": "windows-latest", "arch": "x64"}, {"rid": "win-arm64", "runner": "windows-latest", "arch": "arm64"}, {"rid": "linux-x64", "runner": "ubuntu-latest"}, {"rid": "linux-arm64", "runner": arm_runner}]}
+        with open(output, "a", encoding="utf-8") as stream:
+            stream.write("matrix=" + json.dumps(matrix) + "\n")
     print(f"Using {release['tag_name']} at {commit}", flush=True)
+
+
+def install_llvm(scratch, rid):
+    release = api("llvm/llvm-project/releases/latest")
+    suffix = "-x86_64-pc-windows-msvc.tar.xz" if rid.startswith("win-") else "-Linux-ARM64.tar.xz" if rid.endswith("arm64") else "-Linux-X64.tar.xz"
+    asset = next(asset for asset in release["assets"] if asset["name"].endswith(suffix))
+    archive = scratch / asset["name"]
+    print("Using " + asset["name"], flush=True)
+    with urllib.request.urlopen(asset["browser_download_url"], timeout=180) as response, archive.open("wb") as output:
+        shutil.copyfileobj(response, output)
+    destination = scratch / "llvm"
+    with tarfile.open(archive) as package:
+        package.extractall(destination, filter="data")
+    archive.unlink()
+    return next(destination.glob("*/bin/clang.exe" if rid.startswith("win-") else "*/bin/clang")).parents[1]
 
 
 def run(command, cwd):
@@ -83,8 +107,11 @@ def build(root, scratch, output, rid):
     scratch.mkdir(parents=True, exist_ok=True)
     output.mkdir(parents=True, exist_ok=True)
     source = json.loads((root / "source.json").read_text())
-    ast, units = extract(root, scratch, rid)
     windows = rid.startswith("win-")
+    llvm = install_llvm(scratch, rid)
+    compiler = llvm / "bin" / ("clang.exe" if windows else "clang++")
+    standard = latest_cpp_standard(compiler)
+    ast, units = extract(root, scratch, rid, llvm, standard)
     exports, wrappers = [], {}
     prefix = '__declspec(dllexport)' if windows else '__attribute__((visibility("default")))'
     for f in ast["functions"]:
@@ -123,11 +150,11 @@ def build(root, scratch, output, rid):
     if windows:
         definition = scratch / "ngx-bridge.def"
         definition.write_text("LIBRARY ngx-bridge\nEXPORTS\n" + "\n".join(exports) + "\n")
-        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++17", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
+        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++latest", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
     else:
         script = scratch / "ngx-bridge.map"
         script.write_text("{\n global:\n" + "\n".join("    " + n + ";" for n in exports) + "\n local: *;\n};\n")
-        run(["g++", "-shared", "-fPIC", "-O2", "-std=c++17", "-fvisibility=hidden", "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "-I" + str(root / "include"), "-I" + str(root / "vulkan/include"), *sources, "-Wl,--whole-archive", loader, "-Wl,--no-whole-archive", "-ldl", "-pthread", "-Wl,-z,defs", "-Wl,--version-script=" + str(script), "-o", bridge], scratch)
+        run([compiler, "-shared", "-fPIC", "-O2", "-std=" + standard, "-fvisibility=hidden", "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "-I" + str(root / "include"), "-I" + str(root / "vulkan/include"), *sources, "-Wl,--whole-archive", loader, "-Wl,--no-whole-archive", "-ldl", "-pthread", "-Wl,-z,defs", "-Wl,--version-script=" + str(script), "-o", bridge], scratch)
     for p in (root / "lib" / platform / "rel").iterdir():
         shutil.copy2(p, native / p.name)
     save(output / "ast.json", {"source": source, "platform": ast})

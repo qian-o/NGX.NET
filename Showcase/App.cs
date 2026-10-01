@@ -28,11 +28,13 @@ internal static class App
         while (choice is not ("1" or "2"));
 
         bool vulkan = choice == "2";
+        string title = $"NGX.NET Showcase - {(vulkan ? "Vulkan" : "DirectX 12")}";
+        Task<Scene> loading = Task.Run(() => Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf")));
         using IWindow window = Window.Create(WindowOptions.Default with
         {
             Size = new(1280, 720),
             API = vulkan ? GraphicsAPI.DefaultVulkan : GraphicsAPI.None,
-            Title = $"NGX.NET Showcase - {(vulkan ? "Vulkan" : "DirectX 12")}",
+            Title = title + " - Loading Sponza",
             ShouldSwapAutomatically = false,
             VSync = false,
             UpdatesPerSecond = 0,
@@ -42,27 +44,19 @@ internal static class App
         window.Center();
 
         using ImGuiHandler imGui = new();
-        Vector2 initialSize = (Vector2)window.Size;
-        Vector2 initialFramebuffer = (Vector2)window.FramebufferSize;
-
-        if (initialSize.X > 0 && initialSize.Y > 0 && initialFramebuffer.X > 0 && initialFramebuffer.Y > 0)
-        {
-            imGui.UpdateFont(initialFramebuffer / initialSize);
-        }
-
         using IInputContext input = window.CreateInput();
         using InputHandler inputHandler = new(window, input);
         using RHI context = vulkan ? new VulkanRHI(window, imGui) : new DirectX12RHI(window, imGui);
         context.Initialize();
         CameraHandler camera = new();
-        using Renderer renderer = new(context, camera);
-        renderer.Resize(window.FramebufferSize.X, window.FramebufferSize.Y);
+        Renderer? renderer = null;
         bool active = false;
         bool frameReady = false;
 
         window.Update += delta =>
         {
             inputHandler.Update();
+
             Vector2 size = (Vector2)window.FramebufferSize;
             Vector2 logicalSize = (Vector2)window.Size;
 
@@ -75,8 +69,23 @@ internal static class App
                 return;
             }
 
-            float elapsed = active ? (float)delta : 0;
             window.IsEventDriven = false;
+            Vector2 dpiScale = size / logicalSize;
+
+            if (renderer is null)
+            {
+                if (!loading.IsCompleted)
+                {
+                    return;
+                }
+
+                imGui.UpdateFont(dpiScale);
+                renderer = new(context, camera, loading.GetAwaiter().GetResult());
+                renderer.Resize((int)size.X, (int)size.Y);
+                window.Title = title;
+            }
+
+            float elapsed = active ? (float)delta : 0;
 
             if (!active)
             {
@@ -84,7 +93,6 @@ internal static class App
             }
 
             active = true;
-            Vector2 dpiScale = size / logicalSize;
 
             if (imGui.UpdateFont(dpiScale))
             {
@@ -99,30 +107,42 @@ internal static class App
 
         window.Render += _ =>
         {
-            if (frameReady)
+            if (frameReady && renderer is not null)
             {
                 renderer.Render(camera, ImGui.GetDrawData());
                 frameReady = false;
             }
         };
 
-        window.FramebufferResize += size => renderer.Resize(size.X, size.Y);
+        window.FramebufferResize += size => renderer?.Resize(size.X, size.Y);
 
         // The parameterless Run extension resets the native window on return.
         // Keep it alive until the presenter, GPU resources and input are disposed.
-        window.Run(() =>
+        try
         {
-            window.DoEvents();
-
-            if (!window.IsClosing)
+            window.Run(() =>
             {
-                window.DoUpdate();
-            }
+                window.DoEvents();
 
-            if (!window.IsClosing)
-            {
-                window.DoRender();
-            }
-        });
+                if (!window.IsClosing)
+                {
+                    window.DoUpdate();
+                }
+
+                if (!window.IsClosing)
+                {
+                    window.DoRender();
+                }
+
+                if (renderer is null)
+                {
+                    Thread.Sleep(1);
+                }
+            });
+        }
+        finally
+        {
+            renderer?.Dispose();
+        }
     }
 }

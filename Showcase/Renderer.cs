@@ -28,10 +28,9 @@ internal sealed class Renderer : IDisposable
     private bool recreateSwapChain = true;
     private bool disposed;
 
-    public Renderer(RHI context, CameraHandler camera)
+    public Renderer(RHI context, CameraHandler camera, Scene scene)
     {
         this.context = context;
-        Scene scene = Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf"));
         camera.Reset(scene);
         resources = new(context, scene);
         presenter = new(context.WaitRenderedFrame, context.PresentImage, context.WaitPresentation);

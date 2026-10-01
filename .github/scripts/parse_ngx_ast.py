@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import subprocess
 
 
@@ -12,26 +13,29 @@ import subprocess
 IMPLEMENTATION_HEADERS = {"nvsdk_ngx_loader.h", "nvsdk_ngx_standalone_common.h", "nvsdk_ngx_standalone_cuda.h"}
 
 
-def extract(sdk: Path, scratch: Path, rid: str):
+def latest_cpp_standard(compiler: Path):
+    result = subprocess.run([str(compiler), "-x", "c++", "-std=help", "-fsyntax-only", "-"], input="", text=True, capture_output=True)
+    return re.findall(r"use '(c\+\+[^']+)'", result.stderr)[-1]
+
+
+def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
     from clang import cindex as cx
 
     windows = rid.startswith("win-")
-    if windows:
-        # Use the runner's matching LLVM library and builtin headers with its
-        # current MSVC headers (Clang 18 predates the ARM64 intrinsics).
-        llvm = Path(os.environ["ProgramFiles"]) / "LLVM"
-        cx.Config.set_compatibility_check(False)
-        cx.Config.set_library_file(str(llvm / "bin/libclang.dll"))
-        resource = subprocess.check_output([str(llvm / "bin/clang.exe"), "-print-resource-dir"], text=True).strip()
+    compiler = llvm / "bin" / ("clang.exe" if windows else "clang++")
+    cx.Config.set_compatibility_check(False)
+    cx.Config.set_library_file(str(llvm / ("bin/libclang.dll" if windows else "lib/libclang.so")))
+    resource = subprocess.check_output([str(compiler), "-print-resource-dir"], text=True).strip()
 
     target = ("aarch64" if rid.endswith("arm64") else "x86_64") + ("-pc-windows-msvc" if windows else "-linux-gnu")
-    flags = ["-x", "c++", "-std=c++17", "--target=" + target, "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"), "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
+    flags = ["-x", "c++", "-std=" + standard, "--target=" + target, "-resource-dir=" + resource, "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"), "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
     if windows:
-        flags += ["-resource-dir=" + resource, "-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=19.40", "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", "-DNOMINMAX"]
+        version = subprocess.run(["cl"], text=True, capture_output=True).stderr
+        flags += ["-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=" + re.search(r"\b\d+\.\d+\.\d+\b", version).group(), "-DNOMINMAX"]
         for path in os.environ["INCLUDE"].split(";"):
             flags += ["-isystem", path]
     else:
-        search = subprocess.run(["g++", "-E", "-x", "c++", "-", "-v"], input="", text=True, capture_output=True, check=True).stderr
+        search = subprocess.run([str(compiler), "-E", "-x", "c++", "-", "-v"], input="", text=True, capture_output=True, check=True).stderr
         for line in search.split("#include <...> search starts here:")[1].split("End of search list.")[0].splitlines():
             flags += ["-isystem", line.strip()]
 
