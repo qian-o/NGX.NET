@@ -79,7 +79,7 @@ internal sealed unsafe partial class VulkanRHI
         {
             Vulkan = new()
             {
-                Type = NGXResourceVKType.VKIMAGEVIEW,
+                Type = NGXResourceVKType.VkImageView,
                 ReadWrite = (Usage & ImageUsageFlags.StorageBit) != 0,
                 Resource = new()
                 {

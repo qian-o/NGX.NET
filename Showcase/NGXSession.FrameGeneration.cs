@@ -2,15 +2,14 @@
 using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Models;
-using Ngx = NGX.NET.NGX;
 
 namespace Showcase;
 
-internal sealed unsafe partial class NGXSession
+internal sealed partial class NGXSession
 {
     public bool Generate(nint command, GpuImage[] images, GpuImage output, CameraHandler camera, bool reset)
     {
-        if (generation == null)
+        if (generation.IsNull)
         {
             Ngx.Parameter.Reset(frameParameters);
             NativeImage color = images[(int)ImageSlot.Final].Describe();
@@ -20,11 +19,11 @@ internal sealed unsafe partial class NGXSession
                 Height = (uint)outputHeight,
                 RenderWidth = (uint)inputWidth,
                 RenderHeight = (uint)inputHeight,
-                NativeBackbufferFormat = isVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
+                NativeBackbufferFormat = isVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo!.Value.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
             };
 
-            NGXHandle* created = null;
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, &created, frameParameters, &create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, &created, frameParameters, &create));
+            NGXHandle created = default;
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, out created, frameParameters, in create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, out created, frameParameters, in create));
             generation = created;
             reset = true;
         }
@@ -70,15 +69,15 @@ internal sealed unsafe partial class NGXSession
         {
             NGXVKDLSSGEvalParams evaluate = new()
             {
-                PBackbuffer = &back.Vulkan,
-                PDepth = &depth.Vulkan,
-                PMVecs = &motion.Vulkan,
-                PHudless = &hudless.Vulkan,
-                PUI = &ui.Vulkan,
-                POutputInterpFrame = &generated.Vulkan
+                PBackbuffer = back.Vulkan,
+                PDepth = depth.Vulkan,
+                PMVecs = motion.Vulkan,
+                PHudless = hudless.Vulkan,
+                PUI = ui.Vulkan,
+                POutputInterpFrame = generated.Vulkan
             };
 
-            Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, &evaluate, &options));
+            Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, in evaluate, in options));
         }
         else
         {
@@ -92,7 +91,7 @@ internal sealed unsafe partial class NGXSession
                 POutputInterpFrame = generated.DirectX
             };
 
-            Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, &evaluate, &options));
+            Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, in evaluate, in options));
         }
 
         // A reset produces a copy of the real frame; present that real frame once.

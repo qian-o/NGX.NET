@@ -1,56 +1,13 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 namespace NGX.NET.Generator;
 
 internal sealed partial class Emitter
 {
-    private void WriteFunctions(string group, IEnumerable<JsonElement> functionsInGroup)
-    {
-        StringBuilder text = new(Header + "using System.Runtime.CompilerServices;\nusing System.Runtime.InteropServices;\n\n" + Namespace + "public static unsafe partial class NGX\n{\n");
-        int indent = group.Length == 0 ? 4 : 8;
-        string spaces = new(' ', indent);
-
-        if (group.Length != 0)
-        {
-            text.Append(Summary($"{group} application API and native inline helpers.", 4));
-            text.AppendLine($"    public static partial class {group}\n    {{");
-            text.AppendLine($"        static {group}()\n        {{\n            RuntimeHelpers.RunClassConstructor(typeof(NGX).TypeHandle);\n        }}\n");
-        }
-
-        JsonElement[] ordered = [.. functionsInGroup.OrderBy(f => f.Text("name"), StringComparer.Ordinal)];
-
-        for (int i = 0; i < ordered.Length; i++)
-        {
-            if (i > 0)
-            {
-                text.AppendLine();
-            }
-
-            JsonElement function = ordered[i];
-            string native = function.Text("name");
-            string method = FunctionName(native).Method;
-            string result = Type(function.GetProperty("result"));
-            JsonElement[] parameters = [.. function.Items("parameters")];
-            string args = string.Join(", ", parameters.Select(p => Type(p.GetProperty("type")) + " " + ParameterName(p.Text("name"))));
-            text.Append(Summary($"{native}. Source: {function.Text("header")}:{function.Number("line")}.", indent));
-            text.AppendLine($"{spaces}[LibraryImport(LibraryName, EntryPoint = \"{function.Text("export")}\")]");
-            text.AppendLine($"{spaces}[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
-            text.AppendLine($"{spaces}public static partial {result} {method}({args});");
-        }
-
-        if (group.Length != 0)
-        {
-            text.AppendLine("    }");
-        }
-
-        text.AppendLine("}");
-        files[$"API/{(group.Length == 0 ? "Core" : group)}.g.cs"] = text.ToString();
-    }
-
     private void WriteConstants()
     {
-        StringBuilder text = new(Header + Namespace + "public static unsafe partial class NGX\n{\n");
+        StringBuilder text = new(Header + Namespace + "public static unsafe partial class Ngx\n{\n");
         Dictionary<string, JsonElement> macros = Merge("macros");
         bool hasMembers = false;
 

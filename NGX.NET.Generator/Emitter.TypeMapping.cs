@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace NGX.NET.Generator;
 
@@ -26,10 +26,10 @@ internal sealed partial class Emitter
 
             if (elementKind is "FUNCTIONPROTO" or "FUNCTIONNOPROTO")
             {
-                return "delegate* unmanaged[Cdecl]<" + string.Join(", ", element.Items("arguments").Select(Type).Append(Type(element.GetProperty("result")))) + ">";
+                return "nint";
             }
 
-            if (elementKind == "RECORD" && !element.Text("name").StartsWith("NVSDK_NGX_", StringComparison.Ordinal) && records[element.Text("name")].GetProperty("opaque").GetBoolean())
+            if (elementKind == "RECORD" && records[element.Text("name")].GetProperty("opaque").GetBoolean())
             {
                 return "nint";
             }
@@ -39,7 +39,7 @@ internal sealed partial class Emitter
 
         if (kind is "ENUM" or "RECORD")
         {
-            return unionNames.GetValueOrDefault(type.Text("name"), TypeName(type.Text("name")));
+            return ManagedRecord(type.Text("name")) + (kind == "RECORD" ? "Native" : "");
         }
 
         return kind switch

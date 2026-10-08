@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 namespace NGX.NET.Generator;
@@ -32,7 +32,7 @@ internal static class Program
 
             foreach (string directory in new[] { "API", "Types", "Callbacks" })
             {
-                foreach (string path in Directory.EnumerateFiles(Path.Combine(output, directory), "*.g.cs"))
+                foreach (string path in Directory.EnumerateFiles(Path.Combine(output, directory), "*.g.cs", SearchOption.AllDirectories))
                 {
                     string name = Path.GetRelativePath(output, path).Replace(Path.DirectorySeparatorChar, '/');
 

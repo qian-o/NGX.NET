@@ -16,7 +16,7 @@ internal sealed record RenderSettings
 
     public NGXPerfQualityValue ReconstructionQuality => Quality switch
     {
-        QualityMode.Off => NGXPerfQualityValue.DLAA,
+        QualityMode.Off => NGXPerfQualityValue.Dlaa,
         QualityMode.MaxQuality => NGXPerfQualityValue.MaxQuality,
         QualityMode.Balanced => NGXPerfQualityValue.Balanced,
         QualityMode.MaxPerformance => NGXPerfQualityValue.MaxPerf,
