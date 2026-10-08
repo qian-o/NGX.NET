@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="NGX.NET.Marshalling.Tests" />
         <None Include="..\native\**\*.dll;..\native\**\*.so*">
             <Link>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

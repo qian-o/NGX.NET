@@ -2,11 +2,10 @@
 using NGX.NET;
 using Showcase.Handlers;
 using Showcase.Models;
-using Ngx = NGX.NET.NGX;
 
 namespace Showcase;
 
-internal sealed unsafe partial class NGXSession
+internal sealed partial class NGXSession
 {
     public (int Width, int Height) Configure(RenderSettings value, int width, int height)
     {
@@ -19,7 +18,7 @@ internal sealed unsafe partial class NGXSession
         {
             uint maxWidth = 0, maxHeight = 0, minWidth = 0, minHeight = 0;
             float sharpness = 0;
-            NGXResult result = value.Reconstruction == Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, &renderWidth, &renderHeight, &maxWidth, &maxHeight, &minWidth, &minHeight, &sharpness);
+            NGXResult result = value.Reconstruction == Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out maxWidth, out maxHeight, out minWidth, out minHeight, out sharpness) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out maxWidth, out maxHeight, out minWidth, out minHeight, out sharpness);
             Ngx.ThrowIfFailed(result);
         }
         else
@@ -38,17 +37,17 @@ internal sealed unsafe partial class NGXSession
     {
         Ngx.Parameter.Reset(parameters);
         // Camera.Projection maps the near plane to 1 and the far plane to 0.
-        const int flags = (int)(NGXDLSSFeatureFlags.IsHDR | NGXDLSSFeatureFlags.MVLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
-        NGXHandle* created = null;
+        const int flags = (int)(NGXDLSSFeatureFlags.IsHdr | NGXDLSSFeatureFlags.MvLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
+        NGXHandle created = default;
         NGXResult result;
 
         if (settings.Reconstruction == Reconstruction.RayReconstruction)
         {
             NGXDLSSDCreateParams create = new()
             {
-                InDenoiseMode = NGXDLSSDenoiseMode.DLUnified,
+                InDenoiseMode = NGXDLSSDenoiseMode.DlUnified,
                 InRoughnessMode = NGXDLSSRoughnessMode.Packed,
-                InUseHWDepth = NGXDLSSDepthType.HW,
+                InUseHWDepth = NGXDLSSDepthType.Hw,
                 InWidth = (uint)inputWidth,
                 InHeight = (uint)inputHeight,
                 InTargetWidth = (uint)outputWidth,
@@ -57,7 +56,7 @@ internal sealed unsafe partial class NGXSession
                 InFeatureCreateFlags = flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, &created, parameters, &create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, &created, parameters, &create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, out created, parameters, in create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, out created, parameters, in create);
         }
         else
         {
@@ -74,7 +73,7 @@ internal sealed unsafe partial class NGXSession
                 InFeatureCreateFlags = flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, &created, parameters, &create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, &created, parameters, &create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, out created, parameters, in create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, out created, parameters, in create);
         }
 
         Ngx.ThrowIfFailed(result);
@@ -83,12 +82,12 @@ internal sealed unsafe partial class NGXSession
 
     public void Evaluate(nint command, GpuImage[] images, CameraHandler camera, bool reset, float delta)
     {
-        if (reconstruction == null)
+        if (reconstruction.IsNull)
         {
             CreateReconstruction(command);
         }
 
-        NativeImage* descriptions = stackalloc NativeImage[images.Length];
+        Span<NativeImage> descriptions = stackalloc NativeImage[images.Length];
 
         for (int i = 0; i < images.Length; i++)
         {
@@ -99,7 +98,7 @@ internal sealed unsafe partial class NGXSession
         EvaluateImages(command, descriptions, camera, reset, delta);
     }
 
-    private void EvaluateImages(nint command, NativeImage* images, CameraHandler camera, bool reset, float delta)
+    private void EvaluateImages(nint command, ReadOnlySpan<NativeImage> images, CameraHandler camera, bool reset, float delta)
     {
         Matrix4x4 view = camera.View, projection = camera.Projection;
         NGXDimensions dimensions = new()
@@ -120,8 +119,8 @@ internal sealed unsafe partial class NGXSession
                     PInSpecularAlbedo = images[(int)ImageSlot.Specular].DirectX,
                     PInNormals = images[(int)ImageSlot.Normal].DirectX,
                     PInMotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].DirectX,
-                    PInWorldToViewMatrix = &view,
-                    PInViewToClipMatrix = &projection,
+                    PInWorldToViewMatrix = view,
+                    PInViewToClipMatrix = projection,
                     PInDepth = images[(int)ImageSlot.Depth].DirectX,
                     PInMotionVectors = images[(int)ImageSlot.Motion].DirectX,
                     InJitterOffsetX = camera.Jitter.X,
@@ -135,7 +134,7 @@ internal sealed unsafe partial class NGXSession
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, &evaluate));
+                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, in evaluate));
             }
             else
             {
@@ -159,7 +158,7 @@ internal sealed unsafe partial class NGXSession
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, &evaluate));
+                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, in evaluate));
             }
         }
         else
@@ -168,16 +167,16 @@ internal sealed unsafe partial class NGXSession
             {
                 NGXVKDLSSDEvalParams evaluate = new()
                 {
-                    PInColor = &images[(int)ImageSlot.Scene].Vulkan,
-                    PInOutput = &images[(int)ImageSlot.Reconstructed].Vulkan,
-                    PInDiffuseAlbedo = &images[(int)ImageSlot.Diffuse].Vulkan,
-                    PInSpecularAlbedo = &images[(int)ImageSlot.Specular].Vulkan,
-                    PInNormals = &images[(int)ImageSlot.Normal].Vulkan,
-                    PInMotionVectorsReflections = &images[(int)ImageSlot.SpecularMotion].Vulkan,
-                    PInWorldToViewMatrix = &view,
-                    PInViewToClipMatrix = &projection,
-                    PInDepth = &images[(int)ImageSlot.Depth].Vulkan,
-                    PInMotionVectors = &images[(int)ImageSlot.Motion].Vulkan,
+                    PInColor = images[(int)ImageSlot.Scene].Vulkan,
+                    PInOutput = images[(int)ImageSlot.Reconstructed].Vulkan,
+                    PInDiffuseAlbedo = images[(int)ImageSlot.Diffuse].Vulkan,
+                    PInSpecularAlbedo = images[(int)ImageSlot.Specular].Vulkan,
+                    PInNormals = images[(int)ImageSlot.Normal].Vulkan,
+                    PInMotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].Vulkan,
+                    PInWorldToViewMatrix = view,
+                    PInViewToClipMatrix = projection,
+                    PInDepth = images[(int)ImageSlot.Depth].Vulkan,
+                    PInMotionVectors = images[(int)ImageSlot.Motion].Vulkan,
                     InJitterOffsetX = camera.Jitter.X,
                     InJitterOffsetY = camera.Jitter.Y,
                     InRenderSubrectDimensions = dimensions,
@@ -189,7 +188,7 @@ internal sealed unsafe partial class NGXSession
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, &evaluate));
+                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, in evaluate));
             }
             else
             {
@@ -197,11 +196,11 @@ internal sealed unsafe partial class NGXSession
                 {
                     Feature = new()
                     {
-                        PInColor = &images[(int)ImageSlot.Scene].Vulkan,
-                        PInOutput = &images[(int)ImageSlot.Reconstructed].Vulkan
+                        PInColor = images[(int)ImageSlot.Scene].Vulkan,
+                        PInOutput = images[(int)ImageSlot.Reconstructed].Vulkan
                     },
-                    PInDepth = &images[(int)ImageSlot.Depth].Vulkan,
-                    PInMotionVectors = &images[(int)ImageSlot.Motion].Vulkan,
+                    PInDepth = images[(int)ImageSlot.Depth].Vulkan,
+                    PInMotionVectors = images[(int)ImageSlot.Motion].Vulkan,
                     InJitterOffsetX = camera.Jitter.X,
                     InJitterOffsetY = camera.Jitter.Y,
                     InRenderSubrectDimensions = dimensions,
@@ -213,7 +212,7 @@ internal sealed unsafe partial class NGXSession
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, &evaluate));
+                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, in evaluate));
             }
         }
     }

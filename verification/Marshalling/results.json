@@ -1,0 +1,105 @@
+{
+  "status": "managed-refactor-verified-native-runtime-unverified",
+  "sdk": {
+    "repository": "https://github.com/NVIDIA/DLSS",
+    "release": "v310.9.1",
+    "commit": "374959484e79a640feaba44c93ac8cfb0a03f5b5",
+    "vulkanCommit": "3c65a01745e4a1134d32b9c2c456472212dba16d"
+  },
+  "runtime": ".NET 10.0.12",
+  "host": "osx-arm64",
+  "tests": [
+    "all generated Native layouts and constructors match the four-target AST",
+    "enum values and native import names match the SDK",
+    "Ngx methods and public data structs expose no pointers or Native types",
+    "nested constructor, Unicode paths and union round trip survive compacting GC",
+    "constructor failure, union discriminator and bounded arrays reject invalid input",
+    "fixed-buffer strings respect capacity and read without a terminator",
+    "RR resource and matrix pointers survive constructor return and preserve selected views",
+    "GBuffer arrays preserve null slots and fixed native capacity",
+    "native callback ABI, UTF-8 strings, exceptions and one-byte cancellation",
+    "Init ownership is reserved before native entry, committed or rolled back internally",
+    "parameter snapshots preserve failed-call data and release on success or Reset",
+    "omitted DLSSG options preserve previously registered matrix storage",
+    "shutdown of the last tracked device releases its backend's parameter snapshots",
+    "CUDA device addresses remain stable across copied public descriptors",
+    "SDK defaults preserve the distinction between new and default",
+    "constructor and retained RR conversion allocation measurement"
+  ],
+  "metrics": {
+    "nativeTypes": 47,
+    "astLayoutComparisons": 182,
+    "astFieldOffsetComparisons": 2204,
+    "enumValueComparisons": 2096,
+    "astImportComparisons": 394,
+    "rrMeasuredCalls": 10000,
+    "rrManagedBytesPerRetainedCall": 72,
+    "rrManagedDescriptionSize": 5024,
+    "rrPopulatedNativePointees": 19,
+    "rrAdditionalNativeRootAllocation": 1
+  },
+  "limitations": [
+    "Tests exercise the production generated constructors and internal lifetime management, not a NVIDIA GPU.",
+    "Windows/Linux runtime behavior and NativeAOT execution require target-platform validation.",
+    "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.",
+    "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown."
+  ],
+  "safeConsumer": "production signatures compiled with AllowUnsafeBlocks=false; native SDK calls were not executed",
+  "nativeVisibility": "external access rejected by compiler with CS0122",
+  "nativeExportAudit": {
+    "win-x64": {
+      "dataRecords": 47,
+      "opaqueRecords": 24,
+      "functions": 120,
+      "expectedExportsIncludingReset": 121,
+      "matchedExports": 121,
+      "unexpectedExports": [],
+      "binarySha256": "04066b5f3a3980b711a8dc548bd66088dd2195cf728a052c03abd14ce43d8478"
+    },
+    "win-arm64": {
+      "dataRecords": 47,
+      "opaqueRecords": 24,
+      "functions": 120,
+      "expectedExportsIncludingReset": 121,
+      "matchedExports": 121,
+      "unexpectedExports": [],
+      "binarySha256": "4e1f8e0c392a1bce9fb366003f296349e96bad5210e02f2ea7130a3ef4ecedcb"
+    },
+    "linux-x64": {
+      "dataRecords": 44,
+      "opaqueRecords": 24,
+      "functions": 77,
+      "expectedExportsIncludingReset": 78,
+      "matchedExports": 78,
+      "unexpectedExports": [],
+      "binarySha256": "f9dee47682166e4f0a417ce549d236936396636c22d500cbef9f0d331c4c295a"
+    },
+    "linux-arm64": {
+      "dataRecords": 44,
+      "opaqueRecords": 24,
+      "functions": 77,
+      "expectedExportsIncludingReset": 78,
+      "matchedExports": 78,
+      "unexpectedExports": [],
+      "binarySha256": "6162b2f6e80aa0f7bf18e80f6741e9ea55595d48734110faec2263a3a8c7bd70"
+    }
+  },
+  "astSha256": "29a3784b454ebf93cd7b52f5559c96db8645f8f259e98ef2ac373191d33ecea5",
+  "validationSha256": {
+    "Consumer/Consumer.csproj": "65e176663c842ccdaf2008854492b732350398137760963defc0ad1a70afb972",
+    "Consumer/NativeVisibilityProbe.cs": "17af3f39644b63230ca9acd5ca1055dd03b6cf493f0262c33ffa7651c701c85a",
+    "Consumer/Program.cs": "df26a00a4000417b46e7c492493a7745a6f3fc919659b2793dfeeb59abe1146a",
+    "Marshalling.csproj": "3b737e03f54b9a86ab2577b3933524c0528010a0c3c41adafb51f1889ace7582",
+    "Program.cs": "6e8542084e575bf58122fb1d36df40e17bb24e3b5de310b4de13c4879ce4b7f0",
+    "run.py": "cbb78b6ccc494cb7fe411f6d08fa8b5f3fd4f77b5b23afe51062249d9ca96009"
+  },
+  "contractFindings": [
+    "Constructors clean up partially initialized native values before rethrowing.",
+    "Initialization storage and callbacks remain rooted until matching successful shutdown; CUDA descriptors use stable storage.",
+    "Helper parameter snapshots retain native pointer inputs until replacement, Reset, DestroyParameters, or backend shutdown. Omitted DLSSG options preserve earlier matrix storage.",
+    "Failed helper calls preserve earlier snapshots because native failure may occur before or after pointer-map writes.",
+    "Opaque handles remain borrowed values and require explicit SDK release; the binding does not manage GPU resource completion."
+  ],
+  "regeneration": "0 changed files",
+  "managedSourcesSha256": "caa3115b8de2ebdbdf4067badf9fe3714384028d22334c49e83db32378e89f3d"
+}

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 
 namespace NGX.NET.Generator;
@@ -54,5 +54,18 @@ internal sealed partial class Emitter
         }
 
         return ("", Name(name));
+    }
+    private string ManagedRecord(string name) => unionNames.GetValueOrDefault(name, TypeName(name));
+
+    private static string EnumMember(string value)
+    {
+        if (value.Replace("_", "", StringComparison.Ordinal) == "VKIMAGEVIEW") return "VkImageView";
+        if (value.Replace("_", "", StringComparison.Ordinal) == "VKBUFFER") return "VkBuffer";
+        return string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(part =>
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(part, @"^[RGBADESX0-9]+$") && part.Any(char.IsDigit)) return part;
+            return string.Concat(System.Text.RegularExpressions.Regex.Matches(part, @"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+")
+                .Select(match => char.ToUpperInvariant(match.Value[0]) + match.Value[1..].ToLowerInvariant()));
+        }));
     }
 }

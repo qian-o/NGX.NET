@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -9,7 +9,7 @@ namespace NGX.NET;
 /// until their submitted work completes. Feature handles and parameter maps must
 /// be released with the matching backend's ReleaseFeature and DestroyParameters.
 /// </summary>
-public static unsafe partial class NGX
+public static unsafe partial class Ngx
 {
     internal const string LibraryName = "ngx-bridge";
 
@@ -35,9 +35,9 @@ public static unsafe partial class NGX
         }
     }
 
-    static NGX()
+    static Ngx()
     {
-        NativeLibrary.SetDllImportResolver(typeof(NGX).Assembly, Resolve);
+        NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
     }
 
     private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)
@@ -92,10 +92,15 @@ public static unsafe partial class NGX
         /// <summary>
         /// Resets a parameter map through the SDK's C++ Reset member.
         /// </summary>
-        public static void Reset(NGXParameter* parameters) => ResetNative(parameters);
+        public static void Reset(NGXParameter parameters)
+        {
+            if (parameters.IsNull) throw new ArgumentException("A non-null NGX parameter handle is required.", nameof(parameters));
+            ResetNative(parameters.Value);
+            NgxLifetime.ReleaseParameters(parameters.Value);
+        }
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void ResetNative(NGXParameter* parameters);
+        private static partial void ResetNative(nint parameters);
     }
 }

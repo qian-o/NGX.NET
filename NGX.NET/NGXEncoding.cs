@@ -1,4 +1,4 @@
-﻿namespace NGX.NET;
+namespace NGX.NET;
 
 /// <summary>
 /// Encoding of a null-terminated native string.
@@ -11,7 +11,7 @@ public enum NGXEncoding
     Utf8,
 
     /// <summary>
-    /// Native wchar_t: UTF-16 on Windows and UTF-32 on Linux.
+    /// Native wchar_t: UTF-16 on Windows and UTF-32 on Unix.
     /// </summary>
     NativeWide
 }
