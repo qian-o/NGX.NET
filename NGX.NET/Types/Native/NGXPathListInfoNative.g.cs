@@ -31,7 +31,7 @@ internal unsafe struct NGXPathListInfoNative : IDisposable
 
         try
         {
-            if (value.Paths is string[] { Length: > 0 } paths)
+            if (value.Paths is string[] paths && paths.Length > 0)
             {
                 Path = (void**)NativeMemory.AllocZeroed(checked((nuint)paths.Length * (nuint)sizeof(void*)));
                 Length = checked((uint)paths.Length);

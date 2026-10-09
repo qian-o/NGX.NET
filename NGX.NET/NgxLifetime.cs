@@ -11,117 +11,113 @@ internal static unsafe class NgxLifetime
 
     internal static void BeginInitialization(string backend, nint device, NativeCall call)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        if (!initialization.TryGetValue((backend, device), out List<NativeCall>? entries))
         {
-            if (!initialization.TryGetValue((backend, device), out List<NativeCall>? entries))
+            entries = [];
+            initialization.Add((backend, device), entries);
+        }
+
+        try
+        {
+            entries.Add(call);
+        }
+        catch
+        {
+            if (entries.Count is 0)
             {
-                entries = [];
-                initialization.Add((backend, device), entries);
+                initialization.Remove((backend, device));
             }
 
-            try
-            {
-                entries.Add(call);
-            }
-            catch
-            {
-                if (entries.Count is 0)
-                {
-                    initialization.Remove((backend, device));
-                }
-
-                throw;
-            }
+            throw;
         }
     }
 
     internal static void EndInitialization(string backend, nint device, bool succeeded, ref NativeCall? call)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        if (succeeded)
         {
-            if (succeeded)
-            {
-                call = null;
+            call = null;
 
-                return;
-            }
+            return;
+        }
 
-            List<NativeCall> entries = initialization[(backend, device)];
-            entries.Remove(call!);
+        List<NativeCall> entries = initialization[(backend, device)];
+        entries.Remove(call!);
 
-            if (entries.Count is 0)
-            {
-                initialization.Remove((backend, device));
-            }
+        if (entries.Count is 0)
+        {
+            initialization.Remove((backend, device));
         }
     }
 
     internal static void BeginParameters(nint parameters, string method, NativeCall call)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        if (!parameterData.TryGetValue((parameters, method), out List<NativeCall>? entries))
         {
-            if (!parameterData.TryGetValue((parameters, method), out List<NativeCall>? entries))
+            entries = [];
+            parameterData.Add((parameters, method), entries);
+        }
+
+        try
+        {
+            entries.Add(call);
+        }
+        catch
+        {
+            if (entries.Count is 0)
             {
-                entries = [];
-                parameterData.Add((parameters, method), entries);
+                parameterData.Remove((parameters, method));
             }
 
-            try
-            {
-                entries.Add(call);
-            }
-            catch
-            {
-                if (entries.Count is 0)
-                {
-                    parameterData.Remove((parameters, method));
-                }
-
-                throw;
-            }
+            throw;
         }
     }
 
     internal static void EndParameters(nint parameters, string method, bool returned, bool succeeded, ref NativeCall? call)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        List<NativeCall> entries = parameterData[(parameters, method)];
+        if (!returned)
         {
-            List<NativeCall> entries = parameterData[(parameters, method)];
-            if (!returned)
+            entries.Remove(call!);
+
+            if (entries.Count is 0)
             {
-                entries.Remove(call!);
-
-                if (entries.Count is 0)
-                {
-                    parameterData.Remove((parameters, method));
-                }
-
-                return;
+                parameterData.Remove((parameters, method));
             }
 
-            NativeCall current = call!;
-            call = null;
+            return;
+        }
 
-            // Early failures may leave old pointers. DLSSG additionally leaves
-            // its optional matrix pointers unchanged when options are omitted.
-            // Registration precedes native entry; committing needs no allocation.
-            if (succeeded)
+        NativeCall current = call!;
+        call = null;
+
+        // Early failures may leave old pointers. DLSSG additionally leaves
+        // its optional matrix pointers unchanged when options are omitted.
+        // Registration precedes native entry; committing needs no allocation.
+        if (succeeded)
+        {
+            for (int i = entries.Count - 1; i >= 0; i--)
             {
-                for (int i = entries.Count - 1; i is >= 0; i--)
+                if (ReferenceEquals(entries[i], current))
                 {
-                    if (ReferenceEquals(entries[i], current))
-                    {
-                        continue;
-                    }
-
-                    if (!current.HasFrameGenerationOptions && entries[i].HasFrameGenerationOptions)
-                    {
-                        continue;
-                    }
-
-                    entries[i].Dispose();
-                    entries.RemoveAt(i);
+                    continue;
                 }
+
+                if (!current.HasFrameGenerationOptions && entries[i].HasFrameGenerationOptions)
+                {
+                    continue;
+                }
+
+                entries[i].Dispose();
+                entries.RemoveAt(i);
             }
         }
     }
@@ -133,100 +129,95 @@ internal static unsafe class NgxLifetime
             return;
         }
 
-        lock (gate)
-        {
-            parameterBackends[parameters] = backend;
-        }
+        using Lock.Scope _ = gate.EnterScope();
+
+        parameterBackends[parameters] = backend;
     }
 
     internal static void PrepareParameters()
     {
-        lock (gate)
-        {
-            parameterBackends.EnsureCapacity(checked(parameterBackends.Count + 1));
-        }
+        using Lock.Scope _ = gate.EnterScope();
+
+        parameterBackends.EnsureCapacity(checked(parameterBackends.Count + 1));
     }
 
     internal static void ReleaseParameters(nint parameters, bool destroyed = false)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        foreach ((nint Parameters, string Method) key in parameterData.Keys.Where(key => key.Parameters == parameters).ToArray())
         {
-            foreach ((nint Parameters, string Method) key in parameterData.Keys.Where(key => key.Parameters == parameters).ToArray())
+            foreach (NativeCall entry in parameterData[key])
             {
-                foreach (NativeCall entry in parameterData[key])
-                {
-                    entry.Dispose();
-                }
-
-                parameterData.Remove(key);
+                entry.Dispose();
             }
 
-            if (destroyed)
-            {
-                parameterBackends.Remove(parameters);
-            }
+            parameterData.Remove(key);
+        }
+
+        if (destroyed)
+        {
+            parameterBackends.Remove(parameters);
         }
     }
 
     internal static void Shutdown(string backend, nint device)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        foreach ((string Backend, nint Device) key in initialization.Keys.Where(key => key.Backend == backend && (device is 0 || key.Device == device)).ToArray())
         {
-            foreach ((string Backend, nint Device) key in initialization.Keys.Where(key => key.Backend == backend && (device is 0 || key.Device == device)).ToArray())
+            foreach (NativeCall entry in initialization[key])
             {
-                foreach (NativeCall entry in initialization[key])
-                {
-                    entry.Dispose();
-                }
-
-                initialization.Remove(key);
+                entry.Dispose();
             }
 
-            if (device is 0 || !initialization.Keys.Any(key => key.Backend == backend))
-            {
-                foreach (nint parameters in parameterBackends.Where(item => item.Value == backend).Select(static item => item.Key).ToArray())
-                {
-                    ReleaseParameters(parameters, true);
-                }
-            }
+            initialization.Remove(key);
+        }
 
-            if (backend is "CUDA")
+        if (device is 0 || !initialization.Keys.Any(key => key.Backend == backend))
+        {
+            foreach (nint parameters in parameterBackends.Where(item => item.Value == backend).Select(static item => item.Key).ToArray())
             {
-                foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => device is 0 || (nint)cudaDevices[key].Pointer == device).ToArray())
-                {
-                    activeCudaDevices.Remove((nint)cudaDevices[key].Pointer);
-                    cudaDevices[key].Dispose();
-                    cudaDevices.Remove(key);
-                }
+                ReleaseParameters(parameters, true);
+            }
+        }
+
+        if (backend is "CUDA")
+        {
+            foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => device is 0 || (nint)cudaDevices[key].Pointer == device).ToArray())
+            {
+                activeCudaDevices.Remove((nint)cudaDevices[key].Pointer);
+                cudaDevices[key].Dispose();
+                cudaDevices.Remove(key);
             }
         }
     }
 
     internal static NGXCUDADeviceNative* CudaDevice(NGXCUDADevice device)
     {
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        activeCudaDevices.EnsureCapacity(checked(cudaDevices.Count + 1));
+
+        if (!cudaDevices.TryGetValue((device.CudaContext, device.CudaStream), out NativeValue<NGXCUDADeviceNative>? owner))
         {
-            activeCudaDevices.EnsureCapacity(checked(cudaDevices.Count + 1));
+            NGXCUDADeviceNative native = new(in device);
+            owner = new(ref native);
 
-            if (!cudaDevices.TryGetValue((device.CudaContext, device.CudaStream), out NativeValue<NGXCUDADeviceNative>? owner))
+            try
             {
-                NGXCUDADeviceNative native = new(in device);
-                owner = new(ref native);
-
-                try
-                {
-                    cudaDevices.Add((device.CudaContext, device.CudaStream), owner);
-                }
-                catch
-                {
-                    owner.Dispose();
-
-                    throw;
-                }
+                cudaDevices.Add((device.CudaContext, device.CudaStream), owner);
             }
+            catch
+            {
+                owner.Dispose();
 
-            return owner.Pointer;
+                throw;
+            }
         }
+
+        return owner.Pointer;
     }
 
     internal static void FinishCudaDevice(nint device, bool success)
@@ -236,23 +227,22 @@ internal static unsafe class NgxLifetime
             return;
         }
 
-        lock (gate)
+        using Lock.Scope _ = gate.EnterScope();
+
+        if (success)
         {
-            if (success)
-            {
-                activeCudaDevices.Add(device);
-            }
+            activeCudaDevices.Add(device);
+        }
 
-            if (activeCudaDevices.Contains(device) || initialization.ContainsKey(("CUDA", device)))
-            {
-                return;
-            }
+        if (activeCudaDevices.Contains(device) || initialization.ContainsKey(("CUDA", device)))
+        {
+            return;
+        }
 
-            foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => (nint)cudaDevices[key].Pointer == device).ToArray())
-            {
-                cudaDevices[key].Dispose();
-                cudaDevices.Remove(key);
-            }
+        foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => (nint)cudaDevices[key].Pointer == device).ToArray())
+        {
+            cudaDevices[key].Dispose();
+            cudaDevices.Remove(key);
         }
     }
 }

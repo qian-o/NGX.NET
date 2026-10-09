@@ -156,7 +156,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         uint[] counts = [(uint)Resources.Scene.Vertices.Length, (uint)Resources.Scene.Materials.Length, (uint)Resources.Scene.Texels.Length, (uint)Resources.Scene.TextureInfo.Length, (uint)Resources.Scene.Objects.Length];
         for (int frame = 0; frame < Resources.Frames.Length; frame++)
         {
-            for (int i = 0; i is < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 ShaderResourceViewDesc bufferView = new()
                 {
@@ -200,7 +200,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
                 device.Handle->CreateShaderResourceView(null, &rayView, Cpu(frame, 5));
             }
 
-            for (ImageSlot slot = 0; slot is < ImageSlot.Count; slot++)
+            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 DxImage image = (DxImage)Resources.Frames[frame][(int)slot];
                 CreateSrv(image, Cpu(frame, 6 + (int)slot));
@@ -289,7 +289,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         Check(created.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGISwapChain3>(), (void**)swapChain.GetAddressOf()));
         Check(factory.Handle->MakeWindowAssociation(Window.Native!.Win32!.Value.Hwnd, NoAltEnter));
 
-        for (uint i = 0; i is < RenderLayout.FramesInFlight; i++)
+        for (uint i = 0; i < RenderLayout.FramesInFlight; i++)
         {
             ComPtr<ID3D12Resource> buffer = default;
             Check(swapChain.Handle->GetBuffer(i, SilkMarshal.GuidPtrOf<ID3D12Resource>(), (void**)buffer.GetAddressOf()));
@@ -463,12 +463,12 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         Check(dxgi.CreateDXGIFactory2(0, SilkMarshal.GuidPtrOf<IDXGIFactory4>(), (void**)factory.GetAddressOf()));
         using ComPtr<IDXGIFactory5> presentationFactory = default;
         int allowTearing = 0;
-        tearingSupported = factory.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGIFactory5>(), (void**)presentationFactory.GetAddressOf()) is >= 0 && presentationFactory.Handle->CheckFeatureSupport(Silk.NET.DXGI.Feature.PresentAllowTearing, &allowTearing, sizeof(int)) is >= 0 && allowTearing is not 0;
+        tearingSupported = factory.Handle->QueryInterface(SilkMarshal.GuidPtrOf<IDXGIFactory5>(), (void**)presentationFactory.GetAddressOf()) >= 0 && presentationFactory.Handle->CheckFeatureSupport(Silk.NET.DXGI.Feature.PresentAllowTearing, &allowTearing, sizeof(int)) >= 0 && allowTearing is not 0;
         bool nvidiaSelected = false;
         for (uint i = 0; ; i++)
         {
             ComPtr<IDXGIAdapter1> candidate = default;
-            if (factory.Handle->EnumAdapters1(i, candidate.GetAddressOf()) is < 0)
+            if (factory.Handle->EnumAdapters1(i, candidate.GetAddressOf()) < 0)
             {
                 break;
             }
@@ -502,7 +502,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         NGX.Initialize((nint)device.Handle);
         FeatureDataD3D12Options5 options = default;
         Check(device.Handle->CheckFeatureSupport(Silk.NET.Direct3D12.Feature.D3D12Options5, &options, (uint)sizeof(FeatureDataD3D12Options5)));
-        RayQuerySupported = options.RaytracingTier is >= RaytracingTier.Tier11;
+        RayQuerySupported = options.RaytracingTier >= RaytracingTier.Tier11;
         RayQueryStatus = RayQuerySupported ? "DXR 1.1" : "Requires DXR tier 1.1";
 
         if (RayQuerySupported)
@@ -642,7 +642,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
     {
         int offset = constantIndex++ * RenderLayout.UniformStride;
 
-        if (constantIndex is > RenderLayout.UniformSlots)
+        if (constantIndex > RenderLayout.UniformSlots)
         {
             throw new InvalidOperationException("Too many uniform blocks for a frame.");
         }
@@ -691,10 +691,10 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         ShaderResourceViewDesc description = new()
         {
             Format = image.Format is ImageFormat.Depth ? Format.FormatR32Float : NativeFormat(image.Format),
-            ViewDimension = image.Layers is > 1 ? SrvDimension.Texture2Darray : SrvDimension.Texture2D,
+            ViewDimension = image.Layers > 1 ? SrvDimension.Texture2Darray : SrvDimension.Texture2D,
             Shader4ComponentMapping = ShaderComponentMapping
         };
-        if (image.Layers is > 1)
+        if (image.Layers > 1)
         {
             description.Texture2DArray = new()
             {
@@ -766,7 +766,6 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         {
             upload.Dispose();
         }
-
         uploads.Clear();
     }
 

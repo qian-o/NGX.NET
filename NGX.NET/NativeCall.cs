@@ -26,7 +26,6 @@ internal unsafe class NativeCall : IDisposable
             {
                 NGXMarshal.Free((void*)value);
             }
-
             strings.Clear();
         }
     }

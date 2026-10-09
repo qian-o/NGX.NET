@@ -55,7 +55,7 @@ internal class Renderer : IDisposable
 
     public float Update(float delta)
     {
-        if (width is <= 0 || height is <= 0)
+        if (width <= 0 || height <= 0)
         {
             return 0;
         }
@@ -104,7 +104,7 @@ internal class Renderer : IDisposable
 
     public void Render(CameraHandler camera, ImDrawDataPtr drawData)
     {
-        if (width is <= 0 || height is <= 0)
+        if (width <= 0 || height <= 0)
         {
             return;
         }
@@ -184,7 +184,7 @@ internal class Renderer : IDisposable
         {
             (int inputWidth, int inputHeight) = context.NGX.Configure(Settings, width, height);
 
-            if (inputWidth is <= 0 || inputHeight is <= 0)
+            if (inputWidth <= 0 || inputHeight <= 0)
             {
                 throw new InvalidOperationException("The SDK returned an invalid input resolution.");
             }

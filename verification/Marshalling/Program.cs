@@ -36,6 +36,7 @@ internal static unsafe class Program
             Run("CUDA device addresses remain stable across copied public descriptors", CheckCuda);
             Run("SDK defaults preserve the distinction between new and default", CheckDefaults);
             Run("readonly handles preserve layout, equality, hashing and deconstruction", CheckHandles);
+            Run("scoped locks preserve concurrent registration and reentrant shutdown", CheckConcurrentLifetime);
             Run("constructor and retained RR conversion allocation measurement", Measure);
 
             using JsonDocument ast = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "NGX.NET.Generator/ast.json")));
@@ -47,13 +48,7 @@ internal static unsafe class Program
                 host = RuntimeInformation.RuntimeIdentifier,
                 tests = passed,
                 metrics,
-                limitations = new[]
-{
-                    "Tests exercise the production generated constructors and internal lifetime management, not a NVIDIA GPU.",
-                    "Windows/Linux runtime behavior and NativeAOT execution require target-platform validation.",
-                    "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.",
-                    "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown."
-}
+                limitations = new[] { "Tests exercise the production generated constructors and internal lifetime management, not a NVIDIA GPU.", "Windows/Linux runtime behavior and NativeAOT execution require target-platform validation.", "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.", "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown." }
             };
             File.WriteAllText(Path.Combine(root, "verification/Marshalling/results.json"), JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }) + "\n");
             Console.WriteLine($"PASS {passed.Count} production validation groups.");
@@ -306,13 +301,7 @@ internal static unsafe class Program
         Throws<ArgumentException>(() => new NGXLoggingInfoNative(in logging));
         Throws<ArgumentException>(static () => Ngx.Parameter.Reset(default));
 
-        foreach (string bad in new[]
-{
-            "bad\0path",
-            "\uD800"
-}
-
-        )
+        foreach (string bad in new[] { "bad\0path", "\uD800" })
         {
             NGXFeatureDiscoveryInfo invalid = Discovery();
             invalid.FeatureInfo = new()
@@ -345,12 +334,7 @@ internal static unsafe class Program
         void* key = NGXMarshal.StringToPtr(Ngx.EParameterReserved00, NGXEncoding.Utf8);
         try
         {
-            Assert(new ReadOnlySpan<byte>(key, 3).SequenceEqual(new byte[]
-{
-35,
-0,
-0
-}), "SDK binary key");
+            Assert(new ReadOnlySpan<byte>(key, 3).SequenceEqual(new byte[] { 35, 0, 0 }), "SDK binary key");
         }
         finally
         {
@@ -569,7 +553,7 @@ internal static unsafe class Program
 
     private static void CheckParameters()
     {
-        for (int i = 0; i is < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             NativeCall? call = Storage();
             NgxLifetime.BeginParameters(123, "eval", call);
@@ -610,13 +594,7 @@ internal static unsafe class Program
         NgxLifetime.BeginParameters(789, "eval", parameters);
         NgxLifetime.EndParameters(789, "eval", true, true, ref parameters);
 
-        foreach (nint device in new nint[]
-{
-            1,
-            2
-}
-
-        )
+        foreach (nint device in new nint[] { 1, 2 })
         {
             NativeCall? call = Storage();
             NgxLifetime.BeginInitialization("test", device, call);
@@ -632,15 +610,7 @@ internal static unsafe class Program
 
     private static void CheckFrameGenerationRetention()
     {
-        foreach ((bool options, int expected) in new[]
-{
-            (true, 1),
-            (false, 2),
-            (false, 2),
-            (true, 1)
-}
-
-        )
+        foreach ((bool options, int expected) in new[] { (true, 1), (false, 2), (false, 2), (true, 1) })
         {
             NativeCall? call = Storage();
             call.HasFrameGenerationOptions = options;
@@ -651,6 +621,33 @@ internal static unsafe class Program
 
         NgxLifetime.ReleaseParameters(456);
         Assert(Roots is 0, "FG pointer cleanup");
+    }
+
+    private static void CheckConcurrentLifetime()
+    {
+        string[] fields = ["initialization", "parameterData", "parameterBackends"];
+        int[] counts = [.. fields.Select(static name => ((System.Collections.IDictionary)typeof(NgxLifetime).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!).Count)];
+
+        Parallel.For(0, 64, static i =>
+        {
+            string backend = $"ScopedLockValidation{i}";
+            nint parameters = i + 1;
+            NativeCall? initialization = new();
+            NgxLifetime.BeginInitialization(backend, 1, initialization);
+            NgxLifetime.EndInitialization(backend, 1, true, ref initialization);
+
+            NativeCall? values = new();
+            NgxLifetime.RegisterParameters(backend, parameters);
+            NgxLifetime.BeginParameters(parameters, "Validation", values);
+            NgxLifetime.EndParameters(parameters, "Validation", true, true, ref values);
+            NgxLifetime.Shutdown(backend, 0);
+        });
+
+        for (int i = 0; i < fields.Length; i++)
+        {
+            System.Collections.IDictionary values = (System.Collections.IDictionary)typeof(NgxLifetime).GetField(fields[i], BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+            Assert(values.Count == counts[i], $"Concurrent lifetime cleanup: {fields[i]}");
+        }
     }
 
     private static void CheckHandles()
@@ -703,7 +700,7 @@ internal static unsafe class Program
     private static void Measure()
     {
         NGXVKDLSSDEvalParams value = Frame();
-        for (int i = 0; i is < 1000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             RetainedFrame(value);
         }
@@ -711,7 +708,7 @@ internal static unsafe class Program
         const int Iterations = 10000;
         long before = GC.GetAllocatedBytesForCurrentThread();
 
-        for (int i = 0; i is < Iterations; i++)
+        for (int i = 0; i < Iterations; i++)
         {
             RetainedFrame(value);
         }

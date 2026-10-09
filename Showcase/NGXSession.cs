@@ -10,6 +10,8 @@ internal class NGXSession : IDisposable
     private const string ProjectId = "fc6ac847-10b0-48e1-842d-1bc819f8d2f4";
     private const string EngineVersion = "NGX.NET.Showcase.1.0";
 
+    private static readonly NGXFeature[] Features = [NGXFeature.SuperSampling, NGXFeature.RayReconstruction, NGXFeature.FrameGeneration];
+
     private readonly string dataPath;
     private readonly NGXFeatureCommonInfo common;
 
@@ -54,14 +56,7 @@ internal class NGXSession : IDisposable
         NGXResult result = isVulkan ? Ngx.Vulkan.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, instance, physical, device, getInstanceProcAddr, getDeviceProcAddr, in common, NGXVersion.Api) : Ngx.D3D12.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, device, in common, NGXVersion.Api);
         if (result is NGXResult.FailFeatureNotSupported or NGXResult.FailPlatformError or NGXResult.FailOutOfDate)
         {
-            foreach (NGXFeature feature in new[]
-{
-                NGXFeature.SuperSampling,
-                NGXFeature.RayReconstruction,
-                NGXFeature.FrameGeneration
-}
-
-            )
+            foreach (NGXFeature feature in Features)
             {
                 Unavailable[feature] = $"NGX initialization: {result}";
             }
@@ -85,14 +80,7 @@ internal class NGXSession : IDisposable
     public string[] VulkanExtensions(nint instance = 0, nint physical = 0)
     {
         HashSet<string> extensions = [];
-        foreach (NGXFeature feature in new[]
-{
-            NGXFeature.SuperSampling,
-            NGXFeature.RayReconstruction,
-            NGXFeature.FrameGeneration
-}
-
-        )
+        foreach (NGXFeature feature in Features)
         {
             NGXFeatureDiscoveryInfo discovery = new()
             {

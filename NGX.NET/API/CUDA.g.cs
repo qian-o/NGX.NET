@@ -15,6 +15,90 @@ public static unsafe partial class Ngx
     /// </summary>
     public static partial class CUDA
     {
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLISPExtNative(nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExtNative(nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExt1Native(NGXCUDADeviceNative* inDevice, nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLISPExtNative(nint pInHandle, nint pInParams, NGXCUDADLISPEvalParamsNative* pDlispEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSDExtNative(nint pInHandle, nint pInParams, NGXCUDADLSSDEvalParamsNative* pInDlssDEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_AllocateParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult AllocateParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeatureNative(NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeature1Native(NGXCUDADeviceNative* inDevice, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_DestroyParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult DestroyParametersNative(nint inParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureNative(nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature_C")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureCNative(nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetCapabilityParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetFeatureRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureRequirementsNative(int cudaDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetScratchBufferSize")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult Init1Native(ulong inApplicationId, void* inApplicationDataPath, NGXCUDADeviceNative* inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_ReleaseFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ShutdownNative();
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult Shutdown1Native(NGXCUDADeviceNative* inDevice);
+
         static CUDA()
         {
             RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
@@ -701,89 +785,5 @@ public static unsafe partial class Ngx
         {
             return Shutdown1((NGXCUDADevice?)inDevice);
         }
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLISPExtNative(nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExtNative(nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExt1Native(NGXCUDADeviceNative* inDevice, nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLISPExtNative(nint pInHandle, nint pInParams, NGXCUDADLISPEvalParamsNative* pDlispEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSDExtNative(nint pInHandle, nint pInParams, NGXCUDADLSSDEvalParamsNative* pInDlssDEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_AllocateParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult AllocateParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeatureNative(NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeature1Native(NGXCUDADeviceNative* inDevice, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_DestroyParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult DestroyParametersNative(nint inParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureNative(nint inFeatureHandle, nint inParameters, nint inCallback);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature_C")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureCNative(nint inFeatureHandle, nint inParameters, nint inCallback);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetCapabilityParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetFeatureRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureRequirementsNative(int cudaDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetScratchBufferSize")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult Init1Native(ulong inApplicationId, void* inApplicationDataPath, NGXCUDADeviceNative* inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_ReleaseFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ShutdownNative();
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult Shutdown1Native(NGXCUDADeviceNative* inDevice);
     }
 }

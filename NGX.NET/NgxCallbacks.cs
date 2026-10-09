@@ -15,18 +15,18 @@ internal static partial class NgxCallbacks
             return;
         }
 
-        lock (gate)
-        {
-            roots.Remove(pointer);
-        }
+        using Lock.Scope _ = gate.EnterScope();
+
+        roots.Remove(pointer);
     }
 
     private static nint Register<T>(T callback)
         where T : Delegate
     {
         nint pointer = Marshal.GetFunctionPointerForDelegate(callback);
-        lock (gate)
         {
+            using Lock.Scope _ = gate.EnterScope();
+
             roots.Add(pointer, callback);
         }
 

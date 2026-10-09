@@ -15,6 +15,118 @@ public static unsafe partial class Ngx
     /// </summary>
     public static partial class Vulkan
     {
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_CREATE_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSGNative(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSGCreateParamsNative* pInDlssgCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EstimateVRAMDLSSGNative(nint inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSGNative(nint pInCmdBuf, nint pInHandle, nint pInParams, NGXVKDLSSGEvalParamsNative* pInDlssgEvalParams, NGXDLSSGOptEvalParamsNative* pInDlssgOptEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLISPExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pInDlispCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLISPExtNative(nint inCmdList, nint inHandle, nint pInParams, NGXVKDLISPEvalParamsNative* pInDlispEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSDExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSDEvalParamsNative* pInDlssDEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSEvalParamsNative* pInDlssEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_AllocateParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult AllocateParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeatureNative(nint inCmdBuffer, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeature1Native(nint inDevice, nint inCmdList, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_DestroyParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult DestroyParametersNative(nint inParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureCNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureDeviceExtensionRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureInstanceExtensionRequirementsNative(NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_RequiredExtensions")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult RequiredExtensionsNative(uint* outInstanceExtCount, sbyte*** outInstanceExts, uint* outDeviceExtCount, sbyte*** outDeviceExts);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ShutdownNative();
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult Shutdown1Native(nint inDevice);
+
         static Vulkan()
         {
             RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
@@ -886,117 +998,5 @@ public static unsafe partial class Ngx
 
             return result;
         }
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_CREATE_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSGNative(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSGCreateParamsNative* pInDlssgCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EstimateVRAMDLSSGNative(nint inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSGNative(nint pInCmdBuf, nint pInHandle, nint pInParams, NGXVKDLSSGEvalParamsNative* pInDlssgEvalParams, NGXDLSSGOptEvalParamsNative* pInDlssgOptEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLISPExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pInDlispCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLISPExtNative(nint inCmdList, nint inHandle, nint pInParams, NGXVKDLISPEvalParamsNative* pInDlispEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSDExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSDEvalParamsNative* pInDlssDEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSEvalParamsNative* pInDlssEvalParams);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_AllocateParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult AllocateParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeatureNative(nint inCmdBuffer, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeature1Native(nint inDevice, nint inCmdList, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_DestroyParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult DestroyParametersNative(nint inParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureCNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureDeviceExtensionRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureInstanceExtensionRequirementsNative(NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetParametersNative(nint* outParameters);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_RequiredExtensions")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult RequiredExtensionsNative(uint* outInstanceExtCount, sbyte*** outInstanceExts, uint* outDeviceExtCount, sbyte*** outDeviceExts);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ShutdownNative();
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult Shutdown1Native(nint inDevice);
     }
 }

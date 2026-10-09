@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Security;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -82,8 +83,9 @@ internal partial class Emitter
                 continue;
             }
 
-            string? declaration = tokens.All(static token => token.StartsWith('"')) ? $"public const string {Name(native)} = {string.Join(" + ", tokens)};" : native switch
+            string? declaration = native switch
             {
+                _ when tokens.All(static token => token.StartsWith('"')) => $"public const string {Name(native)} = {string.Join(" + ", tokens)};",
                 "NVSDK_NGX_VERSION_API_MACRO" => $"public const uint VersionAPI = {tokens[0]};",
                 "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET" => $"public const int DLSSDebugOverlayValueUnset = {string.Concat(tokens)};",
                 _ => null
@@ -228,17 +230,9 @@ internal partial class Emitter
         {
             WriteSummary(text, $"{group} application API and native helpers.");
             text.BeginBlock($"public static partial class {group}");
-            text.BeginBlock($"static {group}()");
-            text.Line("RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);");
-            text.EndBlock();
         }
 
         JsonElement[] ordered = [.. source.OrderBy(static function => function.Text("name"), StringComparer.Ordinal)];
-        foreach (JsonElement function in ordered)
-        {
-            WriteFunction(text, group, function);
-        }
-
         foreach (JsonElement function in ordered)
         {
             string method = FunctionName(function.Text("name")).Method;
@@ -247,6 +241,18 @@ internal partial class Emitter
             text.Line("[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
             text.Line($"private static partial {Type(function.GetProperty("result"))} {method}Native({arguments});");
             text.BlankLine();
+        }
+
+        if (group.Length is not 0)
+        {
+            text.BeginBlock($"static {group}()");
+            text.Line("RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);");
+            text.EndBlock();
+        }
+
+        foreach (JsonElement function in ordered)
+        {
+            WriteFunction(text, group, function);
         }
 
         if (group.Length is not 0)
@@ -288,6 +294,7 @@ internal partial class Emitter
             JsonElement type = parameter.GetProperty("type");
             string kind = type.Text("kind");
             string raw = Type(type);
+
             if (original is "OutExtensionCount" or "OutInstanceExtCount" or "OutDeviceExtCount")
             {
                 locals.Add($"uint {local} = 0;");
@@ -397,7 +404,12 @@ internal partial class Emitter
                     string native = Type(element);
                     bool output = original is "OutSupported";
                     bool optional = original is "InFeatureInfo" or "pInDlssgOptEvalParams";
-                    string modifier = output ? "out " : optional ? string.Empty : "in ";
+                    string modifier = (output, optional) switch
+                    {
+                        (true, _) => "out ",
+                        (_, true) => string.Empty,
+                        _ => "in "
+                    };
                     declarations.Add($"{modifier}{managed}{(optional ? "?" : string.Empty)} {name}");
                     forward.Add(modifier + name);
                     locals.Add($"{native} {local} = default;");
@@ -555,7 +567,12 @@ internal partial class Emitter
             text.Line("attached = true;");
         }
 
-        string assignment = result is "void" ? string.Empty : retained ? "result = " : nativeResult + " result = ";
+        string assignment = (result, retained) switch
+        {
+            ("void", _) => string.Empty,
+            (_, true) => "result = ",
+            _ => $"{nativeResult} result = "
+        };
         text.Line($"{assignment}{method}Native({string.Join(", ", call)});");
 
         if (retained)
@@ -603,7 +620,12 @@ internal partial class Emitter
 
         if (result is not "void")
         {
-            string returned = IsRecord(resultType) ? "new(in result)" : resultType.Text("kind") is "POINTER" ? "NGXMarshal.PtrToString(result, NGXEncoding.NativeWide)" : "result";
+            string returned = resultType.Text("kind") switch
+            {
+                "RECORD" when IsRecord(resultType) => "new(in result)",
+                "POINTER" => "NGXMarshal.PtrToString(result, NGXEncoding.NativeWide)",
+                _ => "result"
+            };
             text.BlankLine();
             text.Line($"return {returned};");
         }
@@ -833,6 +855,7 @@ internal partial class Emitter
         {
             string fieldName = field.Text("name");
             JsonElement type = field.GetProperty("type");
+
             if (!(name is "NVSDK_NGX_PathListInfo" && fieldName is "Length"))
             {
                 WriteSummary(publicText, name + "::" + fieldName);
@@ -876,7 +899,7 @@ internal partial class Emitter
         if (union)
         {
             JsonElement[] branches = [.. fields.Where(field => IsRecord(field.GetProperty("type")))];
-            if (branches.Length is > 1)
+            if (branches.Length > 1)
             {
                 WriteGuard(nativeText, $"value.{Name(branches[0].Text("name"))}.HasValue && value.{Name(branches[1].Text("name"))}.HasValue", "throw new ArgumentException(\"Only one union member may be specified.\", nameof(value));");
             }
@@ -1020,6 +1043,7 @@ internal partial class Emitter
         string target = Name(name);
         string source = "value." + PublicFieldName(record, name);
         JsonElement type = field.GetProperty("type");
+
         if (record is "NVSDK_NGX_PathListInfo")
         {
             if (name is "Length")
@@ -1028,7 +1052,7 @@ internal partial class Emitter
             }
 
             text.BlankLine();
-            text.BeginBlock("if (value.Paths is string[] { Length: > 0 } paths)");
+            text.BeginBlock("if (value.Paths is string[] paths && paths.Length > 0)");
             text.Line("Path = (void**)NativeMemory.AllocZeroed(checked((nuint)paths.Length * (nuint)sizeof(void*)));");
             text.Line("Length = checked((uint)paths.Length);");
             text.BlankLine();
@@ -1064,7 +1088,7 @@ internal partial class Emitter
             {
                 string input = "items" + target;
                 text.BeginBlock($"if ({source} is {PublicFieldType(record, field).TrimEnd('?')} {input})");
-                WriteGuard(text, $"{input}.Length is > {count}", $"throw new ArgumentException(\"{target} accepts at most {count} elements.\", nameof(value));");
+                WriteGuard(text, $"{input}.Length > {count}", $"throw new ArgumentException(\"{target} accepts at most {count} elements.\", nameof(value));");
                 text.BeginBlock($"for (int i = 0; i < {input}.Length; i++)");
                 EmitAssignment(text, element, $"{target}[i]", $"{input}[i]");
                 text.EndBlock();
@@ -1126,6 +1150,7 @@ internal partial class Emitter
         string name = field.Text("name");
         string target = Name(name);
         JsonElement type = field.GetProperty("type");
+
         if (record is "NVSDK_NGX_PathListInfo")
         {
             if (name is "Path")
@@ -1207,6 +1232,7 @@ internal partial class Emitter
         string target = PublicFieldName(record, name);
         string source = "native." + Name(name);
         JsonElement type = field.GetProperty("type");
+
         if (record is "NVSDK_NGX_PathListInfo")
         {
             if (name is "Path")
@@ -1306,7 +1332,7 @@ internal partial class Emitter
     {
         string managed = TypeName(name);
         JsonElement[] values = [.. value.Items("values")];
-        bool unsigned = name is "NVSDK_NGX_Result" || values.Any(static item => item.GetProperty("value").GetInt64() is > int.MaxValue);
+        bool unsigned = name is "NVSDK_NGX_Result" || values.Any(static item => item.GetProperty("value").GetInt64() > int.MaxValue);
         bool flags = name is "NVSDK_NGX_DLSS_Feature_Flags" or "NVSDK_NGX_DLSSG_ResourceFlags" or "NVSDK_NGX_DLSSG_EvalFlags" or "NVSDK_NGX_Feature_Support_Result";
         bool hasNone = false;
         string prefix = name + "_";
@@ -1665,5 +1691,59 @@ internal partial class Emitter
             "NVSDK_NGX_CUDA_DLSSD_Eval_Params" or "NVSDK_NGX_D3D11_DLSSD_Eval_Params" or "NVSDK_NGX_D3D12_DLSSD_Eval_Params" or "NVSDK_NGX_VK_DLSSD_Eval_Params" when field.Text("name") is "pInWorldToViewMatrix" or "pInViewToClipMatrix" => "Matrix4x4*",
             _ => null
         };
+    }
+}
+
+internal class CodeWriter
+{
+    private readonly StringBuilder text = new();
+
+    private int indent;
+    private bool blankLine;
+    private bool blockStart;
+
+    public override string ToString()
+    {
+        return text.ToString();
+    }
+
+    internal void Line(string value)
+    {
+        if (blankLine && text.Length is not 0)
+        {
+            text.Append('\n');
+        }
+
+        blankLine = false;
+        blockStart = false;
+        text.Append(' ', indent * 4);
+        text.Append(value);
+        text.Append('\n');
+    }
+
+    internal void BlankLine()
+    {
+        blankLine = !blockStart;
+    }
+
+    internal void BeginBlock(string declaration, bool continuation = false)
+    {
+        if (continuation)
+        {
+            blankLine = false;
+        }
+
+        Line(declaration);
+        Line("{");
+        indent++;
+        blockStart = true;
+    }
+
+    internal void EndBlock(string suffix = "")
+    {
+        blankLine = false;
+        indent--;
+        Line("}" + suffix);
+        BlankLine();
     }
 }

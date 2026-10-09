@@ -15,6 +15,70 @@ public static unsafe partial class Ngx
     /// </summary>
     public static partial class Parameter
     {
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetDNative(nint inParameter, sbyte* inName, double* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetD3d11ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d12Resource")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetD3d12ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFNative(nint inParameter, sbyte* inName, float* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetI")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetINative(nint inParameter, sbyte* inName, int* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetUI")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetUINative(nint inParameter, sbyte* inName, uint* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetULL")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetULLNative(nint inParameter, sbyte* inName, ulong* outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetVoidPointer")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetVoidPointerNative(nint inParameter, sbyte* inName, void** outValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetDNative(nint inParameter, sbyte* inName, double inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetD3d11ResourceNative(nint inParameter, sbyte* inName, nint inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d12Resource")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetD3d12ResourceNative(nint inParameter, sbyte* inName, nint inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetFNative(nint inParameter, sbyte* inName, float inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetI")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetINative(nint inParameter, sbyte* inName, int inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetUI")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetUINative(nint inParameter, sbyte* inName, uint inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetULL")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetULLNative(nint inParameter, sbyte* inName, ulong inValue);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void SetVoidPointerNative(nint inParameter, sbyte* inName, void* inValue);
+
         static Parameter()
         {
             RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
@@ -467,69 +531,5 @@ public static unsafe partial class Ngx
                 NGXMarshal.Free(inNameNative);
             }
         }
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetDNative(nint inParameter, sbyte* inName, double* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetD3d11ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d12Resource")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetD3d12ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFNative(nint inParameter, sbyte* inName, float* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetI")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetINative(nint inParameter, sbyte* inName, int* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetUI")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetUINative(nint inParameter, sbyte* inName, uint* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetULL")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetULLNative(nint inParameter, sbyte* inName, ulong* outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetVoidPointer")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetVoidPointerNative(nint inParameter, sbyte* inName, void** outValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetDNative(nint inParameter, sbyte* inName, double inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetD3d11ResourceNative(nint inParameter, sbyte* inName, nint inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d12Resource")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetD3d12ResourceNative(nint inParameter, sbyte* inName, nint inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetFNative(nint inParameter, sbyte* inName, float inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetI")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetINative(nint inParameter, sbyte* inName, int inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetUI")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetUINative(nint inParameter, sbyte* inName, uint inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetULL")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetULLNative(nint inParameter, sbyte* inName, ulong inValue);
-
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void SetVoidPointerNative(nint inParameter, sbyte* inName, void* inValue);
     }
 }

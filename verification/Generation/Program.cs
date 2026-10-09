@@ -27,6 +27,25 @@ internal static class Program
             CheckSource(path, source);
         }
 
+        string repository = args.Length > 1 ? Path.GetFullPath(args[1]) : root;
+        int handwrittenCount = 0;
+        string[] folders = ["NGX.NET", "NGX.NET.Generator", "Showcase", "verification"];
+        foreach (string folder in folders)
+        {
+            foreach (string path in Directory.EnumerateFiles(Path.Combine(repository, folder), "*.cs", SearchOption.AllDirectories))
+            {
+                string relative = Path.GetRelativePath(repository, path);
+                if (path.EndsWith(".g.cs", StringComparison.Ordinal) || relative.Split(Path.DirectorySeparatorChar).Any(static part => part is "obj" or "bin"))
+                {
+                    continue;
+                }
+
+                CheckRules(relative, CSharpSyntaxTree.ParseText(File.ReadAllText(path)).GetCompilationUnitRoot());
+                handwrittenCount++;
+            }
+        }
+
+        Console.WriteLine($"PASS {handwrittenCount} handwritten files: native declaration order, instance/static method order, comparison operators and scoped locking.");
         Console.WriteLine($"PASS {first.Count} direct emitter outputs: syntax, braces, explicit types, member order, whitespace, BOM, deterministic bytes and checked-in parity.");
     }
 
@@ -44,7 +63,14 @@ internal static class Program
         CompilationUnitSyntax syntax = CSharpSyntaxTree.ParseText(source).GetCompilationUnitRoot();
         Require(!syntax.ContainsDiagnostics, $"Invalid C# syntax: {path}.");
         Require(syntax.Members is [FileScopedNamespaceDeclarationSyntax], $"File-scoped namespace: {path}.");
-        Require(((FileScopedNamespaceDeclarationSyntax)syntax.Members[0]).Members.Count is 1, $"One top-level type per file: {path}.");
+        FileScopedNamespaceDeclarationSyntax fileNamespace = (FileScopedNamespaceDeclarationSyntax)syntax.Members[0];
+        Require(fileNamespace.Members.Count > 0, $"Missing main type: {path}.");
+        foreach (MemberDeclarationSyntax helper in fileNamespace.Members.Skip(1))
+        {
+            Require(helper is TypeDeclarationSyntax type && (type.Modifiers.Any(SyntaxKind.InternalKeyword) || type.Modifiers.Any(SyntaxKind.FileKeyword)), $"Invalid auxiliary type: {path}.");
+        }
+
+        CheckRules(path, syntax);
 
         foreach (SyntaxNode node in syntax.DescendantNodes())
         {
@@ -121,7 +147,7 @@ internal static class Program
         }
         else
         {
-            Require(line is > 0 && lines[line - 1].Length is not 0, $"Blank line before closing brace: {path}:{line + 1}.");
+            Require(line > 0 && lines[line - 1].Length is not 0, $"Blank line before closing brace: {path}:{line + 1}.");
         }
     }
 
@@ -144,18 +170,7 @@ internal static class Program
         for (int i = 0; i < members.Count; i++)
         {
             MemberDeclarationSyntax member = members[i];
-            int rank = member switch
-            {
-                FieldDeclarationSyntax => 0,
-                ConstructorDeclarationSyntax => 1,
-                PropertyDeclarationSyntax => 2,
-                MethodDeclarationSyntax method when method.Modifiers.Any(SyntaxKind.PublicKeyword) => 3,
-                MethodDeclarationSyntax method when method.Modifiers.Any(SyntaxKind.InternalKeyword) => 4,
-                MethodDeclarationSyntax => 5,
-                OperatorDeclarationSyntax or ConversionOperatorDeclarationSyntax => 6,
-                TypeDeclarationSyntax => 7,
-                _ => throw new InvalidOperationException($"Unhandled generated member in {path}.")
-            };
+            int rank = MemberRank(member);
             Require(rank >= previousRank, $"Member order: {path}.");
             previousRank = rank;
 
@@ -167,6 +182,85 @@ internal static class Program
             int previousLine = members[i - 1].GetLastToken().GetLocation().GetLineSpan().EndLinePosition.Line;
             Require(lines[previousLine + 1].Length is 0, $"Member spacing: {path}:{previousLine + 1}.");
         }
+    }
+
+    private static void CheckRules(string path, CompilationUnitSyntax syntax)
+    {
+        Require(!syntax.ContainsDiagnostics, $"Invalid C# syntax: {path}.");
+
+        foreach (SyntaxNode node in syntax.DescendantNodes())
+        {
+            Require(node is not RelationalPatternSyntax, $"Use comparison operators instead of relational patterns: {path}:{node.GetLocation().GetLineSpan().StartLinePosition.Line + 1}.");
+            Require(node is not LockStatementSyntax, $"Use a Lock.Scope declaration: {path}.");
+
+            if (node is InitializerExpressionSyntax initializer && initializer.Ancestors().OfType<TypeDeclarationSyntax>().Any())
+            {
+                Require(initializer.OpenBraceToken.GetLocation().GetLineSpan().StartLinePosition.Character > 0, $"Unindented initializer: {path}:{initializer.GetLocation().GetLineSpan().StartLinePosition.Line + 1}.");
+            }
+
+            if (node is ConditionalExpressionSyntax conditional)
+            {
+                Require(conditional.WhenTrue is not ConditionalExpressionSyntax && conditional.WhenFalse is not ConditionalExpressionSyntax, $"Nested conditional expression: {path}.");
+            }
+
+            if (node is ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters: [ParameterSyntax { Type: null, Modifiers.Count: 0, AttributeLists.Count: 0 }] })
+            {
+                Require(false, $"A single untyped lambda parameter does not need parentheses: {path}.");
+            }
+
+            if (node is not TypeDeclarationSyntax type)
+            {
+                continue;
+            }
+
+            int previousRank = -1;
+            foreach (MemberDeclarationSyntax member in type.Members)
+            {
+                int rank = MemberRank(member);
+                Require(rank >= previousRank, $"Member order: {path}:{member.GetLocation().GetLineSpan().StartLinePosition.Line + 1}.");
+                previousRank = rank;
+            }
+        }
+    }
+
+    private static int MemberRank(MemberDeclarationSyntax member)
+    {
+        SyntaxTokenList modifiers = member switch
+        {
+            BaseFieldDeclarationSyntax field => field.Modifiers,
+            BaseMethodDeclarationSyntax method => method.Modifiers,
+            BasePropertyDeclarationSyntax property => property.Modifiers,
+            BaseTypeDeclarationSyntax type => type.Modifiers,
+            _ => default
+        };
+        int visibility = modifiers switch
+        {
+            _ when modifiers.Any(SyntaxKind.PublicKeyword) => 0,
+            _ when modifiers.Any(SyntaxKind.InternalKeyword) => 1,
+            _ when modifiers.Any(SyntaxKind.ProtectedKeyword) => 2,
+            _ => 4
+        };
+
+        return member switch
+        {
+            FieldDeclarationSyntax when modifiers.Any(SyntaxKind.ConstKeyword) => 0,
+            MethodDeclarationSyntax method when method.AttributeLists.SelectMany(static list => list.Attributes).Any(static attribute => attribute.Name.ToString() is "LibraryImport" or "DllImport") => 1,
+            FieldDeclarationSyntax when modifiers.Any(SyntaxKind.StaticKeyword) && modifiers.Any(SyntaxKind.ReadOnlyKeyword) => 2,
+            FieldDeclarationSyntax when modifiers.Any(SyntaxKind.StaticKeyword) => 3,
+            FieldDeclarationSyntax when modifiers.Any(SyntaxKind.ReadOnlyKeyword) => 4,
+            FieldDeclarationSyntax when modifiers.Any(SyntaxKind.PublicKeyword) => 5,
+            FieldDeclarationSyntax => 6,
+            ConstructorDeclarationSyntax when modifiers.Any(SyntaxKind.StaticKeyword) => 7,
+            ConstructorDeclarationSyntax or DestructorDeclarationSyntax => 8,
+            PropertyDeclarationSyntax or IndexerDeclarationSyntax when modifiers.Any(SyntaxKind.StaticKeyword) => 9,
+            PropertyDeclarationSyntax or IndexerDeclarationSyntax => 10,
+            EventDeclarationSyntax or EventFieldDeclarationSyntax => 11,
+            MethodDeclarationSyntax method when modifiers.Any(SyntaxKind.StaticKeyword) => 17 + visibility,
+            MethodDeclarationSyntax { ExplicitInterfaceSpecifier: not null } => 15,
+            MethodDeclarationSyntax => 12 + visibility,
+            OperatorDeclarationSyntax or ConversionOperatorDeclarationSyntax => 22,
+            _ => 23
+        };
     }
 
     private static void Require(bool condition, string message)

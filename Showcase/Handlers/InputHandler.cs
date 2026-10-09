@@ -184,7 +184,7 @@ internal class InputHandler : IDisposable
             }
         }
 
-        if (button is >= MouseButton.Left and <= MouseButton.Button5)
+        if (button >= MouseButton.Left && button <= MouseButton.Button5)
         {
             if (pressed && focused)
             {
@@ -228,10 +228,10 @@ internal class InputHandler : IDisposable
     {
         return key switch
         {
-            >= Key.A and <= Key.Z => ImGuiKey.A + (key - Key.A),
-            >= Key.Number0 and <= Key.Number9 => ImGuiKey.Key0 + (key - Key.Number0),
-            >= Key.F1 and <= Key.F24 => ImGuiKey.F1 + (key - Key.F1),
-            >= Key.Keypad0 and <= Key.Keypad9 => ImGuiKey.Keypad0 + (key - Key.Keypad0),
+            _ when key >= Key.A && key <= Key.Z => ImGuiKey.A + (key - Key.A),
+            _ when key >= Key.Number0 && key <= Key.Number9 => ImGuiKey.Key0 + (key - Key.Number0),
+            _ when key >= Key.F1 && key <= Key.F24 => ImGuiKey.F1 + (key - Key.F1),
+            _ when key >= Key.Keypad0 && key <= Key.Keypad9 => ImGuiKey.Keypad0 + (key - Key.Keypad0),
             Key.Tab => ImGuiKey.Tab,
             Key.Enter => ImGuiKey.Enter,
             Key.Escape => ImGuiKey.Escape,

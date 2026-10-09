@@ -10,6 +10,22 @@ namespace NGX.NET;
 
 public static unsafe partial class Ngx
 {
+    [LibraryImport(LibraryName, EntryPoint = "GetNGXResultAsString")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial void* GetResultAsStringNative(NGXResult inNGXResult);
+
+    [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_Buffer_Resource_VK")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial NGXResourceVKNative CreateBufferResourceVKNative(nint buffer, uint sizeInBytes, NGXBool8 readWrite);
+
+    [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_ImageView_Resource_VK")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial NGXResourceVKNative CreateImageViewResourceVKNative(nint imageView, nint image, NGXVkImageSubresourceRangeNative subresourceRange, NGXVkFormat format, uint width, uint height, NGXBool8 readWrite);
+
+    [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_UpdateFeature")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial NGXResult UpdateFeatureNative(NGXApplicationIdentifierNative* applicationId, NGXFeature featureID);
+
     /// <summary>
     /// GetNGXResultAsString
     /// </summary>
@@ -69,20 +85,4 @@ public static unsafe partial class Ngx
             applicationIdNative.Dispose();
         }
     }
-
-    [LibraryImport(LibraryName, EntryPoint = "GetNGXResultAsString")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial void* GetResultAsStringNative(NGXResult inNGXResult);
-
-    [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_Buffer_Resource_VK")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial NGXResourceVKNative CreateBufferResourceVKNative(nint buffer, uint sizeInBytes, NGXBool8 readWrite);
-
-    [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NVSDK_NGX_Create_ImageView_Resource_VK")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial NGXResourceVKNative CreateImageViewResourceVKNative(nint imageView, nint image, NGXVkImageSubresourceRangeNative subresourceRange, NGXVkFormat format, uint width, uint height, NGXBool8 readWrite);
-
-    [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_UpdateFeature")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial NGXResult UpdateFeatureNative(NGXApplicationIdentifierNative* applicationId, NGXFeature featureID);
 }

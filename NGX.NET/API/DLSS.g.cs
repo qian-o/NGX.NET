@@ -15,6 +15,22 @@ public static unsafe partial class Ngx
     /// </summary>
     public static partial class DLSS
     {
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_OPTIMAL_SETTINGS")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetOptimalSettingsNative(nint pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, uint* pOutRenderOptimalWidth, uint* pOutRenderOptimalHeight, uint* pOutRenderMaxWidth, uint* pOutRenderMaxHeight, uint* pOutRenderMinWidth, uint* pOutRenderMinHeight, float* pOutSharpness);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetStatsNative(nint pInParams, ulong* pVRAMAllocatedBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetStats1Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_2")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetStats2Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel, uint* isDevSnippetBranch);
+
         static DLSS()
         {
             RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
@@ -134,21 +150,5 @@ public static unsafe partial class Ngx
 
             return result;
         }
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_OPTIMAL_SETTINGS")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetOptimalSettingsNative(nint pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, uint* pOutRenderOptimalWidth, uint* pOutRenderOptimalHeight, uint* pOutRenderMaxWidth, uint* pOutRenderMaxHeight, uint* pOutRenderMinWidth, uint* pOutRenderMinHeight, float* pOutSharpness);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetStatsNative(nint pInParams, ulong* pVRAMAllocatedBytes);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetStats1Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel);
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_2")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetStats2Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel, uint* isDevSnippetBranch);
     }
 }

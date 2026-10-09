@@ -47,7 +47,9 @@ csharp_style_implicit_object_creation_when_type_is_apparent = true
 dotnet_style_prefer_collection_expression = when_types_loosely_match
 csharp_style_prefer_primary_constructors = true
 csharp_style_prefer_switch_expression = true
-csharp_style_prefer_pattern_matching = true
+# Relational comparisons stay operators under section 10.2.
+# Dedicated checks reject relational patterns; constant/type pattern styles remain enabled.
+csharp_style_prefer_pattern_matching = false
 csharp_style_prefer_not_pattern = true
 csharp_style_pattern_matching_over_is_with_cast_check = true
 csharp_style_pattern_matching_over_as_with_null_check = true

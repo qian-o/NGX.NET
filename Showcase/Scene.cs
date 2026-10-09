@@ -58,6 +58,50 @@ internal class Scene
         }
     }
 
+    private float FindGroundHeight()
+    {
+        // The asset's bounding box includes its foundation below the walking surface.
+        // Locate the atrium floor with a downward ray through the scene's center.
+        Vector3 center = (Minimum + Maximum) * 0.5f;
+        Vector3 origin = new(center.X, Maximum.Y + RayEpsilon, center.Z);
+        Vector3 direction = -Vector3.UnitY;
+        float nearest = float.PositiveInfinity;
+        for (int i = 0; i < Vertices.Length; i += 3)
+        {
+            if (Vertices[i].Position.W >= staticObjectCount)
+            {
+                continue;
+            }
+
+            Vector3 a = Vertices[i].Position.AsVector3();
+            Vector3 edge1 = Vertices[i + 1].Position.AsVector3() - a;
+            Vector3 edge2 = Vertices[i + 2].Position.AsVector3() - a;
+            Vector3 p = Vector3.Cross(direction, edge2);
+            float determinant = Vector3.Dot(edge1, p);
+            if (determinant == 0)
+            {
+                continue;
+            }
+
+            Vector3 relative = origin - a;
+            float u = Vector3.Dot(relative, p) / determinant;
+            Vector3 q = Vector3.Cross(relative, edge1);
+            float v = Vector3.Dot(direction, q) / determinant;
+            float distance = Vector3.Dot(edge2, q) / determinant;
+            if (u >= 0 && v >= 0 && u + v <= 1 && distance >= 0)
+            {
+                nearest = Math.Min(nearest, distance);
+            }
+        }
+
+        if (!float.IsFinite(nearest))
+        {
+            throw new InvalidDataException("Could not locate the Sponza atrium floor.");
+        }
+
+        return origin.Y - nearest;
+    }
+
     public static Scene Load(string path)
     {
         ModelRoot model = ModelRoot.Load(path);
@@ -114,7 +158,7 @@ internal class Scene
                     Vector2 uv0 = uv?[a] ?? Vector2.Zero;
                     Vector2 uv1 = (uv?[second] ?? Vector2.Zero) - uv0;
                     Vector2 uv2 = (uv?[third] ?? Vector2.Zero) - uv0;
-                    for (int corner = 0; corner is < 3; corner++)
+                    for (int corner = 0; corner < 3; corner++)
                     {
                         int index = corner switch { 0 => a, 1 => second, _ => third };
                         Vector3 n = normals is null ? faceNormal : Vector3.TransformNormal(normals[index], normalMatrix);
@@ -193,7 +237,7 @@ internal class Scene
         // Gold and neutral chromium provide warm and untinted polished reflections.
         // Base colors are linear reflectance; both use the same surface roughness.
         const float PolishedMetalRoughness = 0.08f;
-        for (int i = 0; i is < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             int materialIndex = materials.Count;
             materials.Add(new()
@@ -219,50 +263,6 @@ internal class Scene
         Console.WriteLine($"Scene: {ordered.Count / 3:N0} triangles, {materials.Count} materials, {textureInfo.Count} textures, {texels.Length * 4L / 1048576} MiB texels.");
 
         return scene;
-    }
-
-    private float FindGroundHeight()
-    {
-        // The asset's bounding box includes its foundation below the walking surface.
-        // Locate the atrium floor with a downward ray through the scene's center.
-        Vector3 center = (Minimum + Maximum) * 0.5f;
-        Vector3 origin = new(center.X, Maximum.Y + RayEpsilon, center.Z);
-        Vector3 direction = -Vector3.UnitY;
-        float nearest = float.PositiveInfinity;
-        for (int i = 0; i < Vertices.Length; i += 3)
-        {
-            if (Vertices[i].Position.W >= staticObjectCount)
-            {
-                continue;
-            }
-
-            Vector3 a = Vertices[i].Position.AsVector3();
-            Vector3 edge1 = Vertices[i + 1].Position.AsVector3() - a;
-            Vector3 edge2 = Vertices[i + 2].Position.AsVector3() - a;
-            Vector3 p = Vector3.Cross(direction, edge2);
-            float determinant = Vector3.Dot(edge1, p);
-            if (determinant == 0)
-            {
-                continue;
-            }
-
-            Vector3 relative = origin - a;
-            float u = Vector3.Dot(relative, p) / determinant;
-            Vector3 q = Vector3.Cross(relative, edge1);
-            float v = Vector3.Dot(direction, q) / determinant;
-            float distance = Vector3.Dot(edge2, q) / determinant;
-            if (u >= 0 && v >= 0 && u + v <= 1 && distance >= 0)
-            {
-                nearest = Math.Min(nearest, distance);
-            }
-        }
-
-        if (!float.IsFinite(nearest))
-        {
-            throw new InvalidDataException("Could not locate the Sponza atrium floor.");
-        }
-
-        return origin.Y - nearest;
     }
 
     private static Vector4 TriangleTangent(Vector3 normal, Vector3 edge1, Vector3 edge2, Vector2 uv1, Vector2 uv2)
@@ -309,16 +309,16 @@ internal class Scene
             };
         }
 
-        for (int y = 0; y is < Rings; y++)
+        for (int y = 0; y < Rings; y++)
         {
-            for (int x = 0; x is < Segments; x++)
+            for (int x = 0; x < Segments; x++)
             {
-                if (y is > 0)
+                if (y > 0)
                 {
                     result.AddRange([Vertex(x, y), Vertex(x + 1, y), Vertex(x, y + 1)]);
                 }
 
-                if (y + 1 is < Rings)
+                if (y + 1 < Rings)
                 {
                     result.AddRange([Vertex(x + 1, y), Vertex(x + 1, y + 1), Vertex(x, y + 1)]);
                 }
@@ -388,7 +388,7 @@ internal class Scene
         uint[] texels = new uint[textureInfo.Count is 0 ? texelCount + 1 : texelCount];
 
         // Texture RGB is 8-bit sRGB. The first 256 entries hold its exact decode values.
-        for (int value = 0; value is < 256; value++)
+        for (int value = 0; value < 256; value++)
         {
             float encoded = value / 255.0f;
             float linear = encoded <= 0.04045f ? encoded / 12.92f : MathF.Pow((encoded + 0.055f) / 1.055f, 2.4f);

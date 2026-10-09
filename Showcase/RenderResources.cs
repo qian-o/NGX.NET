@@ -38,7 +38,7 @@ internal class RenderResources(RHI context, Scene scene) : IDisposable
         {
             Frames[frame] ??= new GpuImage[(int)ImageSlot.Count];
 
-            for (ImageSlot slot = 0; slot is < ImageSlot.Count; slot++)
+            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 (int width, int height) = RenderLayout.Size(slot, inputWidth, inputHeight, outputWidth, outputHeight);
                 GpuImage? current = Frames[frame][(int)slot];

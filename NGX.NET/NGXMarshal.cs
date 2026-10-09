@@ -154,7 +154,7 @@ public static unsafe class NGXMarshal
     {
         int end = buffer.IndexOf((byte)0);
 
-        return UTF8.GetString(end is < 0 ? buffer : buffer[..end]);
+        return UTF8.GetString(end < 0 ? buffer : buffer[..end]);
     }
 
     private static Encoding GetEncoding(NGXEncoding encoding)

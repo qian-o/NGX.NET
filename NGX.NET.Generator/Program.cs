@@ -11,7 +11,7 @@ internal static class Program
     {
         try
         {
-            string root = args.Length is > 0 ? Path.GetFullPath(args[0]) : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../"));
+            string root = args.Length > 0 ? Path.GetFullPath(args[0]) : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../"));
             string input = Path.Combine(root, "NGX.NET.Generator", "ast.json");
             using JsonDocument document = JsonDocument.Parse(File.ReadAllText(input));
             Emitter emitter = new(document.RootElement);

@@ -115,10 +115,9 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
             PSignalSemaphores = &complete
         };
 
-        lock (queueSync)
-        {
-            Check(api.QueueSubmit(queue, 1, &submit, slots[Frame.Slot].Fence), "vkQueueSubmit(frame)");
-        }
+        using Lock.Scope _ = queueSync.EnterScope();
+
+        Check(api.QueueSubmit(queue, 1, &submit, slots[Frame.Slot].Fence), "vkQueueSubmit(frame)");
     }
 
     public override void WaitIdle()
@@ -178,7 +177,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
 
             Buffer(0, DescriptorType.UniformBufferDynamic, frame.Constants, (ulong)sizeof(FrameConstants));
 
-            for (uint i = 0; i is < 5; i++)
+            for (uint i = 0; i < 5; i++)
             {
                 VkBufferResource buffer = i is 4 ? frame.Objects : sceneBuffers[i];
                 Buffer(i + 1, DescriptorType.StorageBuffer, buffer, buffer.Size);
@@ -207,7 +206,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 api.UpdateDescriptorSets(device, 1, &write, 0, null);
             }
 
-            for (ImageSlot slot = 0; slot is < ImageSlot.Count; slot++)
+            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
             {
                 Texture(7 + (uint)slot, DescriptorType.SampledImage, (VkTexture)Resources.Frames[index][(int)slot], ImageLayout.ShaderReadOnlyOptimal);
             }
@@ -381,7 +380,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
             {
                 SType = StructureType.ImageViewCreateInfo,
                 Image = texture.Texture,
-                ViewType = layers is > 1 ? ImageViewType.Type2DArray : ImageViewType.Type2D,
+                ViewType = layers > 1 ? ImageViewType.Type2DArray : ImageViewType.Type2D,
                 Format = NativeFormat(format),
                 SubresourceRange = Range(format, layers)
             };
@@ -415,13 +414,12 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         Fence dependencyFence = presentFence;
         Check(api.ResetFences(device, 1, &dependencyFence), "vkResetFences(render dependency)");
 
-        lock (queueSync)
-        {
-            // Track semaphore consumption even when acquire cannot produce an
-            // image. The slot must not signal RenderComplete again first.
-            Check(api.QueueSubmit(presentQueue, 1, &wait, dependencyFence), "vkQueueSubmit(render dependency)");
-            presentationPending = true;
-        }
+        using Lock.Scope _ = queueSync.EnterScope();
+
+        // Track semaphore consumption even when acquire cannot produce an
+        // image. The slot must not signal RenderComplete again first.
+        Check(api.QueueSubmit(presentQueue, 1, &wait, dependencyFence), "vkQueueSubmit(render dependency)");
+        presentationPending = true;
     }
 
     public override bool PresentImage(GpuImage image)
@@ -496,8 +494,9 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         };
 
         Result result;
-        lock (queueSync)
         {
+            using Lock.Scope _ = queueSync.EnterScope();
+
             Check(api.QueueSubmit(presentQueue, 1, &submit, fence), "vkQueueSubmit(present)");
             presentationPending = true;
             result = swapChainApi.QueuePresent(presentQueue, &present);
@@ -579,7 +578,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         }
 
         uint imageCount = Math.Max(capabilities.MinImageCount, RenderLayout.FramesInFlight);
-        if (capabilities.MaxImageCount is > 0)
+        if (capabilities.MaxImageCount > 0)
         {
             imageCount = Math.Min(imageCount, capabilities.MaxImageCount);
         }
@@ -928,7 +927,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 supportedNames = extensionNames;
                 physical = candidate;
                 queueFamily = i;
-                separatePresentQueue = families[i].QueueCount is > 1;
+                separatePresentQueue = families[i].QueueCount > 1;
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
                 AdapterName = NGXMarshal.PtrToString(properties.DeviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
@@ -945,11 +944,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         }
 
         api.GetPhysicalDeviceMemoryProperties(physical, out memoryProperties);
-        float* priorities = stackalloc float[]
-{
-            1,
-            1
-};
+        float* priorities = stackalloc float[] { 1.0f, 1.0f };
         DeviceQueueCreateInfo queueInfo = new()
         {
             SType = StructureType.DeviceQueueCreateInfo,
@@ -1146,7 +1141,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         VkFrame frame = slots[Frame.Slot];
         uint offset = (uint)(constantIndex++ * uniformStride);
 
-        if (constantIndex is > RenderLayout.UniformSlots)
+        if (constantIndex > RenderLayout.UniformSlots)
         {
             throw new InvalidOperationException("Too many uniform blocks for a frame.");
         }
@@ -1194,16 +1189,17 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
 
     private void InitializeDescriptors()
     {
-        List<DescriptorSetLayoutBinding> bindings = [new()
-{
-            Binding = 0,
-            DescriptorType = DescriptorType.UniformBufferDynamic,
-            DescriptorCount = 1,
-            StageFlags = ShaderStageFlags.All
-}
-
+        List<DescriptorSetLayoutBinding> bindings =
+        [
+            new()
+            {
+                Binding = 0,
+                DescriptorType = DescriptorType.UniformBufferDynamic,
+                DescriptorCount = 1,
+                StageFlags = ShaderStageFlags.All
+            }
         ];
-        for (uint i = 0; i is < RenderLayout.SrvCount; i++)
+        for (uint i = 0; i < RenderLayout.SrvCount; i++)
         {
             if (i is 5 && !RayQuerySupported)
             {
@@ -1215,7 +1211,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 Binding = i + 1,
                 DescriptorType = i switch
                 {
-                    < 5 => DescriptorType.StorageBuffer,
+                    _ when i < 5 => DescriptorType.StorageBuffer,
                     5 => DescriptorType.AccelerationStructureKhr,
                     _ => DescriptorType.SampledImage
                 },
@@ -1224,7 +1220,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
             });
         }
 
-        for (uint i = 0; i is < RenderLayout.UavCount; i++)
+        for (uint i = 0; i < RenderLayout.UavCount; i++)
         {
             bindings.Add(new()
             {
@@ -1418,7 +1414,6 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         {
             upload.Dispose();
         }
-
         uploads.Clear();
     }
 
@@ -1616,22 +1611,22 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         {
             fragment = Shader(fragmentName, "fragment");
             PipelineShaderStageCreateInfo* stages = stackalloc PipelineShaderStageCreateInfo[2]
-{
+            {
                 new()
-{
+                {
                     SType = StructureType.PipelineShaderStageCreateInfo,
                     Stage = ShaderStageFlags.VertexBit,
                     Module = vertex,
                     PName = names.Pointer[0]
-},
+                },
                 new()
-{
+                {
                     SType = StructureType.PipelineShaderStageCreateInfo,
                     Stage = ShaderStageFlags.FragmentBit,
                     Module = fragment,
                     PName = names.Pointer[1]
-}
-};
+                }
+            };
 
             VertexInputBindingDescription binding = new()
             {
@@ -1639,12 +1634,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 Stride = (uint)sizeof(ImDrawVert),
                 InputRate = VertexInputRate.Vertex
             };
-            VertexInputAttributeDescription* attributes = stackalloc VertexInputAttributeDescription[3]
-{
-                new(0, 0, Format.R32G32Sfloat, 0),
-                new(1, 0, Format.R32G32Sfloat, 8),
-                new(2, 0, Format.R8G8B8A8Unorm, 16)
-};
+            VertexInputAttributeDescription* attributes = stackalloc VertexInputAttributeDescription[3] { new(0, 0, Format.R32G32Sfloat, 0), new(1, 0, Format.R32G32Sfloat, 8), new(2, 0, Format.R8G8B8A8Unorm, 16) };
 
             PipelineVertexInputStateCreateInfo input = new()
             {
@@ -1720,11 +1710,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 PAttachments = blendAttachments
             };
 
-            DynamicState* states = stackalloc DynamicState[2]
-{
-                DynamicState.Viewport,
-                DynamicState.Scissor
-};
+            DynamicState* states = stackalloc DynamicState[2] { DynamicState.Viewport, DynamicState.Scissor };
 
             PipelineDynamicStateCreateInfo dynamic = new()
             {

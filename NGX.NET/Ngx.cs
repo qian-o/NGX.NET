@@ -102,6 +102,10 @@ public static unsafe partial class Ngx
 
     public static partial class Parameter
     {
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial void ResetNative(nint parameters);
+
         /// <summary>
         /// Resets a parameter map through the SDK's C++ Reset member.
         /// </summary>
@@ -115,9 +119,5 @@ public static unsafe partial class Ngx
             ResetNative(parameters.Value);
             NgxLifetime.ReleaseParameters(parameters.Value);
         }
-
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void ResetNative(nint parameters);
     }
 }

@@ -28,7 +28,7 @@ internal unsafe struct NGXD3D12GBufferNative : IDisposable
         {
             if (value.PInAttrib is nint[] itemsPInAttrib)
             {
-                if (itemsPInAttrib.Length is > 17)
+                if (itemsPInAttrib.Length > 17)
                 {
                     throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
                 }
