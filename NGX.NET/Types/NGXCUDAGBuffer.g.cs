@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_CUDA_GBuffer
 /// </summary>
-public partial struct NGXCUDAGBuffer
+public struct NGXCUDAGBuffer
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_GBuffer::pInAttrib
@@ -23,6 +19,9 @@ public partial struct NGXCUDAGBuffer
     {
         this = default;
         PInAttrib = new ulong?[17];
-        for (int i = 0; i < PInAttrib.Length; i++) PInAttrib[i] = (ulong*)native.PInAttrib[i] == null ? null : *(ulong*)native.PInAttrib[i];
+        for (int i = 0; i < PInAttrib.Length; i++)
+        {
+            PInAttrib[i] = (ulong*)native.PInAttrib[i] == null ? null : *(ulong*)native.PInAttrib[i];
+        }
     }
 }

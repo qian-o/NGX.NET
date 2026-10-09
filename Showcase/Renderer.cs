@@ -7,7 +7,7 @@ using Showcase.Passes;
 
 namespace Showcase;
 
-internal sealed class Renderer : IDisposable
+internal class Renderer : IDisposable
 {
     private const float SunIrradiance = 8;
     private const float SkyRadiance = 0.65f;
@@ -19,6 +19,12 @@ internal sealed class Renderer : IDisposable
     private readonly FrameStatistics statistics = new();
     private readonly Pass[] passes;
     private readonly FrameGenerationPass frameGeneration;
+
+    // Simulation controls do not participate in GPU resource configuration.
+    public bool AnimationPaused;
+
+    public RenderSettings Settings = new();
+
     private RenderSettings? applied;
     private int width;
     private int height;
@@ -35,22 +41,11 @@ internal sealed class Renderer : IDisposable
         resources = new(context, scene);
         presenter = new(context.WaitRenderedFrame, context.PresentImage, context.WaitPresentation);
         frameGeneration = new(context, resources);
-        passes =
-        [
-            new GeometryPass(context, resources),
-            new LightingPass(context, resources),
-            new ReconstructionPass(context, resources),
-            new ExposurePass(context, resources),
-            new TonemapPass(context, resources),
-            new ImGuiPass(context, resources),
-            frameGeneration
-        ];
+        passes = [new GeometryPass(context, resources), new LightingPass(context, resources), new ReconstructionPass(context, resources), new ExposurePass(context, resources), new TonemapPass(context, resources), new ImGuiPass(context, resources), frameGeneration];
         Settings.Reset(Capabilities);
 
         context.InitializeRenderer(resources);
     }
-
-    public RenderSettings Settings { get; } = new();
 
     public RenderCapabilities Capabilities => context.Capabilities;
 
@@ -58,12 +53,9 @@ internal sealed class Renderer : IDisposable
 
     public double? PresentedFps => statistics.PresentedFps;
 
-    // Simulation controls do not participate in GPU resource configuration.
-    public bool AnimationPaused;
-
     public float Update(float delta)
     {
-        if (width <= 0 || height <= 0)
+        if (width is <= 0 || height is <= 0)
         {
             return 0;
         }
@@ -98,13 +90,6 @@ internal sealed class Renderer : IDisposable
         ResetHistory();
     }
 
-    private void ResetHistory()
-    {
-        reset = true;
-        elapsed = 0;
-        statistics.Reset();
-    }
-
     public void UpdateFont()
     {
         if (applied is null)
@@ -117,11 +102,66 @@ internal sealed class Renderer : IDisposable
         context.UpdateFontTexture();
     }
 
+    public void Render(CameraHandler camera, ImDrawDataPtr drawData)
+    {
+        if (width is <= 0 || height is <= 0)
+        {
+            return;
+        }
+
+        ApplySettings();
+
+        int slot = (int)(frameIndex % RenderLayout.FramesInFlight);
+        presenter.WaitSlot(slot);
+        camera.Update(resources.InputWidth, resources.InputHeight, width, height, frameIndex, Settings.Reconstruction is not Reconstruction.Native, reset);
+        PassArgs args = CreateArgs(slot, camera, drawData);
+        context.BeginFrame(args);
+
+        foreach (Pass pass in passes)
+        {
+            pass.Record(args);
+        }
+
+        GpuImage color = resources.Image(slot, ImageSlot.Final);
+        context.Transition(color, ImageUse.CopySource);
+        context.SubmitFrame();
+        presenter.Enqueue(slot, color, frameGeneration.Generated, TimeSpan.FromSeconds(elapsed));
+        statistics.RecordFrame(presenter.ReadPresentedCount());
+        camera.CommitHistory();
+        resources.Scene.CommitHistory();
+        frameIndex++;
+        elapsed = 0;
+        reset = false;
+    }
+
+    public void Dispose()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        disposed = true;
+
+        presenter.Dispose();
+        context.WaitIdle();
+        context.NGX.ReleaseFrameGeneration();
+        context.NGX.ReleaseReconstruction();
+        resources.Dispose();
+    }
+
+    private void ResetHistory()
+    {
+        reset = true;
+        elapsed = 0;
+        statistics.Reset();
+    }
+
     private void Configure()
     {
         bool outputChanged = resources.OutputWidth != width || resources.OutputHeight != height;
-        bool reconstructionChanged = applied is null || outputChanged || applied.Quality != Settings.Quality || applied.RayReconstruction != Settings.RayReconstruction;
-        bool generationChanged = applied is null || reconstructionChanged || applied.FrameGeneration != Settings.FrameGeneration;
+        bool reconstructionChanged = applied is null || outputChanged || applied.Value.Quality != Settings.Quality || applied.Value.RayReconstruction != Settings.RayReconstruction;
+        bool generationChanged = applied is null || reconstructionChanged || applied.Value.FrameGeneration != Settings.FrameGeneration;
         presenter.Drain();
         context.WaitIdle();
 
@@ -144,7 +184,7 @@ internal sealed class Renderer : IDisposable
         {
             (int inputWidth, int inputHeight) = context.NGX.Configure(Settings, width, height);
 
-            if (inputWidth <= 0 || inputHeight <= 0)
+            if (inputWidth is <= 0 || inputHeight is <= 0)
             {
                 throw new InvalidOperationException("The SDK returned an invalid input resolution.");
             }
@@ -158,7 +198,7 @@ internal sealed class Renderer : IDisposable
         }
 
         _ = presenter.ReadPresentedCount();
-        applied = Settings with { };
+        applied = Settings;
         recreateSwapChain = false;
         resources.Scene.CommitHistory();
         ResetHistory();
@@ -168,7 +208,7 @@ internal sealed class Renderer : IDisposable
     {
         recreateSwapChain |= presenter.NeedsRecreation;
 
-        if (!recreateSwapChain && applied == Settings)
+        if (!recreateSwapChain && applied is RenderSettings previous && previous.Quality == Settings.Quality && previous.RayReconstruction == Settings.RayReconstruction && previous.FrameGeneration == Settings.FrameGeneration)
         {
             return false;
         }
@@ -178,47 +218,15 @@ internal sealed class Renderer : IDisposable
         return true;
     }
 
-    public void Render(CameraHandler camera, ImDrawDataPtr drawData)
-    {
-        if (width <= 0 || height <= 0)
-        {
-            return;
-        }
-
-        ApplySettings();
-
-        int slot = (int)(frameIndex % RenderLayout.FramesInFlight);
-        presenter.WaitSlot(slot);
-        camera.Update(resources.InputWidth, resources.InputHeight, width, height, frameIndex, Settings.Reconstruction != Reconstruction.Native, reset);
-        PassArgs args = CreateArgs(slot, camera, drawData);
-        context.BeginFrame(args);
-
-        foreach (Pass pass in passes)
-        {
-            pass.Record(args);
-        }
-
-        GpuImage color = resources.Image(slot, ImageSlot.Final);
-        context.Transition(color, ImageUse.CopySource);
-        context.SubmitFrame();
-        presenter.Enqueue(slot, color, frameGeneration.Generated, TimeSpan.FromSeconds(elapsed));
-        statistics.RecordFrame(presenter.ReadPresentedCount());
-        camera.CommitHistory();
-        resources.Scene.CommitHistory();
-        frameIndex++;
-        elapsed = 0;
-        reset = false;
-    }
-
     private PassArgs CreateArgs(int slot, CameraHandler camera, ImDrawDataPtr drawData)
     {
         Scene scene = resources.Scene;
-        bool temporal = Settings.Reconstruction != Reconstruction.Native;
+        bool temporal = Settings.Reconstruction is not Reconstruction.Native;
         Matrix4x4.Invert(camera.JitteredViewProjection, out Matrix4x4 inverse);
-        const float elevation = 50 * MathF.PI / 180;
-        const float azimuth = 65 * MathF.PI / 180;
-        Vector3 sun = new(MathF.Cos(elevation) * MathF.Cos(azimuth), MathF.Sin(elevation), MathF.Cos(elevation) * MathF.Sin(azimuth));
-        const float solarAngularRadius = 0.2666f * MathF.PI / 180;
+        const float Elevation = 50 * MathF.PI / 180;
+        const float Azimuth = 65 * MathF.PI / 180;
+        Vector3 sun = new(MathF.Cos(Elevation) * MathF.Cos(Azimuth), MathF.Sin(Elevation), MathF.Cos(Elevation) * MathF.Sin(Azimuth));
+        const float SolarAngularRadius = 0.2666f * MathF.PI / 180;
         FrameConstants constants = new()
         {
             ViewProjection = camera.JitteredViewProjection,
@@ -227,9 +235,9 @@ internal sealed class Renderer : IDisposable
             InverseViewProjection = inverse,
             Camera = new(camera.Position, MathF.Tan(CameraHandler.FieldOfView / 2)),
             Size = new(resources.InputWidth, resources.InputHeight, width, height),
-            Sun = new(sun, solarAngularRadius),
+            Sun = new(sun, SolarAngularRadius),
             Scene = new(scene.Objects.Length, frameIndex, scene.RayEpsilon, scene.Scale),
-            Jitter = new(camera.Jitter, Settings.Reconstruction == Reconstruction.RayReconstruction ? 1 : 0, RenderLayout.TextureMipBias(resources.InputWidth, width, temporal)),
+            Jitter = new(camera.Jitter, Settings.Reconstruction is Reconstruction.RayReconstruction ? 1 : 0, RenderLayout.TextureMipBias(resources.InputWidth, width, temporal)),
             SunViewProjection = scene.GetSunViewProjection(sun),
             Lighting = new(SunIrradiance, SkyRadiance, 0, scene.Scale * ContactShadowRadiusScale),
             Exposure = new(0, elapsed, reset ? 1 : 0, 0),
@@ -249,21 +257,5 @@ internal sealed class Renderer : IDisposable
             Delta = elapsed,
             DrawData = drawData
         };
-    }
-
-    public void Dispose()
-    {
-        if (disposed)
-        {
-            return;
-        }
-
-        disposed = true;
-
-        presenter.Dispose();
-        context.WaitIdle();
-        context.NGX.ReleaseFrameGeneration();
-        context.NGX.ReleaseReconstruction();
-        resources.Dispose();
     }
 }

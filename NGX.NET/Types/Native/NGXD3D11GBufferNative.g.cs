@@ -3,17 +3,16 @@
 
 #nullable enable
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_D3D11_GBuffer. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_D3D11_GBuffer. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 136)]
-internal unsafe partial struct NGXD3D11GBufferNative : IDisposable
+internal unsafe struct NGXD3D11GBufferNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_D3D11_GBuffer::pInAttrib
@@ -21,21 +20,19 @@ internal unsafe partial struct NGXD3D11GBufferNative : IDisposable
     [FieldOffset(0)]
     public PInAttribBuffer PInAttrib;
 
-    [InlineArray(17)]
-    internal struct PInAttribBuffer
-    {
-        private nint element;
-    }
-
     public NGXD3D11GBufferNative(in NGXD3D11GBuffer value)
     {
         this = default;
 
         try
         {
-            if (value.PInAttrib is { } itemsPInAttrib)
+            if (value.PInAttrib is nint[] itemsPInAttrib)
             {
-                if (itemsPInAttrib.Length > 17) throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+                if (itemsPInAttrib.Length is > 17)
+                {
+                    throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+                }
+
                 for (int i = 0; i < itemsPInAttrib.Length; i++)
                 {
                     PInAttrib[i] = itemsPInAttrib[i];
@@ -45,6 +42,7 @@ internal unsafe partial struct NGXD3D11GBufferNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
@@ -52,5 +50,11 @@ internal unsafe partial struct NGXD3D11GBufferNative : IDisposable
     public void Dispose()
     {
         this = default;
+    }
+
+    [InlineArray(17)]
+    internal struct PInAttribBuffer
+    {
+        private nint element;
     }
 }

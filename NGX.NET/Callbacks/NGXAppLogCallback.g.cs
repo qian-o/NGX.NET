@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_AppLogCallback. Ngx contains callback exceptions and manages delegate roots for this signature.
+/// NVSDK_NGX_AppLogCallback
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void NGXAppLogCallback([MarshalAs(UnmanagedType.LPUTF8Str)] string? message, NGXLoggingLevel loggingLevel, NGXFeature sourceComponent);

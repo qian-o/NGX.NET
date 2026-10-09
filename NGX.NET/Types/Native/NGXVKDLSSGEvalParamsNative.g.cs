@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_VK_DLSSG_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_VK_DLSSG_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 80)]
-internal unsafe partial struct NGXVKDLSSGEvalParamsNative : IDisposable
+internal unsafe struct NGXVKDLSSGEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_VK_DLSSG_Eval_Params::pBackbuffer
@@ -85,38 +83,47 @@ internal unsafe partial struct NGXVKDLSSGEvalParamsNative : IDisposable
             {
                 PBackbuffer = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPBackbuffer));
             }
+
             if (value.PDepth is NGXResourceVK itemPDepth)
             {
                 PDepth = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPDepth));
             }
+
             if (value.PMVecs is NGXResourceVK itemPMVecs)
             {
                 PMVecs = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPMVecs));
             }
+
             if (value.PHudless is NGXResourceVK itemPHudless)
             {
                 PHudless = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPHudless));
             }
+
             if (value.PUI is NGXResourceVK itemPUI)
             {
                 PUI = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPUI));
             }
+
             if (value.PUIAlpha is NGXResourceVK itemPUIAlpha)
             {
                 PUIAlpha = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPUIAlpha));
             }
+
             if (value.PBidirectionalDistortionField is NGXResourceVK itemPBidirectionalDistortionField)
             {
                 PBidirectionalDistortionField = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPBidirectionalDistortionField));
             }
+
             if (value.POutputInterpFrame is NGXResourceVK itemPOutputInterpFrame)
             {
                 POutputInterpFrame = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPOutputInterpFrame));
             }
+
             if (value.POutputRealFrame is NGXResourceVK itemPOutputRealFrame)
             {
                 POutputRealFrame = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPOutputRealFrame));
             }
+
             if (value.POutputDisableInterpolation is NGXResourceVK itemPOutputDisableInterpolation)
             {
                 POutputDisableInterpolation = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPOutputDisableInterpolation));
@@ -125,22 +132,23 @@ internal unsafe partial struct NGXVKDLSSGEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PBackbuffer);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PDepth);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PMVecs);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PHudless);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PUI);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PUIAlpha);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PBidirectionalDistortionField);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)POutputInterpFrame);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)POutputRealFrame);
         NGXMarshal.FreeNative((NGXResourceVKNative*)POutputDisableInterpolation);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)POutputRealFrame);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)POutputInterpFrame);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PBidirectionalDistortionField);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PUIAlpha);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PUI);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PHudless);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PMVecs);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PDepth);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PBackbuffer);
         this = default;
     }
 }

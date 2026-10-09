@@ -1,4 +1,4 @@
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 /// <summary>
 /// Encoding of a null-terminated native string.

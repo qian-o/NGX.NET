@@ -13,100 +13,100 @@ public enum NGXResult : uint
     /// <summary>
     /// NVSDK_NGX_Result_Success
     /// </summary>
-    Success = 1,
+    Success = 1u,
 
     /// <summary>
     /// NVSDK_NGX_Result_Fail
     /// </summary>
-    Fail = 3134193664,
+    Fail = 3134193664u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureNotSupported
     /// </summary>
-    FailFeatureNotSupported = 3134193665,
+    FailFeatureNotSupported = 3134193665u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_PlatformError
     /// </summary>
-    FailPlatformError = 3134193666,
+    FailPlatformError = 3134193666u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureAlreadyExists
     /// </summary>
-    FailFeatureAlreadyExists = 3134193667,
+    FailFeatureAlreadyExists = 3134193667u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_FeatureNotFound
     /// </summary>
-    FailFeatureNotFound = 3134193668,
+    FailFeatureNotFound = 3134193668u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_InvalidParameter
     /// </summary>
-    FailInvalidParameter = 3134193669,
+    FailInvalidParameter = 3134193669u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_ScratchBufferTooSmall
     /// </summary>
-    FailScratchBufferTooSmall = 3134193670,
+    FailScratchBufferTooSmall = 3134193670u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotInitialized
     /// </summary>
-    FailNotInitialized = 3134193671,
+    FailNotInitialized = 3134193671u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedInputFormat
     /// </summary>
-    FailUnsupportedInputFormat = 3134193672,
+    FailUnsupportedInputFormat = 3134193672u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_RWFlagMissing
     /// </summary>
-    FailRwFlagMissing = 3134193673,
+    FailRwFlagMissing = 3134193673u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_MissingInput
     /// </summary>
-    FailMissingInput = 3134193674,
+    FailMissingInput = 3134193674u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToInitializeFeature
     /// </summary>
-    FailUnableToInitializeFeature = 3134193675,
+    FailUnableToInitializeFeature = 3134193675u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfDate
     /// </summary>
-    FailOutOfDate = 3134193676,
+    FailOutOfDate = 3134193676u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_OutOfGPUMemory
     /// </summary>
-    FailOutOfGpuMemory = 3134193677,
+    FailOutOfGpuMemory = 3134193677u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedFormat
     /// </summary>
-    FailUnsupportedFormat = 3134193678,
+    FailUnsupportedFormat = 3134193678u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnableToWriteToAppDataPath
     /// </summary>
-    FailUnableToWriteToAppDataPath = 3134193679,
+    FailUnableToWriteToAppDataPath = 3134193679u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_UnsupportedParameter
     /// </summary>
-    FailUnsupportedParameter = 3134193680,
+    FailUnsupportedParameter = 3134193680u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_Denied
     /// </summary>
-    FailDenied = 3134193681,
+    FailDenied = 3134193681u,
 
     /// <summary>
     /// NVSDK_NGX_Result_FAIL_NotImplemented
     /// </summary>
-    FailNotImplemented = 3134193682,
+    FailNotImplemented = 3134193682u,
 }

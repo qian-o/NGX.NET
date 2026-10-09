@@ -3,4 +3,13 @@
 namespace Showcase.Models;
 
 [StructLayout(LayoutKind.Sequential)]
-internal record struct TextureDescription(uint Offset, uint Width, uint Height, uint Mips);
+internal readonly struct TextureDescription(uint offset, uint width, uint height, uint mips)
+{
+    public readonly uint Offset = offset;
+
+    public readonly uint Width = width;
+
+    public readonly uint Height = height;
+
+    public readonly uint Mips = mips;
+}

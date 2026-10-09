@@ -8,6 +8,8 @@ namespace Showcase;
 
 internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
 {
+    private bool disposed;
+
     protected IWindow Window { get; } = window;
 
     protected ImGuiHandler UI { get; } = ui;
@@ -27,8 +29,6 @@ internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
     public string RayQueryStatus { get; protected set; } = "Unavailable";
 
     public RenderCapabilities Capabilities => new(NGX.Available(NGXFeature.SuperSampling), RayQuerySupported && NGX.Available(NGXFeature.RayReconstruction), NGX.Available(NGXFeature.FrameGeneration));
-
-    private bool disposed;
 
     public void Initialize()
     {
@@ -85,14 +85,6 @@ internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
 
     public abstract void WaitIdle();
 
-    protected abstract void InitializeDevice();
-
-    protected abstract void InitializeRendererCore();
-
-    protected abstract void BeginCommands();
-
-    protected abstract void DisposeDevice();
-
     public void Dispose()
     {
         if (disposed)
@@ -106,4 +98,12 @@ internal abstract class RHI(IWindow window, ImGuiHandler ui) : IDisposable
         NGX.Dispose();
         DisposeDevice();
     }
+
+    protected abstract void InitializeDevice();
+
+    protected abstract void InitializeRendererCore();
+
+    protected abstract void BeginCommands();
+
+    protected abstract void DisposeDevice();
 }

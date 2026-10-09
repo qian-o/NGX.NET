@@ -14,30 +14,13 @@ internal static class ShaderCompiler
     public static byte[] Compile(string file, string entry, string stage, bool vulkan, bool rayQuery)
     {
         (string, string, string, bool, bool) key = (file, entry, stage, vulkan, rayQuery);
-
         if (cache.TryGetValue(key, out byte[]? cached))
         {
             return cached;
         }
 
         string path = Path.Combine(shaderDirectory, file);
-        List<string> arguments =
-        [
-            path,
-            "-entry",
-            entry,
-            "-stage",
-            stage,
-            "-target",
-            vulkan ? "spirv" : "dxil",
-            "-profile",
-            "sm_6_6",
-            "-matrix-layout-row-major",
-            "-O3",
-            "-D",
-            $"HAS_RAY_QUERY={(rayQuery ? 1 : 0)}"
-        ];
-
+        List<string> arguments = [path, "-entry", entry, "-stage", stage, "-target", vulkan ? "spirv" : "dxil", "-profile", "sm_6_6", "-matrix-layout-row-major", "-O3", "-D", $"HAS_RAY_QUERY={(rayQuery ? 1 : 0)}"];
         if (vulkan)
         {
             arguments.AddRange(["-fvk-use-entrypoint-name", "-fvk-use-dx-position-w", "-fvk-invert-y"]);
@@ -48,7 +31,6 @@ internal static class ShaderCompiler
         hash.AppendData(Encoding.UTF8.GetBytes(string.Join('\0', arguments)));
         string cachePath = Path.Combine(cacheDirectory, $"{Convert.ToHexString(hash.GetHashAndReset())}.bin");
         byte[] compiled;
-
         if (File.Exists(cachePath))
         {
             compiled = File.ReadAllBytes(cachePath);

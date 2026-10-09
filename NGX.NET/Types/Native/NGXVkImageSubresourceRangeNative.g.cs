@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// VkImageSubresourceRange. Owns only storage allocated by managed conversion.
+/// VkImageSubresourceRange. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-internal unsafe partial struct NGXVkImageSubresourceRangeNative : IDisposable
+internal unsafe struct NGXVkImageSubresourceRangeNative : IDisposable
 {
     /// <summary>
     /// VkImageSubresourceRange::aspectMask
@@ -60,6 +58,7 @@ internal unsafe partial struct NGXVkImageSubresourceRangeNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

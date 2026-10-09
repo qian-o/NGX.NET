@@ -4,16 +4,15 @@
 #nullable enable
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_VK_DLSSD_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_VK_DLSSD_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 904)]
-internal unsafe partial struct NGXVKDLSSDEvalParamsNative : IDisposable
+internal unsafe struct NGXVKDLSSDEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_VK_DLSSD_Eval_Params::pInDiffuseAlbedo
@@ -631,60 +630,74 @@ internal unsafe partial struct NGXVKDLSSDEvalParamsNative : IDisposable
             {
                 PInDiffuseAlbedo = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDiffuseAlbedo));
             }
+
             if (value.PInSpecularAlbedo is NGXResourceVK itemPInSpecularAlbedo)
             {
                 PInSpecularAlbedo = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInSpecularAlbedo));
             }
+
             if (value.PInNormals is NGXResourceVK itemPInNormals)
             {
                 PInNormals = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInNormals));
             }
+
             if (value.PInRoughness is NGXResourceVK itemPInRoughness)
             {
                 PInRoughness = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInRoughness));
             }
+
             if (value.PInColor is NGXResourceVK itemPInColor)
             {
                 PInColor = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColor));
             }
+
             if (value.PInAlpha is NGXResourceVK itemPInAlpha)
             {
                 PInAlpha = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInAlpha));
             }
+
             if (value.PInOutput is NGXResourceVK itemPInOutput)
             {
                 PInOutput = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInOutput));
             }
+
             if (value.PInOutputAlpha is NGXResourceVK itemPInOutputAlpha)
             {
                 PInOutputAlpha = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInOutputAlpha));
             }
+
             if (value.PInDepth is NGXResourceVK itemPInDepth)
             {
                 PInDepth = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDepth));
             }
+
             if (value.PInMotionVectors is NGXResourceVK itemPInMotionVectors)
             {
                 PInMotionVectors = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInMotionVectors));
             }
+
             InJitterOffsetX = value.InJitterOffsetX;
             InJitterOffsetY = value.InJitterOffsetY;
             InRenderSubrectDimensions = new(in value.InRenderSubrectDimensions);
             InReset = value.InReset;
             InMVScaleX = value.InMVScaleX;
             InMVScaleY = value.InMVScaleY;
+
             if (value.PInTransparencyMask is NGXResourceVK itemPInTransparencyMask)
             {
                 PInTransparencyMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInTransparencyMask));
             }
+
             if (value.PInExposureTexture is NGXResourceVK itemPInExposureTexture)
             {
                 PInExposureTexture = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInExposureTexture));
             }
+
             if (value.PInBiasCurrentColorMask is NGXResourceVK itemPInBiasCurrentColorMask)
             {
                 PInBiasCurrentColorMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInBiasCurrentColorMask));
             }
+
             InAlphaSubrectBase = new(in value.InAlphaSubrectBase);
             InOutputAlphaSubrectBase = new(in value.InOutputAlphaSubrectBase);
             InDiffuseAlbedoSubrectBase = new(in value.InDiffuseAlbedoSubrectBase);
@@ -701,94 +714,117 @@ internal unsafe partial struct NGXVKDLSSDEvalParamsNative : IDisposable
             InExposureScale = value.InExposureScale;
             InIndicatorInvertXAxis = value.InIndicatorInvertXAxis;
             InIndicatorInvertYAxis = value.InIndicatorInvertYAxis;
+
             if (value.PInReflectedAlbedo is NGXResourceVK itemPInReflectedAlbedo)
             {
                 PInReflectedAlbedo = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInReflectedAlbedo));
             }
+
             if (value.PInColorBeforeParticles is NGXResourceVK itemPInColorBeforeParticles)
             {
                 PInColorBeforeParticles = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeParticles));
             }
+
             if (value.PInColorAfterParticles is NGXResourceVK itemPInColorAfterParticles)
             {
                 PInColorAfterParticles = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterParticles));
             }
+
             if (value.PInColorBeforeTransparency is NGXResourceVK itemPInColorBeforeTransparency)
             {
                 PInColorBeforeTransparency = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeTransparency));
             }
+
             if (value.PInColorAfterTransparency is NGXResourceVK itemPInColorAfterTransparency)
             {
                 PInColorAfterTransparency = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterTransparency));
             }
+
             if (value.PInColorBeforeFog is NGXResourceVK itemPInColorBeforeFog)
             {
                 PInColorBeforeFog = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeFog));
             }
+
             if (value.PInColorAfterFog is NGXResourceVK itemPInColorAfterFog)
             {
                 PInColorAfterFog = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterFog));
             }
+
             if (value.PInScreenSpaceSubsurfaceScatteringGuide is NGXResourceVK itemPInScreenSpaceSubsurfaceScatteringGuide)
             {
                 PInScreenSpaceSubsurfaceScatteringGuide = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInScreenSpaceSubsurfaceScatteringGuide));
             }
+
             if (value.PInColorBeforeScreenSpaceSubsurfaceScattering is NGXResourceVK itemPInColorBeforeScreenSpaceSubsurfaceScattering)
             {
                 PInColorBeforeScreenSpaceSubsurfaceScattering = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeScreenSpaceSubsurfaceScattering));
             }
+
             if (value.PInColorAfterScreenSpaceSubsurfaceScattering is NGXResourceVK itemPInColorAfterScreenSpaceSubsurfaceScattering)
             {
                 PInColorAfterScreenSpaceSubsurfaceScattering = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterScreenSpaceSubsurfaceScattering));
             }
+
             if (value.PInScreenSpaceRefractionGuide is NGXResourceVK itemPInScreenSpaceRefractionGuide)
             {
                 PInScreenSpaceRefractionGuide = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInScreenSpaceRefractionGuide));
             }
+
             if (value.PInColorBeforeScreenSpaceRefraction is NGXResourceVK itemPInColorBeforeScreenSpaceRefraction)
             {
                 PInColorBeforeScreenSpaceRefraction = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeScreenSpaceRefraction));
             }
+
             if (value.PInColorAfterScreenSpaceRefraction is NGXResourceVK itemPInColorAfterScreenSpaceRefraction)
             {
                 PInColorAfterScreenSpaceRefraction = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterScreenSpaceRefraction));
             }
+
             if (value.PInDepthOfFieldGuide is NGXResourceVK itemPInDepthOfFieldGuide)
             {
                 PInDepthOfFieldGuide = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDepthOfFieldGuide));
             }
+
             if (value.PInColorBeforeDepthOfField is NGXResourceVK itemPInColorBeforeDepthOfField)
             {
                 PInColorBeforeDepthOfField = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorBeforeDepthOfField));
             }
+
             if (value.PInColorAfterDepthOfField is NGXResourceVK itemPInColorAfterDepthOfField)
             {
                 PInColorAfterDepthOfField = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColorAfterDepthOfField));
             }
+
             if (value.PInDiffuseHitDistance is NGXResourceVK itemPInDiffuseHitDistance)
             {
                 PInDiffuseHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDiffuseHitDistance));
             }
+
             if (value.PInSpecularHitDistance is NGXResourceVK itemPInSpecularHitDistance)
             {
                 PInSpecularHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInSpecularHitDistance));
             }
+
             if (value.PInDiffuseRayDirection is NGXResourceVK itemPInDiffuseRayDirection)
             {
                 PInDiffuseRayDirection = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDiffuseRayDirection));
             }
+
             if (value.PInSpecularRayDirection is NGXResourceVK itemPInSpecularRayDirection)
             {
                 PInSpecularRayDirection = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInSpecularRayDirection));
             }
+
             if (value.PInDiffuseRayDirectionHitDistance is NGXResourceVK itemPInDiffuseRayDirectionHitDistance)
             {
                 PInDiffuseRayDirectionHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDiffuseRayDirectionHitDistance));
             }
+
             if (value.PInSpecularRayDirectionHitDistance is NGXResourceVK itemPInSpecularRayDirectionHitDistance)
             {
                 PInSpecularRayDirectionHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInSpecularRayDirectionHitDistance));
             }
+
             InReflectedAlbedoSubrectBase = new(in value.InReflectedAlbedoSubrectBase);
             InColorBeforeParticlesSubrectBase = new(in value.InColorBeforeParticlesSubrectBase);
             InColorAfterParticlesSubrectBase = new(in value.InColorAfterParticlesSubrectBase);
@@ -815,160 +851,179 @@ internal unsafe partial struct NGXVKDLSSDEvalParamsNative : IDisposable
             PInViewToClipMatrix = value.PInViewToClipMatrix.HasValue ? NGXMarshal.AllocValue(value.PInViewToClipMatrix.Value) : null;
             GBufferSurface = new(in value.GBufferSurface);
             InToneMapperType = value.InToneMapperType;
+
             if (value.PInMotionVectors3D is NGXResourceVK itemPInMotionVectors3D)
             {
                 PInMotionVectors3D = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInMotionVectors3D));
             }
+
             if (value.PInIsParticleMask is NGXResourceVK itemPInIsParticleMask)
             {
                 PInIsParticleMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInIsParticleMask));
             }
+
             if (value.PInAnimatedTextureMask is NGXResourceVK itemPInAnimatedTextureMask)
             {
                 PInAnimatedTextureMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInAnimatedTextureMask));
             }
+
             if (value.PInDepthHighRes is NGXResourceVK itemPInDepthHighRes)
             {
                 PInDepthHighRes = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDepthHighRes));
             }
+
             if (value.PInPositionViewSpace is NGXResourceVK itemPInPositionViewSpace)
             {
                 PInPositionViewSpace = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInPositionViewSpace));
             }
+
             InFrameTimeDeltaInMsec = value.InFrameTimeDeltaInMsec;
+
             if (value.PInRayTracingHitDistance is NGXResourceVK itemPInRayTracingHitDistance)
             {
                 PInRayTracingHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInRayTracingHitDistance));
             }
+
             if (value.PInMotionVectorsReflections is NGXResourceVK itemPInMotionVectorsReflections)
             {
                 PInMotionVectorsReflections = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInMotionVectorsReflections));
             }
+
             if (value.PInTransparencyLayer is NGXResourceVK itemPInTransparencyLayer)
             {
                 PInTransparencyLayer = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInTransparencyLayer));
             }
+
             InTransparencyLayerSubrectBase = new(in value.InTransparencyLayerSubrectBase);
+
             if (value.PInTransparencyLayerOpacity is NGXResourceVK itemPInTransparencyLayerOpacity)
             {
                 PInTransparencyLayerOpacity = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInTransparencyLayerOpacity));
             }
+
             InTransparencyLayerOpacitySubrectBase = new(in value.InTransparencyLayerOpacitySubrectBase);
+
             if (value.PInTransparencyLayerMvecs is NGXResourceVK itemPInTransparencyLayerMvecs)
             {
                 PInTransparencyLayerMvecs = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInTransparencyLayerMvecs));
             }
+
             InTransparencyLayerMvecsSubrectBase = new(in value.InTransparencyLayerMvecsSubrectBase);
+
             if (value.PInDisocclusionMask is NGXResourceVK itemPInDisocclusionMask)
             {
                 PInDisocclusionMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInDisocclusionMask));
             }
+
             InDisocclusionMaskSubrectBase = new(in value.InDisocclusionMaskSubrectBase);
+
             if (value.PInResponsivityMask is NGXResourceVK itemPInResponsivityMask)
             {
                 PInResponsivityMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInResponsivityMask));
             }
+
             InResponsivityMaskSubrectBase = new(in value.InResponsivityMaskSubrectBase);
         }
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseAlbedo);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularAlbedo);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInNormals);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInRoughness);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColor);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInAlpha);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInOutput);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInOutputAlpha);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepth);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectors);
-        InRenderSubrectDimensions.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyMask);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInExposureTexture);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInBiasCurrentColorMask);
-        InAlphaSubrectBase.Dispose();
-        InOutputAlphaSubrectBase.Dispose();
-        InDiffuseAlbedoSubrectBase.Dispose();
-        InSpecularAlbedoSubrectBase.Dispose();
-        InNormalsSubrectBase.Dispose();
-        InRoughnessSubrectBase.Dispose();
-        InColorSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InOutputSubrectBase.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInReflectedAlbedo);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeParticles);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterParticles);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeTransparency);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterTransparency);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeFog);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterFog);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInScreenSpaceSubsurfaceScatteringGuide);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeScreenSpaceSubsurfaceScattering);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterScreenSpaceSubsurfaceScattering);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInScreenSpaceRefractionGuide);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeScreenSpaceRefraction);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterScreenSpaceRefraction);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepthOfFieldGuide);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeDepthOfField);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterDepthOfField);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseHitDistance);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularHitDistance);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseRayDirection);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularRayDirection);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseRayDirectionHitDistance);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularRayDirectionHitDistance);
-        InReflectedAlbedoSubrectBase.Dispose();
-        InColorBeforeParticlesSubrectBase.Dispose();
-        InColorAfterParticlesSubrectBase.Dispose();
-        InColorBeforeTransparencySubrectBase.Dispose();
-        InColorAfterTransparencySubrectBase.Dispose();
-        InColorBeforeFogSubrectBase.Dispose();
-        InColorAfterFogSubrectBase.Dispose();
-        InScreenSpaceSubsurfaceScatteringGuideSubrectBase.Dispose();
-        InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
-        InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
-        InScreenSpaceRefractionGuideSubrectBase.Dispose();
-        InColorBeforeScreenSpaceRefractionSubrectBase.Dispose();
-        InColorAfterScreenSpaceRefractionSubrectBase.Dispose();
-        InDepthOfFieldGuideSubrectBase.Dispose();
-        InColorBeforeDepthOfFieldSubrectBase.Dispose();
-        InColorAfterDepthOfFieldSubrectBase.Dispose();
-        InDiffuseHitDistanceSubrectBase.Dispose();
-        InSpecularHitDistanceSubrectBase.Dispose();
-        InDiffuseRayDirectionSubrectBase.Dispose();
-        InSpecularRayDirectionSubrectBase.Dispose();
-        InDiffuseRayDirectionHitDistanceSubrectBase.Dispose();
-        InSpecularRayDirectionHitDistanceSubrectBase.Dispose();
-        NGXMarshal.Free(PInWorldToViewMatrix);
-        NGXMarshal.Free(PInViewToClipMatrix);
-        GBufferSurface.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectors3D);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInIsParticleMask);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInAnimatedTextureMask);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepthHighRes);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInPositionViewSpace);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInRayTracingHitDistance);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectorsReflections);
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayer);
-        InTransparencyLayerSubrectBase.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayerOpacity);
-        InTransparencyLayerOpacitySubrectBase.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayerMvecs);
-        InTransparencyLayerMvecsSubrectBase.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDisocclusionMask);
-        InDisocclusionMaskSubrectBase.Dispose();
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInResponsivityMask);
         InResponsivityMaskSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInResponsivityMask);
+        InDisocclusionMaskSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDisocclusionMask);
+        InTransparencyLayerMvecsSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayerMvecs);
+        InTransparencyLayerOpacitySubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayerOpacity);
+        InTransparencyLayerSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyLayer);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectorsReflections);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInRayTracingHitDistance);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInPositionViewSpace);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepthHighRes);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInAnimatedTextureMask);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInIsParticleMask);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectors3D);
+        GBufferSurface.Dispose();
+        NGXMarshal.Free(PInViewToClipMatrix);
+        NGXMarshal.Free(PInWorldToViewMatrix);
+        InSpecularRayDirectionHitDistanceSubrectBase.Dispose();
+        InDiffuseRayDirectionHitDistanceSubrectBase.Dispose();
+        InSpecularRayDirectionSubrectBase.Dispose();
+        InDiffuseRayDirectionSubrectBase.Dispose();
+        InSpecularHitDistanceSubrectBase.Dispose();
+        InDiffuseHitDistanceSubrectBase.Dispose();
+        InColorAfterDepthOfFieldSubrectBase.Dispose();
+        InColorBeforeDepthOfFieldSubrectBase.Dispose();
+        InDepthOfFieldGuideSubrectBase.Dispose();
+        InColorAfterScreenSpaceRefractionSubrectBase.Dispose();
+        InColorBeforeScreenSpaceRefractionSubrectBase.Dispose();
+        InScreenSpaceRefractionGuideSubrectBase.Dispose();
+        InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
+        InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
+        InScreenSpaceSubsurfaceScatteringGuideSubrectBase.Dispose();
+        InColorAfterFogSubrectBase.Dispose();
+        InColorBeforeFogSubrectBase.Dispose();
+        InColorAfterTransparencySubrectBase.Dispose();
+        InColorBeforeTransparencySubrectBase.Dispose();
+        InColorAfterParticlesSubrectBase.Dispose();
+        InColorBeforeParticlesSubrectBase.Dispose();
+        InReflectedAlbedoSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularRayDirectionHitDistance);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseRayDirectionHitDistance);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularRayDirection);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseRayDirection);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularHitDistance);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseHitDistance);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterDepthOfField);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeDepthOfField);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepthOfFieldGuide);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterScreenSpaceRefraction);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeScreenSpaceRefraction);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInScreenSpaceRefractionGuide);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterScreenSpaceSubsurfaceScattering);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeScreenSpaceSubsurfaceScattering);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInScreenSpaceSubsurfaceScatteringGuide);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterFog);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeFog);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterTransparency);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeTransparency);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorAfterParticles);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColorBeforeParticles);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInReflectedAlbedo);
+        InOutputSubrectBase.Dispose();
+        InBiasCurrentColorSubrectBase.Dispose();
+        InTranslucencySubrectBase.Dispose();
+        InMVSubrectBase.Dispose();
+        InDepthSubrectBase.Dispose();
+        InColorSubrectBase.Dispose();
+        InRoughnessSubrectBase.Dispose();
+        InNormalsSubrectBase.Dispose();
+        InSpecularAlbedoSubrectBase.Dispose();
+        InDiffuseAlbedoSubrectBase.Dispose();
+        InOutputAlphaSubrectBase.Dispose();
+        InAlphaSubrectBase.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInBiasCurrentColorMask);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInExposureTexture);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInTransparencyMask);
+        InRenderSubrectDimensions.Dispose();
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInMotionVectors);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDepth);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInOutputAlpha);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInOutput);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInAlpha);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColor);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInRoughness);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInNormals);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInSpecularAlbedo);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInDiffuseAlbedo);
         this = default;
     }
 }

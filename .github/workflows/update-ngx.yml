@@ -98,10 +98,12 @@ jobs:
           check-latest: true
       - name: Merge the four targets
         run: python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
-      - name: Generate bindings and build
+      - name: Generate bindings and verify direct output
         run: |
           dotnet run --project NGX.NET.Generator -- .
-          dotnet build NGX.NET.slnx -c Release
+          dotnet run --project verification/Generation -- .
+          dotnet build NGX.NET.slnx -c Release --warnaserror
+          dotnet format NGX.NET.slnx --no-restore --verify-no-changes --include-generated --exclude NGX.NET.Generator/obj NGX.NET/obj Showcase/obj --severity warn
       - name: Commit the complete update to the triggering branch
         env:
           NGX_BRANCH: ${{ github.ref_name }}

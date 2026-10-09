@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// VkExtensionProperties. Owns only storage allocated by managed conversion.
+/// VkExtensionProperties. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 260)]
-internal unsafe partial struct NGXVkExtensionPropertiesNative : IDisposable
+internal unsafe struct NGXVkExtensionPropertiesNative : IDisposable
 {
     /// <summary>
     /// VkExtensionProperties::extensionName
@@ -33,12 +31,17 @@ internal unsafe partial struct NGXVkExtensionPropertiesNative : IDisposable
 
         try
         {
-            fixed (sbyte* buffer = ExtensionName) NGXMarshal.WriteUtf8(value.ExtensionName, new Span<byte>(buffer, 256));
+            fixed (sbyte* buffer = ExtensionName)
+            {
+                NGXMarshal.WriteUtf8(value.ExtensionName, new Span<byte>(buffer, 256));
+            }
+
             SpecVersion = value.SpecVersion;
         }
         catch
         {
             Dispose();
+
             throw;
         }
     }

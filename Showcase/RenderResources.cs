@@ -3,7 +3,7 @@ using Showcase.Models;
 
 namespace Showcase;
 
-internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
+internal class RenderResources(RHI context, Scene scene) : IDisposable
 {
     public Scene Scene { get; } = scene;
 
@@ -22,7 +22,10 @@ internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
 
     public int OutputHeight { get; private set; }
 
-    public GpuImage Image(int frame, ImageSlot slot) => Frames[frame][(int)slot];
+    public GpuImage Image(int frame, ImageSlot slot)
+    {
+        return Frames[frame][(int)slot];
+    }
 
     public void Resize(int inputWidth, int inputHeight, int outputWidth, int outputHeight)
     {
@@ -31,12 +34,11 @@ internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
         OutputWidth = outputWidth;
         OutputHeight = outputHeight;
         bool changed = false;
-
         for (int frame = 0; frame < Frames.Length; frame++)
         {
             Frames[frame] ??= new GpuImage[(int)ImageSlot.Count];
 
-            for (ImageSlot slot = 0; slot < ImageSlot.Count; slot++)
+            for (ImageSlot slot = 0; slot is < ImageSlot.Count; slot++)
             {
                 (int width, int height) = RenderLayout.Size(slot, inputWidth, inputHeight, outputWidth, outputHeight);
                 GpuImage? current = Frames[frame][(int)slot];
@@ -56,19 +58,6 @@ internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
         {
             context.UpdateDescriptors();
         }
-    }
-
-    private GpuImage ResizeImage(GpuImage? image, int width, int height, ImageFormat format, int layers = 1)
-    {
-        if (image is not null && image.Width == width && image.Height == height && image.Format == format && image.Layers == layers)
-        {
-            return image;
-        }
-
-        GpuImage replacement = context.CreateImage(width, height, format, layers);
-        image?.Dispose();
-
-        return replacement;
     }
 
     public void Dispose()
@@ -95,5 +84,18 @@ internal sealed class RenderResources(RHI context, Scene scene) : IDisposable
         }
 
         Array.Clear(GeneratedFrames);
+    }
+
+    private GpuImage ResizeImage(GpuImage? image, int width, int height, ImageFormat format, int layers = 1)
+    {
+        if (image is not null && image.Width == width && image.Height == height && image.Format == format && image.Layers == layers)
+        {
+            return image;
+        }
+
+        GpuImage replacement = context.CreateImage(width, height, format, layers);
+        image?.Dispose();
+
+        return replacement;
     }
 }

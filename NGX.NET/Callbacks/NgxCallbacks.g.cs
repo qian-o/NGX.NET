@@ -3,15 +3,16 @@
 
 #nullable enable
 
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 internal static partial class NgxCallbacks
 {
     internal static nint Acquire(NGXAppLogCallback? callback)
     {
-        if (callback is null) return 0;
+        if (callback is null)
+        {
+            return 0;
+        }
 
         NGXAppLogCallback guarded = (string? message, NGXLoggingLevel loggingLevel, NGXFeature sourceComponent) =>
         {
@@ -30,7 +31,10 @@ internal static partial class NgxCallbacks
 
     internal static nint Acquire(NGXPfnProgressCallback? callback)
     {
-        if (callback is null) return 0;
+        if (callback is null)
+        {
+            return 0;
+        }
 
         NGXPfnProgressCallback guarded = (float progress, ref bool shouldCancel) =>
         {
@@ -50,7 +54,10 @@ internal static partial class NgxCallbacks
 
     internal static nint Acquire(NGXPfnProgressCallbackC? callback)
     {
-        if (callback is null) return 0;
+        if (callback is null)
+        {
+            return 0;
+        }
 
         NGXPfnProgressCallbackC guarded = (float progress, ref bool shouldCancel) =>
         {
@@ -67,5 +74,4 @@ internal static partial class NgxCallbacks
 
         return Register(guarded);
     }
-
 }

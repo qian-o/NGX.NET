@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// VkExtensionProperties
 /// </summary>
-public partial struct NGXVkExtensionProperties
+public struct NGXVkExtensionProperties
 {
     /// <summary>
     /// VkExtensionProperties::extensionName
@@ -27,7 +23,12 @@ public partial struct NGXVkExtensionProperties
     internal unsafe NGXVkExtensionProperties(in NGXVkExtensionPropertiesNative native)
     {
         this = default;
-        fixed (sbyte* buffer = native.ExtensionName) ExtensionName = NGXMarshal.ReadUtf8(new ReadOnlySpan<byte>(buffer, 256));
+
+        fixed (sbyte* buffer = native.ExtensionName)
+        {
+            ExtensionName = NGXMarshal.ReadUtf8(new ReadOnlySpan<byte>(buffer, 256));
+        }
+
         SpecVersion = native.SpecVersion;
     }
 }

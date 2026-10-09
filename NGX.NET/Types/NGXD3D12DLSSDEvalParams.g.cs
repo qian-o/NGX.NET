@@ -4,15 +4,13 @@
 #nullable enable
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_D3D12_DLSSD_Eval_Params
 /// </summary>
-public partial struct NGXD3D12DLSSDEvalParams
+public struct NGXD3D12DLSSDEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSSD_Eval_Params::pInDiffuseAlbedo

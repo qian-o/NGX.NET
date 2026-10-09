@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_D3D11_DLISP_Eval_Params
 /// </summary>
-public partial struct NGXD3D11DLISPEvalParams
+public struct NGXD3D11DLISPEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_D3D11_DLISP_Eval_Params::Feature

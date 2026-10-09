@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_ImageViewInfo_VK. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_ImageViewInfo_VK. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe partial struct NGXImageViewInfoVKNative : IDisposable
+internal unsafe struct NGXImageViewInfoVKNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::ImageView
@@ -67,6 +65,7 @@ internal unsafe partial struct NGXImageViewInfoVKNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

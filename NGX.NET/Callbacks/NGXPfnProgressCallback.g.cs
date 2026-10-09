@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// PFN_NVSDK_NGX_ProgressCallback. Ngx contains callback exceptions and manages delegate roots for this signature.
+/// PFN_NVSDK_NGX_ProgressCallback
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void NGXPfnProgressCallback(float progress, [MarshalAs(UnmanagedType.I1)] ref bool shouldCancel);

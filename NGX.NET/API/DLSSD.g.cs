@@ -21,7 +21,7 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
-        /// NGX_DLSSD_GET_OPTIMAL_SETTINGS. Source: nvsdk_ngx_helpers_dlssd_d3d.h:66. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_DLSSD_GET_OPTIMAL_SETTINGS
         /// </summary>
         public static NGXResult GetOptimalSettings(NGXParameter pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, out uint pOutRenderOptimalWidth, out uint pOutRenderOptimalHeight, out uint pOutRenderMaxWidth, out uint pOutRenderMaxHeight, out uint pOutRenderMinWidth, out uint pOutRenderMinHeight, out float pOutSharpness)
         {
@@ -39,7 +39,12 @@ public static unsafe partial class Ngx
             uint pOutRenderMinHeightNative = default;
             pOutSharpness = default;
             float pOutSharpnessNative = default;
-            if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+
+            if (pInParams.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+            }
+
             NGXResult result = GetOptimalSettingsNative(pInParams.Value, inUserSelectedWidth, inUserSelectedHeight, inPerfQualityValue, &pOutRenderOptimalWidthNative, &pOutRenderOptimalHeightNative, &pOutRenderMaxWidthNative, &pOutRenderMaxHeightNative, &pOutRenderMinWidthNative, &pOutRenderMinHeightNative, &pOutSharpnessNative);
             if (Succeeded(result))
             {
@@ -51,35 +56,34 @@ public static unsafe partial class Ngx
                 pOutRenderMinHeight = pOutRenderMinHeightNative;
                 pOutSharpness = pOutSharpnessNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_OPTIMAL_SETTINGS")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetOptimalSettingsNative(nint pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, uint* pOutRenderOptimalWidth, uint* pOutRenderOptimalHeight, uint* pOutRenderMaxWidth, uint* pOutRenderMaxHeight, uint* pOutRenderMinWidth, uint* pOutRenderMinHeight, float* pOutSharpness);
-
         /// <summary>
-        /// NGX_DLSSD_GET_STATS. Source: nvsdk_ngx_helpers_dlssd_d3d.h:58. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_DLSSD_GET_STATS
         /// </summary>
         public static NGXResult GetStats(NGXParameter pInParams, out ulong pVRAMAllocatedBytes)
         {
             pVRAMAllocatedBytes = default;
             ulong pVRAMAllocatedBytesNative = default;
-            if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+
+            if (pInParams.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+            }
+
             NGXResult result = GetStatsNative(pInParams.Value, &pVRAMAllocatedBytesNative);
             if (Succeeded(result))
             {
                 pVRAMAllocatedBytes = pVRAMAllocatedBytesNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetStatsNative(nint pInParams, ulong* pVRAMAllocatedBytes);
-
         /// <summary>
-        /// NGX_DLSSD_GET_STATS_1. Source: nvsdk_ngx_helpers_dlssd_d3d.h:49. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_DLSSD_GET_STATS_1
         /// </summary>
         public static NGXResult GetStats1(NGXParameter pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel)
         {
@@ -87,22 +91,24 @@ public static unsafe partial class Ngx
             ulong pVRAMAllocatedBytesNative = default;
             pOptLevel = default;
             uint pOptLevelNative = default;
-            if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+
+            if (pInParams.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+            }
+
             NGXResult result = GetStats1Native(pInParams.Value, &pVRAMAllocatedBytesNative, &pOptLevelNative);
             if (Succeeded(result))
             {
                 pVRAMAllocatedBytes = pVRAMAllocatedBytesNative;
                 pOptLevel = pOptLevelNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS_1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetStats1Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel);
-
         /// <summary>
-        /// NGX_DLSSD_GET_STATS_2. Source: nvsdk_ngx_helpers_dlssd_d3d.h:21. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_DLSSD_GET_STATS_2
         /// </summary>
         public static NGXResult GetStats2(NGXParameter pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel, out uint isDevSnippetBranch)
         {
@@ -112,7 +118,12 @@ public static unsafe partial class Ngx
             uint pOptLevelNative = default;
             isDevSnippetBranch = default;
             uint isDevSnippetBranchNative = default;
-            if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+
+            if (pInParams.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+            }
+
             NGXResult result = GetStats2Native(pInParams.Value, &pVRAMAllocatedBytesNative, &pOptLevelNative, &isDevSnippetBranchNative);
             if (Succeeded(result))
             {
@@ -120,12 +131,24 @@ public static unsafe partial class Ngx
                 pOptLevel = pOptLevelNative;
                 isDevSnippetBranch = isDevSnippetBranchNative;
             }
+
             return result;
         }
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_OPTIMAL_SETTINGS")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetOptimalSettingsNative(nint pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue, uint* pOutRenderOptimalWidth, uint* pOutRenderOptimalHeight, uint* pOutRenderMaxWidth, uint* pOutRenderMaxHeight, uint* pOutRenderMinWidth, uint* pOutRenderMinHeight, float* pOutSharpness);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetStatsNative(nint pInParams, ulong* pVRAMAllocatedBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS_1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetStats1Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel);
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSSD_GET_STATS_2")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetStats2Native(nint pInParams, ulong* pVRAMAllocatedBytes, uint* pOptLevel, uint* isDevSnippetBranch);
-
     }
 }

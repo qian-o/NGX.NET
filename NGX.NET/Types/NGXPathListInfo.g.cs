@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_PathListInfo
 /// </summary>
-public partial struct NGXPathListInfo
+public struct NGXPathListInfo
 {
     /// <summary>
     /// NVSDK_NGX_PathListInfo::Path
@@ -23,6 +19,9 @@ public partial struct NGXPathListInfo
     {
         this = default;
         Paths = new string[checked((int)native.Length)];
-        for (int i = 0; i < Paths.Length; i++) Paths[i] = NGXMarshal.PtrToString(native.Path[i], NGXEncoding.NativeWide)!;
+        for (int i = 0; i < Paths.Length; i++)
+        {
+            Paths[i] = NGXMarshal.PtrToString(native.Path[i], NGXEncoding.NativeWide)!;
+        }
     }
 }

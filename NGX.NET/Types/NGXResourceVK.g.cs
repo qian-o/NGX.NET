@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_Resource_VK
 /// </summary>
-public partial struct NGXResourceVK
+public struct NGXResourceVK
 {
     /// <summary>
     /// NVSDK_NGX_Resource_VK::Resource
@@ -32,7 +28,7 @@ public partial struct NGXResourceVK
     internal unsafe NGXResourceVK(in NGXResourceVKNative native)
     {
         this = default;
-        Resource = native.Type == NGXResourceVKType.VkImageView ? new() { ImageViewInfo = new NGXImageViewInfoVK(in native.Resource.ImageViewInfo) } : new() { BufferInfo = new NGXBufferInfoVK(in native.Resource.BufferInfo) };
+        Resource = native.Type is NGXResourceVKType.VkImageView ? new() { ImageViewInfo = new NGXImageViewInfoVK(in native.Resource.ImageViewInfo) } : new() { BufferInfo = new NGXBufferInfoVK(in native.Resource.BufferInfo) };
         Type = native.Type;
         ReadWrite = native.ReadWrite;
     }

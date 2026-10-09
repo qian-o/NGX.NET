@@ -3,6 +3,8 @@
 internal enum Reconstruction
 {
     Native,
+
     DLSS,
+
     RayReconstruction
 }

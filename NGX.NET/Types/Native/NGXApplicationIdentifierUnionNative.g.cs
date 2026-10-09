@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// v. Owns only storage allocated by managed conversion.
+/// v. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe partial struct NGXApplicationIdentifierUnionNative : IDisposable
+internal unsafe struct NGXApplicationIdentifierUnionNative : IDisposable
 {
     /// <summary>
     /// v::ProjectDesc
@@ -45,6 +43,7 @@ internal unsafe partial struct NGXApplicationIdentifierUnionNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

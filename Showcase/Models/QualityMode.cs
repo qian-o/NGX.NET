@@ -3,8 +3,12 @@
 internal enum QualityMode
 {
     Off,
+
     MaxQuality,
+
     Balanced,
+
     MaxPerformance,
+
     UltraPerformance
 }

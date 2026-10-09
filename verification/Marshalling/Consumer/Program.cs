@@ -1,9 +1,25 @@
-using NGX.NET;
+﻿using NGX.NET;
 
 // Compiles with unsafe disabled. Native entry points are deliberately not run
 // on a host without the NVIDIA runtime; the method checks the public signatures.
-NGXFeatureCommonInfo common = new() { PathListInfo = new() { Paths = ["/runtime/中文🚀"] } };
-NGXDLSSCreateParams create = new() { Feature = new() { InWidth = 1280, InHeight = 720, InTargetWidth = 1920, InTargetHeight = 1080, InPerfQualityValue = NGXPerfQualityValue.MaxQuality } };
+NGXFeatureCommonInfo common = new()
+{
+    PathListInfo = new()
+    {
+        Paths = ["/runtime/中文🚀"]
+    }
+};
+NGXDLSSCreateParams create = new()
+{
+    Feature = new()
+    {
+        InWidth = 1280,
+        InHeight = 720,
+        InTargetWidth = 1920,
+        InTargetHeight = 1080,
+        InPerfQualityValue = NGXPerfQualityValue.MaxQuality
+    }
+};
 Action invoke = () =>
 {
     Ngx.D3D12.InitWithProjectID("project", NGXEngineType.Custom, "1.0", "/tmp", 1, in common, NGXVersion.Api);

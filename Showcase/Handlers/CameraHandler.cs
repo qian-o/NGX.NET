@@ -3,17 +3,19 @@ using Silk.NET.Input;
 
 namespace Showcase.Handlers;
 
-internal sealed class CameraHandler
+internal class CameraHandler
 {
-    public Vector3 Position;
+    public const float FieldOfView = MathF.PI / 3;
 
-    public Vector3 PreviousPosition { get; private set; }
+    public Vector3 Position;
 
     public float Yaw;
 
     public float Pitch;
 
-    public const float FieldOfView = MathF.PI / 3;
+    private float speed;
+
+    public Vector3 PreviousPosition { get; private set; }
 
     public float Near { get; private set; }
 
@@ -32,8 +34,6 @@ internal sealed class CameraHandler
     public Vector2 Jitter { get; private set; }
 
     public Vector3 Forward => Vector3.Normalize(new(MathF.Cos(Pitch) * MathF.Cos(Yaw), MathF.Sin(Pitch), MathF.Cos(Pitch) * MathF.Sin(Yaw)));
-
-    private float speed;
 
     public void Reset(Scene scene)
     {
@@ -61,7 +61,6 @@ internal sealed class CameraHandler
 
         Vector3 right = Vector3.Normalize(Vector3.Cross(Forward, Vector3.UnitY));
         float distance = speed * delta * ((input.Down(Key.ShiftLeft) || input.Down(Key.ShiftRight)) ? 3 : 1);
-
         if (input.Down(Key.W))
         {
             Position += Forward * distance;
@@ -129,8 +128,7 @@ internal sealed class CameraHandler
     {
         float fraction = 1;
         float result = 0;
-
-        while (index != 0)
+        while (index is not 0)
         {
             fraction /= radix;
             result += fraction * (index % radix);

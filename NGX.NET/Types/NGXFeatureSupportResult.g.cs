@@ -19,25 +19,30 @@ public enum NGXFeatureSupportResult : int
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_CheckNotPresent
     /// </summary>
-    CheckNotPresent = 1,
+    CheckNotPresent = 1 << 0,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_DriverVersionUnsupported
     /// </summary>
-    DriverVersionUnsupported = 2,
+    DriverVersionUnsupported = 1 << 1,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_AdapterUnsupported
     /// </summary>
-    AdapterUnsupported = 4,
+    AdapterUnsupported = 1 << 2,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_OSVersionBelowMinimumSupported
     /// </summary>
-    OsVersionBelowMinimumSupported = 8,
+    OsVersionBelowMinimumSupported = 1 << 3,
 
     /// <summary>
     /// NVSDK_NGX_FeatureSupportResult_NotImplemented
     /// </summary>
-    NotImplemented = 16,
+    NotImplemented = 1 << 4,
+
+    /// <summary>
+    /// No flags are set.
+    /// </summary>
+    None = 0
 }

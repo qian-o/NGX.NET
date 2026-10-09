@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// PFN_NVSDK_NGX_D3D12_ResourceAllocCallback. Borrowed SDK callbacks require a live source; raw managed registrations require caller-owned roots and exception containment.
+/// PFN_NVSDK_NGX_D3D12_ResourceAllocCallback
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void NGXPfnD3D12ResourceAllocCallback(nint description, int state, nint heap, out nint resource);

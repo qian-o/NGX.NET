@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_PrecisionInfo. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_PrecisionInfo. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 12)]
-internal unsafe partial struct NGXPrecisionInfoNative : IDisposable
+internal unsafe struct NGXPrecisionInfoNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_PrecisionInfo::IsLowPrecision
@@ -46,6 +44,7 @@ internal unsafe partial struct NGXPrecisionInfoNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

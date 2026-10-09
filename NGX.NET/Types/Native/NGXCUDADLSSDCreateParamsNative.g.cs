@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_CUDA_DLSSD_Create_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_CUDA_DLSSD_Create_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe partial struct NGXCUDADLSSDCreateParamsNative : IDisposable
+internal unsafe struct NGXCUDADLSSDCreateParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Create_Params::Feature
@@ -46,6 +44,7 @@ internal unsafe partial struct NGXCUDADLSSDCreateParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

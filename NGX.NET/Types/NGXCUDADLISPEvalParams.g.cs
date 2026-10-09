@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_CUDA_DLISP_Eval_Params
 /// </summary>
-public partial struct NGXCUDADLISPEvalParams
+public struct NGXCUDADLISPEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLISP_Eval_Params::Feature

@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Feature_Create_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_Feature_Create_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-internal unsafe partial struct NGXFeatureCreateParamsNative : IDisposable
+internal unsafe struct NGXFeatureCreateParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_Feature_Create_Params::InWidth
@@ -60,6 +58,7 @@ internal unsafe partial struct NGXFeatureCreateParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

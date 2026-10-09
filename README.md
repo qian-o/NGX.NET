@@ -41,8 +41,11 @@ Ngx.ThrowIfFailed(Ngx.D3D12.DestroyParameters(parameters));
 Ngx.ThrowIfFailed(Ngx.D3D12.Shutdown1(device));
 ```
 
-`NGXParameter` and `NGXHandle` are borrowed handle values. Release owned parameter
-maps and features explicitly through the matching backend. The legacy
+`NGXParameter` and `NGXHandle` are readonly structs with a readonly `Value` field.
+Construct them with `new NGXParameter(address)` or `new NGXHandle(address)`; their
+equality, hashing and deconstruction compare or expose that address. Both are
+borrowed handle values. Release owned parameter maps and features explicitly
+through the matching backend. The legacy
 `GetParameters` result belongs to the SDK and must not be passed to
 `DestroyParameters`. Serialize SDK calls and keep devices, command buffers, views
 and GPU resources alive for their actual use; conversion does not take ownership
@@ -80,7 +83,9 @@ delegate and contain exceptions for the entire native registration lifetime.
 The constructor-based conversion allocates native storage for nested pointer
 inputs. See `verification/Marshalling/results.json` for the measured managed
 allocation cost and validation limits. Run the managed, layout and export checks
-with `python3 verification/Marshalling/run.py`; this does not run NVIDIA GPU work.
+with `python3 verification/Marshalling/run.py`. It also verifies direct generator
+output in a fresh directory, without formatting the generated files. This does
+not run NVIDIA GPU work.
 
 ## Showcase
 

@@ -3,17 +3,16 @@
 
 #nullable enable
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_CUDA_GBuffer. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_CUDA_GBuffer. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 136)]
-internal unsafe partial struct NGXCUDAGBufferNative : IDisposable
+internal unsafe struct NGXCUDAGBufferNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_GBuffer::pInAttrib
@@ -21,21 +20,19 @@ internal unsafe partial struct NGXCUDAGBufferNative : IDisposable
     [FieldOffset(0)]
     public PInAttribBuffer PInAttrib;
 
-    [InlineArray(17)]
-    internal struct PInAttribBuffer
-    {
-        private NGXPointer<ulong> element;
-    }
-
     public NGXCUDAGBufferNative(in NGXCUDAGBuffer value)
     {
         this = default;
 
         try
         {
-            if (value.PInAttrib is { } itemsPInAttrib)
+            if (value.PInAttrib is ulong?[] itemsPInAttrib)
             {
-                if (itemsPInAttrib.Length > 17) throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+                if (itemsPInAttrib.Length is > 17)
+                {
+                    throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+                }
+
                 for (int i = 0; i < itemsPInAttrib.Length; i++)
                 {
                     PInAttrib[i] = itemsPInAttrib[i].HasValue ? NGXMarshal.AllocValue(itemsPInAttrib[i].GetValueOrDefault()) : null;
@@ -45,13 +42,24 @@ internal unsafe partial struct NGXCUDAGBufferNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        for (int i = 0; i < 17; i++) NGXMarshal.Free(PInAttrib[i]);
+        for (int i = 16; i >= 0; i--)
+        {
+            NGXMarshal.Free(PInAttrib[i]);
+        }
+
         this = default;
+    }
+
+    [InlineArray(17)]
+    internal struct PInAttribBuffer
+    {
+        private NGXPointer<ulong> element;
     }
 }

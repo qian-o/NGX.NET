@@ -21,7 +21,7 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
-        /// NVSDK_NGX_Parameter_GetD. Source: nvsdk_ngx_params.h:100. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_Parameter_GetD
         /// </summary>
         public static NGXResult GetD(NGXParameter inParameter, string inName, out double outValue)
         {
@@ -31,7 +31,11 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetDNative(inParameter.Value, inNameNative, &outValueNative);
@@ -39,7 +43,424 @@ public static unsafe partial class Ngx
                 {
                     outValue = outValueNative;
                 }
+
                 return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetD3d11Resource
+        /// </summary>
+        public static NGXResult GetD3d11Resource(NGXParameter inParameter, string inName, out nint outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            nint outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetD3d11ResourceNative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = (nint)outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetD3d12Resource
+        /// </summary>
+        public static NGXResult GetD3d12Resource(NGXParameter inParameter, string inName, out nint outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            nint outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetD3d12ResourceNative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = (nint)outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetF
+        /// </summary>
+        public static NGXResult GetF(NGXParameter inParameter, string inName, out float outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            float outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetFNative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetI
+        /// </summary>
+        public static NGXResult GetI(NGXParameter inParameter, string inName, out int outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            int outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetINative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetUI
+        /// </summary>
+        public static NGXResult GetUI(NGXParameter inParameter, string inName, out uint outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            uint outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetUINative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetULL
+        /// </summary>
+        public static NGXResult GetULL(NGXParameter inParameter, string inName, out ulong outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            ulong outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetULLNative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_GetVoidPointer
+        /// </summary>
+        public static NGXResult GetVoidPointer(NGXParameter inParameter, string inName, out nint outValue)
+        {
+            sbyte* inNameNative = null;
+            outValue = default;
+            void* outValueNative = default;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                NGXResult result = GetVoidPointerNative(inParameter.Value, inNameNative, &outValueNative);
+                if (Succeeded(result))
+                {
+                    outValue = (nint)outValueNative;
+                }
+
+                return result;
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetD
+        /// </summary>
+        public static void SetD(NGXParameter inParameter, string inName, double inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetDNative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetD3d11Resource
+        /// </summary>
+        public static void SetD3d11Resource(NGXParameter inParameter, string inName, nint inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetD3d11ResourceNative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetD3d12Resource
+        /// </summary>
+        public static void SetD3d12Resource(NGXParameter inParameter, string inName, nint inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetD3d12ResourceNative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetF
+        /// </summary>
+        public static void SetF(NGXParameter inParameter, string inName, float inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetFNative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetI
+        /// </summary>
+        public static void SetI(NGXParameter inParameter, string inName, int inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetINative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetUI
+        /// </summary>
+        public static void SetUI(NGXParameter inParameter, string inName, uint inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetUINative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetULL
+        /// </summary>
+        public static void SetULL(NGXParameter inParameter, string inName, ulong inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetULLNative(inParameter.Value, inNameNative, inValue);
+            }
+            finally
+            {
+                NGXMarshal.Free(inNameNative);
+            }
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_Parameter_SetVoidPointer
+        /// </summary>
+        public static void SetVoidPointer(NGXParameter inParameter, string inName, nint inValue)
+        {
+            sbyte* inNameNative = null;
+
+            try
+            {
+                if (inParameter.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
+                }
+
+                ArgumentNullException.ThrowIfNull(inName);
+                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
+                SetVoidPointerNative(inParameter.Value, inNameNative, (void*)inValue);
             }
             finally
             {
@@ -51,414 +472,64 @@ public static unsafe partial class Ngx
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetDNative(nint inParameter, sbyte* inName, double* outValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetD3d11Resource. Source: nvsdk_ngx_params.h:106. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetD3d11Resource(NGXParameter inParameter, string inName, out nint outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            nint outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetD3d11ResourceNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = (nint)outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetD3d11ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetD3d12Resource. Source: nvsdk_ngx_params.h:108. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetD3d12Resource(NGXParameter inParameter, string inName, out nint outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            nint outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetD3d12ResourceNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = (nint)outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetD3d12ResourceNative(nint inParameter, sbyte* inName, nint* outValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetF. Source: nvsdk_ngx_params.h:98. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetF(NGXParameter inParameter, string inName, out float outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            float outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetFNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetFNative(nint inParameter, sbyte* inName, float* outValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetI. Source: nvsdk_ngx_params.h:104. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetI(NGXParameter inParameter, string inName, out int outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            int outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetINative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetINative(nint inParameter, sbyte* inName, int* outValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetUI. Source: nvsdk_ngx_params.h:102. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetUI(NGXParameter inParameter, string inName, out uint outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            uint outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetUINative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetUINative(nint inParameter, sbyte* inName, uint* outValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetULL. Source: nvsdk_ngx_params.h:96. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetULL(NGXParameter inParameter, string inName, out ulong outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            ulong outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetULLNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetULL")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetULLNative(nint inParameter, sbyte* inName, ulong* outValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_GetVoidPointer. Source: nvsdk_ngx_params.h:110. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult GetVoidPointer(NGXParameter inParameter, string inName, out nint outValue)
-        {
-            sbyte* inNameNative = null;
-            outValue = default;
-            void* outValueNative = default;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                NGXResult result = GetVoidPointerNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
-                {
-                    outValue = (nint)outValueNative;
-                }
-                return result;
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult GetVoidPointerNative(nint inParameter, sbyte* inName, void** outValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetD. Source: nvsdk_ngx_params.h:84. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetD(NGXParameter inParameter, string inName, double inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetDNative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetDNative(nint inParameter, sbyte* inName, double inValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetD3d11Resource. Source: nvsdk_ngx_params.h:90. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetD3d11Resource(NGXParameter inParameter, string inName, nint inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetD3d11ResourceNative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetD3d11ResourceNative(nint inParameter, sbyte* inName, nint inValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetD3d12Resource. Source: nvsdk_ngx_params.h:92. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetD3d12Resource(NGXParameter inParameter, string inName, nint inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetD3d12ResourceNative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetD3d12ResourceNative(nint inParameter, sbyte* inName, nint inValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetF. Source: nvsdk_ngx_params.h:82. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetF(NGXParameter inParameter, string inName, float inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetFNative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetFNative(nint inParameter, sbyte* inName, float inValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetI. Source: nvsdk_ngx_params.h:88. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetI(NGXParameter inParameter, string inName, int inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetINative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetINative(nint inParameter, sbyte* inName, int inValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetUI. Source: nvsdk_ngx_params.h:86. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetUI(NGXParameter inParameter, string inName, uint inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetUINative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetUI")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetUINative(nint inParameter, sbyte* inName, uint inValue);
-
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetULL. Source: nvsdk_ngx_params.h:80. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetULL(NGXParameter inParameter, string inName, ulong inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetULLNative(inParameter.Value, inNameNative, inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetULL")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetULLNative(nint inParameter, sbyte* inName, ulong inValue);
 
-        /// <summary>
-        /// NVSDK_NGX_Parameter_SetVoidPointer. Source: nvsdk_ngx_params.h:94. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static void SetVoidPointer(NGXParameter inParameter, string inName, nint inValue)
-        {
-            sbyte* inNameNative = null;
-
-            try
-            {
-                if (inParameter.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameter));
-                ArgumentNullException.ThrowIfNull(inName);
-                inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
-                SetVoidPointerNative(inParameter.Value, inNameNative, (void*)inValue);
-            }
-            finally
-            {
-                NGXMarshal.Free(inNameNative);
-            }
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetVoidPointer")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial void SetVoidPointerNative(nint inParameter, sbyte* inName, void* inValue);
-
     }
 }

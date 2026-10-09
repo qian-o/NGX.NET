@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_ImageViewInfo_VK
 /// </summary>
-public partial struct NGXImageViewInfoVK
+public struct NGXImageViewInfoVK
 {
     /// <summary>
     /// NVSDK_NGX_ImageViewInfo_VK::ImageView

@@ -4,15 +4,13 @@
 #nullable enable
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_CUDA_DLSSD_Eval_Params
 /// </summary>
-public partial struct NGXCUDADLSSDEvalParams
+public struct NGXCUDADLSSDEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLSSD_Eval_Params::pInDiffuseAlbedo

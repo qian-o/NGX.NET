@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
@@ -12,7 +10,7 @@ namespace NGX.NET;
 /// <summary>
 /// NVSDK_NGX_LoggingInfo
 /// </summary>
-public partial struct NGXLoggingInfo
+public struct NGXLoggingInfo
 {
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::LoggingCallback
@@ -32,7 +30,7 @@ public partial struct NGXLoggingInfo
     internal unsafe NGXLoggingInfo(in NGXLoggingInfoNative native)
     {
         this = default;
-        LoggingCallback = native.LoggingCallback == 0 ? null : Marshal.GetDelegateForFunctionPointer<NGXAppLogCallback>(native.LoggingCallback);
+        LoggingCallback = native.LoggingCallback is 0 ? null : Marshal.GetDelegateForFunctionPointer<NGXAppLogCallback>(native.LoggingCallback);
         MinimumLoggingLevel = native.MinimumLoggingLevel;
         DisableOtherLoggingSinks = native.DisableOtherLoggingSinks;
     }

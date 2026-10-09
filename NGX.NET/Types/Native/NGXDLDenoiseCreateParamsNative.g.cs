@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_DLDenoise_Create_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_DLDenoise_Create_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe partial struct NGXDLDenoiseCreateParamsNative : IDisposable
+internal unsafe struct NGXDLDenoiseCreateParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_DLDenoise_Create_Params::Feature
@@ -39,6 +37,7 @@ internal unsafe partial struct NGXDLDenoiseCreateParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

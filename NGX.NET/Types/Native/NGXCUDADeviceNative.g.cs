@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_CUDADevice. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_CUDADevice. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe partial struct NGXCUDADeviceNative : IDisposable
+internal unsafe struct NGXCUDADeviceNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_CUDADevice::cudaContext
@@ -39,6 +37,7 @@ internal unsafe partial struct NGXCUDADeviceNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

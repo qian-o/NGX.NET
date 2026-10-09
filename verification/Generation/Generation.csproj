@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+        <AssemblyName>NGX.NET.Generation.Tests</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../NGX.NET.Generator/NGX.NET.Generator.csproj" />
+        <Reference Include="Microsoft.CodeAnalysis">
+            <HintPath>$(MSBuildBinPath)/Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.CSharp">
+            <HintPath>$(MSBuildBinPath)/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+</Project>

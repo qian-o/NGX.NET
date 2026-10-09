@@ -24,6 +24,7 @@
     "shutdown of the last tracked device releases its backend's parameter snapshots",
     "CUDA device addresses remain stable across copied public descriptors",
     "SDK defaults preserve the distinction between new and default",
+    "readonly handles preserve layout, equality, hashing and deconstruction",
     "constructor and retained RR conversion allocation measurement"
   ],
   "metrics": {
@@ -44,6 +45,11 @@
     "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.",
     "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown."
   ],
+  "generationStyle": "direct Emitter output passed syntax/style checks in a fresh directory; BOM repair and repeated generation passed without a formatter",
+  "generationValidationSha256": {
+    "Generation.csproj": "5344a8e07c6a95a2004aa1f6b1c69b4ddc8b7ee4c331d2c40953dabcf30d9856",
+    "Program.cs": "cb5df958501f2ae90adfcef918f3b04a81b44af24240377ee4f19cbb74a32fed"
+  },
   "safeConsumer": "production signatures compiled with AllowUnsafeBlocks=false; native SDK calls were not executed",
   "nativeVisibility": "external access rejected by compiler with CS0122",
   "nativeExportAudit": {
@@ -87,11 +93,11 @@
   "astSha256": "29a3784b454ebf93cd7b52f5559c96db8645f8f259e98ef2ac373191d33ecea5",
   "validationSha256": {
     "Consumer/Consumer.csproj": "65e176663c842ccdaf2008854492b732350398137760963defc0ad1a70afb972",
-    "Consumer/NativeVisibilityProbe.cs": "17af3f39644b63230ca9acd5ca1055dd03b6cf493f0262c33ffa7651c701c85a",
-    "Consumer/Program.cs": "df26a00a4000417b46e7c492493a7745a6f3fc919659b2793dfeeb59abe1146a",
+    "Consumer/NativeVisibilityProbe.cs": "721b56013899d66f36023d7399c81cd9b349df2b7c027129617a41a5fd626f7a",
+    "Consumer/Program.cs": "ab60df2771734c1ae8adb803fcff0b42dc1b3a9507cbf51fc8c09d89d64305c6",
     "Marshalling.csproj": "3b737e03f54b9a86ab2577b3933524c0528010a0c3c41adafb51f1889ace7582",
-    "Program.cs": "6e8542084e575bf58122fb1d36df40e17bb24e3b5de310b4de13c4879ce4b7f0",
-    "run.py": "cbb78b6ccc494cb7fe411f6d08fa8b5f3fd4f77b5b23afe51062249d9ca96009"
+    "Program.cs": "a1ca18a9ef3fb8c29eac3c170a82533f0dfc9eda9805cee1ee467cd4dff6f8cd",
+    "run.py": "136ca8562702ae3f0c5c7ff3fe90aa59fee380f0c32a9b0476c3c32da585d870"
   },
   "contractFindings": [
     "Constructors clean up partially initialized native values before rethrowing.",
@@ -101,5 +107,5 @@
     "Opaque handles remain borrowed values and require explicit SDK release; the binding does not manage GPU resource completion."
   ],
   "regeneration": "0 changed files",
-  "managedSourcesSha256": "caa3115b8de2ebdbdf4067badf9fe3714384028d22334c49e83db32378e89f3d"
+  "managedSourcesSha256": "df0fe686b9a192cf5cfc3f0aa2b05d3032d81b7edf0723c8d41f3b491c952603"
 }

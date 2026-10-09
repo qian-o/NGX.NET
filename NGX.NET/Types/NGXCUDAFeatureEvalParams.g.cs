@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_CUDA_Feature_Eval_Params
 /// </summary>
-public partial struct NGXCUDAFeatureEvalParams
+public struct NGXCUDAFeatureEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_Feature_Eval_Params::pInColor

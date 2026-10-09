@@ -5,4 +5,8 @@
         <TargetFramework>$(StandardTargetFramework)</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="NGX.NET.Generation.Tests" />
+    </ItemGroup>
+
 </Project>

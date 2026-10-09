@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_FeatureDiscoveryInfo. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_FeatureDiscoveryInfo. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe partial struct NGXFeatureDiscoveryInfoNative : IDisposable
+internal unsafe struct NGXFeatureDiscoveryInfoNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_FeatureDiscoveryInfo::SDKVersion
@@ -55,6 +53,7 @@ internal unsafe partial struct NGXFeatureDiscoveryInfoNative : IDisposable
             FeatureID = value.FeatureID;
             Identifier = new(in value.Identifier);
             ApplicationDataPath = (void*)NGXMarshal.TextToPtr(value.ApplicationDataPath, NGXEncoding.NativeWide);
+
             if (value.FeatureInfo is NGXFeatureCommonInfo itemFeatureInfo)
             {
                 FeatureInfo = NGXMarshal.AllocNative<NGXFeatureCommonInfoNative>(new(in itemFeatureInfo));
@@ -63,15 +62,16 @@ internal unsafe partial struct NGXFeatureDiscoveryInfoNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        Identifier.Dispose();
-        NGXMarshal.Free(ApplicationDataPath);
         NGXMarshal.FreeNative((NGXFeatureCommonInfoNative*)FeatureInfo);
+        NGXMarshal.Free(ApplicationDataPath);
+        Identifier.Dispose();
         this = default;
     }
 }

@@ -5,26 +5,16 @@ using Showcase.Models;
 
 namespace Showcase.Handlers;
 
-internal sealed unsafe class ImGuiHandler : IDisposable
+internal unsafe class ImGuiHandler : IDisposable
 {
-    private readonly ImGuiContextPtr context;
-    private float fontDensity;
     private const float TextSize = 20;
+
     private static readonly Vector4 Accent = new(0.9f, 0.77f, 0.51f, 1);
-    private static readonly QualityMode[] QualityModes =
-    [
-        QualityMode.Off,
-        QualityMode.MaxQuality,
-        QualityMode.Balanced,
-        QualityMode.MaxPerformance,
-        QualityMode.UltraPerformance
-    ];
+    private static readonly QualityMode[] QualityModes = [QualityMode.Off, QualityMode.MaxQuality, QualityMode.Balanced, QualityMode.MaxPerformance, QualityMode.UltraPerformance];
 
-    public byte[] FontPixels { get; private set; } = [];
+    private readonly ImGuiContextPtr context;
 
-    public int FontWidth { get; private set; }
-
-    public int FontHeight { get; private set; }
+    private float fontDensity;
 
     public ImGuiHandler()
     {
@@ -55,11 +45,16 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         UpdateFont(Vector2.One);
     }
 
+    public byte[] FontPixels { get; private set; } = [];
+
+    public int FontWidth { get; private set; }
+
+    public int FontHeight { get; private set; }
+
     // Rebuild before NewFrame; the renderer replaces the GPU atlas before drawing.
     public bool UpdateFont(Vector2 framebufferScale)
     {
         float density = framebufferScale.X;
-
         if (!float.IsFinite(density) || density <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(framebufferScale));
@@ -85,7 +80,9 @@ internal sealed unsafe class ImGuiHandler : IDisposable
             io.Fonts.AddFontFromFileTTF(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "msyh.ttf"), config.SizePixels, config.Handle, io.Fonts.GetGlyphRangesDefault());
 
             byte* pixels;
-            int width, height, bytesPerPixel;
+            int width;
+            int height;
+            int bytesPerPixel;
             io.Fonts.GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
             FontWidth = width;
             FontHeight = height;
@@ -115,6 +112,11 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         ImGui.Render();
     }
 
+    public void Dispose()
+    {
+        ImGui.DestroyContext(context);
+    }
+
     private static void Build(Renderer renderer)
     {
         ImGuiIOPtr io = ImGui.GetIO();
@@ -138,13 +140,13 @@ internal sealed unsafe class ImGuiHandler : IDisposable
 
     private static void Graphics(Renderer renderer)
     {
-        RenderSettings settings = renderer.Settings;
+        ref RenderSettings settings = ref renderer.Settings;
         RenderCapabilities capabilities = renderer.Capabilities;
         ImGui.TextUnformatted("DLSS Super Resolution");
 
         // A content-sized window needs an explicit item width; using the remaining
         // window width here would feed its previous size back into auto-sizing.
-        float previewWidth = QualityModes.Max(mode => ImGui.CalcTextSize(QualityLabel(mode)).X);
+        float previewWidth = QualityModes.Max(static mode => ImGui.CalcTextSize(QualityLabel(mode)).X);
         ImGui.SetNextItemWidth(previewWidth + ImGui.GetFrameHeight() + (ImGui.GetStyle().FramePadding.X * 2));
         ImGui.BeginDisabled(!capabilities.Dlss && !settings.RayReconstruction);
 
@@ -175,17 +177,21 @@ internal sealed unsafe class ImGuiHandler : IDisposable
         ImGui.EndDisabled();
     }
 
-    private static string Rate(double? fps) => fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
-
-    private static string QualityLabel(QualityMode mode) => mode switch
+    private static string Rate(double? fps)
     {
-        QualityMode.Off => "Off",
-        QualityMode.MaxQuality => "Quality",
-        QualityMode.Balanced => "Balanced",
-        QualityMode.MaxPerformance => "Performance",
-        QualityMode.UltraPerformance => "Ultra Performance",
-        _ => "Off"
-    };
+        return fps?.ToString("F0", CultureInfo.InvariantCulture) ?? "--";
+    }
 
-    public void Dispose() => ImGui.DestroyContext(context);
+    private static string QualityLabel(QualityMode mode)
+    {
+        return mode switch
+        {
+            QualityMode.Off => "Off",
+            QualityMode.MaxQuality => "Quality",
+            QualityMode.Balanced => "Balanced",
+            QualityMode.MaxPerformance => "Performance",
+            QualityMode.UltraPerformance => "Ultra Performance",
+            _ => "Off"
+        };
+    }
 }

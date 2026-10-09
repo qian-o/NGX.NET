@@ -14,7 +14,7 @@ public enum NGXDLSSFeatureFlags : int
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_IsInvalid
     /// </summary>
-    IsInvalid = -2147483648,
+    IsInvalid = 1 << 31,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_None
@@ -24,45 +24,45 @@ public enum NGXDLSSFeatureFlags : int
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_IsHDR
     /// </summary>
-    IsHdr = 1,
+    IsHdr = 1 << 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_MVLowRes
     /// </summary>
-    MvLowRes = 2,
+    MvLowRes = 1 << 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_MVJittered
     /// </summary>
-    MvJittered = 4,
+    MvJittered = 1 << 2,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_DepthInverted
     /// </summary>
-    DepthInverted = 8,
+    DepthInverted = 1 << 3,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_Reserved_0
     /// </summary>
-    Reserved0 = 16,
+    Reserved0 = 1 << 4,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_DoSharpening
     /// </summary>
-    DoSharpening = 32,
+    DoSharpening = 1 << 5,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_AutoExposure
     /// </summary>
-    AutoExposure = 64,
+    AutoExposure = 1 << 6,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_AlphaUpscaling
     /// </summary>
-    AlphaUpscaling = 128,
+    AlphaUpscaling = 1 << 7,
 
     /// <summary>
     /// NVSDK_NGX_DLSS_Feature_Flags_Reserved_8
     /// </summary>
-    Reserved8 = 256,
+    Reserved8 = 1 << 8,
 }

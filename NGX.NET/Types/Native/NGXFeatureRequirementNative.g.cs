@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_FeatureRequirement. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_FeatureRequirement. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 264)]
-internal unsafe partial struct NGXFeatureRequirementNative : IDisposable
+internal unsafe struct NGXFeatureRequirementNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_FeatureRequirement::FeatureSupported
@@ -41,11 +39,16 @@ internal unsafe partial struct NGXFeatureRequirementNative : IDisposable
         {
             FeatureSupported = value.FeatureSupported;
             MinHWArchitecture = value.MinHWArchitecture;
-            fixed (sbyte* buffer = MinOSVersion) NGXMarshal.WriteUtf8(value.MinOSVersion, new Span<byte>(buffer, 255));
+
+            fixed (sbyte* buffer = MinOSVersion)
+            {
+                NGXMarshal.WriteUtf8(value.MinOSVersion, new Span<byte>(buffer, 255));
+            }
         }
         catch
         {
             Dispose();
+
             throw;
         }
     }

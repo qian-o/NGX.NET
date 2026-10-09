@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// Anonymous_94_5. Owns only storage allocated by managed conversion.
+/// Anonymous_94_5. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe partial struct NGXResourceVKUnionNative : IDisposable
+internal unsafe struct NGXResourceVKUnionNative : IDisposable
 {
     /// <summary>
     /// Anonymous_94_5::ImageViewInfo
@@ -33,7 +31,11 @@ internal unsafe partial struct NGXResourceVKUnionNative : IDisposable
 
         try
         {
-            if (value.ImageViewInfo.HasValue && value.BufferInfo.HasValue) throw new ArgumentException("Only one union member may be specified.", nameof(value));
+            if (value.ImageViewInfo.HasValue && value.BufferInfo.HasValue)
+            {
+                throw new ArgumentException("Only one union member may be specified.", nameof(value));
+            }
+
             if (value.ImageViewInfo is NGXImageViewInfoVK member0)
             {
                 ImageViewInfo = new(in member0);
@@ -46,6 +48,7 @@ internal unsafe partial struct NGXResourceVKUnionNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// PFN_NVSDK_NGX_Parameter_SetI. Borrowed SDK callbacks require a live source; raw managed registrations require caller-owned roots and exception containment.
+/// PFN_NVSDK_NGX_Parameter_SetI
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void NGXPfnParameterSetI(NGXParameter parameters, [MarshalAs(UnmanagedType.LPUTF8Str)] string? name, int value);

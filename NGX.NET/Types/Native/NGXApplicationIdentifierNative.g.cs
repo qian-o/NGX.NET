@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Application_Identifier. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_Application_Identifier. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-internal unsafe partial struct NGXApplicationIdentifierNative : IDisposable
+internal unsafe struct NGXApplicationIdentifierNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_Application_Identifier::IdentifierType
@@ -33,21 +31,34 @@ internal unsafe partial struct NGXApplicationIdentifierNative : IDisposable
 
         try
         {
-            if (value.IdentifierType == NGXApplicationIdentifierType.ProjectId != value.V.ProjectDesc.HasValue) throw new ArgumentException("Application identifier and active union member disagree.", nameof(value));
-            if (value.IdentifierType is not (NGXApplicationIdentifierType.ProjectId or NGXApplicationIdentifierType.ApplicationId)) throw new ArgumentOutOfRangeException(nameof(value));
+            if ((value.IdentifierType is NGXApplicationIdentifierType.ProjectId) != value.V.ProjectDesc.HasValue)
+            {
+                throw new ArgumentException("Application identifier and active union member disagree.", nameof(value));
+            }
+
+            if (value.IdentifierType is not (NGXApplicationIdentifierType.ProjectId or NGXApplicationIdentifierType.ApplicationId))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
             IdentifierType = value.IdentifierType;
             V = new(in value.V);
         }
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        if (IdentifierType == NGXApplicationIdentifierType.ProjectId) V.ProjectDesc.Dispose();
+        if (IdentifierType is NGXApplicationIdentifierType.ProjectId)
+        {
+            V.ProjectDesc.Dispose();
+        }
+
         this = default;
     }
 }

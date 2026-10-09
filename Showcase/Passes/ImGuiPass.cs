@@ -2,7 +2,7 @@
 
 namespace Showcase.Passes;
 
-internal sealed class ImGuiPass(RHI context, RenderResources resources) : Pass(context, resources)
+internal class ImGuiPass(RHI context, RenderResources resources) : Pass(context, resources)
 {
     public override void Record(in PassArgs args)
     {

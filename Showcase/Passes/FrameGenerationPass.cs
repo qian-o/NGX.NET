@@ -2,7 +2,7 @@
 
 namespace Showcase.Passes;
 
-internal sealed class FrameGenerationPass(RHI context, RenderResources resources) : Pass(context, resources)
+internal class FrameGenerationPass(RHI context, RenderResources resources) : Pass(context, resources)
 {
     public GpuImage? Generated { get; private set; }
 

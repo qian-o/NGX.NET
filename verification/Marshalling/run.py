@@ -9,7 +9,9 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
+import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -57,7 +59,28 @@ def verify_exports(ast):
     return targets
 
 
+def verify_generation():
+    generator = ["dotnet", "run", "--project", "NGX.NET.Generator/NGX.NET.Generator.csproj", "--"]
+    with tempfile.TemporaryDirectory(prefix="ngx-generation-") as directory:
+        root = Path(directory)
+        (root / "NGX.NET.Generator").mkdir()
+        shutil.copyfile(ROOT / "NGX.NET.Generator/ast.json", root / "NGX.NET.Generator/ast.json")
+        print(execute([*generator, str(root)]), end="")
+        print(execute(["dotnet", "run", "--project", "verification/Generation/Generation.csproj", "--", str(root)]), end="")
+        handle = root / "NGX.NET/Types/NGXHandle.g.cs"
+        canonical = handle.read_bytes()
+        handle.write_bytes(canonical.removeprefix(b"\xef\xbb\xbf"))
+        repaired = execute([*generator, str(root)])
+        if "1 changed." not in repaired or handle.read_bytes() != canonical:
+            raise RuntimeError("The generator did not restore canonical UTF-8 BOM bytes: " + repaired)
+        repeated = execute([*generator, str(root)])
+        if "0 changed." not in repeated:
+            raise RuntimeError("Fresh generation was not deterministic: " + repeated)
+    print("PASS fresh generator output, BOM repair and deterministic regeneration without formatting")
+
+
 def main():
+    verify_generation()
     print(execute(["dotnet", "run", "--project", str(HERE / "Marshalling.csproj"), "-c", "Debug", "--", str(ROOT)]), end="")
     print(execute(["dotnet", "run", "--project", str(HERE / "Consumer/Consumer.csproj"), "-c", "Debug"]), end="")
     negative = subprocess.run(
@@ -72,6 +95,12 @@ def main():
     targets = verify_exports(ast)
     result_path = HERE / "results.json"
     results = json.loads(result_path.read_text())
+    results["generationStyle"] = "direct Emitter output passed syntax/style checks in a fresh directory; BOM repair and repeated generation passed without a formatter"
+    results["generationValidationSha256"] = {
+        str(path.relative_to(HERE.parent / "Generation")): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted((HERE.parent / "Generation").glob("*"))
+        if path.suffix in {".cs", ".csproj"}
+    }
     results["safeConsumer"] = "production signatures compiled with AllowUnsafeBlocks=false; native SDK calls were not executed"
     results["nativeVisibility"] = "external access rejected by compiler with CS0122"
     results["nativeExportAudit"] = targets

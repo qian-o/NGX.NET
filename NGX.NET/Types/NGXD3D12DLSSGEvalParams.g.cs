@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_D3D12_DLSSG_Eval_Params
 /// </summary>
-public partial struct NGXD3D12DLSSGEvalParams
+public struct NGXD3D12DLSSGEvalParams
 {
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSSG_Eval_Params::pBackbuffer

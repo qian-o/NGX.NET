@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_D3D11_GBuffer
 /// </summary>
-public partial struct NGXD3D11GBuffer
+public struct NGXD3D11GBuffer
 {
     /// <summary>
     /// NVSDK_NGX_D3D11_GBuffer::pInAttrib
@@ -23,6 +19,9 @@ public partial struct NGXD3D11GBuffer
     {
         this = default;
         PInAttrib = new nint[17];
-        for (int i = 0; i < PInAttrib.Length; i++) PInAttrib[i] = (nint)native.PInAttrib[i];
+        for (int i = 0; i < PInAttrib.Length; i++)
+        {
+            PInAttrib[i] = (nint)native.PInAttrib[i];
+        }
     }
 }

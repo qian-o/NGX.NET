@@ -14,5 +14,10 @@ public enum NGXDLSSGEvalFlags : int
     /// <summary>
     /// NVSDK_NGX_DLSSG_EvalFlags_UpdateOnlyInsideExtents
     /// </summary>
-    UpdateOnlyInsideExtents = 1,
+    UpdateOnlyInsideExtents = 1 << 0,
+
+    /// <summary>
+    /// No flags are set.
+    /// </summary>
+    None = 0
 }

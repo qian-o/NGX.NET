@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// PFN_NVSDK_NGX_DLSSG_GetCurrentSettingsCallback. Borrowed SDK callbacks require a live source; raw managed registrations require caller-owned roots and exception containment.
+/// PFN_NVSDK_NGX_DLSSG_GetCurrentSettingsCallback
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate NGXResult NGXPfnDLSSGGetCurrentSettingsCallback(NGXHandle handle, NGXParameter parameters);

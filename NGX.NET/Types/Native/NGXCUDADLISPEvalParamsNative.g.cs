@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_CUDA_DLISP_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_CUDA_DLISP_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe partial struct NGXCUDADLISPEvalParamsNative : IDisposable
+internal unsafe struct NGXCUDADLISPEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_DLISP_Eval_Params::Feature
@@ -67,6 +65,7 @@ internal unsafe partial struct NGXCUDADLISPEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

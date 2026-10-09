@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_Application_Identifier
 /// </summary>
-public partial struct NGXApplicationIdentifier
+public struct NGXApplicationIdentifier
 {
     /// <summary>
     /// NVSDK_NGX_Application_Identifier::IdentifierType
@@ -28,6 +24,6 @@ public partial struct NGXApplicationIdentifier
     {
         this = default;
         IdentifierType = native.IdentifierType;
-        V = native.IdentifierType == NGXApplicationIdentifierType.ProjectId ? new() { ProjectDesc = new NGXProjectIdDescription(in native.V.ProjectDesc) } : new() { ApplicationId = native.V.ApplicationId };
+        V = native.IdentifierType is NGXApplicationIdentifierType.ProjectId ? new() { ProjectDesc = new NGXProjectIdDescription(in native.V.ProjectDesc) } : new() { ApplicationId = native.V.ApplicationId };
     }
 }

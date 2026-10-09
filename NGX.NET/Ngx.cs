@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -13,6 +13,11 @@ public static unsafe partial class Ngx
 {
     internal const string LibraryName = "ngx-bridge";
 
+    static Ngx()
+    {
+        NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
+    }
+
     /// <summary>
     /// Directory containing the bridge and packaged NVIDIA feature libraries.
     /// Pass this directory in NGXFeatureCommonInfo when initializing NGX.
@@ -21,7 +26,20 @@ public static unsafe partial class Ngx
     {
         get
         {
-            string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+            string os;
+
+            if (OperatingSystem.IsWindows())
+            {
+                os = "win";
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                os = "linux";
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+            }
 
             string arch = RuntimeInformation.ProcessArchitecture switch
             {
@@ -35,29 +53,12 @@ public static unsafe partial class Ngx
         }
     }
 
-    static Ngx()
-    {
-        NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
-    }
-
-    private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)
-    {
-        if (name != LibraryName)
-        {
-            return 0;
-        }
-
-        string file = OperatingSystem.IsWindows() ? "ngx-bridge.dll" : "libngx-bridge.so";
-
-        return NativeLibrary.Load(Path.Combine(RuntimeDirectory, file), assembly, searchPath);
-    }
-
     /// <summary>
     /// Applies the official NVSDK_NGX_SUCCEED macro. NGX success is not zero.
     /// </summary>
     public static bool Succeeded(NGXResult result)
     {
-        return ((uint)result & 0xFFF00000u) != (uint)NGXResult.Fail;
+        return ((uint)result & 0xFFF00000u) is not (uint)NGXResult.Fail;
     }
 
     /// <summary>
@@ -87,6 +88,18 @@ public static unsafe partial class Ngx
         return (nuint)values.Length;
     }
 
+    private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)
+    {
+        if (name is not LibraryName)
+        {
+            return 0;
+        }
+
+        string file = OperatingSystem.IsWindows() ? "ngx-bridge.dll" : "libngx-bridge.so";
+
+        return NativeLibrary.Load(Path.Combine(RuntimeDirectory, file), assembly, searchPath);
+    }
+
     public static partial class Parameter
     {
         /// <summary>
@@ -94,7 +107,11 @@ public static unsafe partial class Ngx
         /// </summary>
         public static void Reset(NGXParameter parameters)
         {
-            if (parameters.IsNull) throw new ArgumentException("A non-null NGX parameter handle is required.", nameof(parameters));
+            if (parameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX parameter handle is required.", nameof(parameters));
+            }
+
             ResetNative(parameters.Value);
             NgxLifetime.ReleaseParameters(parameters.Value);
         }

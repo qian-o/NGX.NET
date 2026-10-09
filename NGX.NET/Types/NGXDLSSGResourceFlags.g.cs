@@ -14,55 +14,60 @@ public enum NGXDLSSGResourceFlags : int
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Backbuffer
     /// </summary>
-    Backbuffer = 1,
+    Backbuffer = 1 << 0,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_MVecs
     /// </summary>
-    MVecs = 2,
+    MVecs = 1 << 1,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Depth
     /// </summary>
-    Depth = 4,
+    Depth = 1 << 2,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_HUDLess
     /// </summary>
-    HudLess = 8,
+    HudLess = 1 << 3,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_UI
     /// </summary>
-    Ui = 16,
+    Ui = 1 << 4,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_BidirectionalDistortionField
     /// </summary>
-    BidirectionalDistortionField = 32,
+    BidirectionalDistortionField = 1 << 5,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_Reserved6
     /// </summary>
-    Reserved6 = 64,
+    Reserved6 = 1 << 6,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_UIAlpha
     /// </summary>
-    UiAlpha = 128,
+    UiAlpha = 1 << 7,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputInterpolated
     /// </summary>
-    OutputInterpolated = 16777216,
+    OutputInterpolated = 1 << 24,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputReal
     /// </summary>
-    OutputReal = 33554432,
+    OutputReal = 1 << 25,
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_ResourceFlags_OutputDisableInterpolation
     /// </summary>
-    OutputDisableInterpolation = 67108864,
+    OutputDisableInterpolation = 1 << 26,
+
+    /// <summary>
+    /// No flags are set.
+    /// </summary>
+    None = 0
 }

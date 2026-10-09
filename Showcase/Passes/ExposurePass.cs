@@ -3,12 +3,12 @@ using Showcase.Models;
 
 namespace Showcase.Passes;
 
-internal sealed class ExposurePass(RHI context, RenderResources resources) : Pass(context, resources)
+internal class ExposurePass(RHI context, RenderResources resources) : Pass(context, resources)
 {
     public override void Record(in PassArgs args)
     {
         FrameConstants constants = args.Constants;
-        constants.Parameters.Z = args.Reconstruction != Reconstruction.Native ? 1 : 0;
+        constants.Parameters.Z = args.Reconstruction is not Reconstruction.Native ? 1 : 0;
         GpuImage luminance = Resources.Image(args.Slot, ImageSlot.Luminance);
         GpuImage filtered = Resources.Image(args.Slot, ImageSlot.FilteredLuminance);
         GpuImage exposure = Resources.Image(args.Slot, ImageSlot.Exposure);

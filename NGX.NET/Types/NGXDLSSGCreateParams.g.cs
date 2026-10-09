@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_DLSSG_Create_Params
 /// </summary>
-public partial struct NGXDLSSGCreateParams
+public struct NGXDLSSGCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_Create_Params::Width

@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Coordinates_VK. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_Coordinates_VK. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 8)]
-internal unsafe partial struct NGXCoordinatesVKNative : IDisposable
+internal unsafe struct NGXCoordinatesVKNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_Coordinates_VK::X
@@ -39,6 +37,7 @@ internal unsafe partial struct NGXCoordinatesVKNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

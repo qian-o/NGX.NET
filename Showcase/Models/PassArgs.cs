@@ -3,7 +3,7 @@ using Showcase.Handlers;
 
 namespace Showcase.Models;
 
-internal readonly record struct PassArgs
+internal readonly struct PassArgs
 {
     public required int Slot { get; init; }
 

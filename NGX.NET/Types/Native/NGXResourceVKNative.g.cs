@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Resource_VK. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_Resource_VK. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe partial struct NGXResourceVKNative : IDisposable
+internal unsafe struct NGXResourceVKNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_Resource_VK::Resource
@@ -39,7 +37,11 @@ internal unsafe partial struct NGXResourceVKNative : IDisposable
 
         try
         {
-            if (value.Type == NGXResourceVKType.VkImageView && value.Resource.BufferInfo.HasValue || value.Type == NGXResourceVKType.VkBuffer && value.Resource.ImageViewInfo.HasValue) throw new ArgumentException("Resource type and union member disagree.", nameof(value));
+            if ((value.Type is NGXResourceVKType.VkImageView && value.Resource.BufferInfo.HasValue) || (value.Type is NGXResourceVKType.VkBuffer && value.Resource.ImageViewInfo.HasValue))
+            {
+                throw new ArgumentException("Resource type and union member disagree.", nameof(value));
+            }
+
             Resource = new(in value.Resource);
             Type = value.Type;
             ReadWrite = value.ReadWrite;
@@ -47,6 +49,7 @@ internal unsafe partial struct NGXResourceVKNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

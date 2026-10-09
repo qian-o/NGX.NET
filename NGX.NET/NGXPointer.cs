@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
@@ -6,7 +6,8 @@ namespace NGX.NET;
 /// Blittable pointer element for native inline arrays. This value owns no memory.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal unsafe struct NGXPointer<T> where T : unmanaged
+internal unsafe struct NGXPointer<T>
+    where T : unmanaged
 {
     /// <summary>
     /// Native pointer value.

@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// v
 /// </summary>
-public partial struct NGXApplicationIdentifierUnion
+public struct NGXApplicationIdentifierUnion
 {
     /// <summary>
     /// v::ProjectDesc
@@ -23,5 +19,4 @@ public partial struct NGXApplicationIdentifierUnion
     /// v::ApplicationId
     /// </summary>
     public ulong ApplicationId;
-
 }

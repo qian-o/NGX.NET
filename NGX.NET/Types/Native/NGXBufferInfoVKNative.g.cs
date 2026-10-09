@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_BufferInfo_VK. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_BufferInfo_VK. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe partial struct NGXBufferInfoVKNative : IDisposable
+internal unsafe struct NGXBufferInfoVKNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_BufferInfo_VK::Buffer
@@ -39,6 +37,7 @@ internal unsafe partial struct NGXBufferInfoVKNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

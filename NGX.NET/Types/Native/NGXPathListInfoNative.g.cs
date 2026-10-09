@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_PathListInfo. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_PathListInfo. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe partial struct NGXPathListInfoNative : IDisposable
+internal unsafe struct NGXPathListInfoNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_PathListInfo::Path
@@ -33,10 +31,11 @@ internal unsafe partial struct NGXPathListInfoNative : IDisposable
 
         try
         {
-            if (value.Paths is { Length: > 0 } paths)
+            if (value.Paths is string[] { Length: > 0 } paths)
             {
                 Path = (void**)NativeMemory.AllocZeroed(checked((nuint)paths.Length * (nuint)sizeof(void*)));
                 Length = checked((uint)paths.Length);
+
                 for (int i = 0; i < paths.Length; i++)
                 {
                     ArgumentNullException.ThrowIfNull(paths[i]);
@@ -47,6 +46,7 @@ internal unsafe partial struct NGXPathListInfoNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
@@ -55,9 +55,14 @@ internal unsafe partial struct NGXPathListInfoNative : IDisposable
     {
         if (Path != null)
         {
-            for (uint i = 0; i < Length; i++) NGXMarshal.Free(Path[i]);
+            for (int i = checked((int)Length) - 1; i >= 0; i--)
+            {
+                NGXMarshal.Free(Path[i]);
+            }
+
             NativeMemory.Free(Path);
         }
+
         this = default;
     }
 }

@@ -4,16 +4,15 @@
 #nullable enable
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_DLSSG_Opt_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_DLSSG_Opt_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 592)]
-internal unsafe partial struct NGXDLSSGOptEvalParamsNative : IDisposable
+internal unsafe struct NGXDLSSGOptEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::multiFrameCount
@@ -361,31 +360,32 @@ internal unsafe partial struct NGXDLSSGOptEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        MvecsSubrectBase.Dispose();
-        MvecsSubrectSize.Dispose();
-        DepthSubrectBase.Dispose();
-        DepthSubrectSize.Dispose();
-        HudLessSubrectBase.Dispose();
-        HudLessSubrectSize.Dispose();
-        UiSubrectBase.Dispose();
-        UiSubrectSize.Dispose();
-        UiAlphaSubrectBase.Dispose();
-        UiAlphaSubrectSize.Dispose();
-        BidirectionalDistFieldSubrectBase.Dispose();
-        BidirectionalDistFieldSubrectSize.Dispose();
-        BidirectionalDistFieldPrecisionInfo.Dispose();
-        BackbufferSubrectBase.Dispose();
-        BackbufferSubrectSize.Dispose();
-        OutputInterpSubrectBase.Dispose();
-        OutputInterpSubrectSize.Dispose();
-        OutputRealSubrectBase.Dispose();
         OutputRealSubrectSize.Dispose();
+        OutputRealSubrectBase.Dispose();
+        OutputInterpSubrectSize.Dispose();
+        OutputInterpSubrectBase.Dispose();
+        BackbufferSubrectSize.Dispose();
+        BackbufferSubrectBase.Dispose();
+        BidirectionalDistFieldPrecisionInfo.Dispose();
+        BidirectionalDistFieldSubrectSize.Dispose();
+        BidirectionalDistFieldSubrectBase.Dispose();
+        UiAlphaSubrectSize.Dispose();
+        UiAlphaSubrectBase.Dispose();
+        UiSubrectSize.Dispose();
+        UiSubrectBase.Dispose();
+        HudLessSubrectSize.Dispose();
+        HudLessSubrectBase.Dispose();
+        DepthSubrectSize.Dispose();
+        DepthSubrectBase.Dispose();
+        MvecsSubrectSize.Dispose();
+        MvecsSubrectBase.Dispose();
         this = default;
     }
 }

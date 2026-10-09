@@ -2,12 +2,12 @@
 
 namespace Showcase.Helpers;
 
-internal sealed class FrameStatistics
+internal class FrameStatistics
 {
-    public double? PresentedFps { get; private set; }
-
     private long startedAt;
     private ulong presentedFrames;
+
+    public double? PresentedFps { get; private set; }
 
     public void Reset()
     {
@@ -20,7 +20,6 @@ internal sealed class FrameStatistics
         long timestamp = Stopwatch.GetTimestamp();
         presentedFrames += presented;
         double seconds = Stopwatch.GetElapsedTime(startedAt, timestamp).TotalSeconds;
-
         if (seconds < 0.5)
         {
             return;

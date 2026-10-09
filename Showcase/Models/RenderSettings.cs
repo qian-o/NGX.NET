@@ -2,7 +2,7 @@
 
 namespace Showcase.Models;
 
-internal sealed record RenderSettings
+internal struct RenderSettings
 {
     public QualityMode Quality = QualityMode.MaxQuality;
 
@@ -10,9 +10,17 @@ internal sealed record RenderSettings
 
     public bool FrameGeneration;
 
-    // RR selects reconstruction only; hardware ray tracing is a renderer capability
-    // and continues when this setting is off. RR without upscaling runs natively.
-    public Reconstruction Reconstruction => RayReconstruction ? Reconstruction.RayReconstruction : Quality == QualityMode.Off ? Reconstruction.Native : Reconstruction.DLSS;
+    public RenderSettings()
+    {
+    }
+
+    // Hardware ray tracing remains active when ray reconstruction is disabled.
+    public Reconstruction Reconstruction => (RayReconstruction, Quality) switch
+    {
+        (true, _) => Reconstruction.RayReconstruction,
+        (_, QualityMode.Off) => Reconstruction.Native,
+        _ => Reconstruction.DLSS
+    };
 
     public NGXPerfQualityValue ReconstructionQuality => Quality switch
     {

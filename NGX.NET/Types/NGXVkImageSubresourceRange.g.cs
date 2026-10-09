@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// VkImageSubresourceRange
 /// </summary>
-public partial struct NGXVkImageSubresourceRange
+public struct NGXVkImageSubresourceRange
 {
     /// <summary>
     /// VkImageSubresourceRange::aspectMask

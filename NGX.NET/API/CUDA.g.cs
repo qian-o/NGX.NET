@@ -21,7 +21,7 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
-        /// NGX_CUDA_CREATE_DLISP_EXT. Source: nvsdk_ngx_helpers_cuda.h:38. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_CUDA_CREATE_DLISP_EXT
         /// </summary>
         public static NGXResult CreateDLISPExt(out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXFeatureCreateParams pDlispCreateParams)
         {
@@ -31,13 +31,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pDlispCreateParamsNative = new(in pDlispCreateParams);
                 NGXResult result = CreateDLISPExtNative(&ppOutHandleNative, pInParams.Value, &pDlispCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -46,12 +51,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLISPExtNative(nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
-
         /// <summary>
-        /// NGX_CUDA_CREATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_cuda.h:130. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_CUDA_CREATE_DLSSD_EXT
         /// </summary>
         public static NGXResult CreateDLSSDExt(out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
@@ -61,13 +62,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExtNative(&ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -76,12 +82,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExtNative(nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
-
         /// <summary>
-        /// NGX_CUDA_CREATE_DLSSD_EXT1. Source: nvsdk_ngx_helpers_dlssd_cuda.h:150. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_CUDA_CREATE_DLSSD_EXT1
         /// </summary>
         public static NGXResult CreateDLSSDExt1(NGXCUDADevice? inDevice, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
@@ -93,15 +95,25 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inDevice is NGXCUDADevice deviceValue) inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (inDevice is NGXCUDADevice deviceValue)
+                {
+                    inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExt1Native(inDeviceNative, &ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 cudaSucceeded = Succeeded(result);
+
                 return result;
             }
             finally
@@ -119,12 +131,8 @@ public static unsafe partial class Ngx
             return CreateDLSSDExt1((NGXCUDADevice?)inDevice, out ppOutHandle, pInParams, in pInDlssDCreateParams);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExt1Native(NGXCUDADeviceNative* inDevice, nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
-
         /// <summary>
-        /// NGX_CUDA_EVALUATE_DLISP_EXT. Source: nvsdk_ngx_helpers_cuda.h:50. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_CUDA_EVALUATE_DLISP_EXT
         /// </summary>
         public static NGXResult EvaluateDLISPExt(NGXHandle pInHandle, NGXParameter pInParams, in NGXCUDADLISPEvalParams pDlispEvalParams)
         {
@@ -137,30 +145,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pDlispEvalParamsNative = new(in pDlispEvalParams);
                 pDlispEvalParamsNativePointer = storage!.Take(ref pDlispEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "CUDA.EvaluateDLISPExt", storage!);
                 attached = true;
                 result = EvaluateDLISPExtNative(pInHandle.Value, pInParams.Value, pDlispEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pDlispEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLISPExtNative(nint pInHandle, nint pInParams, NGXCUDADLISPEvalParamsNative* pDlispEvalParams);
-
         /// <summary>
-        /// NGX_CUDA_EVALUATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_cuda.h:247. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_CUDA_EVALUATE_DLSSD_EXT
         /// </summary>
         public static NGXResult EvaluateDLSSDExt(NGXHandle pInHandle, NGXParameter pInParams, in NGXCUDADLSSDEvalParams pInDlssDEvalParams)
         {
@@ -173,30 +190,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDEvalParamsNative = new(in pInDlssDEvalParams);
                 pInDlssDEvalParamsNativePointer = storage!.Take(ref pInDlssDEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "CUDA.EvaluateDLSSDExt", storage!);
                 attached = true;
                 result = EvaluateDLSSDExtNative(pInHandle.Value, pInParams.Value, pInDlssDEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssDEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSDExtNative(nint pInHandle, nint pInParams, NGXCUDADLSSDEvalParamsNative* pInDlssDEvalParams);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_AllocateParameters. Source: nvsdk_ngx.h:382. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_AllocateParameters
         /// </summary>
         public static NGXResult AllocateParameters(out NGXParameter outParameters)
         {
@@ -209,35 +235,34 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_AllocateParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult AllocateParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_CreateFeature. Source: nvsdk_ngx.h:551. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
             outHandle = default;
             nint outHandleNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = CreateFeatureNative(inFeatureID, inParameters.Value, &outHandleNative);
             if (Succeeded(result))
             {
                 outHandle = new(outHandleNative);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeatureNative(NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_CreateFeature1. Source: nvsdk_ngx.h:552. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_CreateFeature1
         /// </summary>
         public static NGXResult CreateFeature1(NGXCUDADevice? inDevice, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
@@ -248,14 +273,24 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inDevice is NGXCUDADevice deviceValue) inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inDevice is NGXCUDADevice deviceValue)
+                {
+                    inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 NGXResult result = CreateFeature1Native(inDeviceNative, inFeatureID, inParameters.Value, &outHandleNative);
                 if (Succeeded(result))
                 {
                     outHandle = new(outHandleNative);
                 }
+
                 cudaSucceeded = Succeeded(result);
+
                 return result;
             }
             finally
@@ -272,27 +307,28 @@ public static unsafe partial class Ngx
             return CreateFeature1((NGXCUDADevice?)inDevice, inFeatureID, inParameters, out outHandle);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeature1Native(NGXCUDADeviceNative* inDevice, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_DestroyParameters. Source: nvsdk_ngx.h:451. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_DestroyParameters
         /// </summary>
         public static NGXResult DestroyParameters(NGXParameter inParameters)
         {
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = DestroyParametersNative(inParameters.Value);
-            if (Succeeded(result)) NgxLifetime.ReleaseParameters(inParameters.Value, true);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.ReleaseParameters(inParameters.Value, destroyed: true);
+            }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_DestroyParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult DestroyParametersNative(nint inParameters);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_EvaluateFeature. Source: nvsdk_ngx.h:685. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_EvaluateFeature
         /// </summary>
         public static NGXResult EvaluateFeature(NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallback? inCallback)
         {
@@ -300,10 +336,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureNative(inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -312,12 +357,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureNative(nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_EvaluateFeature_C. Source: nvsdk_ngx.h:690. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_EvaluateFeature_C
         /// </summary>
         public static NGXResult EvaluateFeatureC(NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallbackC? inCallback)
         {
@@ -325,10 +366,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureCNative(inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -337,12 +387,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature_C")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureCNative(nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_GetCapabilityParameters. Source: nvsdk_ngx.h:424. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_GetCapabilityParameters
         /// </summary>
         public static NGXResult GetCapabilityParameters(out NGXParameter outParameters)
         {
@@ -355,15 +401,12 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetCapabilityParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_GetFeatureRequirements. Source: nvsdk_ngx.h:625. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(int cudaDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
         {
@@ -379,6 +422,7 @@ public static unsafe partial class Ngx
                 {
                     outSupported = new(in outSupportedNative);
                 }
+
                 return result;
             }
             finally
@@ -387,12 +431,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetFeatureRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureRequirementsNative(int cudaDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_GetParameters. Source: nvsdk_ngx.h:334. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
         {
@@ -405,35 +445,34 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_GetScratchBufferSize. Source: nvsdk_ngx.h:485. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_GetScratchBufferSize
         /// </summary>
         public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters, out nuint outSizeInBytes)
         {
             outSizeInBytes = default;
             nuint outSizeInBytesNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = GetScratchBufferSizeNative(inFeatureId, inParameters.Value, &outSizeInBytesNative);
             if (Succeeded(result))
             {
                 outSizeInBytes = outSizeInBytesNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetScratchBufferSize")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_Init. Source: nvsdk_ngx.h:170. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_Init
         /// </summary>
         public static NGXResult Init(ulong inApplicationId, string? inApplicationDataPath, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -448,17 +487,27 @@ public static unsafe partial class Ngx
             try
             {
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("CUDA", 0, storage!);
                 attached = true;
                 result = InitNative(inApplicationId, inApplicationDataPathNative, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -472,12 +521,8 @@ public static unsafe partial class Ngx
             return Init(inApplicationId, inApplicationDataPath, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_Init1. Source: nvsdk_ngx.h:171. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_Init1
         /// </summary>
         public static NGXResult Init1(ulong inApplicationId, string? inApplicationDataPath, NGXCUDADevice? inDevice, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -494,19 +539,33 @@ public static unsafe partial class Ngx
             try
             {
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inDevice is NGXCUDADevice deviceValue) inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inDevice is NGXCUDADevice deviceValue)
+                {
+                    inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
+                }
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("CUDA", (nint)inDeviceNative, storage!);
                 attached = true;
                 result = Init1Native(inApplicationId, inApplicationDataPathNative, inDeviceNative, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
                 cudaSucceeded = Succeeded(result);
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("CUDA", (nint)inDeviceNative, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("CUDA", (nint)inDeviceNative, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
                 NgxLifetime.FinishCudaDevice((nint)inDeviceNative, cudaSucceeded);
@@ -521,12 +580,8 @@ public static unsafe partial class Ngx
             return Init1(inApplicationId, inApplicationDataPath, (NGXCUDADevice?)inDevice, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult Init1Native(ulong inApplicationId, void* inApplicationDataPath, NGXCUDADeviceNative* inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_Init_with_ProjectID. Source: nvsdk_ngx.h:248. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_Init_with_ProjectID
         /// </summary>
         public static NGXResult InitWithProjectID(string? inProjectId, NGXEngineType inEngineType, string? inEngineVersion, string? inApplicationDataPath, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -545,17 +600,27 @@ public static unsafe partial class Ngx
                 inProjectIdNative = (sbyte*)storage!.String(inProjectId, NGXEncoding.Utf8);
                 inEngineVersionNative = (sbyte*)storage!.String(inEngineVersion, NGXEncoding.Utf8);
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("CUDA", 0, storage!);
                 attached = true;
                 result = InitWithProjectIDNative(inProjectIdNative, inEngineType, inEngineVersionNative, inApplicationDataPathNative, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -569,40 +634,38 @@ public static unsafe partial class Ngx
             return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_ReleaseFeature. Source: nvsdk_ngx.h:575. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_ReleaseFeature
         /// </summary>
         public static NGXResult ReleaseFeature(NGXHandle inHandle)
         {
-            if (inHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            if (inHandle.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            }
+
             NGXResult result = ReleaseFeatureNative(inHandle.Value);
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_ReleaseFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_Shutdown. Source: nvsdk_ngx.h:283. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_Shutdown
         /// </summary>
         public static NGXResult Shutdown()
         {
             NGXResult result = ShutdownNative();
-            if (Succeeded(result)) NgxLifetime.Shutdown("CUDA", 0);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.Shutdown("CUDA", 0);
+            }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ShutdownNative();
-
         /// <summary>
-        /// NVSDK_NGX_CUDA_Shutdown1. Source: nvsdk_ngx.h:284. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_CUDA_Shutdown1
         /// </summary>
         public static NGXResult Shutdown1(NGXCUDADevice? inDevice)
         {
@@ -611,9 +674,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inDevice is NGXCUDADevice deviceValue) inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
+                if (inDevice is NGXCUDADevice deviceValue)
+                {
+                    inDeviceNative = NgxLifetime.CudaDevice(deviceValue);
+                }
+
                 NGXResult result = Shutdown1Native(inDeviceNative);
-                if (Succeeded(result)) NgxLifetime.Shutdown("CUDA", (nint)inDeviceNative);
+
+                if (Succeeded(result))
+                {
+                    NgxLifetime.Shutdown("CUDA", (nint)inDeviceNative);
+                }
+
                 return result;
             }
             finally
@@ -630,9 +702,88 @@ public static unsafe partial class Ngx
             return Shutdown1((NGXCUDADevice?)inDevice);
         }
 
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLISPExtNative(nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExtNative(nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_CREATE_DLSSD_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExt1Native(NGXCUDADeviceNative* inDevice, nint* ppOutHandle, nint pInParams, NGXCUDADLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLISPExtNative(nint pInHandle, nint pInParams, NGXCUDADLISPEvalParamsNative* pDlispEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_CUDA_EVALUATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSDExtNative(nint pInHandle, nint pInParams, NGXCUDADLSSDEvalParamsNative* pInDlssDEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_AllocateParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult AllocateParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeatureNative(NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_CreateFeature1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeature1Native(NGXCUDADeviceNative* inDevice, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_DestroyParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult DestroyParametersNative(nint inParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureNative(nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature_C")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureCNative(nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetCapabilityParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetFeatureRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureRequirementsNative(int cudaDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetScratchBufferSize")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult Init1Native(ulong inApplicationId, void* inApplicationDataPath, NGXCUDADeviceNative* inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_ReleaseFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ShutdownNative();
+
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult Shutdown1Native(NGXCUDADeviceNative* inDevice);
-
     }
 }

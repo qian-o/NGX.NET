@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_LoggingInfo. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_LoggingInfo. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe partial struct NGXLoggingInfoNative : IDisposable
+internal unsafe struct NGXLoggingInfoNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_LoggingInfo::LoggingCallback
@@ -39,7 +37,11 @@ internal unsafe partial struct NGXLoggingInfoNative : IDisposable
 
         try
         {
-            if (value.DisableOtherLoggingSinks && value.LoggingCallback is null) throw new ArgumentException("A logging callback is required when disabling other logging sinks.", nameof(value));
+            if (value.DisableOtherLoggingSinks && value.LoggingCallback is null)
+            {
+                throw new ArgumentException("A logging callback is required when disabling other logging sinks.", nameof(value));
+            }
+
             LoggingCallback = NgxCallbacks.Acquire(value.LoggingCallback);
             MinimumLoggingLevel = value.MinimumLoggingLevel;
             DisableOtherLoggingSinks = value.DisableOtherLoggingSinks;
@@ -47,6 +49,7 @@ internal unsafe partial struct NGXLoggingInfoNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

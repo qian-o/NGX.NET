@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_FeatureCommonInfo. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_FeatureCommonInfo. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 40)]
-internal unsafe partial struct NGXFeatureCommonInfoNative : IDisposable
+internal unsafe struct NGXFeatureCommonInfoNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_FeatureCommonInfo::PathListInfo
@@ -46,14 +44,15 @@ internal unsafe partial struct NGXFeatureCommonInfoNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        PathListInfo.Dispose();
         LoggingInfo.Dispose();
+        PathListInfo.Dispose();
         this = default;
     }
 }

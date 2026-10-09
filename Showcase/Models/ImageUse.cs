@@ -3,9 +3,14 @@
 internal enum ImageUse
 {
     ShaderRead,
+
     Storage,
+
     ColorAttachment,
+
     DepthAttachment,
+
     CopySource,
+
     CopyDestination
 }

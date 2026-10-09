@@ -7,20 +7,22 @@ namespace Showcase.Helpers;
 
 // Presentation runs on one worker. Per-slot completion prevents
 // rendering from overwriting either retained real frames or generated frames.
-internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, bool> present, Action waitPresentation) : IDisposable
+internal class FramePresenter(Action<int> waitRendering, Func<GpuImage, bool> present, Action waitPresentation) : IDisposable
 {
-    private sealed record Batch(int Slot, GpuImage Real, GpuImage? Generated, TimeSpan Interval, TaskCompletionSource Completion);
-
     private readonly BlockingCollection<Batch> queue = new(RenderLayout.FramesInFlight);
     private readonly Task[] slots = [.. Enumerable.Repeat(Task.CompletedTask, RenderLayout.FramesInFlight)];
+
     private Thread? thread;
     private ExceptionDispatchInfo? failure;
     private int presented;
     private int recreate;
 
-    public bool NeedsRecreation => Interlocked.Exchange(ref recreate, 0) != 0;
+    public bool NeedsRecreation => Interlocked.Exchange(ref recreate, 0) is not 0;
 
-    public uint ReadPresentedCount() => (uint)Interlocked.Exchange(ref presented, 0);
+    public uint ReadPresentedCount()
+    {
+        return (uint)Interlocked.Exchange(ref presented, 0);
+    }
 
     public void WaitSlot(int slot)
     {
@@ -35,6 +37,19 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, b
         slots[slot] = completion.Task;
         thread ??= Start();
         queue.Add(new(slot, real, generated, interval, completion));
+    }
+
+    public void Drain()
+    {
+        Task.WhenAll(slots).GetAwaiter().GetResult();
+        failure?.Throw();
+    }
+
+    public void Dispose()
+    {
+        queue.CompleteAdding();
+        thread?.Join();
+        queue.Dispose();
     }
 
     private Thread Start()
@@ -66,7 +81,6 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, b
                 try
                 {
                     bool presentReal = true;
-
                     if (batch.Generated is not null)
                     {
                         // Copy/Present time belongs inside the half-frame interval.
@@ -105,7 +119,6 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, b
     private bool Present(GpuImage image)
     {
         bool success = present(image);
-
         if (success)
         {
             Interlocked.Increment(ref presented);
@@ -127,16 +140,16 @@ internal sealed class FramePresenter(Action<int> waitRendering, Func<GpuImage, b
         }
     }
 
-    public void Drain()
+    private readonly struct Batch(int slot, GpuImage real, GpuImage? generated, TimeSpan interval, TaskCompletionSource completion)
     {
-        Task.WhenAll(slots).GetAwaiter().GetResult();
-        failure?.Throw();
-    }
+        public readonly int Slot = slot;
 
-    public void Dispose()
-    {
-        queue.CompleteAdding();
-        thread?.Join();
-        queue.Dispose();
+        public readonly GpuImage Real = real;
+
+        public readonly GpuImage? Generated = generated;
+
+        public readonly TimeSpan Interval = interval;
+
+        public readonly TaskCompletionSource Completion = completion;
     }
 }

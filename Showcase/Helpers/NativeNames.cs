@@ -3,17 +3,12 @@ using System.Text;
 
 namespace Showcase.Helpers;
 
-internal sealed unsafe class NativeNames : IDisposable
+internal unsafe class NativeNames : IDisposable
 {
-    public byte** Pointer { get; private set; }
-
-    public uint Length { get; }
-
     public NativeNames(string[] names)
     {
         Length = (uint)names.Length;
         int size = checked(names.Length * sizeof(nint));
-
         foreach (string name in names)
         {
             size = checked(size + Encoding.UTF8.GetByteCount(name) + 1);
@@ -23,7 +18,6 @@ internal sealed unsafe class NativeNames : IDisposable
         Pointer = (byte**)NativeMemory.Alloc((nuint)size);
         byte* text = (byte*)(Pointer + names.Length);
         int remaining = size - (names.Length * sizeof(nint));
-
         for (int i = 0; i < names.Length; i++)
         {
             Pointer[i] = text;
@@ -33,6 +27,10 @@ internal sealed unsafe class NativeNames : IDisposable
             remaining -= count;
         }
     }
+
+    public byte** Pointer { get; private set; }
+
+    public uint Length { get; }
 
     public void Dispose()
     {

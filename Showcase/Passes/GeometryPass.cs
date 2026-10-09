@@ -3,7 +3,7 @@ using Showcase.Models;
 
 namespace Showcase.Passes;
 
-internal sealed class GeometryPass(RHI context, RenderResources resources) : Pass(context, resources)
+internal class GeometryPass(RHI context, RenderResources resources) : Pass(context, resources)
 {
     public override void Record(in PassArgs args)
     {

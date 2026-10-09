@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_D3D12_DLSSG_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_D3D12_DLSSG_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 80)]
-internal unsafe partial struct NGXD3D12DLSSGEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D12DLSSGEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_D3D12_DLSSG_Eval_Params::pBackbuffer
@@ -95,6 +93,7 @@ internal unsafe partial struct NGXD3D12DLSSGEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }

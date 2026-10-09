@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_VK_Feature_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_VK_Feature_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe partial struct NGXVKFeatureEvalParamsNative : IDisposable
+internal unsafe struct NGXVKFeatureEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_VK_Feature_Eval_Params::pInColor
@@ -43,23 +41,26 @@ internal unsafe partial struct NGXVKFeatureEvalParamsNative : IDisposable
             {
                 PInColor = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInColor));
             }
+
             if (value.PInOutput is NGXResourceVK itemPInOutput)
             {
                 PInOutput = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in itemPInOutput));
             }
+
             InSharpness = value.InSharpness;
         }
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColor);
         NGXMarshal.FreeNative((NGXResourceVKNative*)PInOutput);
+        NGXMarshal.FreeNative((NGXResourceVKNative*)PInColor);
         this = default;
     }
 }

@@ -8,11 +8,74 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Parameter. Borrowed handle; release through the matching NGX API after GPU work completes.
+/// NVSDK_NGX_Parameter. Borrowed handle; release through the matching NGX API.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly record struct NGXParameter(nint Value)
+public readonly struct NGXParameter(nint value) : IEquatable<NGXParameter>
 {
-    /// <summary>Whether this handle is null.</summary>
-    public bool IsNull => Value == 0;
+    /// <summary>
+    /// Native handle value.
+    /// </summary>
+    public readonly nint Value = value;
+
+    /// <summary>
+    /// Whether this handle is null.
+    /// </summary>
+    public bool IsNull => Value is 0;
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public bool Equals(NGXParameter other)
+    {
+        return Value == other.Value;
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public override bool Equals(object? obj)
+    {
+        return obj is NGXParameter other && Equals(other);
+    }
+
+    /// <summary>
+    /// Returns the hash code of the native handle value.
+    /// </summary>
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    /// <summary>
+    /// Returns the handle value and null state.
+    /// </summary>
+    public override string ToString()
+    {
+        return $"NGXParameter {{ Value = {Value}, IsNull = {IsNull} }}";
+    }
+
+    /// <summary>
+    /// Retrieves the native handle value.
+    /// </summary>
+    public void Deconstruct(out nint value)
+    {
+        value = Value;
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public static bool operator ==(NGXParameter left, NGXParameter right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public static bool operator !=(NGXParameter left, NGXParameter right)
+    {
+        return !left.Equals(right);
+    }
 }

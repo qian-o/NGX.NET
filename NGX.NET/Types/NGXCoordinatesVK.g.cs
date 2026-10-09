@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_Coordinates_VK
 /// </summary>
-public partial struct NGXCoordinatesVK
+public struct NGXCoordinatesVK
 {
     /// <summary>
     /// NVSDK_NGX_Coordinates_VK::X

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// PFN_NVSDK_NGX_DLSSG_EstimateVRAMCallback. Borrowed SDK callbacks require a live source; raw managed registrations require caller-owned roots and exception containment.
+/// PFN_NVSDK_NGX_DLSSG_EstimateVRAMCallback
 /// </summary>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate NGXResult NGXPfnDLSSGEstimateVRAMCallback(uint motionDepthWidth, uint motionDepthHeight, uint colorWidth, uint colorHeight, uint colorFormat, uint motionFormat, uint depthFormat, uint hudlessFormat, uint uiFormat, out ulong estimatedBytes);

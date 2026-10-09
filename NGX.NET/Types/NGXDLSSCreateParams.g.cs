@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_DLSS_Create_Params
 /// </summary>
-public partial struct NGXDLSSCreateParams
+public struct NGXDLSSCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLSS_Create_Params::Feature

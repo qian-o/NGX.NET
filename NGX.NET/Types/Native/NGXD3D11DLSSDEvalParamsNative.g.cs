@@ -4,16 +4,15 @@
 #nullable enable
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_D3D11_DLSSD_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_D3D11_DLSSD_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 904)]
-internal unsafe partial struct NGXD3D11DLSSDEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D11DLSSDEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_D3D11_DLSSD_Eval_Params::pInDiffuseAlbedo
@@ -732,55 +731,56 @@ internal unsafe partial struct NGXD3D11DLSSDEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        InRenderSubrectDimensions.Dispose();
-        InAlphaSubrectBase.Dispose();
-        InOutputAlphaSubrectBase.Dispose();
-        InDiffuseAlbedoSubrectBase.Dispose();
-        InSpecularAlbedoSubrectBase.Dispose();
-        InNormalsSubrectBase.Dispose();
-        InRoughnessSubrectBase.Dispose();
-        InColorSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InOutputSubrectBase.Dispose();
-        InReflectedAlbedoSubrectBase.Dispose();
-        InColorBeforeParticlesSubrectBase.Dispose();
-        InColorAfterParticlesSubrectBase.Dispose();
-        InColorBeforeTransparencySubrectBase.Dispose();
-        InColorAfterTransparencySubrectBase.Dispose();
-        InColorBeforeFogSubrectBase.Dispose();
-        InColorAfterFogSubrectBase.Dispose();
-        InScreenSpaceSubsurfaceScatteringGuideSubrectBase.Dispose();
-        InScreenSpaceRefractionGuideSubrectBase.Dispose();
-        InDepthOfFieldGuideSubrectBase.Dispose();
-        InDiffuseHitDistanceSubrectBase.Dispose();
-        InSpecularHitDistanceSubrectBase.Dispose();
-        InDiffuseRayDirectionSubrectBase.Dispose();
-        InSpecularRayDirectionSubrectBase.Dispose();
-        InDiffuseRayDirectionHitDistanceSubrectBase.Dispose();
-        InSpecularRayDirectionHitDistanceSubrectBase.Dispose();
-        InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
-        InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
-        InColorBeforeScreenSpaceRefractionSubrectBase.Dispose();
-        InColorAfterScreenSpaceRefractionSubrectBase.Dispose();
-        InColorBeforeDepthOfFieldSubrectBase.Dispose();
-        InColorAfterDepthOfFieldSubtectBase.Dispose();
-        NGXMarshal.Free(PInWorldToViewMatrix);
-        NGXMarshal.Free(PInViewToClipMatrix);
-        GBufferSurface.Dispose();
-        InTransparencyLayerSubrectBase.Dispose();
-        InTransparencyLayerOpacitySubrectBase.Dispose();
-        InTransparencyLayerMvecsSubrectBase.Dispose();
-        InDisocclusionMaskSubrectBase.Dispose();
         InResponsivityMaskSubrectBase.Dispose();
+        InDisocclusionMaskSubrectBase.Dispose();
+        InTransparencyLayerMvecsSubrectBase.Dispose();
+        InTransparencyLayerOpacitySubrectBase.Dispose();
+        InTransparencyLayerSubrectBase.Dispose();
+        GBufferSurface.Dispose();
+        NGXMarshal.Free(PInViewToClipMatrix);
+        NGXMarshal.Free(PInWorldToViewMatrix);
+        InColorAfterDepthOfFieldSubtectBase.Dispose();
+        InColorBeforeDepthOfFieldSubrectBase.Dispose();
+        InColorAfterScreenSpaceRefractionSubrectBase.Dispose();
+        InColorBeforeScreenSpaceRefractionSubrectBase.Dispose();
+        InColorAfterScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
+        InColorBeforeScreenSpaceSubsurfaceScatteringSubrectBase.Dispose();
+        InSpecularRayDirectionHitDistanceSubrectBase.Dispose();
+        InDiffuseRayDirectionHitDistanceSubrectBase.Dispose();
+        InSpecularRayDirectionSubrectBase.Dispose();
+        InDiffuseRayDirectionSubrectBase.Dispose();
+        InSpecularHitDistanceSubrectBase.Dispose();
+        InDiffuseHitDistanceSubrectBase.Dispose();
+        InDepthOfFieldGuideSubrectBase.Dispose();
+        InScreenSpaceRefractionGuideSubrectBase.Dispose();
+        InScreenSpaceSubsurfaceScatteringGuideSubrectBase.Dispose();
+        InColorAfterFogSubrectBase.Dispose();
+        InColorBeforeFogSubrectBase.Dispose();
+        InColorAfterTransparencySubrectBase.Dispose();
+        InColorBeforeTransparencySubrectBase.Dispose();
+        InColorAfterParticlesSubrectBase.Dispose();
+        InColorBeforeParticlesSubrectBase.Dispose();
+        InReflectedAlbedoSubrectBase.Dispose();
+        InOutputSubrectBase.Dispose();
+        InBiasCurrentColorSubrectBase.Dispose();
+        InTranslucencySubrectBase.Dispose();
+        InMVSubrectBase.Dispose();
+        InDepthSubrectBase.Dispose();
+        InColorSubrectBase.Dispose();
+        InRoughnessSubrectBase.Dispose();
+        InNormalsSubrectBase.Dispose();
+        InSpecularAlbedoSubrectBase.Dispose();
+        InDiffuseAlbedoSubrectBase.Dispose();
+        InOutputAlphaSubrectBase.Dispose();
+        InAlphaSubrectBase.Dispose();
+        InRenderSubrectDimensions.Dispose();
         this = default;
     }
 }

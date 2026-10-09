@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_VK_GBuffer
 /// </summary>
-public partial struct NGXVKGBuffer
+public struct NGXVKGBuffer
 {
     /// <summary>
     /// NVSDK_NGX_VK_GBuffer::pInAttrib
@@ -23,6 +19,9 @@ public partial struct NGXVKGBuffer
     {
         this = default;
         PInAttrib = new NGXResourceVK?[17];
-        for (int i = 0; i < PInAttrib.Length; i++) PInAttrib[i] = (NGXResourceVKNative*)native.PInAttrib[i] == null ? null : new NGXResourceVK(in *(NGXResourceVKNative*)native.PInAttrib[i]);
+        for (int i = 0; i < PInAttrib.Length; i++)
+        {
+            PInAttrib[i] = (NGXResourceVKNative*)native.PInAttrib[i] == null ? null : new NGXResourceVK(in *(NGXResourceVKNative*)native.PInAttrib[i]);
+        }
     }
 }

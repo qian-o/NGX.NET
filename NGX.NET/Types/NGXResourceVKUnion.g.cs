@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// Anonymous_94_5
 /// </summary>
-public partial struct NGXResourceVKUnion
+public struct NGXResourceVKUnion
 {
     /// <summary>
     /// Anonymous_94_5::ImageViewInfo
@@ -23,5 +19,4 @@ public partial struct NGXResourceVKUnion
     /// Anonymous_94_5::BufferInfo
     /// </summary>
     public NGXBufferInfoVK? BufferInfo;
-
 }

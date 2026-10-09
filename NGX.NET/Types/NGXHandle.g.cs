@@ -8,11 +8,74 @@ using System.Runtime.InteropServices;
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_Handle. Borrowed handle; release through the matching NGX API after GPU work completes.
+/// NVSDK_NGX_Handle. Borrowed handle; release through the matching NGX API.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly record struct NGXHandle(nint Value)
+public readonly struct NGXHandle(nint value) : IEquatable<NGXHandle>
 {
-    /// <summary>Whether this handle is null.</summary>
-    public bool IsNull => Value == 0;
+    /// <summary>
+    /// Native handle value.
+    /// </summary>
+    public readonly nint Value = value;
+
+    /// <summary>
+    /// Whether this handle is null.
+    /// </summary>
+    public bool IsNull => Value is 0;
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public bool Equals(NGXHandle other)
+    {
+        return Value == other.Value;
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public override bool Equals(object? obj)
+    {
+        return obj is NGXHandle other && Equals(other);
+    }
+
+    /// <summary>
+    /// Returns the hash code of the native handle value.
+    /// </summary>
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    /// <summary>
+    /// Returns the handle value and null state.
+    /// </summary>
+    public override string ToString()
+    {
+        return $"NGXHandle {{ Value = {Value}, IsNull = {IsNull} }}";
+    }
+
+    /// <summary>
+    /// Retrieves the native handle value.
+    /// </summary>
+    public void Deconstruct(out nint value)
+    {
+        value = Value;
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public static bool operator ==(NGXHandle left, NGXHandle right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    /// Compares native handle values.
+    /// </summary>
+    public static bool operator !=(NGXHandle left, NGXHandle right)
+    {
+        return !left.Equals(right);
+    }
 }

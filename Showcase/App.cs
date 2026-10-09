@@ -27,9 +27,9 @@ internal static class App
         }
         while (choice is not ("1" or "2"));
 
-        bool vulkan = choice == "2";
+        bool vulkan = choice is "2";
         string title = $"NGX.NET Showcase - {(vulkan ? "Vulkan" : "DirectX 12")}";
-        Task<Scene> loading = Task.Run(() => Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf")));
+        Task<Scene> loading = Task.Run(static () => Scene.Load(Path.Combine(AppContext.BaseDirectory, "Assets", "Scenes", "Sponza.gltf")));
         using IWindow window = Window.Create(WindowOptions.Default with
         {
             Size = new(1280, 720),
@@ -59,8 +59,7 @@ internal static class App
 
             Vector2 size = (Vector2)window.FramebufferSize;
             Vector2 logicalSize = (Vector2)window.Size;
-
-            if (window.WindowState == WindowState.Minimized || size.X <= 0 || size.Y <= 0 || logicalSize.X <= 0 || logicalSize.Y <= 0)
+            if (window.WindowState is WindowState.Minimized || size.X <= 0 || size.Y <= 0 || logicalSize.X <= 0 || logicalSize.Y <= 0)
             {
                 active = false;
                 frameReady = false;
@@ -71,7 +70,6 @@ internal static class App
 
             window.IsEventDriven = false;
             Vector2 dpiScale = size / logicalSize;
-
             if (renderer is null)
             {
                 if (!loading.IsCompleted)

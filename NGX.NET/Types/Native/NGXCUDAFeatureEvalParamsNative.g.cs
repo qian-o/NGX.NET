@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_CUDA_Feature_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_CUDA_Feature_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe partial struct NGXCUDAFeatureEvalParamsNative : IDisposable
+internal unsafe struct NGXCUDAFeatureEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_CUDA_Feature_Eval_Params::pInColor
@@ -46,14 +44,15 @@ internal unsafe partial struct NGXCUDAFeatureEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        NGXMarshal.Free(PInColor);
         NGXMarshal.Free(PInOutput);
+        NGXMarshal.Free(PInColor);
         this = default;
     }
 }

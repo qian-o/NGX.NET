@@ -1,4 +1,4 @@
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 internal static unsafe class NgxLifetime
 {
@@ -6,7 +6,7 @@ internal static unsafe class NgxLifetime
     private static readonly Dictionary<(string Backend, nint Device), List<NativeCall>> initialization = [];
     private static readonly Dictionary<(nint Parameters, string Method), List<NativeCall>> parameterData = [];
     private static readonly Dictionary<nint, string> parameterBackends = [];
-    private static readonly Dictionary<(nint Context, nint Stream), NativeOwner<NGXCUDADeviceNative>> cudaDevices = [];
+    private static readonly Dictionary<(nint Context, nint Stream), NativeValue<NGXCUDADeviceNative>> cudaDevices = [];
     private static readonly HashSet<nint> activeCudaDevices = [];
 
     internal static void BeginInitialization(string backend, nint device, NativeCall call)
@@ -18,10 +18,18 @@ internal static unsafe class NgxLifetime
                 entries = [];
                 initialization.Add((backend, device), entries);
             }
-            try { entries.Add(call); }
+
+            try
+            {
+                entries.Add(call);
+            }
             catch
             {
-                if (entries.Count == 0) initialization.Remove((backend, device));
+                if (entries.Count is 0)
+                {
+                    initialization.Remove((backend, device));
+                }
+
                 throw;
             }
         }
@@ -34,11 +42,17 @@ internal static unsafe class NgxLifetime
             if (succeeded)
             {
                 call = null;
+
                 return;
             }
+
             List<NativeCall> entries = initialization[(backend, device)];
             entries.Remove(call!);
-            if (entries.Count == 0) initialization.Remove((backend, device));
+
+            if (entries.Count is 0)
+            {
+                initialization.Remove((backend, device));
+            }
         }
     }
 
@@ -51,10 +65,18 @@ internal static unsafe class NgxLifetime
                 entries = [];
                 parameterData.Add((parameters, method), entries);
             }
-            try { entries.Add(call); }
+
+            try
+            {
+                entries.Add(call);
+            }
             catch
             {
-                if (entries.Count == 0) parameterData.Remove((parameters, method));
+                if (entries.Count is 0)
+                {
+                    parameterData.Remove((parameters, method));
+                }
+
                 throw;
             }
         }
@@ -68,20 +90,35 @@ internal static unsafe class NgxLifetime
             if (!returned)
             {
                 entries.Remove(call!);
-                if (entries.Count == 0) parameterData.Remove((parameters, method));
+
+                if (entries.Count is 0)
+                {
+                    parameterData.Remove((parameters, method));
+                }
+
                 return;
             }
+
             NativeCall current = call!;
             call = null;
+
             // Early failures may leave old pointers. DLSSG additionally leaves
             // its optional matrix pointers unchanged when options are omitted.
             // Registration precedes native entry; committing needs no allocation.
             if (succeeded)
             {
-                for (int i = entries.Count - 1; i >= 0; i--)
+                for (int i = entries.Count - 1; i is >= 0; i--)
                 {
-                    if (ReferenceEquals(entries[i], current)) continue;
-                    if (!current.HasFrameGenerationOptions && entries[i].HasFrameGenerationOptions) continue;
+                    if (ReferenceEquals(entries[i], current))
+                    {
+                        continue;
+                    }
+
+                    if (!current.HasFrameGenerationOptions && entries[i].HasFrameGenerationOptions)
+                    {
+                        continue;
+                    }
+
                     entries[i].Dispose();
                     entries.RemoveAt(i);
                 }
@@ -91,25 +128,43 @@ internal static unsafe class NgxLifetime
 
     internal static void RegisterParameters(string backend, nint parameters)
     {
-        if (parameters == 0) return;
-        lock (gate) parameterBackends[parameters] = backend;
+        if (parameters is 0)
+        {
+            return;
+        }
+
+        lock (gate)
+        {
+            parameterBackends[parameters] = backend;
+        }
     }
 
     internal static void PrepareParameters()
     {
-        lock (gate) parameterBackends.EnsureCapacity(checked(parameterBackends.Count + 1));
+        lock (gate)
+        {
+            parameterBackends.EnsureCapacity(checked(parameterBackends.Count + 1));
+        }
     }
 
     internal static void ReleaseParameters(nint parameters, bool destroyed = false)
     {
         lock (gate)
         {
-            foreach (var key in parameterData.Keys.Where(key => key.Parameters == parameters).ToArray())
+            foreach ((nint Parameters, string Method) key in parameterData.Keys.Where(key => key.Parameters == parameters).ToArray())
             {
-                foreach (NativeCall entry in parameterData[key]) entry.Dispose();
+                foreach (NativeCall entry in parameterData[key])
+                {
+                    entry.Dispose();
+                }
+
                 parameterData.Remove(key);
             }
-            if (destroyed) parameterBackends.Remove(parameters);
+
+            if (destroyed)
+            {
+                parameterBackends.Remove(parameters);
+            }
         }
     }
 
@@ -117,18 +172,27 @@ internal static unsafe class NgxLifetime
     {
         lock (gate)
         {
-            foreach (var key in initialization.Keys.Where(key => key.Backend == backend && (device == 0 || key.Device == device)).ToArray())
+            foreach ((string Backend, nint Device) key in initialization.Keys.Where(key => key.Backend == backend && (device is 0 || key.Device == device)).ToArray())
             {
-                foreach (NativeCall entry in initialization[key]) entry.Dispose();
+                foreach (NativeCall entry in initialization[key])
+                {
+                    entry.Dispose();
+                }
+
                 initialization.Remove(key);
             }
-            if (device == 0 || !initialization.Keys.Any(key => key.Backend == backend))
+
+            if (device is 0 || !initialization.Keys.Any(key => key.Backend == backend))
             {
-                foreach (nint parameters in parameterBackends.Where(item => item.Value == backend).Select(item => item.Key).ToArray()) ReleaseParameters(parameters, true);
+                foreach (nint parameters in parameterBackends.Where(item => item.Value == backend).Select(static item => item.Key).ToArray())
+                {
+                    ReleaseParameters(parameters, true);
+                }
             }
-            if (backend == "CUDA")
+
+            if (backend is "CUDA")
             {
-                foreach (var key in cudaDevices.Keys.Where(key => device == 0 || (nint)cudaDevices[key].Pointer == device).ToArray())
+                foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => device is 0 || (nint)cudaDevices[key].Pointer == device).ToArray())
                 {
                     activeCudaDevices.Remove((nint)cudaDevices[key].Pointer);
                     cudaDevices[key].Dispose();
@@ -143,25 +207,48 @@ internal static unsafe class NgxLifetime
         lock (gate)
         {
             activeCudaDevices.EnsureCapacity(checked(cudaDevices.Count + 1));
-            if (!cudaDevices.TryGetValue((device.CudaContext, device.CudaStream), out NativeOwner<NGXCUDADeviceNative>? owner))
+
+            if (!cudaDevices.TryGetValue((device.CudaContext, device.CudaStream), out NativeValue<NGXCUDADeviceNative>? owner))
             {
                 NGXCUDADeviceNative native = new(in device);
                 owner = new(ref native);
-                try { cudaDevices.Add((device.CudaContext, device.CudaStream), owner); }
-                catch { owner.Dispose(); throw; }
+
+                try
+                {
+                    cudaDevices.Add((device.CudaContext, device.CudaStream), owner);
+                }
+                catch
+                {
+                    owner.Dispose();
+
+                    throw;
+                }
             }
+
             return owner.Pointer;
         }
     }
 
     internal static void FinishCudaDevice(nint device, bool success)
     {
-        if (device == 0) return;
+        if (device is 0)
+        {
+            return;
+        }
+
         lock (gate)
         {
-            if (success) activeCudaDevices.Add(device);
-            if (activeCudaDevices.Contains(device) || initialization.ContainsKey(("CUDA", device))) return;
-            foreach (var key in cudaDevices.Keys.Where(key => (nint)cudaDevices[key].Pointer == device).ToArray())
+            if (success)
+            {
+                activeCudaDevices.Add(device);
+            }
+
+            if (activeCudaDevices.Contains(device) || initialization.ContainsKey(("CUDA", device)))
+            {
+                return;
+            }
+
+            foreach ((nint Context, nint Stream) key in cudaDevices.Keys.Where(key => (nint)cudaDevices[key].Pointer == device).ToArray())
             {
                 cudaDevices[key].Dispose();
                 cudaDevices.Remove(key);

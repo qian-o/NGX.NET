@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_BufferInfo_VK
 /// </summary>
-public partial struct NGXBufferInfoVK
+public struct NGXBufferInfoVK
 {
     /// <summary>
     /// NVSDK_NGX_BufferInfo_VK::Buffer

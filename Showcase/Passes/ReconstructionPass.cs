@@ -2,11 +2,11 @@
 
 namespace Showcase.Passes;
 
-internal sealed class ReconstructionPass(RHI context, RenderResources resources) : Pass(context, resources)
+internal class ReconstructionPass(RHI context, RenderResources resources) : Pass(context, resources)
 {
     public override void Record(in PassArgs args)
     {
-        if (args.Reconstruction == Reconstruction.Native)
+        if (args.Reconstruction is Reconstruction.Native)
         {
             return;
         }

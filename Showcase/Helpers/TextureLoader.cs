@@ -14,13 +14,12 @@ internal static class TextureLoader
         ImageInfo image = ImageInfo.FromStream(data) ?? throw new InvalidDataException("Could not read texture dimensions.");
         int count = 0;
         int mips = 0;
-
         for (int width = image.Width, height = image.Height; ; width = Math.Max(1, width / 2), height = Math.Max(1, height / 2))
         {
             count += width * height;
             mips++;
 
-            if (width == 1 && height == 1)
+            if (width is 1 && height is 1)
             {
                 return (new(offset, (uint)image.Width, (uint)image.Height, (uint)mips), count);
             }
@@ -34,13 +33,12 @@ internal static class TextureLoader
         int width = image.Width;
         int height = image.Height;
         byte[] pixels = image.Data;
-
         while (true)
         {
             MemoryMarshal.Cast<byte, uint>(pixels).CopyTo(texels[offset..]);
             offset += width * height;
 
-            if (width == 1 && height == 1)
+            if (width is 1 && height is 1)
             {
                 break;
             }
@@ -69,20 +67,18 @@ internal static class TextureLoader
         {
             int firstY = (int)Math.Floor(((double)(y + cropY) * height / scaledHeight) + 0.5);
             int lastY = Math.Min(height, (int)Math.Floor(((double)(y + cropY + 1) * height / scaledHeight) + 0.5));
-
             for (int x = 0; x < nextWidth; x++)
             {
                 int firstX = (int)Math.Floor(((double)(x + cropX) * width / scaledWidth) + 0.5);
                 int lastX = Math.Min(width, (int)Math.Floor(((double)(x + cropX + 1) * width / scaledWidth) + 0.5));
                 Vector4 sum = Vector4.Zero;
-
                 for (int sourceY = firstY; sourceY < lastY; sourceY++)
                 {
                     for (int sourceX = firstX; sourceX < lastX; sourceX++)
                     {
                         int index = ((sourceY * width) + sourceX) * 4;
-                        float alpha = pixels[index + 3] / 255f;
-                        Vector3 color = srgb ? new(linearColors[pixels[index]], linearColors[pixels[index + 1]], linearColors[pixels[index + 2]]) : new(pixels[index] / 255f, pixels[index + 1] / 255f, pixels[index + 2] / 255f);
+                        float alpha = pixels[index + 3] / 255.0f;
+                        Vector3 color = srgb ? new(linearColors[pixels[index]], linearColors[pixels[index + 1]], linearColors[pixels[index + 2]]) : new(pixels[index] / 255.0f, pixels[index + 1] / 255.0f, pixels[index + 2] / 255.0f);
                         sum += new Vector4(color * alpha, alpha);
                     }
                 }
@@ -112,10 +108,9 @@ internal static class TextureLoader
     private static float[] CreateLinearColors()
     {
         float[] values = new float[256];
-
         for (int i = 0; i < values.Length; i++)
         {
-            float encoded = i / 255f;
+            float encoded = i / 255.0f;
             values[i] = encoded <= 0.04045f ? encoded / 12.92f : MathF.Pow((encoded + 0.055f) / 1.055f, 2.4f);
         }
 

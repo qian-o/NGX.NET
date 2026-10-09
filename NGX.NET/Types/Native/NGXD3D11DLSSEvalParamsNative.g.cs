@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_D3D11_DLSS_Eval_Params. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_D3D11_DLSS_Eval_Params. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 368)]
-internal unsafe partial struct NGXD3D11DLSSEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D11DLSSEvalParamsNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_D3D11_DLSS_Eval_Params::Feature
@@ -249,21 +247,22 @@ internal unsafe partial struct NGXD3D11DLSSEvalParamsNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        Feature.Dispose();
-        InRenderSubrectDimensions.Dispose();
-        InColorSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InOutputSubrectBase.Dispose();
         GBufferSurface.Dispose();
+        InOutputSubrectBase.Dispose();
+        InBiasCurrentColorSubrectBase.Dispose();
+        InTranslucencySubrectBase.Dispose();
+        InMVSubrectBase.Dispose();
+        InDepthSubrectBase.Dispose();
+        InColorSubrectBase.Dispose();
+        InRenderSubrectDimensions.Dispose();
+        Feature.Dispose();
         this = default;
     }
 }

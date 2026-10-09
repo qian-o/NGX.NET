@@ -3,17 +3,15 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
 
 /// <summary>
-/// NVSDK_NGX_ProjectIdDescription. Owns only storage allocated by managed conversion.
+/// NVSDK_NGX_ProjectIdDescription. Owns storage allocated by managed conversion.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe partial struct NGXProjectIdDescriptionNative : IDisposable
+internal unsafe struct NGXProjectIdDescriptionNative : IDisposable
 {
     /// <summary>
     /// NVSDK_NGX_ProjectIdDescription::ProjectId
@@ -46,14 +44,15 @@ internal unsafe partial struct NGXProjectIdDescriptionNative : IDisposable
         catch
         {
             Dispose();
+
             throw;
         }
     }
 
     public void Dispose()
     {
-        NGXMarshal.Free(ProjectId);
         NGXMarshal.Free(EngineVersion);
+        NGXMarshal.Free(ProjectId);
         this = default;
     }
 }

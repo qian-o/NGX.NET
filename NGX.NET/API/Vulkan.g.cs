@@ -21,7 +21,7 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
-        /// NGX_VK_CREATE_DLSSG. Source: nvsdk_ngx_helpers_dlssg_vk.h:45. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VK_CREATE_DLSSG
         /// </summary>
         public static NGXResult CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSGCreateParams pInDlssgCreateParams)
         {
@@ -31,13 +31,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssgCreateParamsNative = new(in pInDlssgCreateParams);
                 NGXResult result = CreateDLSSGNative(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssgCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -46,32 +51,30 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_CREATE_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSGNative(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSGCreateParamsNative* pInDlssgCreateParams);
-
         /// <summary>
-        /// NGX_VK_ESTIMATE_VRAM_DLSSG. Source: nvsdk_ngx_helpers_dlssg_vk.h:195. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VK_ESTIMATE_VRAM_DLSSG
         /// </summary>
         public static NGXResult EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
         {
             estimatedVRAMInBytes = default;
             nuint estimatedVRAMInBytesNative = default;
-            if (inParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParams));
+
+            if (inParams.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParams));
+            }
+
             NGXResult result = EstimateVRAMDLSSGNative(inParams.Value, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, &estimatedVRAMInBytesNative);
             if (Succeeded(result))
             {
                 estimatedVRAMInBytes = estimatedVRAMInBytesNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EstimateVRAMDLSSGNative(nint inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
-
         /// <summary>
-        /// NGX_VK_EVALUATE_DLSSG. Source: nvsdk_ngx_helpers_dlssg_vk.h:62. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VK_EVALUATE_DLSSG
         /// </summary>
         public static NGXResult EvaluateDLSSG(nint pInCmdBuf, NGXHandle pInHandle, NGXParameter pInParams, in NGXVKDLSSGEvalParams pInDlssgEvalParams, NGXDLSSGOptEvalParams? pInDlssgOptEvalParams)
         {
@@ -86,22 +89,40 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssgEvalParamsNative = new(in pInDlssgEvalParams);
                 pInDlssgEvalParamsNativePointer = storage!.Take(ref pInDlssgEvalParamsNative);
                 storage!.HasFrameGenerationOptions = pInDlssgOptEvalParams.HasValue;
-                if (pInDlssgOptEvalParams is NGXDLSSGOptEvalParams pInDlssgOptEvalParamsValue) pInDlssgOptEvalParamsNative = new(in pInDlssgOptEvalParamsValue);
+
+                if (pInDlssgOptEvalParams is NGXDLSSGOptEvalParams pInDlssgOptEvalParamsValue)
+                {
+                    pInDlssgOptEvalParamsNative = new(in pInDlssgOptEvalParamsValue);
+                }
+
                 pInDlssgOptEvalParamsNativePointer = pInDlssgOptEvalParams.HasValue ? storage!.Take(ref pInDlssgOptEvalParamsNative) : null;
                 NgxLifetime.BeginParameters(pInParams.Value, "Vulkan.EvaluateDLSSG", storage!);
                 attached = true;
                 result = EvaluateDLSSGNative(pInCmdBuf, pInHandle.Value, pInParams.Value, pInDlssgEvalParamsNativePointer, pInDlssgOptEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSG", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSG", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssgOptEvalParamsNative.Dispose();
                 pInDlssgEvalParamsNative.Dispose();
@@ -116,12 +137,8 @@ public static unsafe partial class Ngx
             return EvaluateDLSSG(pInCmdBuf, pInHandle, pInParams, in pInDlssgEvalParams, (NGXDLSSGOptEvalParams?)pInDlssgOptEvalParams);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSGNative(nint pInCmdBuf, nint pInHandle, nint pInParams, NGXVKDLSSGEvalParamsNative* pInDlssgEvalParams, NGXDLSSGOptEvalParamsNative* pInDlssgOptEvalParams);
-
         /// <summary>
-        /// NGX_VULKAN_CREATE_DLISP_EXT. Source: nvsdk_ngx_helpers_vk.h:232. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_CREATE_DLISP_EXT
         /// </summary>
         public static NGXResult CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXFeatureCreateParams pInDlispCreateParams)
         {
@@ -131,13 +148,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlispCreateParamsNative = new(in pInDlispCreateParams);
                 NGXResult result = CreateDLISPExtNative(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlispCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -146,12 +168,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLISPExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pInDlispCreateParams);
-
         /// <summary>
-        /// NGX_VULKAN_CREATE_DLSSD_EXT1. Source: nvsdk_ngx_helpers_dlssd_vk.h:131. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_CREATE_DLSSD_EXT1
         /// </summary>
         public static NGXResult CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
         {
@@ -161,13 +179,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExt1Native(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -176,12 +199,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
-
         /// <summary>
-        /// NGX_VULKAN_CREATE_DLSS_EXT. Source: nvsdk_ngx_helpers_vk.h:136. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_CREATE_DLSS_EXT
         /// </summary>
         public static NGXResult CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
         {
@@ -191,13 +210,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssCreateParamsNative = new(in pInDlssCreateParams);
                 NGXResult result = CreateDLSSExtNative(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -206,12 +230,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
-
         /// <summary>
-        /// NGX_VULKAN_CREATE_DLSS_EXT1. Source: nvsdk_ngx_helpers_vk.h:113. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_CREATE_DLSS_EXT1
         /// </summary>
         public static NGXResult CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
         {
@@ -221,13 +241,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssCreateParamsNative = new(in pInDlssCreateParams);
                 NGXResult result = CreateDLSSExt1Native(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -236,12 +261,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
-
         /// <summary>
-        /// NGX_VULKAN_EVALUATE_DLISP_EXT. Source: nvsdk_ngx_helpers_vk.h:251. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_EVALUATE_DLISP_EXT
         /// </summary>
         public static NGXResult EvaluateDLISPExt(nint inCmdList, NGXHandle inHandle, NGXParameter pInParams, in NGXVKDLISPEvalParams pInDlispEvalParams)
         {
@@ -254,30 +275,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (inHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlispEvalParamsNative = new(in pInDlispEvalParams);
                 pInDlispEvalParamsNativePointer = storage!.Take(ref pInDlispEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "Vulkan.EvaluateDLISPExt", storage!);
                 attached = true;
                 result = EvaluateDLISPExtNative(inCmdList, inHandle.Value, pInParams.Value, pInDlispEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlispEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLISPExtNative(nint inCmdList, nint inHandle, nint pInParams, NGXVKDLISPEvalParamsNative* pInDlispEvalParams);
-
         /// <summary>
-        /// NGX_VULKAN_EVALUATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_vk.h:157. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_EVALUATE_DLSSD_EXT
         /// </summary>
         public static NGXResult EvaluateDLSSDExt(nint inCmdList, NGXHandle pInHandle, NGXParameter pInParams, in NGXVKDLSSDEvalParams pInDlssDEvalParams)
         {
@@ -290,30 +320,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDEvalParamsNative = new(in pInDlssDEvalParams);
                 pInDlssDEvalParamsNativePointer = storage!.Take(ref pInDlssDEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "Vulkan.EvaluateDLSSDExt", storage!);
                 attached = true;
                 result = EvaluateDLSSDExtNative(inCmdList, pInHandle.Value, pInParams.Value, pInDlssDEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssDEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSDExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSDEvalParamsNative* pInDlssDEvalParams);
-
         /// <summary>
-        /// NGX_VULKAN_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_vk.h:147. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_VULKAN_EVALUATE_DLSS_EXT
         /// </summary>
         public static NGXResult EvaluateDLSSExt(nint inCmdList, NGXHandle pInHandle, NGXParameter pInParams, in NGXVKDLSSEvalParams pInDlssEvalParams)
         {
@@ -326,30 +365,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssEvalParamsNative = new(in pInDlssEvalParams);
                 pInDlssEvalParamsNativePointer = storage!.Take(ref pInDlssEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "Vulkan.EvaluateDLSSExt", storage!);
                 attached = true;
                 result = EvaluateDLSSExtNative(inCmdList, pInHandle.Value, pInParams.Value, pInDlssEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSEvalParamsNative* pInDlssEvalParams);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_AllocateParameters. Source: nvsdk_ngx_vk.h:382. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_AllocateParameters
         /// </summary>
         public static NGXResult AllocateParameters(out NGXParameter outParameters)
         {
@@ -362,70 +410,76 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_AllocateParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult AllocateParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_CreateFeature. Source: nvsdk_ngx_vk.h:539. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
             outHandle = default;
             nint outHandleNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = CreateFeatureNative(inCmdBuffer, inFeatureID, inParameters.Value, &outHandleNative);
             if (Succeeded(result))
             {
                 outHandle = new(outHandleNative);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeatureNative(nint inCmdBuffer, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_CreateFeature1. Source: nvsdk_ngx_vk.h:540. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_CreateFeature1
         /// </summary>
         public static NGXResult CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
             outHandle = default;
             nint outHandleNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = CreateFeature1Native(inDevice, inCmdList, inFeatureID, inParameters.Value, &outHandleNative);
             if (Succeeded(result))
             {
                 outHandle = new(outHandleNative);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature1")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeature1Native(nint inDevice, nint inCmdList, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_DestroyParameters. Source: nvsdk_ngx_vk.h:447. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_DestroyParameters
         /// </summary>
         public static NGXResult DestroyParameters(NGXParameter inParameters)
         {
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = DestroyParametersNative(inParameters.Value);
-            if (Succeeded(result)) NgxLifetime.ReleaseParameters(inParameters.Value, true);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.ReleaseParameters(inParameters.Value, destroyed: true);
+            }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_DestroyParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult DestroyParametersNative(nint inParameters);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_EvaluateFeature. Source: nvsdk_ngx_vk.h:753. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_EvaluateFeature
         /// </summary>
         public static NGXResult EvaluateFeature(nint inCmdList, NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallback? inCallback)
         {
@@ -433,10 +487,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureNative(inCmdList, inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -445,12 +508,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_EvaluateFeature_C. Source: nvsdk_ngx_vk.h:755. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_EvaluateFeature_C
         /// </summary>
         public static NGXResult EvaluateFeatureC(nint inCmdList, NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallbackC? inCallback)
         {
@@ -458,10 +517,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureCNative(inCmdList, inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -470,12 +538,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureCNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetCapabilityParameters. Source: nvsdk_ngx_vk.h:422. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetCapabilityParameters
         /// </summary>
         public static NGXResult GetCapabilityParameters(out NGXParameter outParameters)
         {
@@ -488,15 +552,12 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements. Source: nvsdk_ngx_vk.h:699. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements
         /// </summary>
         public static NGXResult GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties)
         {
@@ -512,9 +573,18 @@ public static unsafe partial class Ngx
                 if (Succeeded(result))
                 {
                     outExtensionProperties = new NGXVkExtensionProperties[checked((int)outExtensionCountNative)];
-                if (outExtensionProperties.Length != 0 && outExtensionPropertiesNative == null) throw new InvalidOperationException("NGX returned a null extension array.");
-                for (int i = 0; i < outExtensionProperties.Length; i++) outExtensionProperties[i] = new(in outExtensionPropertiesNative[i]);
+
+                    if (outExtensionProperties.Length is not 0 && outExtensionPropertiesNative == null)
+                    {
+                        throw new InvalidOperationException("NGX returned a null extension array.");
+                    }
+
+                    for (int i = 0; i < outExtensionProperties.Length; i++)
+                    {
+                        outExtensionProperties[i] = new(in outExtensionPropertiesNative[i]);
+                    }
                 }
+
                 return result;
             }
             finally
@@ -523,12 +593,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureDeviceExtensionRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements. Source: nvsdk_ngx_vk.h:646. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements
         /// </summary>
         public static NGXResult GetFeatureInstanceExtensionRequirements(in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties)
         {
@@ -544,9 +610,18 @@ public static unsafe partial class Ngx
                 if (Succeeded(result))
                 {
                     outExtensionProperties = new NGXVkExtensionProperties[checked((int)outExtensionCountNative)];
-                if (outExtensionProperties.Length != 0 && outExtensionPropertiesNative == null) throw new InvalidOperationException("NGX returned a null extension array.");
-                for (int i = 0; i < outExtensionProperties.Length; i++) outExtensionProperties[i] = new(in outExtensionPropertiesNative[i]);
+
+                    if (outExtensionProperties.Length is not 0 && outExtensionPropertiesNative == null)
+                    {
+                        throw new InvalidOperationException("NGX returned a null extension array.");
+                    }
+
+                    for (int i = 0; i < outExtensionProperties.Length; i++)
+                    {
+                        outExtensionProperties[i] = new(in outExtensionPropertiesNative[i]);
+                    }
                 }
+
                 return result;
             }
             finally
@@ -555,12 +630,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureInstanceExtensionRequirementsNative(NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetFeatureRequirements. Source: nvsdk_ngx_vk.h:605. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
         {
@@ -576,6 +647,7 @@ public static unsafe partial class Ngx
                 {
                     outSupported = new(in outSupportedNative);
                 }
+
                 return result;
             }
             finally
@@ -584,12 +656,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetParameters. Source: nvsdk_ngx_vk.h:336. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
         {
@@ -602,35 +670,34 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_GetScratchBufferSize. Source: nvsdk_ngx_vk.h:479. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_GetScratchBufferSize
         /// </summary>
         public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters, out nuint outSizeInBytes)
         {
             outSizeInBytes = default;
             nuint outSizeInBytesNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = GetScratchBufferSizeNative(inFeatureId, inParameters.Value, &outSizeInBytesNative);
             if (Succeeded(result))
             {
                 outSizeInBytes = outSizeInBytesNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_Init. Source: nvsdk_ngx_vk.h:182. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_Init
         /// </summary>
         public static NGXResult Init(ulong inApplicationId, string? inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -645,17 +712,27 @@ public static unsafe partial class Ngx
             try
             {
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("Vulkan", inDevice, storage!);
                 attached = true;
                 result = InitNative(inApplicationId, inApplicationDataPathNative, inInstance, inPD, inDevice, inGIPA, inGDPA, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -669,12 +746,8 @@ public static unsafe partial class Ngx
             return Init(inApplicationId, inApplicationDataPath, inInstance, inPD, inDevice, inGIPA, inGDPA, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_Init_with_ProjectID. Source: nvsdk_ngx_vk.h:258. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_Init_with_ProjectID
         /// </summary>
         public static NGXResult InitWithProjectID(string? inProjectId, NGXEngineType inEngineType, string? inEngineVersion, string? inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -693,17 +766,27 @@ public static unsafe partial class Ngx
                 inProjectIdNative = (sbyte*)storage!.String(inProjectId, NGXEncoding.Utf8);
                 inEngineVersionNative = (sbyte*)storage!.String(inEngineVersion, NGXEncoding.Utf8);
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("Vulkan", inDevice, storage!);
                 attached = true;
                 result = InitWithProjectIDNative(inProjectIdNative, inEngineType, inEngineVersionNative, inApplicationDataPathNative, inInstance, inPD, inDevice, inGIPA, inGDPA, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -717,26 +800,23 @@ public static unsafe partial class Ngx
             return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, inInstance, inPD, inDevice, inGIPA, inGDPA, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_ReleaseFeature. Source: nvsdk_ngx_vk.h:560. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_ReleaseFeature
         /// </summary>
         public static NGXResult ReleaseFeature(NGXHandle inHandle)
         {
-            if (inHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            if (inHandle.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            }
+
             NGXResult result = ReleaseFeatureNative(inHandle.Value);
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
-
         /// <summary>
-        /// NVSDK_NGX_VULKAN_RequiredExtensions. Source: nvsdk_ngx_vk.h:114. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_VULKAN_RequiredExtensions
         /// </summary>
         public static NGXResult RequiredExtensions(out string[] outInstanceExts, out string[] outDeviceExts)
         {
@@ -750,46 +830,173 @@ public static unsafe partial class Ngx
             if (Succeeded(result))
             {
                 outInstanceExts = new string[checked((int)outInstanceExtCountNative)];
-                if (outInstanceExts.Length != 0 && outInstanceExtsNative == null) throw new InvalidOperationException("NGX returned a null extension array.");
-                for (int i = 0; i < outInstanceExts.Length; i++) outInstanceExts[i] = NGXMarshal.PtrToString(outInstanceExtsNative[i], NGXEncoding.Utf8)!;
+
+                if (outInstanceExts.Length is not 0 && outInstanceExtsNative == null)
+                {
+                    throw new InvalidOperationException("NGX returned a null extension array.");
+                }
+
+                for (int i = 0; i < outInstanceExts.Length; i++)
+                {
+                    outInstanceExts[i] = NGXMarshal.PtrToString(outInstanceExtsNative[i], NGXEncoding.Utf8)!;
+                }
+
                 outDeviceExts = new string[checked((int)outDeviceExtCountNative)];
-                if (outDeviceExts.Length != 0 && outDeviceExtsNative == null) throw new InvalidOperationException("NGX returned a null extension array.");
-                for (int i = 0; i < outDeviceExts.Length; i++) outDeviceExts[i] = NGXMarshal.PtrToString(outDeviceExtsNative[i], NGXEncoding.Utf8)!;
+
+                if (outDeviceExts.Length is not 0 && outDeviceExtsNative == null)
+                {
+                    throw new InvalidOperationException("NGX returned a null extension array.");
+                }
+
+                for (int i = 0; i < outDeviceExts.Length; i++)
+                {
+                    outDeviceExts[i] = NGXMarshal.PtrToString(outDeviceExtsNative[i], NGXEncoding.Utf8)!;
+                }
             }
+
             return result;
         }
+
+        /// <summary>
+        /// NVSDK_NGX_VULKAN_Shutdown
+        /// </summary>
+        public static NGXResult Shutdown()
+        {
+            NGXResult result = ShutdownNative();
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.Shutdown("Vulkan", 0);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_VULKAN_Shutdown1
+        /// </summary>
+        public static NGXResult Shutdown1(nint inDevice)
+        {
+            NGXResult result = Shutdown1Native(inDevice);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.Shutdown("Vulkan", inDevice);
+            }
+
+            return result;
+        }
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_CREATE_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSGNative(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSGCreateParamsNative* pInDlssgCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EstimateVRAMDLSSGNative(nint inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSGNative(nint pInCmdBuf, nint pInHandle, nint pInParams, NGXVKDLSSGEvalParamsNative* pInDlssgEvalParams, NGXDLSSGOptEvalParamsNative* pInDlssgOptEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLISPExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pInDlispCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSSD_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSExtNative(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLSS_EXT1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSExt1Native(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLISPExtNative(nint inCmdList, nint inHandle, nint pInParams, NGXVKDLISPEvalParamsNative* pInDlispEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSDExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSDEvalParamsNative* pInDlssDEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_EVALUATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSExtNative(nint inCmdList, nint pInHandle, nint pInParams, NGXVKDLSSEvalParamsNative* pInDlssEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_AllocateParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult AllocateParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeatureNative(nint inCmdBuffer, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_CreateFeature1")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeature1Native(nint inDevice, nint inCmdList, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_DestroyParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult DestroyParametersNative(nint inParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureCNative(nint inCmdList, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureDeviceExtensionRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureInstanceExtensionRequirementsNative(NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, uint* outExtensionCount, NGXVkExtensionPropertiesNative** outExtensionProperties);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetFeatureRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureRequirementsNative(nint instance, nint physicalDevice, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inInstance, nint inPD, nint inDevice, nint inGIPA, nint inGDPA, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult ReleaseFeatureNative(nint inHandle);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_RequiredExtensions")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult RequiredExtensionsNative(uint* outInstanceExtCount, sbyte*** outInstanceExts, uint* outDeviceExtCount, sbyte*** outDeviceExts);
 
-        /// <summary>
-        /// NVSDK_NGX_VULKAN_Shutdown. Source: nvsdk_ngx_vk.h:286. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult Shutdown()
-        {
-            NGXResult result = ShutdownNative();
-            if (Succeeded(result)) NgxLifetime.Shutdown("Vulkan", 0);
-            return result;
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult ShutdownNative();
 
-        /// <summary>
-        /// NVSDK_NGX_VULKAN_Shutdown1. Source: nvsdk_ngx_vk.h:288. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult Shutdown1(nint inDevice)
-        {
-            NGXResult result = Shutdown1Native(inDevice);
-            if (Succeeded(result)) NgxLifetime.Shutdown("Vulkan", inDevice);
-            return result;
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult Shutdown1Native(nint inDevice);
-
     }
 }

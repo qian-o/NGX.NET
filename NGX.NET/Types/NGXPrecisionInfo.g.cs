@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_PrecisionInfo
 /// </summary>
-public partial struct NGXPrecisionInfo
+public struct NGXPrecisionInfo
 {
     /// <summary>
     /// NVSDK_NGX_PrecisionInfo::IsLowPrecision

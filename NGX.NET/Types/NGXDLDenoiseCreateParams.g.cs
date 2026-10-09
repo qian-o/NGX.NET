@@ -3,16 +3,12 @@
 
 #nullable enable
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace NGX.NET;
 
 /// <summary>
 /// NVSDK_NGX_DLDenoise_Create_Params
 /// </summary>
-public partial struct NGXDLDenoiseCreateParams
+public struct NGXDLDenoiseCreateParams
 {
     /// <summary>
     /// NVSDK_NGX_DLDenoise_Create_Params::Feature

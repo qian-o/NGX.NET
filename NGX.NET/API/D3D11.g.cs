@@ -21,7 +21,7 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
-        /// NGX_D3D11_CREATE_DLISP_EXT. Source: nvsdk_ngx_helpers_d3d.h:169. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_CREATE_DLISP_EXT
         /// </summary>
         public static NGXResult CreateDLISPExt(nint pInCtx, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXFeatureCreateParams pDlispCreateParams)
         {
@@ -31,13 +31,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pDlispCreateParamsNative = new(in pDlispCreateParams);
                 NGXResult result = CreateDLISPExtNative(pInCtx, &ppOutHandleNative, pInParams.Value, &pDlispCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -46,12 +51,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLISPExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
-
         /// <summary>
-        /// NGX_D3D11_CREATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_d3d.h:227. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_CREATE_DLSSD_EXT
         /// </summary>
         public static NGXResult CreateDLSSDExt(nint pInCtx, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
         {
@@ -61,13 +62,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExtNative(pInCtx, &ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -76,12 +82,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSDExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
-
         /// <summary>
-        /// NGX_D3D11_CREATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:85. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_CREATE_DLSS_EXT
         /// </summary>
         public static NGXResult CreateDLSSExt(nint pInCtx, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
         {
@@ -91,13 +93,18 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssCreateParamsNative = new(in pInDlssCreateParams);
                 NGXResult result = CreateDLSSExtNative(pInCtx, &ppOutHandleNative, pInParams.Value, &pInDlssCreateParamsNative);
                 if (Succeeded(result))
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
+
                 return result;
             }
             finally
@@ -106,12 +113,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateDLSSExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
-
         /// <summary>
-        /// NGX_D3D11_EVALUATE_DLISP_EXT. Source: nvsdk_ngx_helpers_d3d.h:183. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_EVALUATE_DLISP_EXT
         /// </summary>
         public static NGXResult EvaluateDLISPExt(nint pInCtx, NGXHandle pInHandle, NGXParameter pInParams, in NGXD3D11DLISPEvalParams pDlispEvalParams)
         {
@@ -124,30 +127,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pDlispEvalParamsNative = new(in pDlispEvalParams);
                 pDlispEvalParamsNativePointer = storage!.Take(ref pDlispEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "D3D11.EvaluateDLISPExt", storage!);
                 attached = true;
                 result = EvaluateDLISPExtNative(pInCtx, pInHandle.Value, pInParams.Value, pDlispEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pDlispEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLISP_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLISPExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLISPEvalParamsNative* pDlispEvalParams);
-
         /// <summary>
-        /// NGX_D3D11_EVALUATE_DLSSD_EXT. Source: nvsdk_ngx_helpers_dlssd_d3d.h:247. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_EVALUATE_DLSSD_EXT
         /// </summary>
         public static NGXResult EvaluateDLSSDExt(nint pInCtx, NGXHandle pInHandle, NGXParameter pInParams, in NGXD3D11DLSSDEvalParams pInDlssDEvalParams)
         {
@@ -160,30 +172,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssDEvalParamsNative = new(in pInDlssDEvalParams);
                 pInDlssDEvalParamsNativePointer = storage!.Take(ref pInDlssDEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "D3D11.EvaluateDLSSDExt", storage!);
                 attached = true;
                 result = EvaluateDLSSDExtNative(pInCtx, pInHandle.Value, pInParams.Value, pInDlssDEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssDEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSSD_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSDExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLSSDEvalParamsNative* pInDlssDEvalParams);
-
         /// <summary>
-        /// NGX_D3D11_EVALUATE_DLSS_EXT. Source: nvsdk_ngx_helpers_d3d.h:103. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NGX_D3D11_EVALUATE_DLSS_EXT
         /// </summary>
         public static NGXResult EvaluateDLSSExt(nint pInCtx, NGXHandle pInHandle, NGXParameter pInParams, in NGXD3D11DLSSEvalParams pInDlssEvalParams)
         {
@@ -196,30 +217,39 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (pInHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
-                if (pInParams.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                if (pInHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInHandle));
+                }
+
+                if (pInParams.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(pInParams));
+                }
+
                 pInDlssEvalParamsNative = new(in pInDlssEvalParams);
                 pInDlssEvalParamsNativePointer = storage!.Take(ref pInDlssEvalParamsNative);
                 NgxLifetime.BeginParameters(pInParams.Value, "D3D11.EvaluateDLSSExt", storage!);
                 attached = true;
                 result = EvaluateDLSSExtNative(pInCtx, pInHandle.Value, pInParams.Value, pInDlssEvalParamsNativePointer);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLSSExt", returned, Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndParameters(pInParams.Value, "D3D11.EvaluateDLSSExt", returned, Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 pInDlssEvalParamsNative.Dispose();
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSS_EXT")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateDLSSExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLSSEvalParamsNative* pInDlssEvalParams);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_AllocateParameters. Source: nvsdk_ngx.h:380. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_AllocateParameters
         /// </summary>
         public static NGXResult AllocateParameters(out NGXParameter outParameters)
         {
@@ -232,50 +262,54 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("D3D11", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_AllocateParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult AllocateParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_CreateFeature. Source: nvsdk_ngx.h:549. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(nint inDevCtx, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
             outHandle = default;
             nint outHandleNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = CreateFeatureNative(inDevCtx, inFeatureID, inParameters.Value, &outHandleNative);
             if (Succeeded(result))
             {
                 outHandle = new(outHandleNative);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_CreateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult CreateFeatureNative(nint inDevCtx, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_DestroyParameters. Source: nvsdk_ngx.h:449. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_DestroyParameters
         /// </summary>
         public static NGXResult DestroyParameters(NGXParameter inParameters)
         {
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = DestroyParametersNative(inParameters.Value);
-            if (Succeeded(result)) NgxLifetime.ReleaseParameters(inParameters.Value, true);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.ReleaseParameters(inParameters.Value, destroyed: true);
+            }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_DestroyParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult DestroyParametersNative(nint inParameters);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_EvaluateFeature. Source: nvsdk_ngx.h:683. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_EvaluateFeature
         /// </summary>
         public static NGXResult EvaluateFeature(nint inDevCtx, NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallback? inCallback)
         {
@@ -283,10 +317,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureNative(inDevCtx, inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -295,12 +338,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureNative(nint inDevCtx, nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_EvaluateFeature_C. Source: nvsdk_ngx.h:688. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_EvaluateFeature_C
         /// </summary>
         public static NGXResult EvaluateFeatureC(nint inDevCtx, NGXHandle inFeatureHandle, NGXParameter inParameters, NGXPfnProgressCallbackC? inCallback)
         {
@@ -308,10 +347,19 @@ public static unsafe partial class Ngx
 
             try
             {
-                if (inFeatureHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
-                if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                if (inFeatureHandle.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inFeatureHandle));
+                }
+
+                if (inParameters.IsNull)
+                {
+                    throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+                }
+
                 inCallbackNative = NgxCallbacks.Acquire(inCallback);
                 NGXResult result = EvaluateFeatureCNative(inDevCtx, inFeatureHandle.Value, inParameters.Value, inCallbackNative);
+
                 return result;
             }
             finally
@@ -320,12 +368,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature_C")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult EvaluateFeatureCNative(nint inDevCtx, nint inFeatureHandle, nint inParameters, nint inCallback);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_GetCapabilityParameters. Source: nvsdk_ngx.h:422. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_GetCapabilityParameters
         /// </summary>
         public static NGXResult GetCapabilityParameters(out NGXParameter outParameters)
         {
@@ -338,15 +382,12 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("D3D11", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetCapabilityParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_GetFeatureRequirements. Source: nvsdk_ngx.h:617. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
         {
@@ -362,6 +403,7 @@ public static unsafe partial class Ngx
                 {
                     outSupported = new(in outSupportedNative);
                 }
+
                 return result;
             }
             finally
@@ -370,12 +412,8 @@ public static unsafe partial class Ngx
             }
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetFeatureRequirements")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetFeatureRequirementsNative(nint adapter, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_GetParameters. Source: nvsdk_ngx.h:332. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
         {
@@ -388,35 +426,34 @@ public static unsafe partial class Ngx
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("D3D11", outParameters.Value);
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetParameters")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetParametersNative(nint* outParameters);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_GetScratchBufferSize. Source: nvsdk_ngx.h:483. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_GetScratchBufferSize
         /// </summary>
         public static NGXResult GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters, out nuint outSizeInBytes)
         {
             outSizeInBytes = default;
             nuint outSizeInBytesNative = default;
-            if (inParameters.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+
+            if (inParameters.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inParameters));
+            }
+
             NGXResult result = GetScratchBufferSizeNative(inFeatureId, inParameters.Value, &outSizeInBytesNative);
             if (Succeeded(result))
             {
                 outSizeInBytes = outSizeInBytesNative;
             }
+
             return result;
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetScratchBufferSize")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_Init. Source: nvsdk_ngx.h:168. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_Init
         /// </summary>
         public static NGXResult Init(ulong inApplicationId, string? inApplicationDataPath, nint inDevice, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -431,17 +468,27 @@ public static unsafe partial class Ngx
             try
             {
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("D3D11", inDevice, storage!);
                 attached = true;
                 result = InitNative(inApplicationId, inApplicationDataPathNative, inDevice, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("D3D11", inDevice, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("D3D11", inDevice, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -455,12 +502,8 @@ public static unsafe partial class Ngx
             return Init(inApplicationId, inApplicationDataPath, inDevice, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_Init_with_ProjectID. Source: nvsdk_ngx.h:246. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_Init_with_ProjectID
         /// </summary>
         public static NGXResult InitWithProjectID(string? inProjectId, NGXEngineType inEngineType, string? inEngineVersion, string? inApplicationDataPath, nint inDevice, NGXFeatureCommonInfo? inFeatureInfo, NGXVersion inSDKVersion)
         {
@@ -479,17 +522,27 @@ public static unsafe partial class Ngx
                 inProjectIdNative = (sbyte*)storage!.String(inProjectId, NGXEncoding.Utf8);
                 inEngineVersionNative = (sbyte*)storage!.String(inEngineVersion, NGXEncoding.Utf8);
                 inApplicationDataPathNative = (void*)storage!.String(inApplicationDataPath, NGXEncoding.NativeWide);
-                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue) inFeatureInfoNative = new(in inFeatureInfoValue);
+
+                if (inFeatureInfo is NGXFeatureCommonInfo inFeatureInfoValue)
+                {
+                    inFeatureInfoNative = new(in inFeatureInfoValue);
+                }
+
                 inFeatureInfoNativePointer = inFeatureInfo.HasValue ? storage!.Take(ref inFeatureInfoNative) : null;
                 NgxLifetime.BeginInitialization("D3D11", inDevice, storage!);
                 attached = true;
                 result = InitWithProjectIDNative(inProjectIdNative, inEngineType, inEngineVersionNative, inApplicationDataPathNative, inDevice, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
+
                 return result;
             }
             finally
             {
-                if (attached) NgxLifetime.EndInitialization("D3D11", inDevice, returned && Succeeded(result), ref storage);
+                if (attached)
+                {
+                    NgxLifetime.EndInitialization("D3D11", inDevice, returned && Succeeded(result), ref storage);
+                }
+
                 storage?.Dispose();
                 inFeatureInfoNative.Dispose();
             }
@@ -503,51 +556,129 @@ public static unsafe partial class Ngx
             return InitWithProjectID(inProjectId, inEngineType, inEngineVersion, inApplicationDataPath, inDevice, (NGXFeatureCommonInfo?)inFeatureInfo, inSDKVersion);
         }
 
-        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init_with_ProjectID")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
-
         /// <summary>
-        /// NVSDK_NGX_D3D11_ReleaseFeature. Source: nvsdk_ngx.h:573. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
+        /// NVSDK_NGX_D3D11_ReleaseFeature
         /// </summary>
         public static NGXResult ReleaseFeature(NGXHandle inHandle)
         {
-            if (inHandle.IsNull) throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            if (inHandle.IsNull)
+            {
+                throw new ArgumentException("A non-null NGX handle is required.", nameof(inHandle));
+            }
+
             NGXResult result = ReleaseFeatureNative(inHandle.Value);
+
             return result;
         }
+
+        /// <summary>
+        /// NVSDK_NGX_D3D11_Shutdown
+        /// </summary>
+        public static NGXResult Shutdown()
+        {
+            NGXResult result = ShutdownNative();
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.Shutdown("D3D11", 0);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// NVSDK_NGX_D3D11_Shutdown1
+        /// </summary>
+        public static NGXResult Shutdown1(nint inDevice)
+        {
+            NGXResult result = Shutdown1Native(inDevice);
+
+            if (Succeeded(result))
+            {
+                NgxLifetime.Shutdown("D3D11", inDevice);
+            }
+
+            return result;
+        }
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLISPExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXFeatureCreateParamsNative* pDlispCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSDExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXDLSSDCreateParamsNative* pInDlssDCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_CREATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateDLSSExtNative(nint pInCtx, nint* ppOutHandle, nint pInParams, NGXDLSSCreateParamsNative* pInDlssCreateParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLISP_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLISPExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLISPEvalParamsNative* pDlispEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSSD_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSDExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLSSDEvalParamsNative* pInDlssDEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D11_EVALUATE_DLSS_EXT")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateDLSSExtNative(nint pInCtx, nint pInHandle, nint pInParams, NGXD3D11DLSSEvalParamsNative* pInDlssEvalParams);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_AllocateParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult AllocateParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_CreateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult CreateFeatureNative(nint inDevCtx, NGXFeature inFeatureID, nint inParameters, nint* outHandle);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_DestroyParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult DestroyParametersNative(nint inParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureNative(nint inDevCtx, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_EvaluateFeature_C")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult EvaluateFeatureCNative(nint inDevCtx, nint inFeatureHandle, nint inParameters, nint inCallback);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetCapabilityParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetCapabilityParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetFeatureRequirements")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetFeatureRequirementsNative(nint adapter, NGXFeatureDiscoveryInfoNative* featureDiscoveryInfo, NGXFeatureRequirementNative* outSupported);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetParameters")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetParametersNative(nint* outParameters);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_GetScratchBufferSize")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult GetScratchBufferSizeNative(NGXFeature inFeatureId, nint inParameters, nuint* outSizeInBytes);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitNative(ulong inApplicationId, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+
+        [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init_with_ProjectID")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult ReleaseFeatureNative(nint inHandle);
 
-        /// <summary>
-        /// NVSDK_NGX_D3D11_Shutdown. Source: nvsdk_ngx.h:278. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult Shutdown()
-        {
-            NGXResult result = ShutdownNative();
-            if (Succeeded(result)) NgxLifetime.Shutdown("D3D11", 0);
-            return result;
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Shutdown")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult ShutdownNative();
 
-        /// <summary>
-        /// NVSDK_NGX_D3D11_Shutdown1. Source: nvsdk_ngx.h:281. Native input storage is managed internally; serialize NGX calls and keep GPU resources alive until completion.
-        /// </summary>
-        public static NGXResult Shutdown1(nint inDevice)
-        {
-            NGXResult result = Shutdown1Native(inDevice);
-            if (Succeeded(result)) NgxLifetime.Shutdown("D3D11", inDevice);
-            return result;
-        }
-
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Shutdown1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         private static partial NGXResult Shutdown1Native(nint inDevice);
-
     }
 }
