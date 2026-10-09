@@ -68,9 +68,9 @@ internal class NGXSession : IDisposable
 
         Ngx.ThrowIfFailed(result);
         initialized = true;
-        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.GetCapabilityParameters(out capabilities) : Ngx.D3D12.GetCapabilityParameters(out capabilities));
-        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.AllocateParameters(out parameters) : Ngx.D3D12.AllocateParameters(out parameters));
-        Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.AllocateParameters(out frameParameters) : Ngx.D3D12.AllocateParameters(out frameParameters));
+        capabilities = isVulkan ? Ngx.Vulkan.GetCapabilityParameters() : Ngx.D3D12.GetCapabilityParameters();
+        parameters = isVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
+        frameParameters = isVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
 
         Query(NGXFeature.SuperSampling, Ngx.ParameterSuperSamplingAvailable);
         Query(NGXFeature.RayReconstruction, Ngx.ParameterSuperSamplingDenoisingAvailable);
@@ -102,10 +102,14 @@ internal class NGXSession : IDisposable
                 ApplicationDataPath = dataPath,
                 FeatureInfo = common
             };
-            NGXResult result = instance is 0 ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(discovery, out NGXVkExtensionProperties[] properties) : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, discovery, out properties);
-            if (Ngx.Failed(result))
+            NGXVkExtensionProperties[] properties;
+            try
             {
-                Unavailable[feature] = $"Extension requirements: {result}";
+                properties = instance is 0 ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(discovery) : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, discovery);
+            }
+            catch (NGXException exception)
+            {
+                Unavailable[feature] = $"Extension requirements: {exception.Result}";
 
                 continue;
             }
@@ -158,8 +162,7 @@ internal class NGXSession : IDisposable
                 RenderHeight = (uint)inputHeight,
                 NativeBackbufferFormat = isVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo!.Value.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
             };
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, out NGXHandle created, frameParameters, create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, out created, frameParameters, create));
-            generation = created;
+            generation = isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, frameParameters, create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, frameParameters, create);
             reset = true;
         }
 
@@ -238,17 +241,13 @@ internal class NGXSession : IDisposable
         settings = value;
         outputWidth = width;
         outputHeight = height;
-        uint renderWidth = 0;
-        uint renderHeight = 0;
+        uint renderWidth = (uint)width;
+        uint renderHeight = (uint)height;
         if (value.Reconstruction is Reconstruction.DLSS or Reconstruction.RayReconstruction)
         {
-            NGXResult result = value.Reconstruction is Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out uint maxWidth, out uint maxHeight, out uint minWidth, out uint minHeight, out float sharpness) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out maxWidth, out maxHeight, out minWidth, out minHeight, out sharpness);
-            Ngx.ThrowIfFailed(result);
-        }
-        else
-        {
-            renderWidth = (uint)width;
-            renderHeight = (uint)height;
+            OptimalSettings optimalSettings = value.Reconstruction is Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality);
+            renderWidth = optimalSettings.RenderOptimalWidth;
+            renderHeight = optimalSettings.RenderOptimalHeight;
         }
 
         inputWidth = (int)renderWidth;
@@ -276,10 +275,17 @@ internal class NGXSession : IDisposable
 
     private void Query(NGXFeature feature, string name)
     {
-        NGXResult result = Ngx.Parameter.GetI(capabilities, name, out int available);
-        if (Ngx.Failed(result) || available is 0)
+        try
         {
-            Unavailable[feature] = Ngx.Failed(result) ? result.ToString() : "Not supported by this device/driver";
+            int available = Ngx.Parameter.GetI(capabilities, name);
+            if (available is 0)
+            {
+                Unavailable[feature] = "Not supported by this device/driver";
+            }
+        }
+        catch (NGXException exception)
+        {
+            Unavailable[feature] = exception.Result.ToString();
         }
 
         Console.WriteLine($"{feature}: {(Available(feature) ? "Available" : Unavailable[feature])}");
@@ -308,8 +314,6 @@ internal class NGXSession : IDisposable
         Ngx.Parameter.Reset(parameters);
         // Camera.Projection maps the near plane to 1 and the far plane to 0.
         const int Flags = (int)(NGXDLSSFeatureFlags.IsHdr | NGXDLSSFeatureFlags.MvLowRes | NGXDLSSFeatureFlags.AutoExposure | NGXDLSSFeatureFlags.DepthInverted);
-        NGXHandle created = default;
-        NGXResult result;
         if (settings.Reconstruction is Reconstruction.RayReconstruction)
         {
             NGXDLSSDCreateParams create = new()
@@ -325,7 +329,7 @@ internal class NGXSession : IDisposable
                 InFeatureCreateFlags = Flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, out created, parameters, create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, out created, parameters, create);
+            reconstruction = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, parameters, create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, parameters, create);
         }
         else
         {
@@ -342,11 +346,8 @@ internal class NGXSession : IDisposable
                 InFeatureCreateFlags = Flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, out created, parameters, create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, out created, parameters, create);
+            reconstruction = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, parameters, create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, parameters, create);
         }
-
-        Ngx.ThrowIfFailed(result);
-        reconstruction = created;
     }
 
     private void EvaluateImages(nint command, ReadOnlySpan<NativeImage> images, CameraHandler camera, bool reset, float delta)
