@@ -3,7 +3,7 @@
     "repository": "https://github.com/NVIDIA/DLSS",
     "release": "v310.9.1",
     "commit": "374959484e79a640feaba44c93ac8cfb0a03f5b5",
-    "vulkanCommit": "3c65a01745e4a1134d32b9c2c456472212dba16d"
+    "vulkanCommit": "c46850864f4661461b0f6cb9922c058ffea4915e"
   },
   "platforms": {
     "win-x64": {
