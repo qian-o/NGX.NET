@@ -10,6 +10,7 @@ namespace Generation;
 internal static class Program
 {
     private static readonly UTF8Encoding UTF8 = new(true);
+    private static readonly string[] SourceDirectories = ["NGX.NET", "NGX.NET.Generator", "Showcase", "verification"];
 
     private static void Main(string[] args)
     {
@@ -28,9 +29,10 @@ internal static class Program
         }
 
         string repository = args.Length > 1 ? Path.GetFullPath(args[1]) : root;
+        ResultTests.Run(ast.RootElement, first, repository);
         int handwrittenCount = 0;
-        string[] folders = ["NGX.NET", "NGX.NET.Generator", "Showcase", "verification"];
-        foreach (string folder in folders)
+
+        foreach (string folder in SourceDirectories)
         {
             foreach (string path in Directory.EnumerateFiles(Path.Combine(repository, folder), "*.cs", SearchOption.AllDirectories))
             {

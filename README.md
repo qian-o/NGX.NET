@@ -28,18 +28,51 @@ NGXResult result = Ngx.D3D12.InitWithProjectID(
     engineVersion,
     applicationDataPath,
     device,
-    in featureInfo,
+    featureInfo,
     NGXVersion.Api);
 
 Ngx.ThrowIfFailed(result);
-Ngx.ThrowIfFailed(Ngx.D3D12.GetCapabilityParameters(out NGXParameter parameters));
-Ngx.ThrowIfFailed(Ngx.Parameter.GetI(
-    parameters, Ngx.ParameterSuperSamplingAvailable, out int available));
+NGXParameter parameters = Ngx.D3D12.GetCapabilityParameters();
+int available = Ngx.Parameter.GetI(parameters, Ngx.ParameterSuperSamplingAvailable);
 
 // After all features and their GPU work have finished:
 Ngx.ThrowIfFailed(Ngx.D3D12.DestroyParameters(parameters));
 Ngx.ThrowIfFailed(Ngx.D3D12.Shutdown1(device));
 ```
+
+Methods returning `NGXResult` with output parameters also have an overload that
+returns those outputs and throws `NGXException` on failure. One output is returned
+directly; multiple outputs use a generated readonly struct with get-only properties:
+
+```csharp
+Extensions extensions = Ngx.Vulkan.RequiredExtensions();
+string[] instanceExtensions = extensions.InstanceExtensions;
+string[] deviceExtensions = extensions.DeviceExtensions;
+
+OptimalSettings optimalSettings = Ngx.DLSS.GetOptimalSettings(
+    parameters, width, height, quality);
+uint renderWidth = optimalSettings.RenderOptimalWidth;
+uint renderHeight = optimalSettings.RenderOptimalHeight;
+```
+
+The original `NGXResult`/`out` overloads remain available for expected failures,
+such as capability probes. Result overloads call those same managed methods,
+preserving conversion, cleanup and ownership behavior. `NGXException.Result`
+retains the SDK result, and its message identifies the operation. Methods without
+outputs continue returning `NGXResult`.
+
+Result types are derived from the managed output signature, after native array
+counts have been folded into arrays. Their names remove a leading `Get`, `Query`,
+`Enumerate`, `Create`, `Allocate`, `Estimate`, `Calculate` or `Required` at a
+PascalCase word boundary; other method names receive a `Result` suffix. Numeric
+version suffixes are preserved (`GetStats1` produces `Stats1`). Property names
+remove pointer prefixes (`p`/`pp`) and `Out` prefixes, use the existing PascalCase
+rules, and expand the `Exts` word to `Extensions`. Property order and types follow
+the original outputs. These rules do not contain a list of result type names.
+Identical type names share one definition only when all property names, types and
+their order match, as with DLSS/DLSSD `OptimalSettings`. Incompatible result names,
+duplicate properties and overload signature conflicts stop generation with a
+diagnostic. Result structs do not make returned arrays immutable.
 
 `NGXParameter` and `NGXHandle` are readonly structs with a readonly `Value` field.
 Construct them with `new NGXParameter(address)` or `new NGXHandle(address)`; their
@@ -70,8 +103,9 @@ delegate and contain exceptions for the entire native registration lifetime.
 - Replace `NGX.NET.NGX` and its aliases with `Ngx`.
 - Enum members use PascalCase: `Custom`, `Dlaa`, `IsHdr`, `Api` and
   `FailFeatureNotSupported`. Their SDK values are unchanged.
-- Pass strings, arrays and structures directly. Scalar outputs use `out`;
+- Pass strings, arrays and structures directly. Outputs can use return values or `out`;
   structure inputs use `in`, with nullable overloads for optional inputs.
+  Call sites can omit the `in` argument modifier.
 - Use `NGXParameter` and `NGXHandle` values and `IsNull` instead of pointers.
 - String arrays provide their own counts. Vulkan extension queries return
   managed arrays; fixed native text buffers become strings.
@@ -83,9 +117,9 @@ delegate and contain exceptions for the entire native registration lifetime.
 The constructor-based conversion allocates native storage for nested pointer
 inputs. See `verification/Marshalling/results.json` for the measured managed
 allocation cost and validation limits. Run the managed, layout and export checks
-with `python3 verification/Marshalling/run.py`. It also verifies direct generator
-output in a fresh directory, without formatting the generated files. This does
-not run NVIDIA GPU work.
+with `python3 verification/Marshalling/run.py`. It also executes result overloads
+against managed stubs and verifies direct generator output in a fresh directory,
+without formatting the generated files. This does not run NVIDIA GPU work.
 
 ## Showcase
 

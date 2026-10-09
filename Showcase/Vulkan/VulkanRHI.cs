@@ -1549,7 +1549,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         shadowPipeline = GraphicsPipeline(GraphicsPass.Shadow);
         uiPipeline = GraphicsPipeline(GraphicsPass.UI);
 
-        foreach (ComputePass pass in Enum.GetValues<ComputePass>())
+        foreach (ComputePass pass in RenderLayout.ComputePasses)
         {
             string entry = pass.ToString();
             using NativeNames name = new([entry]);

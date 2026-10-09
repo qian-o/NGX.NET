@@ -19,6 +19,8 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
     private const uint ShaderComponentMapping = 0x1688; // D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING
     private const uint NoAltEnter = 0x2; // DXGI_MWA_NO_ALT_ENTER
 
+    private static readonly uint[] SceneBufferStridesInBytes = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject)];
+
     private readonly AutoResetEvent presentEvent = new(false);
     private readonly Dictionary<ComputePass, ComPtr<ID3D12PipelineState>> pipelines = [];
     private readonly DxFrame[] slots = new DxFrame[RenderLayout.FramesInFlight];
@@ -152,7 +154,6 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
 
     public override void UpdateDescriptors()
     {
-        uint[] strides = [(uint)sizeof(SceneVertex), (uint)sizeof(SceneMaterial), sizeof(uint), (uint)sizeof(TextureDescription), (uint)sizeof(SceneObject)];
         uint[] counts = [(uint)Resources.Scene.Vertices.Length, (uint)Resources.Scene.Materials.Length, (uint)Resources.Scene.Texels.Length, (uint)Resources.Scene.TextureInfo.Length, (uint)Resources.Scene.Objects.Length];
         for (int frame = 0; frame < Resources.Frames.Length; frame++)
         {
@@ -165,7 +166,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
                     Buffer = new()
                     {
                         NumElements = counts[i],
-                        StructureByteStride = strides[i]
+                        StructureByteStride = SceneBufferStridesInBytes[i]
                     }
                 };
                 device.Handle->CreateShaderResourceView((i is 4 ? slots[frame].Objects : sceneBuffers[i]).Handle, &bufferView, Cpu(frame, i));
@@ -952,7 +953,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
         shadowPipeline = GraphicsPipeline(GraphicsPass.Shadow);
         uiPipeline = GraphicsPipeline(GraphicsPass.UI);
 
-        foreach (ComputePass pass in Enum.GetValues<ComputePass>())
+        foreach (ComputePass pass in RenderLayout.ComputePasses)
         {
             byte[] shader = Compile(pass.ToString(), "compute");
 

@@ -10,6 +10,12 @@ namespace Marshalling;
 
 internal static unsafe class Program
 {
+    private static readonly string[] InvalidPaths = ["bad\0path", "\uD800"];
+    private static readonly nint[] BackendDevices = [1, 2];
+    private static readonly (bool Options, int ExpectedRoots)[] FrameGenerationCases = [(true, 1), (false, 2), (false, 2), (true, 1)];
+    private static readonly string[] LifetimeFieldNames = ["initialization", "parameterData", "parameterBackends"];
+    private static readonly string[] Limitations = ["Tests exercise the production generated constructors and internal lifetime management, not a NVIDIA GPU.", "Windows/Linux runtime behavior and NativeAOT execution require target-platform validation.", "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.", "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown."];
+
     private static readonly List<string> passed = [];
     private static readonly Dictionary<string, object> metrics = [];
 
@@ -48,7 +54,7 @@ internal static unsafe class Program
                 host = RuntimeInformation.RuntimeIdentifier,
                 tests = passed,
                 metrics,
-                limitations = new[] { "Tests exercise the production generated constructors and internal lifetime management, not a NVIDIA GPU.", "Windows/Linux runtime behavior and NativeAOT execution require target-platform validation.", "Constructor-owned RR storage uses native heap allocation; the earlier stack-prototype zero-allocation result does not apply.", "Failed helper calls conservatively retain both old and new snapshots until successful replacement, Parameter.Reset, DestroyParameters, or backend shutdown." }
+                limitations = Limitations
             };
             File.WriteAllText(Path.Combine(root, "verification/Marshalling/results.json"), JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }) + "\n");
             Console.WriteLine($"PASS {passed.Count} production validation groups.");
@@ -301,7 +307,7 @@ internal static unsafe class Program
         Throws<ArgumentException>(() => new NGXLoggingInfoNative(in logging));
         Throws<ArgumentException>(static () => Ngx.Parameter.Reset(default));
 
-        foreach (string bad in new[] { "bad\0path", "\uD800" })
+        foreach (string bad in InvalidPaths)
         {
             NGXFeatureDiscoveryInfo invalid = Discovery();
             invalid.FeatureInfo = new()
@@ -594,7 +600,7 @@ internal static unsafe class Program
         NgxLifetime.BeginParameters(789, "eval", parameters);
         NgxLifetime.EndParameters(789, "eval", true, true, ref parameters);
 
-        foreach (nint device in new nint[] { 1, 2 })
+        foreach (nint device in BackendDevices)
         {
             NativeCall? call = Storage();
             NgxLifetime.BeginInitialization("test", device, call);
@@ -610,7 +616,7 @@ internal static unsafe class Program
 
     private static void CheckFrameGenerationRetention()
     {
-        foreach ((bool options, int expected) in new[] { (true, 1), (false, 2), (false, 2), (true, 1) })
+        foreach ((bool options, int expected) in FrameGenerationCases)
         {
             NativeCall? call = Storage();
             call.HasFrameGenerationOptions = options;
@@ -625,8 +631,7 @@ internal static unsafe class Program
 
     private static void CheckConcurrentLifetime()
     {
-        string[] fields = ["initialization", "parameterData", "parameterBackends"];
-        int[] counts = [.. fields.Select(static name => ((System.Collections.IDictionary)typeof(NgxLifetime).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!).Count)];
+        int[] counts = [.. LifetimeFieldNames.Select(static name => ((System.Collections.IDictionary)typeof(NgxLifetime).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!).Count)];
 
         Parallel.For(0, 64, static i =>
         {
@@ -643,10 +648,10 @@ internal static unsafe class Program
             NgxLifetime.Shutdown(backend, 0);
         });
 
-        for (int i = 0; i < fields.Length; i++)
+        for (int i = 0; i < LifetimeFieldNames.Length; i++)
         {
-            System.Collections.IDictionary values = (System.Collections.IDictionary)typeof(NgxLifetime).GetField(fields[i], BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-            Assert(values.Count == counts[i], $"Concurrent lifetime cleanup: {fields[i]}");
+            System.Collections.IDictionary values = (System.Collections.IDictionary)typeof(NgxLifetime).GetField(LifetimeFieldNames[i], BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+            Assert(values.Count == counts[i], $"Concurrent lifetime cleanup: {LifetimeFieldNames[i]}");
         }
     }
 

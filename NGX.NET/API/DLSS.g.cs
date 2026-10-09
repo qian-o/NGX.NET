@@ -77,6 +77,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.DLSS.GetOptimalSettings after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static OptimalSettings GetOptimalSettings(NGXParameter pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue)
+        {
+            ThrowIfFailed(GetOptimalSettings(pInParams, inUserSelectedWidth, inUserSelectedHeight, inPerfQualityValue, out uint pOutRenderOptimalWidth, out uint pOutRenderOptimalHeight, out uint pOutRenderMaxWidth, out uint pOutRenderMaxHeight, out uint pOutRenderMinWidth, out uint pOutRenderMinHeight, out float pOutSharpness), "Ngx.DLSS.GetOptimalSettings");
+
+            return new(pOutRenderOptimalWidth, pOutRenderOptimalHeight, pOutRenderMaxWidth, pOutRenderMaxHeight, pOutRenderMinWidth, pOutRenderMinHeight, pOutSharpness);
+        }
+
+        /// <summary>
         /// NGX_DLSS_GET_STATS
         /// </summary>
         public static NGXResult GetStats(NGXParameter pInParams, out ulong pVRAMAllocatedBytes)
@@ -96,6 +107,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.DLSS.GetStats after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static ulong GetStats(NGXParameter pInParams)
+        {
+            ThrowIfFailed(GetStats(pInParams, out ulong pVRAMAllocatedBytes), "Ngx.DLSS.GetStats");
+
+            return pVRAMAllocatedBytes;
         }
 
         /// <summary>
@@ -124,6 +146,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.DLSS.GetStats1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static Stats1 GetStats1(NGXParameter pInParams)
+        {
+            ThrowIfFailed(GetStats1(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel), "Ngx.DLSS.GetStats1");
+
+            return new(pVRAMAllocatedBytes, pOptLevel);
+        }
+
+        /// <summary>
         /// NGX_DLSS_GET_STATS_2
         /// </summary>
         public static NGXResult GetStats2(NGXParameter pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel, out uint isDevSnippetBranch)
@@ -149,6 +182,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.DLSS.GetStats2 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static Stats2 GetStats2(NGXParameter pInParams)
+        {
+            ThrowIfFailed(GetStats2(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel, out uint isDevSnippetBranch), "Ngx.DLSS.GetStats2");
+
+            return new(pVRAMAllocatedBytes, pOptLevel, isDevSnippetBranch);
         }
     }
 }

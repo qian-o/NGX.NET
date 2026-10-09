@@ -42,6 +42,10 @@ internal partial class Emitter
 
     public Dictionary<string, string> Generate()
     {
+        files.Clear();
+        signatures.Clear();
+        resultTypes.Clear();
+
         foreach ((string name, JsonElement value) in enums)
         {
             WriteEnum(name, value);
@@ -59,6 +63,7 @@ internal partial class Emitter
 
         WriteCallbacks();
         WriteConstants();
+        WriteResultTypes();
 
         return files;
     }
@@ -282,6 +287,7 @@ internal partial class Emitter
         List<string> cleanup = [];
         List<Action<CodeWriter>> outputs = [];
         List<string> forward = [];
+        List<(int Index, string Type, string Name)> resultParameters = [];
         List<(int Index, string Type, string Name)> optionalRecords = [];
         string device = "0";
         string parameterHandle = "0";
@@ -314,6 +320,7 @@ internal partial class Emitter
                     "OutInstanceExts" => "outInstanceExtCountNative",
                     _ => "outDeviceExtCountNative"
                 };
+                resultParameters.Add((declarations.Count, element + "[]", name));
                 declarations.Add($"out {element}[] {name}");
                 forward.Add("out " + name);
                 locals.Add($"{name} = [];");
@@ -416,6 +423,7 @@ internal partial class Emitter
 
                     if (output)
                     {
+                        resultParameters.Add((declarations.Count - 1, managed, name));
                         locals.Add($"{name} = default;");
                         call.Add("&" + local);
                         outputs.Add(writer => writer.Line($"{name} = new(in {local});"));
@@ -470,6 +478,7 @@ internal partial class Emitter
                         managed = managed[..^1];
                     }
 
+                    resultParameters.Add((declarations.Count, managed, name));
                     declarations.Add($"out {managed} {name}");
                     forward.Add("out " + name);
                     locals.Add($"{name} = default;");
@@ -518,6 +527,7 @@ internal partial class Emitter
         }
 
         bool guarded = retained || cleanup.Count is not 0 || cudaDevice;
+        RegisterFunction(group, method, declarations);
         WriteSummary(text, function.Text("name"));
         text.BeginBlock($"public static {result} {method}({string.Join(", ", declarations)})");
 
@@ -665,6 +675,11 @@ internal partial class Emitter
 
         text.EndBlock();
 
+        if (status && resultParameters.Count is not 0)
+        {
+            WriteResultFunction(text, group, method, declarations, forward, resultParameters);
+        }
+
         if (optionalRecords.Count is not 0)
         {
             List<string> nonNullable = [.. declarations];
@@ -675,10 +690,16 @@ internal partial class Emitter
                 arguments[index] = $"({type}?){name}";
             }
 
+            RegisterFunction(group, method, nonNullable);
             WriteSummary(text, $"{function.Text("name")}. Overload for a present optional structure.");
             text.BeginBlock($"public static {result} {method}({string.Join(", ", nonNullable)})");
             text.Line($"{(result is "void" ? string.Empty : "return ")}{method}({string.Join(", ", arguments)});");
             text.EndBlock();
+
+            if (status && resultParameters.Count is not 0)
+            {
+                WriteResultFunction(text, group, method, nonNullable, arguments, resultParameters);
+            }
         }
     }
 

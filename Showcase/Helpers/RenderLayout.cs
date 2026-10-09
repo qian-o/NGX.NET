@@ -30,6 +30,8 @@ internal static class RenderLayout
 
     public const int UniformSlots = 16;
 
+    public static readonly ComputePass[] ComputePasses = Enum.GetValues<ComputePass>();
+
     public static readonly ImageSlot[] GeometryOutputs = [ImageSlot.Albedo, ImageSlot.Normal, ImageSlot.Emissive, ImageSlot.Depth, ImageSlot.SurfaceGeometry];
 
     public static readonly ImageSlot[] LightingOutputs = [ImageSlot.Scene, ImageSlot.Specular, ImageSlot.SpecularMotion, ImageSlot.Motion, ImageSlot.Diffuse];

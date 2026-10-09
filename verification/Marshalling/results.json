@@ -49,7 +49,8 @@
   "generationStyle": "direct Emitter output passed syntax/style checks in a fresh directory; BOM repair and repeated generation passed without a formatter",
   "generationValidationSha256": {
     "Generation.csproj": "5344a8e07c6a95a2004aa1f6b1c69b4ddc8b7ee4c331d2c40953dabcf30d9856",
-    "Program.cs": "c08d2576a43eb9939dc0465c033388be65b97796acee0cf63eb28cebd2a0e2f6"
+    "Program.cs": "d26e77f902407b32fec04ad9535230aea7b771d7a1de0b687eac40731dee8611",
+    "ResultTests.cs": "e8c1122746fbd0a7b395ea5024c6aa2d365d15a149a535f7f415cd535d6c0627"
   },
   "safeConsumer": "production signatures compiled with AllowUnsafeBlocks=false; native SDK calls were not executed",
   "nativeVisibility": "external access rejected by compiler with CS0122",
@@ -95,9 +96,9 @@
   "validationSha256": {
     "Consumer/Consumer.csproj": "65e176663c842ccdaf2008854492b732350398137760963defc0ad1a70afb972",
     "Consumer/NativeVisibilityProbe.cs": "721b56013899d66f36023d7399c81cd9b349df2b7c027129617a41a5fd626f7a",
-    "Consumer/Program.cs": "ab60df2771734c1ae8adb803fcff0b42dc1b3a9507cbf51fc8c09d89d64305c6",
+    "Consumer/Program.cs": "f1126908f53583cf64f41270f312ada5c0c62cfcb2810b766d5b6c71090accac",
     "Marshalling.csproj": "3b737e03f54b9a86ab2577b3933524c0528010a0c3c41adafb51f1889ace7582",
-    "Program.cs": "3dd3a950b7ad4d93bb4b1ad49d1522ad58f1ad7296b63e16a06de1146cb949d1",
+    "Program.cs": "21f6e012631fba75ed9f035160b47f761e62b582fb1b6392895828b487fbf582",
     "run.py": "e61d1c8c57d8aabbe061d57710f943bd1261b192bd626a267b09d4c49f05b1dc"
   },
   "contractFindings": [
@@ -108,5 +109,5 @@
     "Opaque handles remain borrowed values and require explicit SDK release; the binding does not manage GPU resource completion."
   ],
   "regeneration": "0 changed files",
-  "managedSourcesSha256": "71b2a8790e4fffb72eb7edec922a9650e602ef18458c72a4c8e9e9222e2006ed"
+  "managedSourcesSha256": "efc651ee0910e08047d4661e8799755de33d15fbbbd76b0566704bc6ee121394"
 }

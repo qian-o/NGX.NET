@@ -53,7 +53,7 @@ internal class NGXSession : IDisposable
     {
         isVulkan = instance is not 0;
         device = nativeDevice;
-        NGXResult result = isVulkan ? Ngx.Vulkan.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, instance, physical, device, getInstanceProcAddr, getDeviceProcAddr, in common, NGXVersion.Api) : Ngx.D3D12.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, device, in common, NGXVersion.Api);
+        NGXResult result = isVulkan ? Ngx.Vulkan.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, instance, physical, device, getInstanceProcAddr, getDeviceProcAddr, common, NGXVersion.Api) : Ngx.D3D12.InitWithProjectID(ProjectId, NGXEngineType.Custom, EngineVersion, dataPath, device, common, NGXVersion.Api);
         if (result is NGXResult.FailFeatureNotSupported or NGXResult.FailPlatformError or NGXResult.FailOutOfDate)
         {
             foreach (NGXFeature feature in Features)
@@ -102,7 +102,7 @@ internal class NGXSession : IDisposable
                 ApplicationDataPath = dataPath,
                 FeatureInfo = common
             };
-            NGXResult result = instance is 0 ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(in discovery, out NGXVkExtensionProperties[] properties) : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, in discovery, out properties);
+            NGXResult result = instance is 0 ? Ngx.Vulkan.GetFeatureInstanceExtensionRequirements(discovery, out NGXVkExtensionProperties[] properties) : Ngx.Vulkan.GetFeatureDeviceExtensionRequirements(instance, physical, discovery, out properties);
             if (Ngx.Failed(result))
             {
                 Unavailable[feature] = $"Extension requirements: {result}";
@@ -158,7 +158,7 @@ internal class NGXSession : IDisposable
                 RenderHeight = (uint)inputHeight,
                 NativeBackbufferFormat = isVulkan ? (uint)color.Vulkan.Resource.ImageViewInfo!.Value.Format : (uint)Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm
             };
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, out NGXHandle created, frameParameters, in create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, out created, frameParameters, in create));
+            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.CreateDLSSG(command, 1, 1, out NGXHandle created, frameParameters, create) : Ngx.D3D12.CreateDLSSG(command, 1, 1, out created, frameParameters, create));
             generation = created;
             reset = true;
         }
@@ -212,7 +212,7 @@ internal class NGXSession : IDisposable
                 POutputInterpFrame = generated.Vulkan
             };
 
-            Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, in evaluate, in options));
+            Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, evaluate, options));
         }
         else
         {
@@ -226,7 +226,7 @@ internal class NGXSession : IDisposable
                 POutputInterpFrame = generated.DirectX
             };
 
-            Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, in evaluate, in options));
+            Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, evaluate, options));
         }
 
         // A reset produces a copy of the real frame; present that real frame once.
@@ -325,7 +325,7 @@ internal class NGXSession : IDisposable
                 InFeatureCreateFlags = Flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, out created, parameters, in create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, out created, parameters, in create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, out created, parameters, create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, out created, parameters, create);
         }
         else
         {
@@ -342,7 +342,7 @@ internal class NGXSession : IDisposable
                 InFeatureCreateFlags = Flags
             };
 
-            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, out created, parameters, in create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, out created, parameters, in create);
+            result = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, out created, parameters, create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, out created, parameters, create);
         }
 
         Ngx.ThrowIfFailed(result);
@@ -385,7 +385,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, in evaluate));
+                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate));
             }
             else
             {
@@ -409,7 +409,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, in evaluate));
+                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, evaluate));
             }
         }
         else
@@ -439,7 +439,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, in evaluate));
+                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate));
             }
             else
             {
@@ -463,7 +463,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, in evaluate));
+                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, evaluate));
             }
         }
     }

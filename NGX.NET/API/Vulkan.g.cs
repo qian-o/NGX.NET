@@ -164,6 +164,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateDLSSG after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSGCreateParams pInDlssgCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssgCreateParams), "Ngx.Vulkan.CreateDLSSG");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_VK_ESTIMATE_VRAM_DLSSG
         /// </summary>
         public static NGXResult EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
@@ -183,6 +194,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.EstimateVRAMDLSSG after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nuint EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat)
+        {
+            ThrowIfFailed(EstimateVRAMDLSSG(inParams, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, out nuint estimatedVRAMInBytes), "Ngx.Vulkan.EstimateVRAMDLSSG");
+
+            return estimatedVRAMInBytes;
         }
 
         /// <summary>
@@ -281,6 +303,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateDLISPExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXFeatureCreateParams pInDlispCreateParams)
+        {
+            ThrowIfFailed(CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlispCreateParams), "Ngx.Vulkan.CreateDLISPExt");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_VULKAN_CREATE_DLSSD_EXT1
         /// </summary>
         public static NGXResult CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
@@ -309,6 +342,17 @@ public static unsafe partial class Ngx
             {
                 pInDlssDCreateParamsNative.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateDLSSDExt1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.Vulkan.CreateDLSSDExt1");
+
+            return ppOutHandle;
         }
 
         /// <summary>
@@ -343,6 +387,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateDLSSExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams), "Ngx.Vulkan.CreateDLSSExt");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_VULKAN_CREATE_DLSS_EXT1
         /// </summary>
         public static NGXResult CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
@@ -371,6 +426,17 @@ public static unsafe partial class Ngx
             {
                 pInDlssCreateParamsNative.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateDLSSExt1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams), "Ngx.Vulkan.CreateDLSSExt1");
+
+            return ppOutHandle;
         }
 
         /// <summary>
@@ -527,6 +593,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.AllocateParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter AllocateParameters()
+        {
+            ThrowIfFailed(AllocateParameters(out NGXParameter outParameters), "Ngx.Vulkan.AllocateParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_VULKAN_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
@@ -549,6 +626,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateFeature after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature(inCmdBuffer, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.Vulkan.CreateFeature");
+
+            return outHandle;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_VULKAN_CreateFeature1
         /// </summary>
         public static NGXResult CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
@@ -568,6 +656,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.CreateFeature1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature1(inDevice, inCmdList, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.Vulkan.CreateFeature1");
+
+            return outHandle;
         }
 
         /// <summary>
@@ -669,6 +768,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetCapabilityParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetCapabilityParameters()
+        {
+            ThrowIfFailed(GetCapabilityParameters(out NGXParameter outParameters), "Ngx.Vulkan.GetCapabilityParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements
         /// </summary>
         public static NGXResult GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties)
@@ -703,6 +813,17 @@ public static unsafe partial class Ngx
             {
                 featureDiscoveryInfoNative.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetFeatureDeviceExtensionRequirements after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXVkExtensionProperties[] GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
+        {
+            ThrowIfFailed(GetFeatureDeviceExtensionRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties), "Ngx.Vulkan.GetFeatureDeviceExtensionRequirements");
+
+            return outExtensionProperties;
         }
 
         /// <summary>
@@ -743,6 +864,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetFeatureInstanceExtensionRequirements after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXVkExtensionProperties[] GetFeatureInstanceExtensionRequirements(in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
+        {
+            ThrowIfFailed(GetFeatureInstanceExtensionRequirements(in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties), "Ngx.Vulkan.GetFeatureInstanceExtensionRequirements");
+
+            return outExtensionProperties;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_VULKAN_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
@@ -769,6 +901,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetFeatureRequirements after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXFeatureRequirement GetFeatureRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
+        {
+            ThrowIfFailed(GetFeatureRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported), "Ngx.Vulkan.GetFeatureRequirements");
+
+            return outSupported;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_VULKAN_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
@@ -784,6 +927,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetParameters()
+        {
+            ThrowIfFailed(GetParameters(out NGXParameter outParameters), "Ngx.Vulkan.GetParameters");
+
+            return outParameters;
         }
 
         /// <summary>
@@ -806,6 +960,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.GetScratchBufferSize after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters)
+        {
+            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes), "Ngx.Vulkan.GetScratchBufferSize");
+
+            return outSizeInBytes;
         }
 
         /// <summary>
@@ -967,6 +1132,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Vulkan.RequiredExtensions after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static Extensions RequiredExtensions()
+        {
+            ThrowIfFailed(RequiredExtensions(out string[] outInstanceExts, out string[] outDeviceExts), "Ngx.Vulkan.RequiredExtensions");
+
+            return new(outInstanceExts, outDeviceExts);
         }
 
         /// <summary>

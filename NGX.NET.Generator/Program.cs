@@ -6,6 +6,7 @@ namespace NGX.NET.Generator;
 internal static class Program
 {
     private static readonly UTF8Encoding UTF8 = new(true);
+    private static readonly string[] OutputDirectories = ["API", "Types", "Callbacks"];
 
     private static int Main(string[] args)
     {
@@ -31,7 +32,7 @@ internal static class Program
                 }
             }
 
-            foreach (string directory in new[] { "API", "Types", "Callbacks" })
+            foreach (string directory in OutputDirectories)
             {
                 foreach (string path in Directory.EnumerateFiles(Path.Combine(output, directory), "*.g.cs", SearchOption.AllDirectories))
                 {

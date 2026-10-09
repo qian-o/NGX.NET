@@ -144,6 +144,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.CreateDLISPExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXFeatureCreateParams pDlispCreateParams)
+        {
+            ThrowIfFailed(CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pDlispCreateParams), "Ngx.D3D12.CreateDLISPExt");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_D3D12_CREATE_DLSSD_EXT
         /// </summary>
         public static NGXResult CreateDLSSDExt(nint pInCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
@@ -172,6 +183,17 @@ public static unsafe partial class Ngx
             {
                 pInDlssDCreateParamsNative.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.D3D12.CreateDLSSDExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSDExt(nint pInCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSDExt(pInCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.D3D12.CreateDLSSDExt");
+
+            return ppOutHandle;
         }
 
         /// <summary>
@@ -206,6 +228,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.CreateDLSSG after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSG(nint pInCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSGCreateParams pInDlssgCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSG(pInCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssgCreateParams), "Ngx.D3D12.CreateDLSSG");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_D3D12_CREATE_DLSS_EXT
         /// </summary>
         public static NGXResult CreateDLSSExt(nint pInCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
@@ -237,6 +270,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.CreateDLSSExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSExt(nint pInCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSExt(pInCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams), "Ngx.D3D12.CreateDLSSExt");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_D3D12_ESTIMATE_VRAM_DLSSG
         /// </summary>
         public static NGXResult EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
@@ -256,6 +300,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.D3D12.EstimateVRAMDLSSG after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nuint EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat)
+        {
+            ThrowIfFailed(EstimateVRAMDLSSG(inParams, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, out nuint estimatedVRAMInBytes), "Ngx.D3D12.EstimateVRAMDLSSG");
+
+            return estimatedVRAMInBytes;
         }
 
         /// <summary>
@@ -476,6 +531,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.AllocateParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter AllocateParameters()
+        {
+            ThrowIfFailed(AllocateParameters(out NGXParameter outParameters), "Ngx.D3D12.AllocateParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_D3D12_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
@@ -495,6 +561,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.D3D12.CreateFeature after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature(nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature(inCmdList, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.D3D12.CreateFeature");
+
+            return outHandle;
         }
 
         /// <summary>
@@ -596,6 +673,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.GetCapabilityParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetCapabilityParameters()
+        {
+            ThrowIfFailed(GetCapabilityParameters(out NGXParameter outParameters), "Ngx.D3D12.GetCapabilityParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_D3D12_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
@@ -622,6 +710,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.D3D12.GetFeatureRequirements after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXFeatureRequirement GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
+        {
+            ThrowIfFailed(GetFeatureRequirements(adapter, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported), "Ngx.D3D12.GetFeatureRequirements");
+
+            return outSupported;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_D3D12_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
@@ -637,6 +736,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.D3D12.GetParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetParameters()
+        {
+            ThrowIfFailed(GetParameters(out NGXParameter outParameters), "Ngx.D3D12.GetParameters");
+
+            return outParameters;
         }
 
         /// <summary>
@@ -659,6 +769,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.D3D12.GetScratchBufferSize after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters)
+        {
+            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes), "Ngx.D3D12.GetScratchBufferSize");
+
+            return outSizeInBytes;
         }
 
         /// <summary>

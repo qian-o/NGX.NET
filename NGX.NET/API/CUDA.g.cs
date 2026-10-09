@@ -136,6 +136,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateDLISPExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLISPExt(NGXParameter pInParams, in NGXFeatureCreateParams pDlispCreateParams)
+        {
+            ThrowIfFailed(CreateDLISPExt(out NGXHandle ppOutHandle, pInParams, in pDlispCreateParams), "Ngx.CUDA.CreateDLISPExt");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_CUDA_CREATE_DLSSD_EXT
         /// </summary>
         public static NGXResult CreateDLSSDExt(out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
@@ -164,6 +175,17 @@ public static unsafe partial class Ngx
             {
                 pInDlssDCreateParamsNative.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateDLSSDExt after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSDExt(NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSDExt(out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt");
+
+            return ppOutHandle;
         }
 
         /// <summary>
@@ -208,11 +230,33 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateDLSSDExt1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSDExt1(NGXCUDADevice? inDevice, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSDExt1(inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt1");
+
+            return ppOutHandle;
+        }
+
+        /// <summary>
         /// NGX_CUDA_CREATE_DLSSD_EXT1. Overload for a present optional structure.
         /// </summary>
         public static NGXResult CreateDLSSDExt1(in NGXCUDADevice inDevice, out NGXHandle ppOutHandle, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
             return CreateDLSSDExt1((NGXCUDADevice?)inDevice, out ppOutHandle, pInParams, in pInDlssDCreateParams);
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateDLSSDExt1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateDLSSDExt1(in NGXCUDADevice inDevice, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
+        {
+            ThrowIfFailed(CreateDLSSDExt1((NGXCUDADevice?)inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt1");
+
+            return ppOutHandle;
         }
 
         /// <summary>
@@ -324,6 +368,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.AllocateParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter AllocateParameters()
+        {
+            ThrowIfFailed(AllocateParameters(out NGXParameter outParameters), "Ngx.CUDA.AllocateParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_CUDA_CreateFeature
         /// </summary>
         public static NGXResult CreateFeature(NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
@@ -343,6 +398,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateFeature after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature(NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature(inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature");
+
+            return outHandle;
         }
 
         /// <summary>
@@ -384,11 +450,33 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateFeature1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature1(NGXCUDADevice? inDevice, NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature1(inDevice, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature1");
+
+            return outHandle;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_CUDA_CreateFeature1. Overload for a present optional structure.
         /// </summary>
         public static NGXResult CreateFeature1(in NGXCUDADevice inDevice, NGXFeature inFeatureID, NGXParameter inParameters, out NGXHandle outHandle)
         {
             return CreateFeature1((NGXCUDADevice?)inDevice, inFeatureID, inParameters, out outHandle);
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.CreateFeature1 after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXHandle CreateFeature1(in NGXCUDADevice inDevice, NGXFeature inFeatureID, NGXParameter inParameters)
+        {
+            ThrowIfFailed(CreateFeature1((NGXCUDADevice?)inDevice, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature1");
+
+            return outHandle;
         }
 
         /// <summary>
@@ -490,6 +578,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.GetCapabilityParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetCapabilityParameters()
+        {
+            ThrowIfFailed(GetCapabilityParameters(out NGXParameter outParameters), "Ngx.CUDA.GetCapabilityParameters");
+
+            return outParameters;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_CUDA_GetFeatureRequirements
         /// </summary>
         public static NGXResult GetFeatureRequirements(int cudaDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement outSupported)
@@ -516,6 +615,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.CUDA.GetFeatureRequirements after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXFeatureRequirement GetFeatureRequirements(int cudaDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
+        {
+            ThrowIfFailed(GetFeatureRequirements(cudaDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported), "Ngx.CUDA.GetFeatureRequirements");
+
+            return outSupported;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_CUDA_GetParameters
         /// </summary>
         public static NGXResult GetParameters(out NGXParameter outParameters)
@@ -531,6 +641,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.GetParameters after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static NGXParameter GetParameters()
+        {
+            ThrowIfFailed(GetParameters(out NGXParameter outParameters), "Ngx.CUDA.GetParameters");
+
+            return outParameters;
         }
 
         /// <summary>
@@ -553,6 +674,17 @@ public static unsafe partial class Ngx
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.CUDA.GetScratchBufferSize after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters)
+        {
+            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes), "Ngx.CUDA.GetScratchBufferSize");
+
+            return outSizeInBytes;
         }
 
         /// <summary>

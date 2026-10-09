@@ -117,6 +117,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetD after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static double GetD(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetD(inParameter, inName, out double outValue), "Ngx.Parameter.GetD");
+
+            return outValue;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_Parameter_GetD3d11Resource
         /// </summary>
         public static NGXResult GetD3d11Resource(NGXParameter inParameter, string inName, out nint outValue)
@@ -146,6 +157,17 @@ public static unsafe partial class Ngx
             {
                 NGXMarshal.Free(inNameNative);
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetD3d11Resource after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nint GetD3d11Resource(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetD3d11Resource(inParameter, inName, out nint outValue), "Ngx.Parameter.GetD3d11Resource");
+
+            return outValue;
         }
 
         /// <summary>
@@ -181,6 +203,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetD3d12Resource after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nint GetD3d12Resource(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetD3d12Resource(inParameter, inName, out nint outValue), "Ngx.Parameter.GetD3d12Resource");
+
+            return outValue;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_Parameter_GetF
         /// </summary>
         public static NGXResult GetF(NGXParameter inParameter, string inName, out float outValue)
@@ -210,6 +243,17 @@ public static unsafe partial class Ngx
             {
                 NGXMarshal.Free(inNameNative);
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetF after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static float GetF(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetF(inParameter, inName, out float outValue), "Ngx.Parameter.GetF");
+
+            return outValue;
         }
 
         /// <summary>
@@ -245,6 +289,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetI after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static int GetI(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetI(inParameter, inName, out int outValue), "Ngx.Parameter.GetI");
+
+            return outValue;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_Parameter_GetUI
         /// </summary>
         public static NGXResult GetUI(NGXParameter inParameter, string inName, out uint outValue)
@@ -274,6 +329,17 @@ public static unsafe partial class Ngx
             {
                 NGXMarshal.Free(inNameNative);
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetUI after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static uint GetUI(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetUI(inParameter, inName, out uint outValue), "Ngx.Parameter.GetUI");
+
+            return outValue;
         }
 
         /// <summary>
@@ -309,6 +375,17 @@ public static unsafe partial class Ngx
         }
 
         /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetULL after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static ulong GetULL(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetULL(inParameter, inName, out ulong outValue), "Ngx.Parameter.GetULL");
+
+            return outValue;
+        }
+
+        /// <summary>
         /// NVSDK_NGX_Parameter_GetVoidPointer
         /// </summary>
         public static NGXResult GetVoidPointer(NGXParameter inParameter, string inName, out nint outValue)
@@ -338,6 +415,17 @@ public static unsafe partial class Ngx
             {
                 NGXMarshal.Free(inNameNative);
             }
+        }
+
+        /// <summary>
+        /// Returns the outputs of Ngx.Parameter.GetVoidPointer after checking the NGX result.
+        /// </summary>
+        /// <exception cref="NGXException">The NGX operation failed.</exception>
+        public static nint GetVoidPointer(NGXParameter inParameter, string inName)
+        {
+            ThrowIfFailed(GetVoidPointer(inParameter, inName, out nint outValue), "Ngx.Parameter.GetVoidPointer");
+
+            return outValue;
         }
 
         /// <summary>
