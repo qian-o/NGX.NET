@@ -1,31 +1,20 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-internal unsafe struct NGXFeatureCreateParamsNative
+internal unsafe struct NGXFeatureCreateParamsNative(in NGXFeatureCreateParams value)
 {
     [FieldOffset(0)]
-    public uint InWidth;
+    public uint InWidth = value.Width;
 
     [FieldOffset(4)]
-    public uint InHeight;
+    public uint InHeight = value.Height;
 
     [FieldOffset(8)]
-    public uint InTargetWidth;
+    public uint InTargetWidth = value.TargetWidth;
 
     [FieldOffset(12)]
-    public uint InTargetHeight;
+    public uint InTargetHeight = value.TargetHeight;
 
     [FieldOffset(16)]
-    public NGXPerfQualityValue InPerfQualityValue;
-
-    public NGXFeatureCreateParamsNative(in NGXFeatureCreateParams value)
-    {
-        InWidth = value.Width;
-        InHeight = value.Height;
-        InTargetWidth = value.TargetWidth;
-        InTargetHeight = value.TargetHeight;
-        InPerfQualityValue = value.PerfQualityValue;
-    }
+    public NGXPerfQualityValue InPerfQualityValue = value.PerfQualityValue;
 }

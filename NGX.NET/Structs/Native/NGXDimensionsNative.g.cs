@@ -1,19 +1,11 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 8)]
-internal unsafe struct NGXDimensionsNative
+internal unsafe struct NGXDimensionsNative(in NGXDimensions value)
 {
     [FieldOffset(0)]
-    public uint Width;
+    public uint Width = value.Width;
 
     [FieldOffset(4)]
-    public uint Height;
-
-    public NGXDimensionsNative(in NGXDimensions value)
-    {
-        Width = value.Width;
-        Height = value.Height;
-    }
+    public uint Height = value.Height;
 }

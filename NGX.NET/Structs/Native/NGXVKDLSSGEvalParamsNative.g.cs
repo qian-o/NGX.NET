@@ -1,51 +1,35 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 80)]
-internal unsafe struct NGXVKDLSSGEvalParamsNative
+internal unsafe struct NGXVKDLSSGEvalParamsNative(in NGXVKDLSSGEvalParams value, NativeScope scope)
 {
     [FieldOffset(0)]
-    public NGXResourceVKNative* PBackbuffer;
+    public NGXResourceVKNative* PBackbuffer = value.Backbuffer is NGXResourceVK backbuffer ? scope.Alloc(new NGXResourceVKNative(in backbuffer)) : null;
 
     [FieldOffset(8)]
-    public NGXResourceVKNative* PDepth;
+    public NGXResourceVKNative* PDepth = value.Depth is NGXResourceVK depth ? scope.Alloc(new NGXResourceVKNative(in depth)) : null;
 
     [FieldOffset(16)]
-    public NGXResourceVKNative* PMVecs;
+    public NGXResourceVKNative* PMVecs = value.MVecs is NGXResourceVK mVecs ? scope.Alloc(new NGXResourceVKNative(in mVecs)) : null;
 
     [FieldOffset(24)]
-    public NGXResourceVKNative* PHudless;
+    public NGXResourceVKNative* PHudless = value.Hudless is NGXResourceVK hudless ? scope.Alloc(new NGXResourceVKNative(in hudless)) : null;
 
     [FieldOffset(32)]
-    public NGXResourceVKNative* PUI;
+    public NGXResourceVKNative* PUI = value.UI is NGXResourceVK ui ? scope.Alloc(new NGXResourceVKNative(in ui)) : null;
 
     [FieldOffset(40)]
-    public NGXResourceVKNative* PUIAlpha;
+    public NGXResourceVKNative* PUIAlpha = value.UIAlpha is NGXResourceVK uiAlpha ? scope.Alloc(new NGXResourceVKNative(in uiAlpha)) : null;
 
     [FieldOffset(48)]
-    public NGXResourceVKNative* PBidirectionalDistortionField;
+    public NGXResourceVKNative* PBidirectionalDistortionField = value.BidirectionalDistortionField is NGXResourceVK bidirectionalDistortionField ? scope.Alloc(new NGXResourceVKNative(in bidirectionalDistortionField)) : null;
 
     [FieldOffset(56)]
-    public NGXResourceVKNative* POutputInterpFrame;
+    public NGXResourceVKNative* POutputInterpFrame = value.OutputInterpFrame is NGXResourceVK outputInterpFrame ? scope.Alloc(new NGXResourceVKNative(in outputInterpFrame)) : null;
 
     [FieldOffset(64)]
-    public NGXResourceVKNative* POutputRealFrame;
+    public NGXResourceVKNative* POutputRealFrame = value.OutputRealFrame is NGXResourceVK outputRealFrame ? scope.Alloc(new NGXResourceVKNative(in outputRealFrame)) : null;
 
     [FieldOffset(72)]
-    public NGXResourceVKNative* POutputDisableInterpolation;
-
-    public NGXVKDLSSGEvalParamsNative(in NGXVKDLSSGEvalParams value, NativeScope scope)
-    {
-        PBackbuffer = value.Backbuffer is NGXResourceVK backbuffer ? scope.Alloc(new NGXResourceVKNative(in backbuffer)) : null;
-        PDepth = value.Depth is NGXResourceVK depth ? scope.Alloc(new NGXResourceVKNative(in depth)) : null;
-        PMVecs = value.MVecs is NGXResourceVK mVecs ? scope.Alloc(new NGXResourceVKNative(in mVecs)) : null;
-        PHudless = value.Hudless is NGXResourceVK hudless ? scope.Alloc(new NGXResourceVKNative(in hudless)) : null;
-        PUI = value.UI is NGXResourceVK ui ? scope.Alloc(new NGXResourceVKNative(in ui)) : null;
-        PUIAlpha = value.UIAlpha is NGXResourceVK uiAlpha ? scope.Alloc(new NGXResourceVKNative(in uiAlpha)) : null;
-        PBidirectionalDistortionField = value.BidirectionalDistortionField is NGXResourceVK bidirectionalDistortionField ? scope.Alloc(new NGXResourceVKNative(in bidirectionalDistortionField)) : null;
-        POutputInterpFrame = value.OutputInterpFrame is NGXResourceVK outputInterpFrame ? scope.Alloc(new NGXResourceVKNative(in outputInterpFrame)) : null;
-        POutputRealFrame = value.OutputRealFrame is NGXResourceVK outputRealFrame ? scope.Alloc(new NGXResourceVKNative(in outputRealFrame)) : null;
-        POutputDisableInterpolation = value.OutputDisableInterpolation is NGXResourceVK outputDisableInterpolation ? scope.Alloc(new NGXResourceVKNative(in outputDisableInterpolation)) : null;
-    }
+    public NGXResourceVKNative* POutputDisableInterpolation = value.OutputDisableInterpolation is NGXResourceVK outputDisableInterpolation ? scope.Alloc(new NGXResourceVKNative(in outputDisableInterpolation)) : null;
 }

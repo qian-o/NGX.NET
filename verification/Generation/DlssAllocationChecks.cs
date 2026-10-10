@@ -13,6 +13,7 @@ internal static class DlssAllocationChecks
             Visit(compilation, generated, (IMethodSymbol)model.GetDeclaredSymbol(method)!, visited);
         }
 
+        Require(visited.Count is 10, $"DLSS call graph coverage changed: {visited.Count} generated methods/constructors.");
         Console.WriteLine($"PASS D3D11/D3D12 DLSS call graphs: {visited.Count} generated methods/constructors have no managed or native allocation before SDK entry.");
     }
 

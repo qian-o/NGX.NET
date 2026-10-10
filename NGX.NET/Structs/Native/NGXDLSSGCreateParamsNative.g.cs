@@ -1,35 +1,23 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXDLSSGCreateParamsNative
+internal unsafe struct NGXDLSSGCreateParamsNative(in NGXDLSSGCreateParams value)
 {
     [FieldOffset(0)]
-    public uint Width;
+    public uint Width = value.Width;
 
     [FieldOffset(4)]
-    public uint Height;
+    public uint Height = value.Height;
 
     [FieldOffset(8)]
-    public uint NativeBackbufferFormat;
+    public uint NativeBackbufferFormat = value.NativeBackbufferFormat;
 
     [FieldOffset(12)]
-    public uint RenderWidth;
+    public uint RenderWidth = value.RenderWidth;
 
     [FieldOffset(16)]
-    public uint RenderHeight;
+    public uint RenderHeight = value.RenderHeight;
 
     [FieldOffset(20)]
-    public Bool8 DynamicResolutionScaling;
-
-    public NGXDLSSGCreateParamsNative(in NGXDLSSGCreateParams value)
-    {
-        Width = value.Width;
-        Height = value.Height;
-        NativeBackbufferFormat = value.NativeBackbufferFormat;
-        RenderWidth = value.RenderWidth;
-        RenderHeight = value.RenderHeight;
-        DynamicResolutionScaling = value.DynamicResolutionScaling;
-    }
+    public Bool8 DynamicResolutionScaling = value.DynamicResolutionScaling;
 }

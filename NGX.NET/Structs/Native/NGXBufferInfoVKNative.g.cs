@@ -1,19 +1,11 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe struct NGXBufferInfoVKNative
+internal unsafe struct NGXBufferInfoVKNative(in NGXBufferInfoVK value)
 {
     [FieldOffset(0)]
-    public nint Buffer;
+    public nint Buffer = value.Buffer;
 
     [FieldOffset(8)]
-    public uint SizeInBytes;
-
-    public NGXBufferInfoVKNative(in NGXBufferInfoVK value)
-    {
-        Buffer = value.Buffer;
-        SizeInBytes = value.SizeInBytes;
-    }
+    public uint SizeInBytes = value.SizeInBytes;
 }

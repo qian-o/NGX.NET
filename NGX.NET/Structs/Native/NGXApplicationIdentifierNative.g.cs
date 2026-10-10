@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 32)]
 internal unsafe struct NGXApplicationIdentifierNative

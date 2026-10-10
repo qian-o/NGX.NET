@@ -1,23 +1,14 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXCUDAFeatureEvalParamsNative
+internal unsafe struct NGXCUDAFeatureEvalParamsNative(in NGXCUDAFeatureEvalParams value, NativeScope scope)
 {
     [FieldOffset(0)]
-    public ulong* PInColor;
+    public ulong* PInColor = value.Color.HasValue ? scope.Alloc(value.Color.GetValueOrDefault()) : null;
 
     [FieldOffset(8)]
-    public ulong* PInOutput;
+    public ulong* PInOutput = value.Output.HasValue ? scope.Alloc(value.Output.GetValueOrDefault()) : null;
 
     [FieldOffset(16)]
-    public float InSharpness;
-
-    public NGXCUDAFeatureEvalParamsNative(in NGXCUDAFeatureEvalParams value, NativeScope scope)
-    {
-        PInColor = value.Color.HasValue ? scope.Alloc(value.Color.GetValueOrDefault()) : null;
-        PInOutput = value.Output.HasValue ? scope.Alloc(value.Output.GetValueOrDefault()) : null;
-        InSharpness = value.Sharpness;
-    }
+    public float InSharpness = value.Sharpness;
 }

@@ -17,6 +17,6 @@ internal static class Program
         ResultTests.Run(ast.RootElement, files, repository);
         IdentityChecks.Run(files, repository);
         HandwrittenStyleChecks.Run(repository);
-        Console.WriteLine($"PASS {files.Count} direct emitter outputs: syntax, braces, explicit types, member order and whitespace.");
+        Console.WriteLine($"PASS {files.Count} direct emitter outputs: syntax, member order and whitespace.");
     }
 }

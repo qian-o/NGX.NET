@@ -1,35 +1,23 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXD3D12DLISPEvalParamsNative
+internal unsafe struct NGXD3D12DLISPEvalParamsNative(in NGXD3D12DLISPEvalParams value)
 {
     [FieldOffset(0)]
-    public NGXD3D12FeatureEvalParamsNative Feature;
+    public NGXD3D12FeatureEvalParamsNative Feature = new(in value.Feature);
 
     [FieldOffset(24)]
-    public uint InRectX;
+    public uint InRectX = value.RectX;
 
     [FieldOffset(28)]
-    public uint InRectY;
+    public uint InRectY = value.RectY;
 
     [FieldOffset(32)]
-    public uint InRectW;
+    public uint InRectW = value.RectW;
 
     [FieldOffset(36)]
-    public uint InRectH;
+    public uint InRectH = value.RectH;
 
     [FieldOffset(40)]
-    public float InDenoise;
-
-    public NGXD3D12DLISPEvalParamsNative(in NGXD3D12DLISPEvalParams value)
-    {
-        Feature = new(in value.Feature);
-        InRectX = value.RectX;
-        InRectY = value.RectY;
-        InRectW = value.RectW;
-        InRectH = value.RectH;
-        InDenoise = value.Denoise;
-    }
+    public float InDenoise = value.Denoise;
 }

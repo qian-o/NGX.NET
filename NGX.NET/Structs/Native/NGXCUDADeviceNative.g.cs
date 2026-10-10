@@ -1,19 +1,11 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe struct NGXCUDADeviceNative
+internal unsafe struct NGXCUDADeviceNative(in NGXCUDADevice value)
 {
     [FieldOffset(0)]
-    public void* CudaContext;
+    public void* CudaContext = (void*)value.CudaContext;
 
     [FieldOffset(8)]
-    public void* CudaStream;
-
-    public NGXCUDADeviceNative(in NGXCUDADevice value)
-    {
-        CudaContext = (void*)value.CudaContext;
-        CudaStream = (void*)value.CudaStream;
-    }
+    public void* CudaStream = (void*)value.CudaStream;
 }

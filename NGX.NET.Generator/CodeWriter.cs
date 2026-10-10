@@ -68,8 +68,6 @@ internal class CodeWriter
     internal static CodeWriter CreateFile()
     {
         CodeWriter text = new();
-        text.Line("#nullable enable");
-        text.BlankLine();
         text.Line("namespace NGX.NET;");
         text.BlankLine();
 

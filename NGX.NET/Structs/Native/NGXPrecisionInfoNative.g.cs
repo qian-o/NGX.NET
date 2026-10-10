@@ -1,23 +1,14 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 12)]
-internal unsafe struct NGXPrecisionInfoNative
+internal unsafe struct NGXPrecisionInfoNative(in NGXPrecisionInfo value)
 {
     [FieldOffset(0)]
-    public uint IsLowPrecision;
+    public uint IsLowPrecision = value.IsLowPrecision;
 
     [FieldOffset(4)]
-    public float Bias;
+    public float Bias = value.Bias;
 
     [FieldOffset(8)]
-    public float Scale;
-
-    public NGXPrecisionInfoNative(in NGXPrecisionInfo value)
-    {
-        IsLowPrecision = value.IsLowPrecision;
-        Bias = value.Bias;
-        Scale = value.Scale;
-    }
+    public float Scale = value.Scale;
 }

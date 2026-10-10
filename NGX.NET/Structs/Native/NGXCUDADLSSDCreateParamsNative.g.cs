@@ -1,23 +1,14 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe struct NGXCUDADLSSDCreateParamsNative
+internal unsafe struct NGXCUDADLSSDCreateParamsNative(in NGXCUDADLSSDCreateParams value)
 {
     [FieldOffset(0)]
-    public NGXDLSSDCreateParamsNative Feature;
+    public NGXDLSSDCreateParamsNative Feature = new(in value.Feature);
 
     [FieldOffset(40)]
-    public void* InCUContext;
+    public void* InCUContext = (void*)value.CUContext;
 
     [FieldOffset(48)]
-    public void* InCUStream;
-
-    public NGXCUDADLSSDCreateParamsNative(in NGXCUDADLSSDCreateParams value)
-    {
-        Feature = new(in value.Feature);
-        InCUContext = (void*)value.CUContext;
-        InCUStream = (void*)value.CUStream;
-    }
+    public void* InCUStream = (void*)value.CUStream;
 }

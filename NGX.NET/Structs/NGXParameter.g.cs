@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct NGXParameter(nint value) : IEquatable<NGXParameter>

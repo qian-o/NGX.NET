@@ -1,279 +1,206 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 632)]
-internal unsafe struct NGXCUDADLSSDEvalParamsNative
+internal unsafe struct NGXCUDADLSSDEvalParamsNative(in NGXCUDADLSSDEvalParams value, NativeScope scope)
 {
     [FieldOffset(0)]
-    public void* PInDiffuseAlbedo;
+    public void* PInDiffuseAlbedo = (void*)value.DiffuseAlbedo;
 
     [FieldOffset(8)]
-    public void* PInSpecularAlbedo;
+    public void* PInSpecularAlbedo = (void*)value.SpecularAlbedo;
 
     [FieldOffset(16)]
-    public void* PInNormals;
+    public void* PInNormals = (void*)value.Normals;
 
     [FieldOffset(24)]
-    public void* PInRoughness;
+    public void* PInRoughness = (void*)value.Roughness;
 
     [FieldOffset(32)]
-    public void* PInColor;
+    public void* PInColor = (void*)value.Color;
 
     [FieldOffset(40)]
-    public void* PInOutput;
+    public void* PInOutput = (void*)value.Output;
 
     [FieldOffset(48)]
-    public void* PInDepth;
+    public void* PInDepth = (void*)value.Depth;
 
     [FieldOffset(56)]
-    public void* PInMotionVectors;
+    public void* PInMotionVectors = (void*)value.MotionVectors;
 
     [FieldOffset(64)]
-    public float InJitterOffsetX;
+    public float InJitterOffsetX = value.JitterOffsetX;
 
     [FieldOffset(68)]
-    public float InJitterOffsetY;
+    public float InJitterOffsetY = value.JitterOffsetY;
 
     [FieldOffset(72)]
-    public NGXDimensionsNative InRenderSubrectDimensions;
+    public NGXDimensionsNative InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
 
     [FieldOffset(80)]
-    public int InReset;
+    public int InReset = value.Reset;
 
     [FieldOffset(84)]
-    public float InMVScaleX;
+    public float InMVScaleX = value.MVScaleX;
 
     [FieldOffset(88)]
-    public float InMVScaleY;
+    public float InMVScaleY = value.MVScaleY;
 
     [FieldOffset(96)]
-    public void* PInTransparencyMask;
+    public void* PInTransparencyMask = (void*)value.TransparencyMask;
 
     [FieldOffset(104)]
-    public void* PInExposureTexture;
+    public void* PInExposureTexture = (void*)value.ExposureTexture;
 
     [FieldOffset(112)]
-    public void* PInBiasCurrentColorMask;
+    public void* PInBiasCurrentColorMask = (void*)value.BiasCurrentColorMask;
 
     [FieldOffset(120)]
-    public NGXCoordinatesNative InDiffuseAlbedoSubrectBase;
+    public NGXCoordinatesNative InDiffuseAlbedoSubrectBase = new(in value.DiffuseAlbedoSubrectBase);
 
     [FieldOffset(128)]
-    public NGXCoordinatesNative InSpecularAlbedoSubrectBase;
+    public NGXCoordinatesNative InSpecularAlbedoSubrectBase = new(in value.SpecularAlbedoSubrectBase);
 
     [FieldOffset(136)]
-    public NGXCoordinatesNative InNormalsSubrectBase;
+    public NGXCoordinatesNative InNormalsSubrectBase = new(in value.NormalsSubrectBase);
 
     [FieldOffset(144)]
-    public NGXCoordinatesNative InRoughnessSubrectBase;
+    public NGXCoordinatesNative InRoughnessSubrectBase = new(in value.RoughnessSubrectBase);
 
     [FieldOffset(152)]
-    public NGXCoordinatesNative InColorSubrectBase;
+    public NGXCoordinatesNative InColorSubrectBase = new(in value.ColorSubrectBase);
 
     [FieldOffset(160)]
-    public NGXCoordinatesNative InDepthSubrectBase;
+    public NGXCoordinatesNative InDepthSubrectBase = new(in value.DepthSubrectBase);
 
     [FieldOffset(168)]
-    public NGXCoordinatesNative InMVSubrectBase;
+    public NGXCoordinatesNative InMVSubrectBase = new(in value.MVSubrectBase);
 
     [FieldOffset(176)]
-    public NGXCoordinatesNative InTranslucencySubrectBase;
+    public NGXCoordinatesNative InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
 
     [FieldOffset(184)]
-    public NGXCoordinatesNative InBiasCurrentColorSubrectBase;
+    public NGXCoordinatesNative InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
 
     [FieldOffset(192)]
-    public NGXCoordinatesNative InOutputSubrectBase;
+    public NGXCoordinatesNative InOutputSubrectBase = new(in value.OutputSubrectBase);
 
     [FieldOffset(200)]
-    public void* PInReflectedAlbedo;
+    public void* PInReflectedAlbedo = (void*)value.ReflectedAlbedo;
 
     [FieldOffset(208)]
-    public void* PInColorBeforeParticles;
+    public void* PInColorBeforeParticles = (void*)value.ColorBeforeParticles;
 
     [FieldOffset(216)]
-    public void* PInColorBeforeTransparency;
+    public void* PInColorBeforeTransparency = (void*)value.ColorBeforeTransparency;
 
     [FieldOffset(224)]
-    public void* PInColorBeforeFog;
+    public void* PInColorBeforeFog = (void*)value.ColorBeforeFog;
 
     [FieldOffset(232)]
-    public void* PInDiffuseHitDistance;
+    public void* PInDiffuseHitDistance = (void*)value.DiffuseHitDistance;
 
     [FieldOffset(240)]
-    public void* PInSpecularHitDistance;
+    public void* PInSpecularHitDistance = (void*)value.SpecularHitDistance;
 
     [FieldOffset(248)]
-    public void* PInDiffuseRayDirection;
+    public void* PInDiffuseRayDirection = (void*)value.DiffuseRayDirection;
 
     [FieldOffset(256)]
-    public void* PInSpecularRayDirection;
+    public void* PInSpecularRayDirection = (void*)value.SpecularRayDirection;
 
     [FieldOffset(264)]
-    public void* PInDiffuseRayDirectionHitDistance;
+    public void* PInDiffuseRayDirectionHitDistance = (void*)value.DiffuseRayDirectionHitDistance;
 
     [FieldOffset(272)]
-    public void* PInSpecularRayDirectionHitDistance;
+    public void* PInSpecularRayDirectionHitDistance = (void*)value.SpecularRayDirectionHitDistance;
 
     [FieldOffset(280)]
-    public NGXCoordinatesNative InReflectedAlbedoSubrectBase;
+    public NGXCoordinatesNative InReflectedAlbedoSubrectBase = new(in value.ReflectedAlbedoSubrectBase);
 
     [FieldOffset(288)]
-    public NGXCoordinatesNative InColorBeforeParticlesSubrectBase;
+    public NGXCoordinatesNative InColorBeforeParticlesSubrectBase = new(in value.ColorBeforeParticlesSubrectBase);
 
     [FieldOffset(296)]
-    public NGXCoordinatesNative InColorBeforeTransparencySubrectBase;
+    public NGXCoordinatesNative InColorBeforeTransparencySubrectBase = new(in value.ColorBeforeTransparencySubrectBase);
 
     [FieldOffset(304)]
-    public NGXCoordinatesNative InColorBeforeFogSubrectBase;
+    public NGXCoordinatesNative InColorBeforeFogSubrectBase = new(in value.ColorBeforeFogSubrectBase);
 
     [FieldOffset(312)]
-    public NGXCoordinatesNative InDiffuseHitDistanceSubrectBase;
+    public NGXCoordinatesNative InDiffuseHitDistanceSubrectBase = new(in value.DiffuseHitDistanceSubrectBase);
 
     [FieldOffset(320)]
-    public NGXCoordinatesNative InSpecularHitDistanceSubrectBase;
+    public NGXCoordinatesNative InSpecularHitDistanceSubrectBase = new(in value.SpecularHitDistanceSubrectBase);
 
     [FieldOffset(328)]
-    public NGXCoordinatesNative InDiffuseRayDirectionSubrectBase;
+    public NGXCoordinatesNative InDiffuseRayDirectionSubrectBase = new(in value.DiffuseRayDirectionSubrectBase);
 
     [FieldOffset(336)]
-    public NGXCoordinatesNative InSpecularRayDirectionSubrectBase;
+    public NGXCoordinatesNative InSpecularRayDirectionSubrectBase = new(in value.SpecularRayDirectionSubrectBase);
 
     [FieldOffset(344)]
-    public NGXCoordinatesNative InDiffuseRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinatesNative InDiffuseRayDirectionHitDistanceSubrectBase = new(in value.DiffuseRayDirectionHitDistanceSubrectBase);
 
     [FieldOffset(352)]
-    public NGXCoordinatesNative InSpecularRayDirectionHitDistanceSubrectBase;
+    public NGXCoordinatesNative InSpecularRayDirectionHitDistanceSubrectBase = new(in value.SpecularRayDirectionHitDistanceSubrectBase);
 
     [FieldOffset(360)]
-    public Matrix4x4* PInWorldToViewMatrix;
+    public Matrix4x4* PInWorldToViewMatrix = value.WorldToViewMatrix.HasValue ? scope.Alloc(value.WorldToViewMatrix.Value) : null;
 
     [FieldOffset(368)]
-    public Matrix4x4* PInViewToClipMatrix;
+    public Matrix4x4* PInViewToClipMatrix = value.ViewToClipMatrix.HasValue ? scope.Alloc(value.ViewToClipMatrix.Value) : null;
 
     [FieldOffset(376)]
-    public float InPreExposure;
+    public float InPreExposure = value.PreExposure;
 
     [FieldOffset(380)]
-    public float InExposureScale;
+    public float InExposureScale = value.ExposureScale;
 
     [FieldOffset(384)]
-    public int InIndicatorInvertXAxis;
+    public int InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
 
     [FieldOffset(388)]
-    public int InIndicatorInvertYAxis;
+    public int InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
 
     [FieldOffset(392)]
-    public NGXCUDAGBufferNative GBufferSurface;
+    public NGXCUDAGBufferNative GBufferSurface = new(in value.GBufferSurface, scope);
 
     [FieldOffset(528)]
-    public NGXToneMapperType InToneMapperType;
+    public NGXToneMapperType InToneMapperType = value.ToneMapperType;
 
     [FieldOffset(536)]
-    public void* PInMotionVectors3D;
+    public void* PInMotionVectors3D = (void*)value.MotionVectors3D;
 
     [FieldOffset(544)]
-    public void* PInIsParticleMask;
+    public void* PInIsParticleMask = (void*)value.IsParticleMask;
 
     [FieldOffset(552)]
-    public void* PInAnimatedTextureMask;
+    public void* PInAnimatedTextureMask = (void*)value.AnimatedTextureMask;
 
     [FieldOffset(560)]
-    public void* PInDepthHighRes;
+    public void* PInDepthHighRes = (void*)value.DepthHighResolution;
 
     [FieldOffset(568)]
-    public void* PInPositionViewSpace;
+    public void* PInPositionViewSpace = (void*)value.PositionViewSpace;
 
     [FieldOffset(576)]
-    public float InFrameTimeDeltaInMsec;
+    public float InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
 
     [FieldOffset(584)]
-    public void* PInRayTracingHitDistance;
+    public void* PInRayTracingHitDistance = (void*)value.RayTracingHitDistance;
 
     [FieldOffset(592)]
-    public void* PInMotionVectorsReflections;
+    public void* PInMotionVectorsReflections = (void*)value.MotionVectorsReflections;
 
     [FieldOffset(600)]
-    public void* PInTransparencyLayer;
+    public void* PInTransparencyLayer = (void*)value.TransparencyLayer;
 
     [FieldOffset(608)]
-    public NGXCoordinatesNative InTransparencyLayerSubrectBase;
+    public NGXCoordinatesNative InTransparencyLayerSubrectBase = new(in value.TransparencyLayerSubrectBase);
 
     [FieldOffset(616)]
-    public void* PInTransparencyLayerOpacity;
+    public void* PInTransparencyLayerOpacity = (void*)value.TransparencyLayerOpacity;
 
     [FieldOffset(624)]
-    public NGXCoordinatesNative InTransparencyLayerOpacitySubrectBase;
-
-    public NGXCUDADLSSDEvalParamsNative(in NGXCUDADLSSDEvalParams value, NativeScope scope)
-    {
-        PInDiffuseAlbedo = (void*)value.DiffuseAlbedo;
-        PInSpecularAlbedo = (void*)value.SpecularAlbedo;
-        PInNormals = (void*)value.Normals;
-        PInRoughness = (void*)value.Roughness;
-        PInColor = (void*)value.Color;
-        PInOutput = (void*)value.Output;
-        PInDepth = (void*)value.Depth;
-        PInMotionVectors = (void*)value.MotionVectors;
-        InJitterOffsetX = value.JitterOffsetX;
-        InJitterOffsetY = value.JitterOffsetY;
-        InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
-        InReset = value.Reset;
-        InMVScaleX = value.MVScaleX;
-        InMVScaleY = value.MVScaleY;
-        PInTransparencyMask = (void*)value.TransparencyMask;
-        PInExposureTexture = (void*)value.ExposureTexture;
-        PInBiasCurrentColorMask = (void*)value.BiasCurrentColorMask;
-        InDiffuseAlbedoSubrectBase = new(in value.DiffuseAlbedoSubrectBase);
-        InSpecularAlbedoSubrectBase = new(in value.SpecularAlbedoSubrectBase);
-        InNormalsSubrectBase = new(in value.NormalsSubrectBase);
-        InRoughnessSubrectBase = new(in value.RoughnessSubrectBase);
-        InColorSubrectBase = new(in value.ColorSubrectBase);
-        InDepthSubrectBase = new(in value.DepthSubrectBase);
-        InMVSubrectBase = new(in value.MVSubrectBase);
-        InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
-        InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
-        InOutputSubrectBase = new(in value.OutputSubrectBase);
-        PInReflectedAlbedo = (void*)value.ReflectedAlbedo;
-        PInColorBeforeParticles = (void*)value.ColorBeforeParticles;
-        PInColorBeforeTransparency = (void*)value.ColorBeforeTransparency;
-        PInColorBeforeFog = (void*)value.ColorBeforeFog;
-        PInDiffuseHitDistance = (void*)value.DiffuseHitDistance;
-        PInSpecularHitDistance = (void*)value.SpecularHitDistance;
-        PInDiffuseRayDirection = (void*)value.DiffuseRayDirection;
-        PInSpecularRayDirection = (void*)value.SpecularRayDirection;
-        PInDiffuseRayDirectionHitDistance = (void*)value.DiffuseRayDirectionHitDistance;
-        PInSpecularRayDirectionHitDistance = (void*)value.SpecularRayDirectionHitDistance;
-        InReflectedAlbedoSubrectBase = new(in value.ReflectedAlbedoSubrectBase);
-        InColorBeforeParticlesSubrectBase = new(in value.ColorBeforeParticlesSubrectBase);
-        InColorBeforeTransparencySubrectBase = new(in value.ColorBeforeTransparencySubrectBase);
-        InColorBeforeFogSubrectBase = new(in value.ColorBeforeFogSubrectBase);
-        InDiffuseHitDistanceSubrectBase = new(in value.DiffuseHitDistanceSubrectBase);
-        InSpecularHitDistanceSubrectBase = new(in value.SpecularHitDistanceSubrectBase);
-        InDiffuseRayDirectionSubrectBase = new(in value.DiffuseRayDirectionSubrectBase);
-        InSpecularRayDirectionSubrectBase = new(in value.SpecularRayDirectionSubrectBase);
-        InDiffuseRayDirectionHitDistanceSubrectBase = new(in value.DiffuseRayDirectionHitDistanceSubrectBase);
-        InSpecularRayDirectionHitDistanceSubrectBase = new(in value.SpecularRayDirectionHitDistanceSubrectBase);
-        PInWorldToViewMatrix = value.WorldToViewMatrix.HasValue ? scope.Alloc(value.WorldToViewMatrix.Value) : null;
-        PInViewToClipMatrix = value.ViewToClipMatrix.HasValue ? scope.Alloc(value.ViewToClipMatrix.Value) : null;
-        InPreExposure = value.PreExposure;
-        InExposureScale = value.ExposureScale;
-        InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
-        InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
-        GBufferSurface = new(in value.GBufferSurface, scope);
-        InToneMapperType = value.ToneMapperType;
-        PInMotionVectors3D = (void*)value.MotionVectors3D;
-        PInIsParticleMask = (void*)value.IsParticleMask;
-        PInAnimatedTextureMask = (void*)value.AnimatedTextureMask;
-        PInDepthHighRes = (void*)value.DepthHighResolution;
-        PInPositionViewSpace = (void*)value.PositionViewSpace;
-        InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
-        PInRayTracingHitDistance = (void*)value.RayTracingHitDistance;
-        PInMotionVectorsReflections = (void*)value.MotionVectorsReflections;
-        PInTransparencyLayer = (void*)value.TransparencyLayer;
-        InTransparencyLayerSubrectBase = new(in value.TransparencyLayerSubrectBase);
-        PInTransparencyLayerOpacity = (void*)value.TransparencyLayerOpacity;
-        InTransparencyLayerOpacitySubrectBase = new(in value.TransparencyLayerOpacitySubrectBase);
-    }
+    public NGXCoordinatesNative InTransparencyLayerOpacitySubrectBase = new(in value.TransparencyLayerOpacitySubrectBase);
 }

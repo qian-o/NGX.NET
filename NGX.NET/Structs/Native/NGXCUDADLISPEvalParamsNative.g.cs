@@ -1,35 +1,23 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXCUDADLISPEvalParamsNative
+internal unsafe struct NGXCUDADLISPEvalParamsNative(in NGXCUDADLISPEvalParams value, NativeScope scope)
 {
     [FieldOffset(0)]
-    public NGXCUDAFeatureEvalParamsNative Feature;
+    public NGXCUDAFeatureEvalParamsNative Feature = new(in value.Feature, scope);
 
     [FieldOffset(24)]
-    public uint InRectX;
+    public uint InRectX = value.RectX;
 
     [FieldOffset(28)]
-    public uint InRectY;
+    public uint InRectY = value.RectY;
 
     [FieldOffset(32)]
-    public uint InRectW;
+    public uint InRectW = value.RectW;
 
     [FieldOffset(36)]
-    public uint InRectH;
+    public uint InRectH = value.RectH;
 
     [FieldOffset(40)]
-    public float InDenoise;
-
-    public NGXCUDADLISPEvalParamsNative(in NGXCUDADLISPEvalParams value, NativeScope scope)
-    {
-        Feature = new(in value.Feature, scope);
-        InRectX = value.RectX;
-        InRectY = value.RectY;
-        InRectW = value.RectW;
-        InRectH = value.RectH;
-        InDenoise = value.Denoise;
-    }
+    public float InDenoise = value.Denoise;
 }

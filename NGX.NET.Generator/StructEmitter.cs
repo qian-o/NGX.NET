@@ -55,20 +55,24 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
 
     private void WriteNativeRecord(AstRecord record, string managed)
     {
+        bool primaryConstructor = mapper.HasInputConversion(record.Name) && !record.IsUnion && record.Name is not ("NVSDK_NGX_PathListInfo" or "NVSDK_NGX_LoggingInfo" or "NVSDK_NGX_Application_Identifier" or "NVSDK_NGX_Resource_VK") && record.Fields.All(field => (field.Type.Kind is not NativeTypeKind.ConstantArray || MathFieldType(record.Name, field) is not null) && mapper.CallbackName(field.Type) is null);
+        string scope = mapper.Allocates(record.Name) ? ", NativeScope scope" : string.Empty;
+        string parameters = primaryConstructor ? $"(in {managed} value{scope})" : string.Empty;
         CodeWriter text = CreateFile();
         text.Line($"[StructLayout(LayoutKind.Explicit, Size = {record.Size})]");
-        text.BeginBlock($"internal unsafe struct {managed}Native");
+        text.BeginBlock($"internal unsafe struct {managed}Native{parameters}");
         List<(string Name, string Element, int Count)> buffers = [];
 
         foreach (AstField field in record.Fields)
         {
             string name = NativeFieldName(field.Name);
             AstType type = field.Type;
+            string initializer = primaryConstructor ? $" = {FieldInitializer(record.Name, field)}" : string.Empty;
             text.Line($"[FieldOffset({field.Offset / 8})]");
 
             if (MathFieldType(record.Name, field) is string math)
             {
-                text.Line($"public {math} {name};");
+                text.Line($"public {math} {name}{initializer};");
             }
             else if (type.Kind is NativeTypeKind.ConstantArray)
             {
@@ -88,13 +92,13 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
             }
             else
             {
-                text.Line($"public {mapper.Type(type)} {name};");
+                text.Line($"public {mapper.Type(type)} {name}{initializer};");
             }
 
             text.BlankLine();
         }
 
-        if (mapper.HasInputConversion(record.Name))
+        if (mapper.HasInputConversion(record.Name) && !primaryConstructor)
         {
             WriteNativeConstructor(text, record, managed);
         }
@@ -192,9 +196,9 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
             return;
         }
 
-        if (MathFieldType(record, field) is string math)
+        if (MathFieldType(record, field) is not null)
         {
-            text.Line(math.EndsWith('*') ? $"{target} = {source}.HasValue ? scope.Alloc({source}.Value) : null;" : $"{target} = {source};");
+            text.Line($"{target} = {FieldInitializer(record, field)};");
 
             return;
         }
@@ -219,6 +223,31 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
 
     private void EmitAssignment(CodeWriter text, AstType type, string target, string source, bool pointerStorage = false)
     {
+        if (mapper.CallbackName(type) is string callback)
+        {
+            string local = ParameterName(target);
+            text.Line($"{callback}? {local} = CallbackGuard.Wrap({source});");
+            text.Line($"{target} = {local} is null ? 0 : scope.Keep({local});");
+
+            return;
+        }
+
+        text.Line($"{target} = {AssignmentExpression(type, target, source, pointerStorage)};");
+    }
+
+    private string FieldInitializer(string record, AstField field)
+    {
+        string source = "value." + PublicFieldName(record, field.Name);
+        if (MathFieldType(record, field) is string math)
+        {
+            return math.EndsWith('*') ? $"{source}.HasValue ? scope.Alloc({source}.Value) : null" : source;
+        }
+
+        return AssignmentExpression(field.Type, NativeFieldName(field.Name), source);
+    }
+
+    private string AssignmentExpression(AstType type, string target, string source, bool pointerStorage = false)
+    {
         string expression;
 
         if (mapper.IsRecord(type))
@@ -228,15 +257,6 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         else if (type.Kind is NativeTypeKind.Pointer)
         {
             AstType element = type.Element!;
-
-            if (mapper.CallbackName(type) is string callback)
-            {
-                string local = ParameterName(target);
-                text.Line($"{callback}? {local} = CallbackGuard.Wrap({source});");
-                text.Line($"{target} = {local} is null ? 0 : scope.Keep({local});");
-
-                return;
-            }
 
             if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
             {
@@ -262,7 +282,7 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
             expression = source;
         }
 
-        text.Line($"{target} = {expression};");
+        return expression;
     }
 
     private void WriteHandle(string native)

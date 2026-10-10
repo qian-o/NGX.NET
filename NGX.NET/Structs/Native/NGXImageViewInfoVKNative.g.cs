@@ -1,35 +1,23 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXImageViewInfoVKNative
+internal unsafe struct NGXImageViewInfoVKNative(in NGXImageViewInfoVK value)
 {
     [FieldOffset(0)]
-    public nint ImageView;
+    public nint ImageView = value.ImageView;
 
     [FieldOffset(8)]
-    public nint Image;
+    public nint Image = value.Image;
 
     [FieldOffset(16)]
-    public NGXVkImageSubresourceRangeNative SubresourceRange;
+    public NGXVkImageSubresourceRangeNative SubresourceRange = new(in value.SubresourceRange);
 
     [FieldOffset(36)]
-    public NGXVkFormat Format;
+    public NGXVkFormat Format = value.Format;
 
     [FieldOffset(40)]
-    public uint Width;
+    public uint Width = value.Width;
 
     [FieldOffset(44)]
-    public uint Height;
-
-    public NGXImageViewInfoVKNative(in NGXImageViewInfoVK value)
-    {
-        ImageView = value.ImageView;
-        Image = value.Image;
-        SubresourceRange = new(in value.SubresourceRange);
-        Format = value.Format;
-        Width = value.Width;
-        Height = value.Height;
-    }
+    public uint Height = value.Height;
 }

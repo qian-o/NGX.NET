@@ -1,23 +1,14 @@
-﻿#nullable enable
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXD3D11FeatureEvalParamsNative
+internal unsafe struct NGXD3D11FeatureEvalParamsNative(in NGXD3D11FeatureEvalParams value)
 {
     [FieldOffset(0)]
-    public nint PInColor;
+    public nint PInColor = value.Color;
 
     [FieldOffset(8)]
-    public nint PInOutput;
+    public nint PInOutput = value.Output;
 
     [FieldOffset(16)]
-    public float InSharpness;
-
-    public NGXD3D11FeatureEvalParamsNative(in NGXD3D11FeatureEvalParams value)
-    {
-        PInColor = value.Color;
-        PInOutput = value.Output;
-        InSharpness = value.Sharpness;
-    }
+    public float InSharpness = value.Sharpness;
 }
