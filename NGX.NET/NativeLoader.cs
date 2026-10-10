@@ -4,11 +4,8 @@ namespace NGX.NET;
 
 internal static class NativeLoader
 {
-    private const int Unregistered = 0;
-    private const int Registering = 1;
-    private const int Registered = 2;
-
-    private static readonly string? rid = (OperatingSystem.IsWindows(), OperatingSystem.IsLinux(), RuntimeInformation.ProcessArchitecture) switch
+    private static readonly Lock @lock = new();
+    private static readonly string? Rid = (OperatingSystem.IsWindows(), OperatingSystem.IsLinux(), RuntimeInformation.ProcessArchitecture) switch
     {
         (true, _, Architecture.X64) => "win-x64",
         (true, _, Architecture.Arm64) => "win-arm64",
@@ -17,50 +14,46 @@ internal static class NativeLoader
         _ => null
     };
 
-    private static readonly string? file = true switch
+    private static readonly string? FileName = (OperatingSystem.IsWindows(), OperatingSystem.IsLinux()) switch
     {
-        _ when OperatingSystem.IsWindows() => "ngx-bridge.dll",
-        _ when OperatingSystem.IsLinux() => "libngx-bridge.so",
+        (true, _) => "ngx-bridge.dll",
+        (_, true) => "libngx-bridge.so",
         _ => null
     };
 
-    private static int registrationState;
+    private static bool isRegistered;
 
     internal static string RuntimeDirectory { get; } = GetRuntimeDirectory();
 
     internal static void Register()
     {
-        if (Interlocked.CompareExchange(ref registrationState, Registering, Unregistered) is Unregistered)
+        using Lock.Scope _ = @lock.EnterScope();
+
+        if (isRegistered)
         {
-            try
-            {
-                NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
-            }
-            catch (InvalidOperationException)
-            {
-                // The application has already registered an assembly resolver.
-            }
-
-            Volatile.Write(ref registrationState, Registered);
-
             return;
         }
 
-        SpinWait wait = new();
-        while (Volatile.Read(ref registrationState) is not Registered)
+        try
         {
-            wait.SpinOnce();
+            NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
         }
+        catch (InvalidOperationException)
+        {
+            // The application has already registered an assembly resolver.
+        }
+
+        isRegistered = true;
     }
 
     private static string GetRuntimeDirectory()
     {
-        if (rid is null)
+        if (Rid is null)
         {
             return AppContext.BaseDirectory;
         }
 
-        string directory = Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native");
+        string directory = Path.Combine(AppContext.BaseDirectory, "runtimes", Rid, "native");
 
         return Directory.Exists(directory) ? directory : AppContext.BaseDirectory;
     }
@@ -72,17 +65,17 @@ internal static class NativeLoader
             return 0;
         }
 
-        if (file is null)
+        if (FileName is null)
         {
             throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
         }
 
-        if (rid is null)
+        if (Rid is null)
         {
             throw new PlatformNotSupportedException("NGX supports x64 and arm64.");
         }
 
-        return Load(Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native", file), Path.Combine(AppContext.BaseDirectory, file), file);
+        return Load(Path.Combine(AppContext.BaseDirectory, "runtimes", Rid, "native", FileName), Path.Combine(AppContext.BaseDirectory, FileName), FileName);
     }
 
     private static nint Load(params ReadOnlySpan<string> paths)
