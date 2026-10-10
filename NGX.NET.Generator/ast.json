@@ -14503,7 +14503,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed union at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -38523,7 +38523,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed union at D:\\a\\_temp\\sdk\\include\\nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -56972,7 +56972,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed union at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
@@ -75409,7 +75409,7 @@
               "name": "Resource",
               "offset": 0,
               "type": {
-                "cpp": "union (unnamed at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
+                "cpp": "union (unnamed union at /home/runner/work/_temp/sdk/include/nvsdk_ngx_defs_vk.h:94:5)",
                 "kind": "RECORD",
                 "size": 48,
                 "name": "Anonymous_94_5"
