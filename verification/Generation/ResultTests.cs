@@ -7,7 +7,7 @@ internal static class ResultTests
         int count = CheckOverloads(files);
         CheckParsing(ast);
         CheckExecution(files, root);
-        Console.WriteLine($"PASS {count} result overloads: complete coverage, parsing, shared types, collision diagnostics and managed success/failure execution.");
+        Console.WriteLine($"PASS {count} single-output result overloads: complete out coverage, forwarding, collisions, SDK-mask success and failed partial-output reset.");
     }
 
     private static int CheckOverloads(Dictionary<string, string> files)
@@ -19,30 +19,19 @@ internal static class ResultTests
             foreach (MethodDeclarationSyntax original in methods.Where(static method => method.Modifiers.Any(SyntaxKind.PublicKeyword) && method.ReturnType.ToString() is "NGXResult"))
             {
                 ParameterSyntax[] outputs = [.. original.ParameterList.Parameters.Where(static parameter => parameter.Modifiers.Any(SyntaxKind.OutKeyword))];
-                if (outputs.Length is 0)
+                string[] inputs = [.. original.ParameterList.Parameters.Except(outputs).Select(static parameter => parameter.ToString())];
+                MethodDeclarationSyntax[] overloads = [.. methods.Where(method => method.Modifiers.Any(SyntaxKind.PublicKeyword) && method.ReturnType.ToString() is not "NGXResult" && method.Identifier.ValueText == original.Identifier.ValueText && method.ParameterList.Parameters.Select(static parameter => parameter.ToString()).SequenceEqual(inputs))];
+                Require(overloads.Length == (outputs.Length is 1 ? 1 : 0), $"Incorrect value-returning overload count: {path}::{original.Identifier}.");
+
+                if (outputs.Length is not 1)
                 {
                     continue;
                 }
 
-                string[] inputs = [.. original.ParameterList.Parameters.Except(outputs).Select(static parameter => parameter.ToString())];
-                MethodDeclarationSyntax[] overloads = [.. methods.Where(method => method.Identifier.ValueText == original.Identifier.ValueText && method.ParameterList.Parameters.Select(static parameter => parameter.ToString()).SequenceEqual(inputs))];
-                Require(overloads.Length is 1, $"Missing or ambiguous result overload: {path}::{original.Identifier}.");
                 MethodDeclarationSyntax overload = overloads[0];
-                if (outputs.Length is 1)
-                {
-                    Require(overload.ReturnType.ToString() == outputs[0].Type!.ToString(), $"Incorrect single-output type: {original.Identifier}.");
-                }
-                else
-                {
-                    StructDeclarationSyntax structure = CSharpSyntaxTree.ParseText(files[$"Structs/{overload.ReturnType}.g.cs"]).GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>().Single();
-                    Require(structure.Modifiers.Any(SyntaxKind.ReadOnlyKeyword), $"Mutable result: {structure.Identifier}.");
-                    PropertyDeclarationSyntax[] properties = [.. structure.Members.OfType<PropertyDeclarationSyntax>()];
-                    Require(properties.Select(static property => property.Type.ToString()).SequenceEqual(outputs.Select(static parameter => parameter.Type!.ToString())), $"Output order/types changed: {original.Identifier}.");
-                    Require(properties.All(static property => property.AccessorList?.Accessors is [AccessorDeclarationSyntax accessor] && accessor.IsKind(SyntaxKind.GetAccessorDeclaration)), $"Writable result properties: {structure.Identifier}.");
-                }
-
+                Require(overload.ReturnType.ToString() == outputs[0].Type!.ToString(), $"Incorrect single-output type: {original.Identifier}.");
                 InvocationExpressionSyntax[] calls = [.. overload.DescendantNodes().OfType<InvocationExpressionSyntax>()];
-                Require(calls.Length is 1 && calls[0].Expression.ToString() == original.Identifier.ValueText, $"Result wrapper bypassed the original method: {original.Identifier}.");
+                Require(calls.Length is 2 && calls.Count(call => call.Expression is IdentifierNameSyntax name && name.Identifier.ValueText == original.Identifier.ValueText) is 1 && calls.Count(static call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "CheckError" }) is 1, $"Value wrapper must forward once and check its result: {original.Identifier}.");
                 count++;
             }
         }
@@ -60,7 +49,6 @@ internal static class ResultTests
         JsonObject second = (JsonObject)parameters[10]!.DeepClone();
         first["name"] = "ppOutCustomWidth";
         second["name"] = "Out_FrameTime";
-        // Interleaved outputs ensure removal does not shift input/optional parameter indices.
         prototype["parameters"] = new JsonArray(parameters[1]!.DeepClone(), first, parameters[2]!.DeepClone(), second);
         prototype["name"] = "NVSDK_NGX_D3D12_QueryFrameMetrics3";
         prototype["export"] = "TestQueryFrameMetrics3";
@@ -71,88 +59,65 @@ internal static class ResultTests
             ["platforms"] = new JsonObject { ["test"] = platform }
         };
         Dictionary<string, string> generated = Generate(fixture);
-        Require(generated["Structs/FrameMetrics3.g.cs"].Contains("uint customWidth, float frameTime", StringComparison.Ordinal), "Result names or field order depend on known SDK names.");
-        Require(generated["API/D3D12.g.cs"].Contains("public static FrameMetrics3 QueryFrameMetrics3(uint userSelectedWidth, uint userSelectedHeight)", StringComparison.Ordinal), "Interleaved output removal changed input order.");
+        MethodDeclarationSyntax[] methods = PublicMethods(generated["API/D3D12.g.cs"], "QueryFrameMetrics3");
+        Require(methods.Length is 1 && methods[0].ParameterList.Parameters.Select(static parameter => parameter.Identifier.ValueText).SequenceEqual(["userSelectedWidth", "customWidth", "userSelectedHeight", "frameTime"]), "Interleaved multi-output parameters changed order or gained a value wrapper.");
+        Require(methods[0].ReturnType.ToString() is "NGXResult" && methods[0].ParameterList.Parameters.Count(static parameter => parameter.Modifiers.Any(SyntaxKind.OutKeyword)) is 2, "Multi-output functions must retain their complete status/out signature.");
+        Require(generated.Keys.Where(static path => path.StartsWith("Structs/", StringComparison.Ordinal)).All(static path => Path.GetFileName(path).StartsWith("NGX", StringComparison.Ordinal)), "Generation introduced an aggregate result type.");
 
-        JsonObject shared = (JsonObject)prototype.DeepClone();
-        shared["name"] = "NVSDK_NGX_VULKAN_GetFrameMetrics3";
-        functions.Add(shared);
+        prototype["parameters"] = new JsonArray(parameters[1]!.DeepClone(), first.DeepClone(), parameters[2]!.DeepClone());
+        prototype["name"] = "NVSDK_NGX_D3D12_QueryCustomWidth";
         generated = Generate(fixture);
-        Require(generated.Keys.Count(static path => path.EndsWith("/FrameMetrics3.g.cs", StringComparison.Ordinal)) is 1, "Equivalent results were not shared across methods/backends.");
-
-        shared["parameters"]![3]!["name"] = "pOutDifferent";
-        Reject(fixture, "Conflicting result type FrameMetrics3");
-        functions.Remove(shared);
-
-        second["name"] = "OutCustomWidth";
-        Reject(fixture, "Conflicting or invalid result properties");
-        second["name"] = "Out_FrameTime";
-
-        prototype["name"] = "NVSDK_NGX_D3D12_QueryNGXFeatureRequirement";
-        Reject(fixture, "conflicts with an existing generated type");
-        prototype["name"] = "NVSDK_NGX_D3D12_InspectMetrics";
-        Require(Generate(fixture).ContainsKey("Structs/InspectMetricsResult.g.cs"), "Unknown action words have no deterministic fallback.");
-        prototype["name"] = "NVSDK_NGX_D3D12_GetterMetrics";
-        Require(Generate(fixture).ContainsKey("Structs/GetterMetricsResult.g.cs"), "Action removal ignored the PascalCase word boundary.");
-
-        prototype["name"] = "NVSDK_NGX_D3D12_QueryFrameMetrics3";
+        methods = PublicMethods(generated["API/D3D12.g.cs"], "QueryCustomWidth");
+        Require(methods.Length is 2 && methods.Single(static method => method.ReturnType.ToString() is "uint").ParameterList.Parameters.Select(static parameter => parameter.Identifier.ValueText).SequenceEqual(["userSelectedWidth", "userSelectedHeight"]), "Single-output wrapper removal shifted interleaved inputs.");
         JsonObject collision = (JsonObject)prototype.DeepClone();
-        collision["name"] = "NGX_D3D12_QUERY_FRAME_METRICS3";
+        collision["name"] = "NGX_D3D12_QUERY_CUSTOM_WIDTH";
         collision["parameters"] = new JsonArray(parameters[1]!.DeepClone(), parameters[2]!.DeepClone());
         functions.Add(collision);
         Reject(fixture, "Conflicting managed overload");
         functions.Remove(collision);
         prototype["result"] = parameters[1]!["type"]!.DeepClone();
-        Require(!Generate(fixture).ContainsKey("Structs/FrameMetrics3.g.cs"), "A non-status return value was replaced by outputs.");
+        Require(PublicMethods(Generate(fixture)["API/D3D12.g.cs"], "QueryCustomWidth").Length is 1, "A non-status return value gained a convenience wrapper.");
     }
 
     private static void CheckExecution(Dictionary<string, string> files, string root)
     {
-        string scalar = Methods(files["API/Parameter.g.cs"]).Single(static method => method.Identifier.ValueText is "GetI" && method.ReturnType.ToString() is "int").ToString();
-        string arrays = Methods(files["API/Vulkan.g.cs"]).Single(static method => method.Identifier.ValueText is "RequiredExtensions" && method.ReturnType.ToString() is "Extensions").ToString();
-        string settings = Methods(files["API/DLSS.g.cs"]).Single(static method => method.Identifier.ValueText is "GetOptimalSettings" && method.ReturnType.ToString() is "OptimalSettings").ToString();
+        MethodDeclarationSyntax[] parameterMethods = Methods(files["API/Parameter.g.cs"]);
+        string scalar = parameterMethods.Single(static method => method.Identifier.ValueText is "GetI" && method.ReturnType.ToString() is "int").ToString();
+        string scalarOut = parameterMethods.Single(static method => method.Identifier.ValueText is "GetI" && method.ReturnType.ToString() is "NGXResult").ToString();
+        MethodDeclarationSyntax scalarNative = parameterMethods.Single(static method => method.Identifier.ValueText is "GetINative");
+        string parameter = scalarNative.ParameterList.Parameters[0].Identifier.ValueText;
+        string name = scalarNative.ParameterList.Parameters[1].Identifier.ValueText;
+        string value = scalarNative.ParameterList.Parameters[2].Identifier.ValueText;
+        string scalarStub = Stub(scalarNative, $"Calls++; {value} = checked((int){parameter}.Value) + {name}.Length; return TestResult;");
+        MethodDeclarationSyntax[] dlssMethods = Methods(files["API/DLSS.g.cs"]);
+        string statsOut = dlssMethods.Single(static method => method.Identifier.ValueText is "GetStats1" && method.ReturnType.ToString() is "NGXResult").ToString();
+        MethodDeclarationSyntax statsNative = dlssMethods.Single(static method => method.Identifier.ValueText is "GetStats1Native");
+        string statsStub = Stub(statsNative, $"Calls++; {statsNative.ParameterList.Parameters[1].Identifier.ValueText} = 123UL; {statsNative.ParameterList.Parameters[2].Identifier.ValueText} = 9u; return TestResult;");
+        MethodDeclarationSyntax[] vulkanMethods = Methods(files["API/Vulkan.g.cs"]);
+        string arraysOut = vulkanMethods.Single(static method => method.Identifier.ValueText is "RequiredExtensions" && method.ReturnType.ToString() is "NGXResult").ToString();
+        MethodDeclarationSyntax arraysNative = vulkanMethods.Single(static method => method.Identifier.ValueText is "RequiredExtensionsNative");
+        string arraysStub = Stub(arraysNative, $"Calls++; {arraysNative.ParameterList.Parameters[0].Identifier.ValueText} = TestResult.IsSuccess ? 0u : 1u; {arraysNative.ParameterList.Parameters[1].Identifier.ValueText} = (byte**)1; {arraysNative.ParameterList.Parameters[2].Identifier.ValueText} = TestResult.IsSuccess ? 0u : 1u; {arraysNative.ParameterList.Parameters[3].Identifier.ValueText} = (byte**)1; return TestResult;");
         string source = $$"""
             namespace NGX.NET;
-            public static partial class Ngx
+            public static unsafe partial class Ngx
             {
                 public static NGXResult TestResult;
                 public static int Calls;
                 public static class Parameter
                 {
                     {{scalar}}
-                    public static NGXResult GetI(NGXParameter parameters, string name, out int value)
-                    {
-                        Calls++;
-                        value = checked((int)parameters.Value) + name.Length;
-                        return TestResult;
-                    }
-                }
-                public static class Vulkan
-                {
-                    {{arrays}}
-                    public static NGXResult RequiredExtensions(out string[] instance, out string[] device)
-                    {
-                        Calls++;
-                        instance = ["instance"];
-                        device = ["device"];
-                        return TestResult;
-                    }
+                    {{scalarOut}}
+                    {{scalarStub}}
                 }
                 public static class DLSS
                 {
-                    {{settings}}
-                    public static NGXResult GetOptimalSettings(NGXParameter parameters, uint width, uint height, NGXPerfQualityValue quality, out uint optimalWidth, out uint optimalHeight, out uint maxWidth, out uint maxHeight, out uint minWidth, out uint minHeight, out float sharpness)
-                    {
-                        Calls++;
-                        optimalWidth = width;
-                        optimalHeight = height;
-                        maxWidth = width + 1;
-                        maxHeight = height + 2;
-                        minWidth = width - 3;
-                        minHeight = height - 4;
-                        sharpness = 0.25f;
-                        return TestResult;
-                    }
+                    {{statsOut}}
+                    {{statsStub}}
+                }
+                public static class Vulkan
+                {
+                    {{arraysOut}}
+                    {{arraysStub}}
                 }
             }
             public static class ResultProbe
@@ -160,20 +125,26 @@ internal static class ResultTests
                 public static void Run()
                 {
                     NGXParameter parameters = new(12);
-                    Ngx.TestResult = NGXResult.Success;
-                    Require(Ngx.Parameter.GetI(parameters, "test") == 16, "Scalar forwarding");
-                    Extensions extensions = Ngx.Vulkan.RequiredExtensions();
-                    Require(extensions.InstanceExtensions[0] == "instance" && extensions.DeviceExtensions[0] == "device", "Array forwarding");
-                    OptimalSettings settings = Ngx.DLSS.GetOptimalSettings(parameters, 1920, 1080, NGXPerfQualityValue.MaxQuality);
-                    Require(settings.RenderOptimalWidth == 1920 && settings.RenderOptimalHeight == 1080 && settings.RenderMaxWidth == 1921 && settings.RenderMaxHeight == 1082 && settings.RenderMinWidth == 1917 && settings.RenderMinHeight == 1076 && settings.Sharpness == 0.25f, "Multiple-output order");
-                    Require(Ngx.Calls == 3, "Underlying call duplicated");
-                    // Only the explicit Success value permits returning outputs.
-                    foreach (NGXResult result in new[] { NGXResult.Fail, NGXResult.FailInvalidParameter, (NGXResult)0, (NGXResult)2 })
+                    NGXResult[] successes = [NGXResult.Success, (NGXResult)0, (NGXResult)2, (NGXResult)0xBAE00000u];
+                    foreach (NGXResult result in successes)
                     {
                         Ngx.TestResult = result;
+                        int before = Ngx.Calls;
+                        Require(Ngx.Parameter.GetI(parameters, "test", out int value) == result && value is 16, "Successful scalar output forwarding");
+                        Require(Ngx.Parameter.GetI(parameters, "test") is 16, "Successful value wrapper forwarding");
+                        Require(Ngx.DLSS.GetStats1(parameters, out ulong bytes, out uint level) == result && bytes is 123UL && level is 9u, "Successful multiple-output forwarding");
+                        Require(Ngx.Vulkan.RequiredExtensions(out string[] instance, out string[] device) == result && instance.Length is 0 && device.Length is 0, "Successful array output conversion");
+                        Require(Ngx.Calls == before + 4, "Underlying calls duplicated");
+                    }
+
+                    NGXResult[] failures = [NGXResult.Fail, NGXResult.FailInvalidParameter, (NGXResult)0xBADABCDEu];
+                    foreach (NGXResult result in failures)
+                    {
+                        Ngx.TestResult = result;
+                        Require(Ngx.Parameter.GetI(parameters, "test", out int value) == result && value is 0, "Failed scalar partial output was not reset");
+                        Require(Ngx.DLSS.GetStats1(parameters, out ulong bytes, out uint level) == result && bytes is 0UL && level is 0u, "Failed multiple partial outputs were not reset");
+                        Require(Ngx.Vulkan.RequiredExtensions(out string[] instance, out string[] device) == result && instance.Length is 0 && device.Length is 0, "Failed native array partial writes were consumed");
                         CheckFailure(() => Ngx.Parameter.GetI(parameters, "test"), "Ngx.Parameter.GetI");
-                        CheckFailure(() => Ngx.Vulkan.RequiredExtensions(), "Ngx.Vulkan.RequiredExtensions");
-                        CheckFailure(() => Ngx.DLSS.GetOptimalSettings(parameters, 1920, 1080, NGXPerfQualityValue.MaxQuality), "Ngx.DLSS.GetOptimalSettings");
                     }
                 }
 
@@ -186,12 +157,12 @@ internal static class ResultTests
                     }
                     catch (NGXException exception)
                     {
-                        Require(exception.Result == Ngx.TestResult && exception.Message.StartsWith(operation + ":", StringComparison.Ordinal) && Ngx.Calls == before + 1, "Failure details/call count");
+                        Require(exception.Result == Ngx.TestResult && exception.Message.StartsWith($"{operation}:", StringComparison.Ordinal) && Ngx.Calls == before + 1, "Failure details or call count changed");
 
                         return;
                     }
 
-                    throw new Exception("NGX failure did not throw");
+                    throw new Exception("NGX failure did not throw.");
                 }
 
                 private static void Require(bool condition, string message)
@@ -203,16 +174,9 @@ internal static class ResultTests
                 }
             }
             """;
-        List<SyntaxTree> trees = [CSharpSyntaxTree.ParseText("global using System; global using System.Runtime.CompilerServices; global using System.Runtime.InteropServices;"), CSharpSyntaxTree.ParseText(source), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "NGX.NET/NGXException.cs")))];
-        foreach (string name in new[] { "NGXParameter", "NGXResult", "NGXPerfQualityValue", "Extensions", "OptimalSettings" })
-        {
-            string directory = name is "NGXResult" or "NGXPerfQualityValue" ? "Enums" : "Structs";
-
-            trees.Add(CSharpSyntaxTree.ParseText(files[$"{directory}/{name}.g.cs"]));
-        }
-
+        List<SyntaxTree> trees = [CSharpSyntaxTree.ParseText("global using System; global using System.Runtime.CompilerServices; global using System.Runtime.InteropServices;"), CSharpSyntaxTree.ParseText(source), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "NGX.NET/NGXException.cs"))), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "NGX.NET/Extensions.cs"))), CSharpSyntaxTree.ParseText(files["Structs/NGXParameter.g.cs"]), CSharpSyntaxTree.ParseText(files["Enums/NGXResult.g.cs"])];
         string[] assemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
-        CSharpCompilation compilation = CSharpCompilation.Create("ResultOverloadProbe", trees, assemblies.Select(static path => MetadataReference.CreateFromFile(path)), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+        CSharpCompilation compilation = CSharpCompilation.Create("ResultOverloadProbe", trees, assemblies.Select(static path => MetadataReference.CreateFromFile(path)), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true, nullableContextOptions: NullableContextOptions.Enable));
         using MemoryStream stream = new();
         Microsoft.CodeAnalysis.Emit.EmitResult result = compilation.Emit(stream);
         Require(result.Success, string.Join('\n', result.Diagnostics));
@@ -227,6 +191,13 @@ internal static class ResultTests
         {
             context.Unload();
         }
+    }
+
+    private static string Stub(MethodDeclarationSyntax method, string statements)
+    {
+        MethodDeclarationSyntax stub = method.WithAttributeLists(default).WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(static modifier => !modifier.IsKind(SyntaxKind.PartialKeyword)))).WithBody(SyntaxFactory.Block(SyntaxFactory.ParseStatement($"{{{statements}}}"))).WithSemicolonToken(default);
+
+        return stub.ToString();
     }
 
     private static Dictionary<string, string> Generate(JsonObject fixture)
@@ -247,19 +218,16 @@ internal static class ResultTests
             return;
         }
 
-        throw new InvalidOperationException("Expected generation diagnostic: " + expected);
+        throw new InvalidOperationException($"Expected generation diagnostic: {expected}.");
+    }
+
+    private static MethodDeclarationSyntax[] PublicMethods(string source, string name)
+    {
+        return [.. Methods(source).Where(method => method.Modifiers.Any(SyntaxKind.PublicKeyword) && method.Identifier.ValueText == name)];
     }
 
     private static MethodDeclarationSyntax[] Methods(string source)
     {
         return [.. CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()];
-    }
-
-    private static void Require(bool condition, string message)
-    {
-        if (!condition)
-        {
-            throw new InvalidOperationException(message);
-        }
     }
 }

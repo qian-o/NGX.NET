@@ -40,7 +40,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetOptimalSettingsNative(parameters, userSelectedWidth, userSelectedHeight, perfQualityValue, out renderOptimalWidth, out renderOptimalHeight, out renderMaxWidth, out renderMaxHeight, out renderMinWidth, out renderMinHeight, out sharpness);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 renderOptimalWidth = default;
                 renderOptimalHeight = default;
@@ -54,17 +54,6 @@ public static unsafe partial class Ngx
             return result;
         }
 
-        public static OptimalSettings GetOptimalSettings(NGXParameter parameters, uint userSelectedWidth, uint userSelectedHeight, NGXPerfQualityValue perfQualityValue)
-        {
-            NGXResult result = GetOptimalSettings(parameters, userSelectedWidth, userSelectedHeight, perfQualityValue, out uint renderOptimalWidth, out uint renderOptimalHeight, out uint renderMaxWidth, out uint renderMaxHeight, out uint renderMinWidth, out uint renderMinHeight, out float sharpness);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.DLSSD.GetOptimalSettings");
-            }
-
-            return new(renderOptimalWidth, renderOptimalHeight, renderMaxWidth, renderMaxHeight, renderMinWidth, renderMinHeight, sharpness);
-        }
-
         public static NGXResult GetStats(NGXParameter parameters, out ulong vramAllocatedBytes)
         {
             vramAllocatedBytes = default;
@@ -72,7 +61,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStatsNative(parameters, out vramAllocatedBytes);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 vramAllocatedBytes = default;
             }
@@ -82,11 +71,7 @@ public static unsafe partial class Ngx
 
         public static ulong GetStats(NGXParameter parameters)
         {
-            NGXResult result = GetStats(parameters, out ulong vramAllocatedBytes);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.DLSSD.GetStats");
-            }
+            GetStats(parameters, out ulong vramAllocatedBytes).CheckError("Ngx.DLSSD.GetStats");
 
             return vramAllocatedBytes;
         }
@@ -99,24 +84,13 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStats1Native(parameters, out vramAllocatedBytes, out optLevel);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 vramAllocatedBytes = default;
                 optLevel = default;
             }
 
             return result;
-        }
-
-        public static Stats1 GetStats1(NGXParameter parameters)
-        {
-            NGXResult result = GetStats1(parameters, out ulong vramAllocatedBytes, out uint optLevel);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.DLSSD.GetStats1");
-            }
-
-            return new(vramAllocatedBytes, optLevel);
         }
 
         public static NGXResult GetStats2(NGXParameter parameters, out ulong vramAllocatedBytes, out uint optLevel, out uint isDeviceSnippetBranch)
@@ -128,7 +102,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStats2Native(parameters, out vramAllocatedBytes, out optLevel, out isDeviceSnippetBranch);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 vramAllocatedBytes = default;
                 optLevel = default;
@@ -136,17 +110,6 @@ public static unsafe partial class Ngx
             }
 
             return result;
-        }
-
-        public static Stats2 GetStats2(NGXParameter parameters)
-        {
-            NGXResult result = GetStats2(parameters, out ulong vramAllocatedBytes, out uint optLevel, out uint isDeviceSnippetBranch);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.DLSSD.GetStats2");
-            }
-
-            return new(vramAllocatedBytes, optLevel, isDeviceSnippetBranch);
         }
     }
 }

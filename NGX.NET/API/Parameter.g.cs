@@ -83,7 +83,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetDNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -93,11 +93,7 @@ public static unsafe partial class Ngx
 
         public static double GetD(NGXParameter parameter, string name)
         {
-            NGXResult result = GetD(parameter, name, out double value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetD");
-            }
+            GetD(parameter, name, out double value).CheckError("Ngx.Parameter.GetD");
 
             return value;
         }
@@ -110,7 +106,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetD3d11ResourceNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -120,11 +116,7 @@ public static unsafe partial class Ngx
 
         public static nint GetD3d11Resource(NGXParameter parameter, string name)
         {
-            NGXResult result = GetD3d11Resource(parameter, name, out nint value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetD3d11Resource");
-            }
+            GetD3d11Resource(parameter, name, out nint value).CheckError("Ngx.Parameter.GetD3d11Resource");
 
             return value;
         }
@@ -137,7 +129,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetD3d12ResourceNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -147,11 +139,7 @@ public static unsafe partial class Ngx
 
         public static nint GetD3d12Resource(NGXParameter parameter, string name)
         {
-            NGXResult result = GetD3d12Resource(parameter, name, out nint value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetD3d12Resource");
-            }
+            GetD3d12Resource(parameter, name, out nint value).CheckError("Ngx.Parameter.GetD3d12Resource");
 
             return value;
         }
@@ -164,7 +152,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetFNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -174,11 +162,7 @@ public static unsafe partial class Ngx
 
         public static float GetF(NGXParameter parameter, string name)
         {
-            NGXResult result = GetF(parameter, name, out float value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetF");
-            }
+            GetF(parameter, name, out float value).CheckError("Ngx.Parameter.GetF");
 
             return value;
         }
@@ -191,7 +175,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetINative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -201,11 +185,7 @@ public static unsafe partial class Ngx
 
         public static int GetI(NGXParameter parameter, string name)
         {
-            NGXResult result = GetI(parameter, name, out int value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetI");
-            }
+            GetI(parameter, name, out int value).CheckError("Ngx.Parameter.GetI");
 
             return value;
         }
@@ -218,7 +198,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetUINative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -228,11 +208,7 @@ public static unsafe partial class Ngx
 
         public static uint GetUI(NGXParameter parameter, string name)
         {
-            NGXResult result = GetUI(parameter, name, out uint value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetUI");
-            }
+            GetUI(parameter, name, out uint value).CheckError("Ngx.Parameter.GetUI");
 
             return value;
         }
@@ -245,7 +221,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetULLNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -255,11 +231,7 @@ public static unsafe partial class Ngx
 
         public static ulong GetULL(NGXParameter parameter, string name)
         {
-            NGXResult result = GetULL(parameter, name, out ulong value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetULL");
-            }
+            GetULL(parameter, name, out ulong value).CheckError("Ngx.Parameter.GetULL");
 
             return value;
         }
@@ -272,7 +244,7 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull(name);
 
             NGXResult result = GetVoidPointerNative(parameter, name, out value);
-            if (result is not NGXResult.Success)
+            if (result.IsFailure)
             {
                 value = default;
             }
@@ -282,11 +254,7 @@ public static unsafe partial class Ngx
 
         public static nint GetVoidPointer(NGXParameter parameter, string name)
         {
-            NGXResult result = GetVoidPointer(parameter, name, out nint value);
-            if (result is not NGXResult.Success)
-            {
-                throw new NGXException(result, "Ngx.Parameter.GetVoidPointer");
-            }
+            GetVoidPointer(parameter, name, out nint value).CheckError("Ngx.Parameter.GetVoidPointer");
 
             return value;
         }

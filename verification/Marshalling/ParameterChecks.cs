@@ -11,7 +11,7 @@ internal static class ParameterChecks
         NativeLifetime.Retain(NGXGraphicsAPI.Vulkan, parameters, "eval", failed, NGXResult.Fail);
         Assert(!first.IsDisposed && !failed.IsDisposed, "Failed helper preserves both old and newly written data");
         TrackingScope replacement = Storage();
-        NativeLifetime.Retain(NGXGraphicsAPI.Vulkan, parameters, "eval", replacement, NGXResult.Success);
+        NativeLifetime.Retain(NGXGraphicsAPI.Vulkan, parameters, "eval", replacement, (NGXResult)0);
         Assert(first.IsDisposed && failed.IsDisposed && !replacement.IsDisposed, "Successful helper replacement releases previous snapshots");
         TrackingScope cancelled = Storage();
         cancelled.Dispose();

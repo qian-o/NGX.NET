@@ -6,10 +6,9 @@ internal class GenerationPipeline(Models models)
     {
         Dictionary<string, string> files = [];
         TypeMapper mapper = new(models);
-        ResultEmitter results = new(files);
         EnumEmitter enums = new(files);
         StructEmitter structs = new(mapper, files);
-        FunctionEmitter functions = new(mapper, files, results);
+        FunctionEmitter functions = new(mapper, files);
         DelegateEmitter delegates = new(models, mapper, files);
         ConstantsEmitter constants = new(models, files);
 
@@ -30,7 +29,6 @@ internal class GenerationPipeline(Models models)
 
         delegates.WriteCallbacks();
         constants.WriteConstants();
-        results.WriteResultTypes();
 
         return files;
     }

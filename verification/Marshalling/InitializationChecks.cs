@@ -13,7 +13,8 @@ internal static class InitializationChecks
         NativeLifetime.Release(NGXGraphicsAPI.D3D12, 2);
         Assert(!initialized.IsDisposed, "Different device retained");
         TrackingScope additional = Storage();
-        NativeLifetime.Retain(NGXGraphicsAPI.D3D12, 1, additional, NGXResult.Success);
+        NativeLifetime.Retain(NGXGraphicsAPI.D3D12, 1, additional, (NGXResult)2);
+        Assert(!additional.IsDisposed, "Synthetic non-failure initialization code retains its scope");
         NativeLifetime.Release(NGXGraphicsAPI.D3D12, 1);
         Assert(initialized.IsDisposed && additional.IsDisposed, "Shutdown releases every initialized scope for its device");
 

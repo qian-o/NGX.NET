@@ -9,7 +9,7 @@ internal static unsafe class NativeLifetime
 
     internal static void Retain(NGXGraphicsAPI api, nint device, NativeScope scope, NGXResult result)
     {
-        if (result is not NGXResult.Success)
+        if (result.IsFailure)
         {
             scope.Dispose();
 
@@ -37,7 +37,7 @@ internal static unsafe class NativeLifetime
             parameters.Add((parameter.Value, slot), scopes);
         }
 
-        if (result is NGXResult.Success)
+        if (result.IsSuccess)
         {
             foreach ((NGXGraphicsAPI _, NativeScope previous) in scopes)
             {

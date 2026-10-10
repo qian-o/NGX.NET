@@ -9,6 +9,7 @@ internal static class Program
         {
             LayoutChecks.Run(root);
             EnumAndImportChecks.Run(root);
+            ResultChecks.Run();
             SurfaceChecks.Run();
             DiscoveryChecks.Run();
             InvalidInputChecks.Run();

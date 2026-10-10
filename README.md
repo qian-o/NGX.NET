@@ -24,12 +24,10 @@ int available = Ngx.Parameter.GetI(parameters, Ngx.ParameterSuperSamplingAvailab
 
 Console.WriteLine($"DLSS available: {available}.");
 
-NGXResult result = Ngx.D3D12.DestroyParameters(parameters);
-if (result is not NGXResult.Success)
-{
-    throw new NGXException(result, "Ngx.D3D12.DestroyParameters");
-}
+Ngx.D3D12.DestroyParameters(parameters).CheckError("Ngx.D3D12.DestroyParameters");
 ```
+
+Functions return `NGXResult` with `out` values; single-output functions also have a value-returning overload. Use `IsSuccess`, `IsFailure` or `CheckError` for SDK result handling.
 
 See [ownership and native inputs](documents/ownership.md) and [results and output overloads](documents/errors.md) for the API contracts. Managed names omit pointer and direction prefixes; parameter setter/getter function-pointer delegates are replaced by `Ngx.Parameter` methods.
 

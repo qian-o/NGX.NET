@@ -1,7 +1,9 @@
 ﻿namespace NGX.NET.Generator;
 
-internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> files, ResultEmitter results)
+internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> files)
 {
+    private readonly HashSet<string> signatures = [];
+
     internal void WriteFunctions(string group, IEnumerable<AstFunction> source)
     {
         CodeWriter text = CreateFile();
@@ -141,8 +143,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
                 writer.Line($"{name}[i] = {(properties ? $"new(in {local}[i])" : $"Marshal.PtrToStringUTF8((nint){local}[i])!")};");
                 writer.EndBlock();
             }],
-            Output = (element + "[]", name),
-            NativeOutputName = parameter.Name
+            Output = (element + "[]", name)
         };
     }
 
@@ -195,8 +196,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             {
                 Initializers = [$"{name} = default;", $"{native} {local} = default;"],
                 Outputs = [writer => writer.Line($"{name} = new(in {local});")],
-                Output = (managed, name),
-                NativeOutputName = parameter.Name
+                Output = (managed, name)
             };
         }
 
@@ -272,27 +272,51 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         return new($"out {managed} {name}", "out " + name, "out " + name)
         {
             Initializers = [$"{name} = default;"],
-            Output = (managed, name),
-            NativeOutputName = parameter.Name
+            Output = (managed, name)
         };
     }
 
     private void WriteFunction(CodeWriter text, FunctionPlan plan)
     {
-        results.RegisterFunction(plan.Group, plan.Method, plan.Declarations);
+        RegisterFunction(plan.Group, plan.Method, plan.Declarations);
         text.BeginBlock($"public static {plan.Result} {plan.Method}({string.Join(", ", plan.Declarations)})");
         WriteBody(text, plan);
         text.EndBlock();
 
-        if (plan.IsStatus && plan.Outputs.Length is not 0)
+        if (plan.IsStatus && plan.Outputs.Length is 1)
         {
-            results.WriteResultFunction(text, plan.Group, plan.Method, plan.Declarations, plan.Forward, plan.Outputs);
+            WriteValueFunction(text, plan, plan.Declarations, plan.Forward);
         }
 
         if (plan.Optional.Length is not 0)
         {
             WriteOptionalFunction(text, plan);
         }
+    }
+
+    private void RegisterFunction(string group, string method, IReadOnlyList<string> declarations)
+    {
+        string parameters = string.Join(", ", declarations.Select(static declaration => Regex.Replace(declaration[..declaration.LastIndexOf(' ')], @"^(?:in|out|ref) ", "ref ")));
+        string signature = $"{group}.{method}({parameters})";
+        if (!signatures.Add(signature))
+        {
+            throw new InvalidOperationException($"Conflicting managed overload: {signature}.");
+        }
+    }
+
+    private void WriteValueFunction(CodeWriter text, FunctionPlan plan, IReadOnlyList<string> declarations, IReadOnlyList<string> forward)
+    {
+        (int index, string type, string name) = plan.Outputs[0];
+        string[] inputs = [.. declarations.Where((_, parameterIndex) => parameterIndex != index)];
+        string[] arguments = [.. forward];
+        arguments[index] = $"out {type} {name}";
+        string operation = plan.Group.Length is 0 ? $"Ngx.{plan.Method}" : $"Ngx.{plan.Group}.{plan.Method}";
+        RegisterFunction(plan.Group, plan.Method, inputs);
+        text.BeginBlock($"public static {type} {plan.Method}({string.Join(", ", inputs)})");
+        text.Line($"{plan.Method}({string.Join(", ", arguments)}).CheckError(\"{operation}\");");
+        text.BlankLine();
+        text.Line($"return {name};");
+        text.EndBlock();
     }
 
     private void WriteBody(CodeWriter text, FunctionPlan plan)
@@ -381,14 +405,14 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             arguments[index] = $"({type}?){name}";
         }
 
-        results.RegisterFunction(plan.Group, plan.Method, nonNullable);
+        RegisterFunction(plan.Group, plan.Method, nonNullable);
         text.BeginBlock($"public static {plan.Result} {plan.Method}({string.Join(", ", nonNullable)})");
         text.Line($"{(plan.Result is "void" ? string.Empty : "return ")}{plan.Method}({string.Join(", ", arguments)});");
         text.EndBlock();
 
-        if (plan.IsStatus && plan.Outputs.Length is not 0)
+        if (plan.IsStatus && plan.Outputs.Length is 1)
         {
-            results.WriteResultFunction(text, plan.Group, plan.Method, nonNullable, arguments, plan.Outputs);
+            WriteValueFunction(text, plan, nonNullable, arguments);
         }
     }
 
@@ -443,12 +467,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (plan.Method is "DestroyParameters")
         {
-            WriteGuard(text, "result is NGXResult.Success", $"NativeLifetime.Release({plan.ParameterHandle});");
+            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({plan.ParameterHandle});");
         }
 
         if (plan.IsShutdown)
         {
-            WriteGuard(text, "result is NGXResult.Success", $"NativeLifetime.Release({GraphicsApi(plan.Group)}, {plan.Device});");
+            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({GraphicsApi(plan.Group)}, {plan.Device});");
         }
     }
 
@@ -464,7 +488,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         {
             if (plan.IsStatus)
             {
-                text.BeginBlock("if (result is NGXResult.Success)");
+                text.BeginBlock("if (result.IsSuccess)");
             }
 
             foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
@@ -485,7 +509,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (plan.IsStatus)
         {
-            text.BeginBlock("if (result is not NGXResult.Success)");
+            text.BeginBlock("if (result.IsFailure)");
             WriteOutputReset(text, plan);
             text.EndBlock();
         }
@@ -493,7 +517,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
     private static void WriteOutputReset(CodeWriter text, FunctionPlan plan)
     {
-        foreach ((int _, string type, string name, string _) in plan.Outputs)
+        foreach ((int _, string type, string name) in plan.Outputs)
         {
             text.Line($"{name} = {(type.EndsWith("[]", StringComparison.Ordinal) ? "[]" : "default")};");
         }
@@ -519,8 +543,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         public Action<CodeWriter>[] Outputs { get; init; } = [];
 
         public (string Type, string Name)? Output { get; init; }
-
-        public string? NativeOutputName { get; init; }
 
         public (string Type, string Name)? Optional { get; init; }
 
@@ -561,7 +583,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public readonly string[] Forward = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static parameter => parameter.Forward)];
 
-        public readonly (int Index, string Type, string Name, string NativeName)[] Outputs = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Output.HasValue).Select(static item => (item.Index, item.Parameter.Output!.Value.Type, item.Parameter.Output.Value.Name, item.Parameter.NativeOutputName!))];
+        public readonly (int Index, string Type, string Name)[] Outputs = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Output.HasValue).Select(static item => (item.Index, item.Parameter.Output!.Value.Type, item.Parameter.Output.Value.Name))];
 
         public readonly (int Index, string Type, string Name)[] Optional = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Optional.HasValue).Select(static item => (item.Index, item.Parameter.Optional!.Value.Type, item.Parameter.Optional.Value.Name))];
 
