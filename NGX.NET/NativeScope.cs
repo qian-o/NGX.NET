@@ -27,6 +27,7 @@ internal unsafe class NativeScope : DisposableObject
         }
 
         T* pointer = (T*)NativeMemory.AllocZeroed((nuint)count, (nuint)sizeof(T));
+
         if (allocations is null)
         {
             allocations = ArrayPool<nint>.Shared.Rent(1);

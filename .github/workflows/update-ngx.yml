@@ -118,7 +118,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           NGX_BASE_BRANCH: ${{ github.ref_name }}
           NGX_REPOSITORY: ${{ github.repository }}
-          NGX_UPDATE_BRANCH: codex/update-ngx-${{ github.run_id }}-${{ github.run_attempt }}
+          NGX_UPDATE_BRANCH: update-ngx/${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           git add bridge native NGX.NET.Generator/ast.json NGX.NET NuGet.Packaging.props
           if git diff --cached --quiet; then exit 0; fi

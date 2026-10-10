@@ -66,15 +66,16 @@ internal static class CallbackGuard
         };
     }
 
-    internal static void Report(Exception exception)
+    private static void Report(Exception exception)
     {
         try
         {
             Trace.TraceError("NGX callback failed: {0}", exception);
         }
-        catch
+        catch (Exception)
         {
             // A trace listener must never unwind through native code.
+            return;
         }
     }
 }
