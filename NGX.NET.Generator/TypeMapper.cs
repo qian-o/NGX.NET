@@ -510,12 +510,12 @@ internal class TypeMapper
 
         return string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part =>
         {
-            if (System.Text.RegularExpressions.Regex.IsMatch(part, @"^[RGBADESX0-9]+$") && part.Any(char.IsDigit))
+            if (Regex.IsMatch(part, @"^[RGBADESX0-9]+$") && part.Any(char.IsDigit))
             {
                 return part;
             }
 
-            return string.Concat(System.Text.RegularExpressions.Regex.Matches(part, @"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+").Select(static match => char.ToUpperInvariant(match.Value[0]) + match.Value[1..].ToLowerInvariant()));
+            return string.Concat(Regex.Matches(part, @"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+").Select(static match => char.ToUpperInvariant(match.Value[0]) + match.Value[1..].ToLowerInvariant()));
         }));
     }
 
@@ -544,6 +544,7 @@ internal class TypeMapper
             _ => null
         };
     }
+
     private static string ManagedName(string native)
     {
         string name = Regex.Replace(native, @"^[pP]+(?=[A-Z_])_?", string.Empty);
