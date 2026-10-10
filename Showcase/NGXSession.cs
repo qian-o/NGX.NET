@@ -260,9 +260,8 @@ internal class NGXSession : IDisposable
         uint renderHeight = (uint)height;
         if (value.Reconstruction is Reconstruction.DLSS or Reconstruction.RayReconstruction)
         {
-            OptimalSettings optimalSettings = value.Reconstruction is Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality);
-            renderWidth = optimalSettings.RenderOptimalWidth;
-            renderHeight = optimalSettings.RenderOptimalHeight;
+            NGXResult result = value.Reconstruction is Reconstruction.DLSS ? Ngx.DLSS.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out _, out _, out _, out _, out _) : Ngx.DLSSD.GetOptimalSettings(capabilities, (uint)width, (uint)height, value.ReconstructionQuality, out renderWidth, out renderHeight, out _, out _, out _, out _, out _);
+            result.CheckError(value.Reconstruction is Reconstruction.DLSS ? "Ngx.DLSS.GetOptimalSettings" : "Ngx.DLSSD.GetOptimalSettings");
         }
 
         inputWidth = (int)renderWidth;
