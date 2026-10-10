@@ -7,7 +7,7 @@ internal class DelegateEmitter(Models models, TypeMapper mapper, Dictionary<stri
         CodeWriter guards = CreateFile();
         guards.BeginBlock("internal static partial class NgxCallbacks");
 
-        foreach (AstCallback model in models.Callbacks)
+        foreach (AstCallback model in models.Callbacks.Where(static callback => !callback.Name.StartsWith("PFN_NVSDK_NGX_Parameter_", StringComparison.Ordinal)))
         {
             string name = model.Name;
             string managed = TypeName(name);
@@ -16,11 +16,10 @@ internal class DelegateEmitter(Models models, TypeMapper mapper, Dictionary<stri
             string[] names = [.. model.Parameters.Select(static parameter => parameter.Name)];
 
             string arguments = string.Join(", ", parameters.Select((parameter, i) => $"{parameter.Attribute}{parameter.Modifier}{parameter.Type} {names[i]}"));
-            CodeWriter callback = CreateFile("System.Runtime.InteropServices");
-            WriteSummary(callback, name);
+            CodeWriter callback = CreateFile();
             callback.Line("[UnmanagedFunctionPointer(CallingConvention.Cdecl)]");
             callback.Line($"public delegate {result} {managed}({arguments});");
-            files[$"Callbacks/{managed}.g.cs"] = callback.ToString();
+            files[$"Delegates/{managed}.g.cs"] = callback.ToString();
 
             bool used = models.Functions.Values.SelectMany(static function => function.Parameters.Select(static parameter => parameter.Type)).Concat(models.Records.Values.SelectMany(static record => record.Fields.Select(static field => field.Type))).Any(type => mapper.CallbackName(type) == managed);
             if (!used)
@@ -70,7 +69,7 @@ internal class DelegateEmitter(Models models, TypeMapper mapper, Dictionary<stri
         }
 
         guards.EndBlock();
-        files["Callbacks/NgxCallbacks.g.cs"] = guards.ToString();
+        files["Delegates/NgxCallbacks.g.cs"] = guards.ToString();
     }
 
     private (string Type, string Modifier, string Attribute) CallbackParameter(AstCallbackParameter parameter)

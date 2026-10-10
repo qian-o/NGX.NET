@@ -4,12 +4,11 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 {
     internal void WriteFunctions(string group, IEnumerable<AstFunction> source)
     {
-        CodeWriter text = CreateFile("System.Runtime.CompilerServices", "System.Runtime.InteropServices");
+        CodeWriter text = CreateFile();
         text.BeginBlock("public static unsafe partial class Ngx");
 
         if (group.Length is not 0)
         {
-            WriteSummary(text, $"{group} application API and native helpers.");
             text.BeginBlock($"public static partial class {group}");
         }
 
@@ -17,7 +16,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         foreach (AstFunction function in ordered)
         {
             string method = FunctionName(function.Name).Method;
-            string arguments = string.Join(", ", function.Parameters.Select(parameter => $"{mapper.Type(parameter.Type)} {ParameterName(parameter.Name)}"));
+            string arguments = string.Join(", ", function.Parameters.Select(parameter => $"{mapper.NativeParameterType(parameter)} {NativeParameterName(parameter.Name)}"));
             text.Line($"[LibraryImport(LibraryName, EntryPoint = \"{function.Export}\")]");
             text.Line("[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
             text.Line($"private static partial {mapper.Type(function.Result)} {method}Native({arguments});");
@@ -57,13 +56,13 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
     private ParameterPlan PlanParameter(AstParameter parameter, bool retained)
     {
         string name = ParameterName(parameter.Name);
-        string local = name + "Native";
+        string local = LocalName(parameter, name);
         AstType type = parameter.Type;
         string raw = mapper.Type(type);
 
         if (parameter.Role is ParameterRole.ExtensionCount)
         {
-            return new(null, "&" + local, string.Empty) { Locals = [$"uint {local} = 0;"] };
+            return new(null, "out " + local, string.Empty) { Locals = [$"uint {local} = 0;"] };
         }
 
         if (parameter.Role is ParameterRole.ExtensionProperties or ParameterRole.ExtensionNames)
@@ -102,7 +101,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
             if (parameter.Direction is ParameterDirection.Out)
             {
-                return PlanOutput(parameter, name, local, raw);
+                return PlanOutput(parameter, name);
             }
 
             return new($"nint {name}", raw is "nint" ? name : $"({raw}){name}", name) { Device = parameter.Role is ParameterRole.Device ? name : null };
@@ -126,20 +125,21 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         bool properties = parameter.Role is ParameterRole.ExtensionProperties;
         string element = properties ? "NGXVkExtensionProperties" : "string";
         string native = properties ? "NGXVkExtensionPropertiesNative*" : "sbyte**";
-        string count = ParameterName(parameter.CountParameter) + "Native";
+        string count = ParameterName(parameter.CountParameter);
 
-        return new($"out {element}[] {name}", "&" + local, "out " + name)
+        return new($"out {element}[] {name}", "out " + local, "out " + name)
         {
             Locals = [$"{name} = [];", $"{native} {local} = null;"],
             Outputs = [writer =>
             {
                 writer.Line($"{name} = new {element}[checked((int){count})];");
-                WriteGuard(writer, $"{name}.Length is not 0 && {local} == null", "throw new InvalidOperationException(\"NGX returned a null extension array.\");");
+                WriteGuard(writer, $"{name}.Length is not 0 && {local} is null", "throw new InvalidOperationException(\"NGX returned a null extension array.\");");
                 writer.BeginBlock($"for (int i = 0; i < {name}.Length; i++)");
                 writer.Line($"{name}[i] = {(properties ? $"new(in {local}[i])" : $"NGXMarshal.PtrToString({local}[i], NGXEncoding.Utf8)!")};");
                 writer.EndBlock();
             }],
-            Output = (element + "[]", name)
+            Output = (element + "[]", name),
+            NativeOutputName = parameter.Name
         };
     }
 
@@ -160,7 +160,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
     private ParameterPlan PlanHandle(AstType type, string name)
     {
-        return new($"{mapper.ManagedRecord(type.Name)} {name}", name + ".Value", name)
+        return new($"{mapper.ManagedRecord(type.Name)} {name}", name, name)
         {
             Setup = [writer => WriteGuard(writer, $"{name}.IsNull", $"throw new ArgumentException(\"A non-null NGX handle is required.\", nameof({name}));")],
             ParameterHandle = type.Name is "NVSDK_NGX_Parameter" ? name + ".Value" : null
@@ -185,11 +185,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (output)
         {
-            return new(declaration, "&" + local, forward)
+            return new(declaration, "out " + local, forward)
             {
                 Locals = [$"{native} {local} = default;", $"{name} = default;"],
                 Outputs = [writer => writer.Line($"{name} = new(in {local});")],
-                Output = (managed, name)
+                Output = (managed, name),
+                NativeOutputName = parameter.Name
             };
         }
 
@@ -217,9 +218,10 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (retained)
         {
-            locals.Add($"{native}* {local}Pointer = null;");
-            setup.Add(writer => writer.Line($"{local}Pointer = {(optional ? name + ".HasValue ? " : string.Empty)}storage!.Take(ref {local}){(optional ? " : null" : string.Empty)};"));
-            argument = local + "Pointer";
+            string pointer = "p" + char.ToUpperInvariant(name[0]) + name[1..];
+            locals.Add($"{native}* {pointer} = null;");
+            setup.Add(writer => writer.Line($"{pointer} = {(optional ? name + ".HasValue ? " : string.Empty)}storage!.Take(ref {local}){(optional ? " : null" : string.Empty)};"));
+            argument = pointer;
         }
 
         return new(declaration, argument, forward)
@@ -231,28 +233,15 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         };
     }
 
-    private ParameterPlan PlanOutput(AstParameter parameter, string name, string local, string raw)
+    private ParameterPlan PlanOutput(AstParameter parameter, string name)
     {
-        AstType element = parameter.Type.Element!;
-        string managed = element.Kind is NativeTypeKind.Pointer ? mapper.PublicType(element) : raw[..^1];
+        string managed = mapper.NativeParameterType(parameter)[4..];
 
-        if (managed.EndsWith('?'))
+        return new($"out {managed} {name}", "out " + name, "out " + name)
         {
-            managed = managed[..^1];
-        }
-
-        string output = managed switch
-        {
-            "NGXParameter" or "NGXHandle" => $"new({local})",
-            "nint" => $"(nint){local}",
-            _ => local
-        };
-
-        return new($"out {managed} {name}", "&" + local, "out " + name)
-        {
-            Locals = [$"{name} = default;", $"{raw[..^1]} {local} = default;"],
-            Outputs = [writer => writer.Line($"{name} = {output};")],
+            Locals = [$"{name} = default;"],
             Output = (managed, name),
+            NativeOutputName = parameter.Name,
             Allocated = managed is "NGXParameter" ? name + ".Value" : null
         };
     }
@@ -260,7 +249,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
     private void WriteFunction(CodeWriter text, FunctionPlan plan)
     {
         results.RegisterFunction(plan.Group, plan.Method, plan.Declarations);
-        WriteSummary(text, plan.Function.Name);
         text.BeginBlock($"public static {plan.Result} {plan.Method}({string.Join(", ", plan.Declarations)})");
         WriteBody(text, plan);
         text.EndBlock();
@@ -324,6 +312,14 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             text.Line("attached = true;");
         }
 
+        if (plan.CanReturnDirectly)
+        {
+            text.BlankLine();
+            text.Line($"return {plan.Method}Native({string.Join(", ", plan.Parameters.Select(static parameter => parameter.Argument))});");
+
+            return;
+        }
+
         string assignment = (plan.Result, plan.IsRetained) switch
         {
             ("void", _) => string.Empty,
@@ -383,7 +379,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         }
 
         results.RegisterFunction(plan.Group, plan.Method, nonNullable);
-        WriteSummary(text, $"{plan.Function.Name}. Overload for a present optional structure.");
         text.BeginBlock($"public static {plan.Result} {plan.Method}({string.Join(", ", nonNullable)})");
         text.Line($"{(plan.Result is "void" ? string.Empty : "return ")}{plan.Method}({string.Join(", ", arguments)});");
         text.EndBlock();
@@ -405,7 +400,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             setup.Add(writer => writer.Line($"ArgumentNullException.ThrowIfNull({name});"));
         }
 
-        setup.Add(writer => writer.Line($"{local} = ({raw}){(retained ? "storage!.String" : "NGXMarshal.StringToPtr")}({name}, NGXEncoding.{encoding});"));
+        setup.Add(writer => writer.Line($"{local} = {(raw is "void*" ? string.Empty : $"({raw})")}{(retained ? "storage!.String" : "NGXMarshal.StringToPtr")}({name}, NGXEncoding.{encoding});"));
 
         return new($"string{(required ? string.Empty : "?")} {name}", local, name)
         {
@@ -429,30 +424,79 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
     private static void WriteOutputs(CodeWriter text, FunctionPlan plan)
     {
-        if (!plan.Parameters.Any(static parameter => parameter.Outputs.Length is not 0))
+        bool conversions = plan.Parameters.Any(static parameter => parameter.Outputs.Length is not 0);
+        if (!conversions && plan.Outputs.Length is 0)
         {
+            return;
+        }
+
+        if (conversions || plan.Allocated.Length is not 0)
+        {
+            if (plan.IsStatus)
+            {
+                text.BeginBlock("if (result is NGXResult.Success)");
+            }
+
+            foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
+            {
+                output(text);
+            }
+
+            if (plan.Allocated.Length is not 0)
+            {
+                text.Line($"NgxLifetime.RegisterParameters(\"{plan.Group}\", {plan.Allocated});");
+            }
+
+            if (plan.IsStatus)
+            {
+                text.EndBlock();
+                text.BeginBlock("else", continuation: true);
+                WriteOutputReset(text, plan);
+                text.EndBlock();
+            }
+
             return;
         }
 
         if (plan.IsStatus)
         {
-            text.BeginBlock("if (result is NGXResult.Success)");
-        }
-
-        foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
-        {
-            output(text);
-        }
-
-        if (plan.Allocated.Length is not 0)
-        {
-            text.Line($"NgxLifetime.RegisterParameters(\"{plan.Group}\", {plan.Allocated});");
-        }
-
-        if (plan.IsStatus)
-        {
+            text.BeginBlock("if (result is not NGXResult.Success)");
+            WriteOutputReset(text, plan);
             text.EndBlock();
         }
+    }
+
+    private static void WriteOutputReset(CodeWriter text, FunctionPlan plan)
+    {
+        foreach ((int _, string type, string name, string _) in plan.Outputs)
+        {
+            text.Line($"{name} = {(type.EndsWith("[]", StringComparison.Ordinal) ? "[]" : "default")};");
+        }
+    }
+
+    private static string LocalName(AstParameter parameter, string name)
+    {
+        if (parameter.Role is ParameterRole.ExtensionCount)
+        {
+            return name;
+        }
+
+        if (parameter.Role is ParameterRole.ExtensionProperties or ParameterRole.ExtensionNames)
+        {
+            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
+        }
+
+        if (parameter.Type.Kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference && parameter.Type.Element!.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
+        {
+            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
+        }
+
+        if (parameter.Role is ParameterRole.CudaDevice)
+        {
+            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
+        }
+
+        return name + "Native";
     }
 
     private static void WriteCleanup(CodeWriter text, FunctionPlan plan)
@@ -506,6 +550,8 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public (string Type, string Name)? Output { get; init; }
 
+        public string? NativeOutputName { get; init; }
+
         public (string Type, string Name)? Optional { get; init; }
 
         public string? Device { get; init; }
@@ -539,7 +585,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public readonly string[] Forward = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static parameter => parameter.Forward)];
 
-        public readonly (int Index, string Type, string Name)[] Outputs = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Output.HasValue).Select(static item => (item.Index, item.Parameter.Output!.Value.Type, item.Parameter.Output.Value.Name))];
+        public readonly (int Index, string Type, string Name, string NativeName)[] Outputs = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Output.HasValue).Select(static item => (item.Index, item.Parameter.Output!.Value.Type, item.Parameter.Output.Value.Name, item.Parameter.NativeOutputName!))];
 
         public readonly (int Index, string Type, string Name)[] Optional = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static (parameter, index) => (Parameter: parameter, Index: index)).Where(static item => item.Parameter.Optional.HasValue).Select(static item => (item.Index, item.Parameter.Optional!.Value.Type, item.Parameter.Optional.Value.Name))];
 
@@ -558,5 +604,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         public bool IsGuarded => IsRetained || Parameters.Any(static parameter => parameter.Cleanup.Length is not 0) || HasCudaDevice;
 
         public bool IsShutdown => Method.StartsWith("Shutdown", StringComparison.Ordinal);
+
+        public bool CanReturnDirectly => !IsGuarded && Outputs.Length is 0 && Result is not "void" && Result == NativeResult && Method is not "DestroyParameters" && !IsShutdown;
     }
 }

@@ -67,7 +67,7 @@ def verify_generation():
         shutil.copyfile(ROOT / "NGX.NET.Generator/ast.json", root / "NGX.NET.Generator/ast.json")
         print(execute([*generator, str(root)]), end="")
         print(execute(["dotnet", "run", "--project", "verification/Generation/Generation.csproj", "--", str(root), str(ROOT)]), end="")
-        handle = root / "NGX.NET/Types/NGXHandle.g.cs"
+        handle = root / "NGX.NET/Structs/NGXHandle.g.cs"
         canonical = handle.read_bytes()
         handle.write_bytes(canonical.removeprefix(b"\xef\xbb\xbf"))
         repaired = execute([*generator, str(root)])

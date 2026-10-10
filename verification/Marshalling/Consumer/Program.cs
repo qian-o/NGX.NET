@@ -13,11 +13,11 @@ NGXDLSSCreateParams create = new()
 {
     Feature = new()
     {
-        InWidth = 1280,
-        InHeight = 720,
-        InTargetWidth = 1920,
-        InTargetHeight = 1080,
-        InPerfQualityValue = NGXPerfQualityValue.MaxQuality
+        Width = 1280,
+        Height = 720,
+        TargetWidth = 1920,
+        TargetHeight = 1080,
+        PerfQualityValue = NGXPerfQualityValue.MaxQuality
     }
 };
 Action invoke = () =>

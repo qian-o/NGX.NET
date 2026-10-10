@@ -183,6 +183,38 @@ internal class TypeMapper
         };
     }
 
+    internal string NativeParameterType(AstParameter parameter)
+    {
+        AstType type = parameter.Type;
+
+        if (parameter.Direction is ParameterDirection.Out)
+        {
+            AstType element = type.Element!;
+            string output = Type(type)[..^1];
+
+            if (element.Kind is NativeTypeKind.Pointer)
+            {
+                if (element.Element is { Kind: NativeTypeKind.Record, Name: "NVSDK_NGX_Parameter" or "NVSDK_NGX_Handle" } handle)
+                {
+                    output = ManagedRecord(handle.Name);
+                }
+                else if (element.Element!.Kind is NativeTypeKind.Void)
+                {
+                    output = "nint";
+                }
+            }
+
+            return "out " + output;
+        }
+
+        if (type.Element is { Kind: NativeTypeKind.Record, Name: "NVSDK_NGX_Parameter" or "NVSDK_NGX_Handle" } input)
+        {
+            return ManagedRecord(input.Name);
+        }
+
+        return Type(type);
+    }
+
     internal static string[] CallbackArguments(string name)
     {
         if (name is "NVSDK_NGX_AppLogCallback")
@@ -254,7 +286,7 @@ internal class TypeMapper
         return name.StartsWith("NGX", StringComparison.Ordinal) ? name : "NGX" + name;
     }
 
-    internal static string ParameterName(string native)
+    internal static string NativeParameterName(string native)
     {
         string name = Name(native);
         // Preserve existing camelCase prefixes, such as pVRAMAllocatedBytes.
@@ -265,6 +297,40 @@ internal class TypeMapper
             "abstract" or "as" or "base" or "bool" or "break" or "byte" or "case" or "catch" or "char" or "checked" or "class" or "const" or "continue" or "decimal" or "default" or "delegate" or "do" or "double" or "else" or "enum" or "event" or "explicit" or "extern" or "false" or "finally" or "fixed" or "float" or "for" or "foreach" or "goto" or "if" or "implicit" or "in" or "int" or "interface" or "internal" or "is" or "lock" or "long" or "namespace" or "new" or "null" or "object" or "operator" or "out" or "override" or "params" or "private" or "protected" or "public" or "readonly" or "ref" or "return" or "sbyte" or "sealed" or "short" or "sizeof" or "stackalloc" or "static" or "string" or "struct" or "switch" or "this" or "throw" or "true" or "try" or "typeof" or "uint" or "ulong" or "unchecked" or "unsafe" or "ushort" or "using" or "virtual" or "void" or "volatile" or "while" => "@" + name,
             _ => name
         };
+    }
+
+    internal static string ParameterName(string native)
+    {
+        return NativeParameterName(ManagedName(native));
+    }
+
+    internal static string NativeFieldName(string native)
+    {
+        return Name(native);
+    }
+
+    internal static string EnumMember(string enumName, string nativeMember)
+    {
+        string prefix = enumName + "_";
+        bool hasPrefix = nativeMember.StartsWith(prefix, StringComparison.Ordinal);
+        string member = hasPrefix ? nativeMember[prefix.Length..] : nativeMember.Replace("NVSDK_NGX_", string.Empty, StringComparison.Ordinal);
+
+        if (!hasPrefix)
+        {
+            string[] parts = nativeMember.Split('_');
+            string normalized = enumName.Replace("_", string.Empty, StringComparison.Ordinal);
+            for (int count = 1; count < parts.Length; count++)
+            {
+                if (string.Concat(parts.Take(count)).Equals(normalized, StringComparison.OrdinalIgnoreCase))
+                {
+                    member = string.Join("_", parts.Skip(count));
+
+                    break;
+                }
+            }
+        }
+
+        return EnumMember(member);
     }
 
     internal static (string Group, string Method) FunctionName(string native)
@@ -311,7 +377,7 @@ internal class TypeMapper
 
     internal static string PublicFieldName(string record, string field)
     {
-        return record is "NVSDK_NGX_PathListInfo" && field is "Path" ? "Paths" : Name(field);
+        return record is "NVSDK_NGX_PathListInfo" && field is "Path" ? "Paths" : Name(ManagedName(field));
     }
 
     internal static string? MathFieldType(string record, AstField field)
@@ -328,5 +394,23 @@ internal class TypeMapper
             "NVSDK_NGX_CUDA_DLSSD_Eval_Params" or "NVSDK_NGX_D3D11_DLSSD_Eval_Params" or "NVSDK_NGX_D3D12_DLSSD_Eval_Params" or "NVSDK_NGX_VK_DLSSD_Eval_Params" when field.Name is "pInWorldToViewMatrix" or "pInViewToClipMatrix" => "Matrix4x4*",
             _ => null
         };
+    }
+    private static string ManagedName(string native)
+    {
+        string name = Regex.Replace(native, @"^[pP]+(?=[A-Z_])_?", string.Empty);
+        name = Regex.Replace(name, @"^(?:In|in|Out|out)(?=[A-Z_]|$)_?", string.Empty);
+
+        return Regex.Replace(name, @"(?:Params|Cmd|Dev|Attrib|Buf|Exts|Ext|Res)(?=[A-Z0-9_]|$)", static match => match.Value switch
+        {
+            "Params" => "Parameters",
+            "Cmd" => "Command",
+            "Dev" => "Device",
+            "Attrib" => "Attributes",
+            "Buf" => "Buffer",
+            "Ext" => "Extension",
+            "Exts" => "Extensions",
+            "Res" => "Resolution",
+            _ => match.Value
+        });
     }
 }

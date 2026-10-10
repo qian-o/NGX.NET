@@ -43,7 +43,7 @@ internal static class ResultTests
                 }
                 else
                 {
-                    StructDeclarationSyntax structure = CSharpSyntaxTree.ParseText(files[$"Types/{overload.ReturnType}.g.cs"]).GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>().Single();
+                    StructDeclarationSyntax structure = CSharpSyntaxTree.ParseText(files[$"Structs/{overload.ReturnType}.g.cs"]).GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>().Single();
                     Require(structure.Modifiers.Any(SyntaxKind.ReadOnlyKeyword), $"Mutable result: {structure.Identifier}.");
                     PropertyDeclarationSyntax[] properties = [.. structure.Members.OfType<PropertyDeclarationSyntax>()];
                     Require(properties.Select(static property => property.Type.ToString()).SequenceEqual(outputs.Select(static parameter => parameter.Type!.ToString())), $"Output order/types changed: {original.Identifier}.");
@@ -80,8 +80,8 @@ internal static class ResultTests
             ["platforms"] = new JsonObject { ["test"] = platform }
         };
         Dictionary<string, string> generated = Generate(fixture);
-        Require(generated["Types/FrameMetrics3.g.cs"].Contains("uint customWidth, float frameTime", StringComparison.Ordinal), "Result names or field order depend on known SDK names.");
-        Require(generated["API/D3D12.g.cs"].Contains("public static FrameMetrics3 QueryFrameMetrics3(uint inUserSelectedWidth, uint inUserSelectedHeight)", StringComparison.Ordinal), "Interleaved output removal changed input order.");
+        Require(generated["Structs/FrameMetrics3.g.cs"].Contains("uint customWidth, float frameTime", StringComparison.Ordinal), "Result names or field order depend on known SDK names.");
+        Require(generated["API/D3D12.g.cs"].Contains("public static FrameMetrics3 QueryFrameMetrics3(uint userSelectedWidth, uint userSelectedHeight)", StringComparison.Ordinal), "Interleaved output removal changed input order.");
 
         JsonObject shared = (JsonObject)prototype.DeepClone();
         shared["name"] = "NVSDK_NGX_VULKAN_GetFrameMetrics3";
@@ -100,9 +100,9 @@ internal static class ResultTests
         prototype["name"] = "NVSDK_NGX_D3D12_QueryNGXFeatureRequirement";
         Reject(fixture, "conflicts with an existing generated type");
         prototype["name"] = "NVSDK_NGX_D3D12_InspectMetrics";
-        Require(Generate(fixture).ContainsKey("Types/InspectMetricsResult.g.cs"), "Unknown action words have no deterministic fallback.");
+        Require(Generate(fixture).ContainsKey("Structs/InspectMetricsResult.g.cs"), "Unknown action words have no deterministic fallback.");
         prototype["name"] = "NVSDK_NGX_D3D12_GetterMetrics";
-        Require(Generate(fixture).ContainsKey("Types/GetterMetricsResult.g.cs"), "Action removal ignored the PascalCase word boundary.");
+        Require(Generate(fixture).ContainsKey("Structs/GetterMetricsResult.g.cs"), "Action removal ignored the PascalCase word boundary.");
 
         prototype["name"] = "NVSDK_NGX_D3D12_QueryFrameMetrics3";
         JsonObject collision = (JsonObject)prototype.DeepClone();
@@ -112,7 +112,7 @@ internal static class ResultTests
         Reject(fixture, "Conflicting managed overload");
         functions.Remove(collision);
         prototype["result"] = parameters[1]!["type"]!.DeepClone();
-        Require(!Generate(fixture).ContainsKey("Types/FrameMetrics3.g.cs"), "A non-status return value was replaced by outputs.");
+        Require(!Generate(fixture).ContainsKey("Structs/FrameMetrics3.g.cs"), "A non-status return value was replaced by outputs.");
     }
 
     private static void CheckExecution(Dictionary<string, string> files, string root)
@@ -212,10 +212,12 @@ internal static class ResultTests
                 }
             }
             """;
-        List<SyntaxTree> trees = [CSharpSyntaxTree.ParseText("global using System;"), CSharpSyntaxTree.ParseText(source), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "NGX.NET/NGXException.cs")))];
+        List<SyntaxTree> trees = [CSharpSyntaxTree.ParseText("global using System; global using System.Runtime.CompilerServices; global using System.Runtime.InteropServices;"), CSharpSyntaxTree.ParseText(source), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "NGX.NET/NGXException.cs")))];
         foreach (string name in new[] { "NGXParameter", "NGXResult", "NGXPerfQualityValue", "Extensions", "OptimalSettings" })
         {
-            trees.Add(CSharpSyntaxTree.ParseText(files[$"Types/{name}.g.cs"]));
+            string directory = name is "NGXResult" or "NGXPerfQualityValue" ? "Enums" : "Structs";
+
+            trees.Add(CSharpSyntaxTree.ParseText(files[$"{directory}/{name}.g.cs"]));
         }
 
         string[] assemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);

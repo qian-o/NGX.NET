@@ -11,7 +11,9 @@ are rejected when the native library is resolved.
 ## API
 
 Use `Ngx` for SDK calls. Public structures contain managed values; their native
-representations and string conversion are internal to the assembly.
+representations and string conversion are internal to the assembly. Managed
+parameters and fields use names without pointer or direction prefixes, such as
+`width`, `Depth` and `MotionVectors`.
 Text inputs reject embedded NUL and invalid Unicode; native parameter-key
 constants retain their literal byte/terminator semantics.
 Check results directly against `NGXResult.Success`. Only that value is treated
@@ -132,7 +134,8 @@ delegate and contain exceptions for the entire native registration lifetime.
   managed arrays; fixed native text buffers become strings.
 - Optional struct pointers become nullable values. Application/resource unions
   use nullable members, with the enclosing discriminator selecting the member.
-- Callback pointer wrappers are now delegates. Explicit external addresses such
+- Parameter setter/getter function-pointer delegates have been removed; use
+  `Ngx.Parameter` methods. Callback pointer wrappers are delegates. Explicit external addresses such
   as devices, GPU resources and Vulkan procedure addresses remain `nint`.
 
 The constructor-based conversion allocates native storage for nested pointer

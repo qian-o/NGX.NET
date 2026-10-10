@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 public static unsafe partial class Ngx
 {

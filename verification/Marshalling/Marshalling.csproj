@@ -8,5 +8,6 @@
   <ItemGroup>
     <Compile Include="*.cs" />
     <ProjectReference Include="../../NGX.NET/NGX.NET.csproj" />
+    <ProjectReference Include="../../NGX.NET.Generator/NGX.NET.Generator.csproj" />
   </ItemGroup>
 </Project>

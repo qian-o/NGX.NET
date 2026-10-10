@@ -15,12 +15,12 @@ internal class ResultEmitter(Dictionary<string, string> files)
         }
     }
 
-    internal void WriteResultFunction(CodeWriter text, string group, string method, IReadOnlyList<string> declarations, IReadOnlyList<string> forward, IReadOnlyList<(int Index, string Type, string Name)> outputs)
+    internal void WriteResultFunction(CodeWriter text, string group, string method, IReadOnlyList<string> declarations, IReadOnlyList<string> forward, IReadOnlyList<(int Index, string Type, string Name, string NativeName)> outputs)
     {
         HashSet<int> indices = [.. outputs.Select(static output => output.Index)];
         List<string> inputs = [.. declarations.Where((_, index) => !indices.Contains(index))];
         List<string> arguments = [.. forward];
-        foreach ((int index, string type, string name) in outputs)
+        foreach ((int index, string type, string name, string _) in outputs)
         {
             arguments[index] = $"out {type} {name}";
         }
@@ -31,7 +31,7 @@ internal class ResultEmitter(Dictionary<string, string> files)
         if (outputs.Count > 1)
         {
             returned = ResultTypeName(method);
-            (string Type, string Name)[] fields = [.. outputs.Select(static output => (output.Type, ResultPropertyName(output.Name)))];
+            (string Type, string Name)[] fields = [.. outputs.Select(static output => (output.Type, ResultPropertyName(output.NativeName)))];
             if (fields.Any(field => field.Name == returned || !Regex.IsMatch(field.Name, @"^[A-Z][A-Za-z0-9_]*$")) || fields.Select(static field => field.Name).Distinct(StringComparer.Ordinal).Count() != fields.Length)
             {
                 throw new InvalidOperationException($"Conflicting or invalid result properties: {operation} -> {returned}.");
@@ -53,8 +53,6 @@ internal class ResultEmitter(Dictionary<string, string> files)
         }
 
         RegisterFunction(group, method, inputs);
-        WriteSummary(text, $"Returns the outputs of {operation} after checking the NGX result.");
-        text.Line("/// <exception cref=\"NGXException\">The NGX operation failed.</exception>");
         text.BeginBlock($"public static {returned} {method}({string.Join(", ", inputs)})");
         text.Line($"NGXResult result = {method}({string.Join(", ", arguments)});");
         text.BeginBlock("if (result is not NGXResult.Success)");
@@ -75,18 +73,16 @@ internal class ResultEmitter(Dictionary<string, string> files)
             }
 
             CodeWriter text = CreateFile();
-            WriteSummary(text, $"Managed outputs of {operation[(operation.LastIndexOf('.') + 1)..]}.");
-            string parameters = string.Join(", ", fields.Select(static field => $"{field.Type} {ParameterName(field.Name)}"));
+            string parameters = string.Join(", ", fields.Select(static field => $"{field.Type} {NativeParameterName(field.Name)}"));
             text.BeginBlock($"public readonly struct {name}({parameters})");
             foreach ((string type, string property) in fields)
             {
-                WriteSummary(text, $"The {property} output.");
-                text.Line($"public {type} {property} {{ get; }} = {ParameterName(property)};");
+                text.Line($"public {type} {property} {{ get; }} = {NativeParameterName(property)};");
                 text.BlankLine();
             }
 
             text.EndBlock();
-            files[$"Types/{name}.g.cs"] = text.ToString();
+            files[$"Structs/{name}.g.cs"] = text.ToString();
         }
     }
 

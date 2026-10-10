@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Sequential, Size = 1)]
 internal readonly struct Bool8(bool value)

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace NGX.NET;
+﻿namespace NGX.NET;
 
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct NGXPointer<T>

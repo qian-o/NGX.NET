@@ -29,9 +29,7 @@ internal class ConstantsEmitter(Models models, Dictionary<string, string> files)
                 continue;
             }
 
-            WriteSummary(text, native);
             text.Line(declaration);
-            text.BlankLine();
         }
 
         text.EndBlock();

@@ -3,8 +3,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using NGX.NET;
+using NGX.NET.Generator;
 
 namespace Marshalling;
 
@@ -107,7 +107,9 @@ internal static unsafe class Program
     private static void CheckLayouts(string root)
     {
         using JsonDocument ast = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "NGX.NET.Generator/ast.json")));
-        Dictionary<string, (string Type, string Source)> nativeSources = Directory.GetFiles(Path.Combine(root, "NGX.NET/Types/Native"), "*.g.cs").Select(static path => (Type: Path.GetFileName(path).Replace(".g.cs", ""), Source: File.ReadAllText(path))).ToDictionary(static item => Regex.Match(item.Source, @"/// (\w+)").Groups[1].Value);
+        Models models = AstReader.Read(ast.RootElement);
+        TypeMapper mapper = new(models);
+        HashSet<string> nativeSources = [.. Directory.GetFiles(Path.Combine(root, "NGX.NET/Structs/Native"), "*.g.cs").Select(static path => Path.GetFileName(path)[..^5])];
         int layouts = 0;
         int offsets = 0;
         foreach (JsonProperty platform in ast.RootElement.GetProperty("platforms").EnumerateObject())
@@ -120,9 +122,10 @@ internal static unsafe class Program
                 }
 
                 string name = record.GetProperty("name").GetString()!;
-                (string Type, string Source) source = nativeSources[name];
-                Type type = typeof(Ngx).Assembly.GetType("NGX.NET." + source.Type, true)!;
-                Type managed = typeof(Ngx).Assembly.GetType("NGX.NET." + source.Type[..^6], true)!;
+                string managedName = mapper.ManagedRecord(name);
+                Assert(nativeSources.Contains(managedName + "Native"), name + " generated native source");
+                Type type = typeof(Ngx).Assembly.GetType("NGX.NET." + managedName + "Native", true)!;
+                Type managed = typeof(Ngx).Assembly.GetType("NGX.NET." + managedName, true)!;
                 Assert(type.IsNotPublic && typeof(IDisposable).IsAssignableFrom(type), name + " visibility/disposal");
                 Assert(type.GetConstructor([managed.MakeByRefType()]) != null, name + " public-struct constructor");
                 Assert(!(bool)typeof(Program).GetMethod(nameof(ContainsReferences), BindingFlags.NonPublic | BindingFlags.Static)!.MakeGenericMethod(type).Invoke(null, null)!, name + " managed native field");
@@ -132,8 +135,7 @@ internal static unsafe class Program
                 foreach (JsonElement field in record.GetProperty("fields").EnumerateArray())
                 {
                     string fieldName = field.GetProperty("name").GetString()!;
-                    string suffix = source.Source[source.Source.IndexOf(name + "::" + fieldName + "\n", StringComparison.Ordinal)..];
-                    string managedField = Regex.Match(suffix, @"public [^\n]+ (\w+)(?:\[\d+\])?;").Groups[1].Value;
+                    string managedField = TypeMapper.NativeFieldName(fieldName);
                     Assert((long)Marshal.OffsetOf(type, managedField) == field.GetProperty("offset").GetInt64() / 8, name + "::" + fieldName);
                     offsets++;
                 }
@@ -148,7 +150,7 @@ internal static unsafe class Program
     private static void CheckEnumsAndImports(string root)
     {
         using JsonDocument ast = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "NGX.NET.Generator/ast.json")));
-        Dictionary<string, (string Type, string Source)> enums = Directory.GetFiles(Path.Combine(root, "NGX.NET/Types"), "*.g.cs").Select(static path => (Type: Path.GetFileName(path).Replace(".g.cs", ""), Source: File.ReadAllText(path))).Where(static item => item.Source.Contains("public enum")).ToDictionary(static item => Regex.Match(item.Source, @"/// (\w+)").Groups[1].Value);
+        HashSet<string> enums = [.. Directory.GetFiles(Path.Combine(root, "NGX.NET/Enums"), "*.g.cs").Select(static path => Path.GetFileName(path)[..^5])];
         HashSet<string> imports = [.. typeof(Ngx).GetNestedTypes(BindingFlags.Public).Append(typeof(Ngx)).SelectMany(static type => type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)).Select(static method => method.GetCustomAttribute<LibraryImportAttribute>()?.EntryPoint).OfType<string>()];
         int enumValues = 0;
         int functions = 0;
@@ -156,12 +158,13 @@ internal static unsafe class Program
         {
             foreach (JsonElement item in platform.Value.GetProperty("enums").EnumerateArray())
             {
-                (string Type, string Source) source = enums[item.GetProperty("name").GetString()!];
-                Type type = typeof(Ngx).Assembly.GetType("NGX.NET." + source.Type, true)!;
-                Dictionary<string, string> members = Regex.Matches(source.Source, @"/// (\w+)\s*/// </summary>\s*(\w+)\s*=").ToDictionary(static match => match.Groups[1].Value, static match => match.Groups[2].Value);
+                string name = item.GetProperty("name").GetString()!;
+                string managedName = TypeMapper.TypeName(name);
+                Assert(enums.Contains(managedName), name + " generated enum source");
+                Type type = typeof(Ngx).Assembly.GetType("NGX.NET." + managedName, true)!;
                 foreach (JsonElement entry in item.GetProperty("values").EnumerateArray())
                 {
-                    string member = members[entry.GetProperty("name").GetString()!];
+                    string member = TypeMapper.EnumMember(name, entry.GetProperty("name").GetString()!);
                     Assert(unchecked((uint)Convert.ToInt64(Enum.Parse(type, member))) == unchecked((uint)entry.GetProperty("value").GetInt64()), type.Name + "." + member);
                     enumValues++;
                 }
@@ -291,7 +294,7 @@ internal static unsafe class Program
         Throws<ArgumentException>(() => new NGXFeatureDiscoveryInfoNative(in value));
         NGXVKGBuffer buffer = new()
         {
-            PInAttrib = new NGXResourceVK?[18]
+            Attributes = new NGXResourceVK?[18]
         };
         Throws<ArgumentException>(() => new NGXVKGBufferNative(in buffer));
         NGXResourceVKUnion union = new()
@@ -380,31 +383,31 @@ internal static unsafe class Program
     {
         return new()
         {
-            PInDiffuseAlbedo = Resource(0),
-            PInSpecularAlbedo = Resource(1),
-            PInNormals = Resource(2),
-            PInRoughness = Resource(3),
-            PInColor = Resource(4),
-            PInOutput = Resource(5),
-            PInDepth = Resource(6),
-            PInMotionVectors = Resource(7),
-            PInExposureTexture = Resource(8),
-            PInBiasCurrentColorMask = Resource(9),
-            PInColorBeforeTransparency = Resource(10),
-            PInScreenSpaceSubsurfaceScatteringGuide = Resource(11),
-            PInDepthOfFieldGuide = Resource(12),
-            PInSpecularHitDistance = Resource(13),
-            PInMotionVectorsReflections = Resource(14),
-            PInTransparencyLayer = Resource(15),
-            PInTransparencyLayerOpacity = Resource(16),
-            PInWorldToViewMatrix = Matrix4x4.CreateTranslation(3, 5, 7),
-            PInViewToClipMatrix = Matrix4x4.Identity,
-            InRenderSubrectDimensions = new()
+            DiffuseAlbedo = Resource(0),
+            SpecularAlbedo = Resource(1),
+            Normals = Resource(2),
+            Roughness = Resource(3),
+            Color = Resource(4),
+            Output = Resource(5),
+            Depth = Resource(6),
+            MotionVectors = Resource(7),
+            ExposureTexture = Resource(8),
+            BiasCurrentColorMask = Resource(9),
+            ColorBeforeTransparency = Resource(10),
+            ScreenSpaceSubsurfaceScatteringGuide = Resource(11),
+            DepthOfFieldGuide = Resource(12),
+            SpecularHitDistance = Resource(13),
+            MotionVectorsReflections = Resource(14),
+            TransparencyLayer = Resource(15),
+            TransparencyLayerOpacity = Resource(16),
+            WorldToViewMatrix = Matrix4x4.CreateTranslation(3, 5, 7),
+            ViewToClipMatrix = Matrix4x4.Identity,
+            RenderSubrectDimensions = new()
             {
                 Width = 128,
                 Height = 64
             },
-            InReset = 1
+            Reset = 1
         };
     }
 
@@ -425,10 +428,10 @@ internal static unsafe class Program
         Assert(matrix[12] == 3 && matrix[13] == 5 && matrix[14] == 7 && matrix[15] == 1, "Native float matrix order");
         NGXVKDLSSDEvalParams read = new(in native);
         native.Dispose();
-        Assert(read.PInColor!.Value.Resource.ImageViewInfo!.Value.Image is 0x1204 && read.PInWorldToViewMatrix == value.PInWorldToViewMatrix, "Owned managed copy");
-        value.PInExposureTexture = null;
-        value.PInWorldToViewMatrix = default(Matrix4x4);
-        value.PInViewToClipMatrix = null;
+        Assert(read.Color!.Value.Resource.ImageViewInfo!.Value.Image is 0x1204 && read.WorldToViewMatrix == value.WorldToViewMatrix, "Owned managed copy");
+        value.ExposureTexture = null;
+        value.WorldToViewMatrix = default(Matrix4x4);
+        value.ViewToClipMatrix = null;
         native = new(in value);
         Assert(native.PInExposureTexture == null && native.PInWorldToViewMatrix != null && native.PInViewToClipMatrix == null, "Optional versus explicit zero");
         native.Dispose();
@@ -438,16 +441,16 @@ internal static unsafe class Program
     {
         NGXVKGBuffer value = new()
         {
-            PInAttrib = [Resource(0), null, Resource(2)]
+            Attributes = [Resource(0), null, Resource(2)]
         };
         NGXVKGBufferNative native = new(in value);
         Assert(native.PInAttrib[0].Value != null && native.PInAttrib[1].Value == null && native.PInAttrib[16].Value == null, "Sparse array");
         NGXVKGBuffer restored = new(in native);
-        Assert(restored.PInAttrib!.Length is 17 && restored.PInAttrib[2]!.Value.Resource.ImageViewInfo!.Value.Image is 0x1202, "Array conversion");
+        Assert(restored.Attributes!.Length is 17 && restored.Attributes[2]!.Value.Resource.ImageViewInfo!.Value.Image is 0x1202, "Array conversion");
         native.Dispose();
         NGXCUDAGBuffer cuda = new()
         {
-            PInAttrib = [42, null, 0]
+            Attributes = [42, null, 0]
         };
         NGXCUDAGBufferNative cudaNative = new(in cuda);
         Assert(*cudaNative.PInAttrib[0].Value is 42 && cudaNative.PInAttrib[1].Value == null && *cudaNative.PInAttrib[2].Value is 0, "CUDA scalar pointer presence");
@@ -493,15 +496,18 @@ internal static unsafe class Program
         Assert(cancelled is 1, "One-byte ref bool and exception barrier");
         NgxCallbacks.Release(pointer);
         bool seen = false;
-        NGXPfnParameterSetUI setter = (parameter, name, amount) => seen = parameter.Value is 123 && name is "Width" && amount is 456;
-        pointer = Marshal.GetFunctionPointerForDelegate(setter);
-        fixed (byte* name = "Width\0"u8)
+        int callbackCalls = 0;
+        NGXPfnDLSSGetStatsCallback callback = parameters =>
         {
-            ((delegate* unmanaged[Cdecl]<nint, byte*, uint, void>)pointer)(123, name, 456);
-        }
+            seen = parameters.Value is 123;
+            callbackCalls++;
 
-        GC.KeepAlive(setter);
-        Assert(seen, "Opaque callback handle ABI");
+            return NGXResult.Success;
+        };
+        pointer = Marshal.GetFunctionPointerForDelegate(callback);
+        NGXResult callbackResult = ((delegate* unmanaged[Cdecl]<nint, NGXResult>)pointer)(123);
+        GC.KeepAlive(callback);
+        Assert(seen && callbackCalls is 1 && callbackResult is NGXResult.Success, "Opaque callback handle ABI");
         Assert(Roots is 0, "All callback roots released");
     }
 
