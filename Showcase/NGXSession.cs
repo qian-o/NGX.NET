@@ -217,12 +217,12 @@ internal class NGXSession : IDisposable
         {
             NGXVKDLSSGEvalParams evaluate = new()
             {
-                PBackbuffer = back.Vulkan,
-                PDepth = depth.Vulkan,
-                PMVecs = motion.Vulkan,
-                PHudless = hudless.Vulkan,
-                PUI = ui.Vulkan,
-                POutputInterpFrame = generated.Vulkan
+                Backbuffer = back.Vulkan,
+                Depth = depth.Vulkan,
+                MVecs = motion.Vulkan,
+                Hudless = hudless.Vulkan,
+                UI = ui.Vulkan,
+                OutputInterpFrame = generated.Vulkan
             };
 
             result = Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, evaluate, options);
@@ -231,12 +231,12 @@ internal class NGXSession : IDisposable
         {
             NGXD3D12DLSSGEvalParams evaluate = new()
             {
-                PBackbuffer = back.DirectX,
-                PDepth = depth.DirectX,
-                PMVecs = motion.DirectX,
-                PHudless = hudless.DirectX,
-                PUI = ui.DirectX,
-                POutputInterpFrame = generated.DirectX
+                Backbuffer = back.DirectX,
+                Depth = depth.DirectX,
+                MVecs = motion.DirectX,
+                Hudless = hudless.DirectX,
+                UI = ui.DirectX,
+                OutputInterpFrame = generated.DirectX
             };
 
             result = Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, evaluate, options);
@@ -343,15 +343,15 @@ internal class NGXSession : IDisposable
         {
             NGXDLSSDCreateParams create = new()
             {
-                InDenoiseMode = NGXDLSSDenoiseMode.DlUnified,
-                InRoughnessMode = NGXDLSSRoughnessMode.Packed,
-                InUseHWDepth = NGXDLSSDepthType.Hw,
-                InWidth = (uint)inputWidth,
-                InHeight = (uint)inputHeight,
-                InTargetWidth = (uint)outputWidth,
-                InTargetHeight = (uint)outputHeight,
-                InPerfQualityValue = settings.ReconstructionQuality,
-                InFeatureCreateFlags = Flags
+                DenoiseMode = NGXDLSSDenoiseMode.DlUnified,
+                RoughnessMode = NGXDLSSRoughnessMode.Packed,
+                UseHWDepth = NGXDLSSDepthType.Hw,
+                Width = (uint)inputWidth,
+                Height = (uint)inputHeight,
+                TargetWidth = (uint)outputWidth,
+                TargetHeight = (uint)outputHeight,
+                PerfQualityValue = settings.ReconstructionQuality,
+                FeatureCreateFlags = Flags
             };
 
             reconstruction = isVulkan ? Ngx.Vulkan.CreateDLSSDExt1(device, command, 1, 1, parameters, create) : Ngx.D3D12.CreateDLSSDExt(command, 1, 1, parameters, create);
@@ -362,13 +362,13 @@ internal class NGXSession : IDisposable
             {
                 Feature = new()
                 {
-                    InWidth = (uint)inputWidth,
-                    InHeight = (uint)inputHeight,
-                    InTargetWidth = (uint)outputWidth,
-                    InTargetHeight = (uint)outputHeight,
-                    InPerfQualityValue = settings.ReconstructionQuality
+                    Width = (uint)inputWidth,
+                    Height = (uint)inputHeight,
+                    TargetWidth = (uint)outputWidth,
+                    TargetHeight = (uint)outputHeight,
+                    PerfQualityValue = settings.ReconstructionQuality
                 },
-                InFeatureCreateFlags = Flags
+                FeatureCreateFlags = Flags
             };
 
             reconstruction = isVulkan ? Ngx.Vulkan.CreateDLSSExt1(device, command, 1, 1, parameters, create) : Ngx.D3D12.CreateDLSSExt(command, 1, 1, parameters, create);
@@ -391,25 +391,25 @@ internal class NGXSession : IDisposable
             {
                 NGXD3D12DLSSDEvalParams evaluate = new()
                 {
-                    PInColor = images[(int)ImageSlot.Scene].DirectX,
-                    PInOutput = images[(int)ImageSlot.Reconstructed].DirectX,
-                    PInDiffuseAlbedo = images[(int)ImageSlot.Diffuse].DirectX,
-                    PInSpecularAlbedo = images[(int)ImageSlot.Specular].DirectX,
-                    PInNormals = images[(int)ImageSlot.Normal].DirectX,
-                    PInMotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].DirectX,
-                    PInWorldToViewMatrix = view,
-                    PInViewToClipMatrix = projection,
-                    PInDepth = images[(int)ImageSlot.Depth].DirectX,
-                    PInMotionVectors = images[(int)ImageSlot.Motion].DirectX,
-                    InJitterOffsetX = camera.Jitter.X,
-                    InJitterOffsetY = camera.Jitter.Y,
-                    InRenderSubrectDimensions = dimensions,
-                    InReset = reset ? 1 : 0,
-                    InMVScaleX = 1,
-                    InMVScaleY = 1,
-                    InPreExposure = 1,
-                    InExposureScale = 1,
-                    InFrameTimeDeltaInMsec = delta * 1000
+                    Color = images[(int)ImageSlot.Scene].DirectX,
+                    Output = images[(int)ImageSlot.Reconstructed].DirectX,
+                    DiffuseAlbedo = images[(int)ImageSlot.Diffuse].DirectX,
+                    SpecularAlbedo = images[(int)ImageSlot.Specular].DirectX,
+                    Normals = images[(int)ImageSlot.Normal].DirectX,
+                    MotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].DirectX,
+                    WorldToViewMatrix = view,
+                    ViewToClipMatrix = projection,
+                    Depth = images[(int)ImageSlot.Depth].DirectX,
+                    MotionVectors = images[(int)ImageSlot.Motion].DirectX,
+                    JitterOffsetX = camera.Jitter.X,
+                    JitterOffsetY = camera.Jitter.Y,
+                    RenderSubrectDimensions = dimensions,
+                    Reset = reset ? 1 : 0,
+                    MVScaleX = 1,
+                    MVScaleY = 1,
+                    PreExposure = 1,
+                    ExposureScale = 1,
+                    FrameTimeDeltaInMsec = delta * 1000
                 };
 
                 result = Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate);
@@ -420,20 +420,20 @@ internal class NGXSession : IDisposable
                 {
                     Feature = new()
                     {
-                        PInColor = images[(int)ImageSlot.Scene].DirectX,
-                        PInOutput = images[(int)ImageSlot.Reconstructed].DirectX
+                        Color = images[(int)ImageSlot.Scene].DirectX,
+                        Output = images[(int)ImageSlot.Reconstructed].DirectX
                     },
-                    PInDepth = images[(int)ImageSlot.Depth].DirectX,
-                    PInMotionVectors = images[(int)ImageSlot.Motion].DirectX,
-                    InJitterOffsetX = camera.Jitter.X,
-                    InJitterOffsetY = camera.Jitter.Y,
-                    InRenderSubrectDimensions = dimensions,
-                    InReset = reset ? 1 : 0,
-                    InMVScaleX = 1,
-                    InMVScaleY = 1,
-                    InPreExposure = 1,
-                    InExposureScale = 1,
-                    InFrameTimeDeltaInMsec = delta * 1000
+                    Depth = images[(int)ImageSlot.Depth].DirectX,
+                    MotionVectors = images[(int)ImageSlot.Motion].DirectX,
+                    JitterOffsetX = camera.Jitter.X,
+                    JitterOffsetY = camera.Jitter.Y,
+                    RenderSubrectDimensions = dimensions,
+                    Reset = reset ? 1 : 0,
+                    MVScaleX = 1,
+                    MVScaleY = 1,
+                    PreExposure = 1,
+                    ExposureScale = 1,
+                    FrameTimeDeltaInMsec = delta * 1000
                 };
 
                 result = Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, evaluate);
@@ -445,25 +445,25 @@ internal class NGXSession : IDisposable
             {
                 NGXVKDLSSDEvalParams evaluate = new()
                 {
-                    PInColor = images[(int)ImageSlot.Scene].Vulkan,
-                    PInOutput = images[(int)ImageSlot.Reconstructed].Vulkan,
-                    PInDiffuseAlbedo = images[(int)ImageSlot.Diffuse].Vulkan,
-                    PInSpecularAlbedo = images[(int)ImageSlot.Specular].Vulkan,
-                    PInNormals = images[(int)ImageSlot.Normal].Vulkan,
-                    PInMotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].Vulkan,
-                    PInWorldToViewMatrix = view,
-                    PInViewToClipMatrix = projection,
-                    PInDepth = images[(int)ImageSlot.Depth].Vulkan,
-                    PInMotionVectors = images[(int)ImageSlot.Motion].Vulkan,
-                    InJitterOffsetX = camera.Jitter.X,
-                    InJitterOffsetY = camera.Jitter.Y,
-                    InRenderSubrectDimensions = dimensions,
-                    InReset = reset ? 1 : 0,
-                    InMVScaleX = 1,
-                    InMVScaleY = 1,
-                    InPreExposure = 1,
-                    InExposureScale = 1,
-                    InFrameTimeDeltaInMsec = delta * 1000
+                    Color = images[(int)ImageSlot.Scene].Vulkan,
+                    Output = images[(int)ImageSlot.Reconstructed].Vulkan,
+                    DiffuseAlbedo = images[(int)ImageSlot.Diffuse].Vulkan,
+                    SpecularAlbedo = images[(int)ImageSlot.Specular].Vulkan,
+                    Normals = images[(int)ImageSlot.Normal].Vulkan,
+                    MotionVectorsReflections = images[(int)ImageSlot.SpecularMotion].Vulkan,
+                    WorldToViewMatrix = view,
+                    ViewToClipMatrix = projection,
+                    Depth = images[(int)ImageSlot.Depth].Vulkan,
+                    MotionVectors = images[(int)ImageSlot.Motion].Vulkan,
+                    JitterOffsetX = camera.Jitter.X,
+                    JitterOffsetY = camera.Jitter.Y,
+                    RenderSubrectDimensions = dimensions,
+                    Reset = reset ? 1 : 0,
+                    MVScaleX = 1,
+                    MVScaleY = 1,
+                    PreExposure = 1,
+                    ExposureScale = 1,
+                    FrameTimeDeltaInMsec = delta * 1000
                 };
 
                 result = Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate);
@@ -474,20 +474,20 @@ internal class NGXSession : IDisposable
                 {
                     Feature = new()
                     {
-                        PInColor = images[(int)ImageSlot.Scene].Vulkan,
-                        PInOutput = images[(int)ImageSlot.Reconstructed].Vulkan
+                        Color = images[(int)ImageSlot.Scene].Vulkan,
+                        Output = images[(int)ImageSlot.Reconstructed].Vulkan
                     },
-                    PInDepth = images[(int)ImageSlot.Depth].Vulkan,
-                    PInMotionVectors = images[(int)ImageSlot.Motion].Vulkan,
-                    InJitterOffsetX = camera.Jitter.X,
-                    InJitterOffsetY = camera.Jitter.Y,
-                    InRenderSubrectDimensions = dimensions,
-                    InReset = reset ? 1 : 0,
-                    InMVScaleX = 1,
-                    InMVScaleY = 1,
-                    InPreExposure = 1,
-                    InExposureScale = 1,
-                    InFrameTimeDeltaInMsec = delta * 1000
+                    Depth = images[(int)ImageSlot.Depth].Vulkan,
+                    MotionVectors = images[(int)ImageSlot.Motion].Vulkan,
+                    JitterOffsetX = camera.Jitter.X,
+                    JitterOffsetY = camera.Jitter.Y,
+                    RenderSubrectDimensions = dimensions,
+                    Reset = reset ? 1 : 0,
+                    MVScaleX = 1,
+                    MVScaleY = 1,
+                    PreExposure = 1,
+                    ExposureScale = 1,
+                    FrameTimeDeltaInMsec = delta * 1000
                 };
 
                 result = Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, evaluate);
