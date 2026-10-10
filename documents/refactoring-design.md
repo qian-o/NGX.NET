@@ -76,7 +76,7 @@ NGX.NET 是 NVIDIA NGX 的独立 C# 封装库，职责是：
 | 编号 | 现象 | 对应规范 |
 | --- | --- | --- |
 | T1 | `verification/Marshalling/Program.cs` 729 行、一个 `Program` 类承载全部检查；通过反射读取私有字段名（`"roots"`、`"initialization"`、`"parameterData"`、`"parameterBackends"`） | §2 一个文件一个主类型；§1 |
-| T2 | 自写 `Run("一句话描述", () => …)` 框架，并把一次运行的结果写入 `results.json`；`InternalsVisibleTo` 指向不存在的 `NGX.NET.Marshalling.Tests` | §1 |
+| T2 | 自写 `Run("一句话描述", () => …)` 框架，并把一次运行的结果写入 `results.json` | §1 |
 | R1 | README 约 150 行，大量篇幅是接口契约与内部机制的描述 | §11 概念性说明写在独立文档中 |
 | R2 | `NGX.NET.csproj` 中包元数据与 MSBuild 正则版本号混在项目文件里 | Zenith.NET 使用 `NuGet.Packaging.props` |
 
@@ -298,7 +298,7 @@ public static ulong GetStats(NGXParameter parameters)
 | H5 | `NGXMarshal`、`NGXEncoding` 删除（§3.3）；README 中 `NGXMarshal.StringToPtr` 的说明一并删除 |
 | H6 | `NGXBool8` 去掉冗余字段，改为 `public readonly byte Value = value ? (byte)1 : (byte)0;` 与两个隐式转换（Metal.NET 的 `Bool8` 写法）；比较使用 `bool` 转换 |
 | H7 | 把平台选择与库加载抽到 `internal static class NativeLoader`：以 `switch` 表达式得到 RID 与文件名；`params ReadOnlySpan<string>` 的候选路径；`Ngx` 只保留 `RuntimeDirectory`。不支持的平台只在解析原生库时抛出 `PlatformNotSupportedException`，类型初始化与模块初始化不抛出：自 `3b46a81` 起 `Ngx` 的静态构造函数在 macOS 上抛出，`verification/Marshalling` 因此在基线上失败 |
-| H8 | 用 `[ModuleInitializer]` 注册 `DllImportResolver`，去掉 7 处 `RunClassConstructor` |
+| H8 | 生成器为每个声明 `[LibraryImport]` 的类型生成静态构造函数，直接调用幂等的 `NativeLoader.Register()`（用 `Interlocked` 保证只注册一次），取代 7 处 `RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle)`。注册时机与现状相同：首次使用 API 时。不使用 `[ModuleInitializer]`：CA2255 规定可分发的类库不得使用模块初始化器，其“何时可以抑制”一节只适用于不分发的库 |
 | H9 | 多行注释合并为一行完整英文句子，或删除 |
 | H10 | 见 §3.3、§6.1 |
 | H11 | `UTF8` 等字段随 `NGXMarshal` 删除；`.editorconfig` 恢复 `private_static_readonly_fields` 的规则，并配合规范 §5.1 的“常量用途”区分 |
@@ -479,7 +479,7 @@ NGX.NET.Generator/
 ### 4.2 验证项目
 
 - 每个检查一个类、一个文件，类名对应检查内容，取代 729 行的 `Program`（T1）。
-- 去掉对私有字段名的反射；需要访问内部成员时使用实际存在的 `InternalsVisibleTo`（T2）。
+- 去掉对私有字段名的反射；需要访问内部成员时使用现有的 `InternalsVisibleTo`（`NGX.NET.Marshalling.Tests` 即 `verification/Marshalling` 的程序集名）。
 - 不再提交 `results.json`，保留命令行输出即可。
 - 保留的检查范围见第 6.5 节。
 
@@ -561,7 +561,7 @@ NGX.NET.Generator/
 | 阶段 | 内容 | 验收 |
 | --- | --- | --- |
 | P0 | 决策已全部确定（§8）；对公共 API 做快照（`artifacts/pre-refactor` 已有一份） | 快照可用于后续阶段的对比 |
-| P1 | 手写代码整改（§3.1、§3.2）：删除 XML 文档、`NativeLoader`、`Bool8`；互操作基础设施留到 P5，不先重命名 | 公共 API 签名无差异 |
+| P1 | 手写代码整改（§3.1、§3.2）：删除 XML 文档并关闭 `GenerateDocumentationFile`（否则触发 CS1591）、`NativeLoader`、`Bool8`；互操作基础设施留到 P5，不先重命名 | 公共 API 变化仅限 `NGXBool8`；`verification/Marshalling` 在 macOS 上通过 |
 | P2 | 生成器等价重构（§4.1）：拆分、强类型模型、方向判定集中 | 生成物逐字节不变 |
 | P3 | 生成代码风格（§2）：去文档与头、`Usings.cs`、目录拆分、参数与字段命名、输出参数写法、冗余转换与返回值（§2.6）、`is null`、删除 16 个 `NGXPfnParameter*` 委托 | 布局/偏移/枚举值/入口名检查通过；恒等转换检查通过；公共方法仅参数名变化，删除的委托无引用 |
 | P4 | 验证项目与仓库风格（§4.2、§5） | CI 全流程通过 |
