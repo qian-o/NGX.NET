@@ -37,10 +37,7 @@ public static unsafe partial class Ngx
             renderMinHeight = default;
             sharpness = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetOptimalSettingsNative(parameters, userSelectedWidth, userSelectedHeight, perfQualityValue, out renderOptimalWidth, out renderOptimalHeight, out renderMaxWidth, out renderMaxHeight, out renderMinWidth, out renderMinHeight, out sharpness);
             if (result is not NGXResult.Success)
@@ -72,10 +69,7 @@ public static unsafe partial class Ngx
         {
             vramAllocatedBytes = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStatsNative(parameters, out vramAllocatedBytes);
             if (result is not NGXResult.Success)
@@ -102,10 +96,7 @@ public static unsafe partial class Ngx
             vramAllocatedBytes = default;
             optLevel = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStats1Native(parameters, out vramAllocatedBytes, out optLevel);
             if (result is not NGXResult.Success)
@@ -134,10 +125,7 @@ public static unsafe partial class Ngx
             optLevel = default;
             isDeviceSnippetBranch = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetStats2Native(parameters, out vramAllocatedBytes, out optLevel, out isDeviceSnippetBranch);
             if (result is not NGXResult.Success)

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe struct NGXBufferInfoVKNative : IDisposable
+internal unsafe struct NGXBufferInfoVKNative
 {
     [FieldOffset(0)]
     public nint Buffer;
@@ -13,21 +13,7 @@ internal unsafe struct NGXBufferInfoVKNative : IDisposable
 
     public NGXBufferInfoVKNative(in NGXBufferInfoVK value)
     {
-        try
-        {
-            Buffer = value.Buffer;
-            SizeInBytes = value.SizeInBytes;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        Buffer = value.Buffer;
+        SizeInBytes = value.SizeInBytes;
     }
 }

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 264)]
-internal unsafe struct NGXFeatureRequirementNative : IDisposable
+internal unsafe struct NGXFeatureRequirementNative
 {
     [FieldOffset(0)]
     public NGXFeatureSupportResult FeatureSupported;
@@ -12,32 +12,5 @@ internal unsafe struct NGXFeatureRequirementNative : IDisposable
     public uint MinHWArchitecture;
 
     [FieldOffset(8)]
-    public fixed sbyte MinOSVersion[255];
-
-    public NGXFeatureRequirementNative(in NGXFeatureRequirement value)
-    {
-        this = default;
-
-        try
-        {
-            FeatureSupported = value.FeatureSupported;
-            MinHWArchitecture = value.MinHWArchitecture;
-
-            fixed (sbyte* buffer = MinOSVersion)
-            {
-                NGXMarshal.WriteUtf8(value.MinOSVersion, new Span<byte>(buffer, 255));
-            }
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
-    }
+    public fixed byte MinOSVersion[255];
 }

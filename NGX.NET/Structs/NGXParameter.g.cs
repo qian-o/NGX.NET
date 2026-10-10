@@ -29,11 +29,6 @@ public readonly struct NGXParameter(nint value) : IEquatable<NGXParameter>
         return $"NGXParameter {{ Value = {Value}, IsNull = {IsNull} }}";
     }
 
-    public void Deconstruct(out nint value)
-    {
-        value = Value;
-    }
-
     public static bool operator ==(NGXParameter left, NGXParameter right)
     {
         return left.Equals(right);

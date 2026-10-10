@@ -92,8 +92,9 @@ internal static unsafe class TestData
         };
     }
 
-    internal static NativeCall Storage()
+    internal static TrackingScope Storage(Action? destroyed = null)
     {
+        TrackingScope scope = new(destroyed);
         NGXFeatureCommonInfo value = new()
         {
             PathListInfo = new()
@@ -107,23 +108,8 @@ internal static unsafe class TestData
                 }
             }
         };
-        NGXFeatureCommonInfoNative native = new(in value);
-        NativeCall call = new();
-        try
-        {
-            call.Take(ref native);
+        scope.Alloc(new NGXFeatureCommonInfoNative(in value, scope));
 
-            return call;
-        }
-        catch
-        {
-            call.Dispose();
-
-            throw;
-        }
-        finally
-        {
-            native.Dispose();
-        }
+        return scope;
     }
 }

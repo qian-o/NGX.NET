@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXImageViewInfoVKNative : IDisposable
+internal unsafe struct NGXImageViewInfoVKNative
 {
     [FieldOffset(0)]
     public nint ImageView;
@@ -25,26 +25,11 @@ internal unsafe struct NGXImageViewInfoVKNative : IDisposable
 
     public NGXImageViewInfoVKNative(in NGXImageViewInfoVK value)
     {
-        try
-        {
-            ImageView = value.ImageView;
-            Image = value.Image;
-            SubresourceRange = new(in value.SubresourceRange);
-            Format = value.Format;
-            Width = value.Width;
-            Height = value.Height;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        SubresourceRange.Dispose();
-        this = default;
+        ImageView = value.ImageView;
+        Image = value.Image;
+        SubresourceRange = new(in value.SubresourceRange);
+        Format = value.Format;
+        Width = value.Width;
+        Height = value.Height;
     }
 }

@@ -67,40 +67,4 @@ public struct NGXD3D11DLSSEvalParams
     public nint RayTracingHitDistance;
 
     public nint MotionVectorsReflections;
-
-    internal unsafe NGXD3D11DLSSEvalParams(in NGXD3D11DLSSEvalParamsNative native)
-    {
-        Feature = new(in native.Feature);
-        Depth = native.PInDepth;
-        MotionVectors = native.PInMotionVectors;
-        JitterOffsetX = native.InJitterOffsetX;
-        JitterOffsetY = native.InJitterOffsetY;
-        RenderSubrectDimensions = new(in native.InRenderSubrectDimensions);
-        Reset = native.InReset;
-        MVScaleX = native.InMVScaleX;
-        MVScaleY = native.InMVScaleY;
-        TransparencyMask = native.PInTransparencyMask;
-        ExposureTexture = native.PInExposureTexture;
-        BiasCurrentColorMask = native.PInBiasCurrentColorMask;
-        ColorSubrectBase = new(in native.InColorSubrectBase);
-        DepthSubrectBase = new(in native.InDepthSubrectBase);
-        MVSubrectBase = new(in native.InMVSubrectBase);
-        TranslucencySubrectBase = new(in native.InTranslucencySubrectBase);
-        BiasCurrentColorSubrectBase = new(in native.InBiasCurrentColorSubrectBase);
-        OutputSubrectBase = new(in native.InOutputSubrectBase);
-        PreExposure = native.InPreExposure;
-        ExposureScale = native.InExposureScale;
-        IndicatorInvertXAxis = native.InIndicatorInvertXAxis;
-        IndicatorInvertYAxis = native.InIndicatorInvertYAxis;
-        GBufferSurface = new(in native.GBufferSurface);
-        ToneMapperType = native.InToneMapperType;
-        MotionVectors3D = native.PInMotionVectors3D;
-        IsParticleMask = native.PInIsParticleMask;
-        AnimatedTextureMask = native.PInAnimatedTextureMask;
-        DepthHighResolution = native.PInDepthHighRes;
-        PositionViewSpace = native.PInPositionViewSpace;
-        FrameTimeDeltaInMsec = native.InFrameTimeDeltaInMsec;
-        RayTracingHitDistance = native.PInRayTracingHitDistance;
-        MotionVectorsReflections = native.PInMotionVectorsReflections;
-    }
 }

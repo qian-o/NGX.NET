@@ -4,9 +4,6 @@ internal class DelegateEmitter(Models models, TypeMapper mapper, Dictionary<stri
 {
     internal void WriteCallbacks()
     {
-        CodeWriter guards = CreateFile();
-        guards.BeginBlock("internal static partial class NgxCallbacks");
-
         foreach (AstCallback model in models.Callbacks.Where(static callback => !callback.Name.StartsWith("PFN_NVSDK_NGX_Parameter_", StringComparison.Ordinal)))
         {
             string name = model.Name;
@@ -21,55 +18,7 @@ internal class DelegateEmitter(Models models, TypeMapper mapper, Dictionary<stri
             callback.Line($"public delegate {result} {managed}({arguments});");
             files[$"Delegates/{managed}.g.cs"] = callback.ToString();
 
-            bool used = models.Functions.Values.SelectMany(static function => function.Parameters.Select(static parameter => parameter.Type)).Concat(models.Records.Values.SelectMany(static record => record.Fields.Select(static field => field.Type))).Any(type => mapper.CallbackName(type) == managed);
-            if (!used)
-            {
-                continue;
-            }
-
-            guards.BeginBlock($"internal static nint Acquire({managed}? callback)");
-            guards.BeginBlock("if (callback is null)");
-            guards.Line("return 0;");
-            guards.EndBlock();
-            guards.BeginBlock($"{managed} guarded = ({string.Join(", ", parameters.Select((parameter, i) => $"{parameter.Modifier}{parameter.Type} {names[i]}"))}) =>");
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (parameters[i].Modifier is "out ")
-                {
-                    guards.Line($"{names[i]} = default;");
-                    guards.BlankLine();
-                }
-            }
-
-            guards.BeginBlock("try");
-            guards.Line($"{(result is "void" ? string.Empty : "return ")}callback({string.Join(", ", parameters.Select((parameter, i) => parameter.Modifier + names[i]))});");
-            guards.EndBlock();
-            guards.BeginBlock("catch (Exception exception)", continuation: true);
-            guards.Line("Report(exception);");
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (parameters[i].Modifier is "ref " && parameters[i].Type is "bool")
-                {
-                    guards.Line($"{names[i]} = true;");
-                }
-            }
-
-            if (result is not "void")
-            {
-                guards.BlankLine();
-                guards.Line($"return {(result is "NGXResult" ? "NGXResult.Fail" : "default")};");
-            }
-
-            guards.EndBlock();
-            guards.EndBlock(";");
-            guards.Line("return Register(guarded);");
-            guards.EndBlock();
         }
-
-        guards.EndBlock();
-        files["Delegates/NgxCallbacks.g.cs"] = guards.ToString();
     }
 
     private (string Type, string Modifier, string Attribute) CallbackParameter(AstCallbackParameter parameter)

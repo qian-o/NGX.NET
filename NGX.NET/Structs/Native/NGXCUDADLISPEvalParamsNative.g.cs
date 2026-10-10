@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXCUDADLISPEvalParamsNative : IDisposable
+internal unsafe struct NGXCUDADLISPEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXCUDAFeatureEvalParamsNative Feature;
@@ -23,28 +23,13 @@ internal unsafe struct NGXCUDADLISPEvalParamsNative : IDisposable
     [FieldOffset(40)]
     public float InDenoise;
 
-    public NGXCUDADLISPEvalParamsNative(in NGXCUDADLISPEvalParams value)
+    public NGXCUDADLISPEvalParamsNative(in NGXCUDADLISPEvalParams value, NativeScope scope)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            InRectX = value.RectX;
-            InRectY = value.RectY;
-            InRectW = value.RectW;
-            InRectH = value.RectH;
-            InDenoise = value.Denoise;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature, scope);
+        InRectX = value.RectX;
+        InRectY = value.RectY;
+        InRectW = value.RectW;
+        InRectH = value.RectH;
+        InDenoise = value.Denoise;
     }
 }

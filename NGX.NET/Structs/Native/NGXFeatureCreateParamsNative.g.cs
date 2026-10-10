@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-internal unsafe struct NGXFeatureCreateParamsNative : IDisposable
+internal unsafe struct NGXFeatureCreateParamsNative
 {
     [FieldOffset(0)]
     public uint InWidth;
@@ -22,24 +22,10 @@ internal unsafe struct NGXFeatureCreateParamsNative : IDisposable
 
     public NGXFeatureCreateParamsNative(in NGXFeatureCreateParams value)
     {
-        try
-        {
-            InWidth = value.Width;
-            InHeight = value.Height;
-            InTargetWidth = value.TargetWidth;
-            InTargetHeight = value.TargetHeight;
-            InPerfQualityValue = value.PerfQualityValue;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        InWidth = value.Width;
+        InHeight = value.Height;
+        InTargetWidth = value.TargetWidth;
+        InTargetHeight = value.TargetHeight;
+        InPerfQualityValue = value.PerfQualityValue;
     }
 }

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe struct NGXFeatureDiscoveryInfoNative : IDisposable
+internal unsafe struct NGXFeatureDiscoveryInfoNative
 {
     [FieldOffset(0)]
     public NGXVersion SDKVersion;
@@ -20,35 +20,12 @@ internal unsafe struct NGXFeatureDiscoveryInfoNative : IDisposable
     [FieldOffset(48)]
     public NGXFeatureCommonInfoNative* FeatureInfo;
 
-    public NGXFeatureDiscoveryInfoNative(in NGXFeatureDiscoveryInfo value)
+    public NGXFeatureDiscoveryInfoNative(in NGXFeatureDiscoveryInfo value, NativeScope scope)
     {
-        this = default;
-
-        try
-        {
-            SDKVersion = value.SDKVersion;
-            FeatureID = value.FeatureID;
-            Identifier = new(in value.Identifier);
-            ApplicationDataPath = NGXMarshal.TextToPtr(value.ApplicationDataPath, NGXEncoding.NativeWide);
-
-            if (value.FeatureInfo is NGXFeatureCommonInfo featureInfo)
-            {
-                FeatureInfo = NGXMarshal.AllocNative<NGXFeatureCommonInfoNative>(new(in featureInfo));
-            }
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        NGXMarshal.FreeNative(FeatureInfo);
-        NGXMarshal.Free(ApplicationDataPath);
-        Identifier.Dispose();
-        this = default;
+        SDKVersion = value.SDKVersion;
+        FeatureID = value.FeatureID;
+        Identifier = new(in value.Identifier, scope);
+        ApplicationDataPath = scope.AllocWide(value.ApplicationDataPath);
+        FeatureInfo = value.FeatureInfo is NGXFeatureCommonInfo featureInfo ? scope.Alloc(new NGXFeatureCommonInfoNative(in featureInfo, scope)) : null;
     }
 }

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 56)]
-internal unsafe struct NGXCUDADLSSDCreateParamsNative : IDisposable
+internal unsafe struct NGXCUDADLSSDCreateParamsNative
 {
     [FieldOffset(0)]
     public NGXDLSSDCreateParamsNative Feature;
@@ -16,23 +16,8 @@ internal unsafe struct NGXCUDADLSSDCreateParamsNative : IDisposable
 
     public NGXCUDADLSSDCreateParamsNative(in NGXCUDADLSSDCreateParams value)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            InCUContext = (void*)value.CUContext;
-            InCUStream = (void*)value.CUStream;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature);
+        InCUContext = (void*)value.CUContext;
+        InCUStream = (void*)value.CUStream;
     }
 }

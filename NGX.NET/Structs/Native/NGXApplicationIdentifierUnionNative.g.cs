@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXApplicationIdentifierUnionNative : IDisposable
+internal unsafe struct NGXApplicationIdentifierUnionNative
 {
     [FieldOffset(0)]
     public NGXProjectIdDescriptionNative ProjectDesc;
@@ -11,31 +11,16 @@ internal unsafe struct NGXApplicationIdentifierUnionNative : IDisposable
     [FieldOffset(0)]
     public ulong ApplicationId;
 
-    public NGXApplicationIdentifierUnionNative(in NGXApplicationIdentifierUnion value)
+    public NGXApplicationIdentifierUnionNative(in NGXApplicationIdentifierUnion value, NativeScope scope)
     {
         this = default;
-
-        try
+        if (value.ProjectDesc is NGXProjectIdDescription projectDesc)
         {
-            if (value.ProjectDesc is NGXProjectIdDescription projectDesc)
-            {
-                ProjectDesc = new(in projectDesc);
-            }
-            else
-            {
-                ApplicationId = value.ApplicationId;
-            }
+            ProjectDesc = new(in projectDesc, scope);
         }
-        catch
+        else
         {
-            Dispose();
-
-            throw;
+            ApplicationId = value.ApplicationId;
         }
-    }
-
-    public void Dispose()
-    {
-        this = default;
     }
 }

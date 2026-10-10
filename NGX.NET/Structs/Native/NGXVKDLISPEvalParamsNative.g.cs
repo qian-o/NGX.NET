@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXVKDLISPEvalParamsNative : IDisposable
+internal unsafe struct NGXVKDLISPEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXVKFeatureEvalParamsNative Feature;
@@ -23,28 +23,13 @@ internal unsafe struct NGXVKDLISPEvalParamsNative : IDisposable
     [FieldOffset(40)]
     public float InDenoise;
 
-    public NGXVKDLISPEvalParamsNative(in NGXVKDLISPEvalParams value)
+    public NGXVKDLISPEvalParamsNative(in NGXVKDLISPEvalParams value, NativeScope scope)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            InRectX = value.RectX;
-            InRectY = value.RectY;
-            InRectW = value.RectW;
-            InRectH = value.RectH;
-            InDenoise = value.Denoise;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature, scope);
+        InRectX = value.RectX;
+        InRectY = value.RectY;
+        InRectW = value.RectW;
+        InRectH = value.RectH;
+        InDenoise = value.Denoise;
     }
 }

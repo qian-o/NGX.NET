@@ -17,7 +17,8 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         {
             string method = FunctionName(function.Name).Method;
             string arguments = string.Join(", ", function.Parameters.Select(parameter => $"{mapper.NativeParameterType(parameter)} {NativeParameterName(parameter.Name)}"));
-            text.Line($"[LibraryImport(LibraryName, EntryPoint = \"{function.Export}\")]");
+            string marshalling = function.Parameters.Any(static parameter => parameter.Role is ParameterRole.RequiredName) ? ", StringMarshalling = StringMarshalling.Utf8" : string.Empty;
+            text.Line($"[LibraryImport(LibraryName, EntryPoint = \"{function.Export}\"{marshalling})]");
             text.Line("[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
             text.Line($"private static partial {mapper.Type(function.Result)} {method}Native({arguments});");
             text.BlankLine();
@@ -48,26 +49,25 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         string result = function.Result.Kind is NativeTypeKind.Pointer ? "string?" : mapper.PublicType(function.Result);
         bool init = method.StartsWith("Init", StringComparison.Ordinal);
         bool evaluate = function.Name.StartsWith("NGX_", StringComparison.Ordinal) && method.StartsWith("Evaluate", StringComparison.Ordinal);
-        ParameterPlan[] parameters = [.. function.Parameters.Select(parameter => PlanParameter(parameter, init || evaluate))];
+        ParameterPlan[] parameters = [.. function.Parameters.Select(parameter => PlanParameter(parameter, init, evaluate))];
 
-        return new(group, function, method, nativeResult, result, init, evaluate, parameters);
+        return new(group, function, method, nativeResult, result, init, parameters);
     }
 
-    private ParameterPlan PlanParameter(AstParameter parameter, bool retained)
+    private ParameterPlan PlanParameter(AstParameter parameter, bool initialization, bool evaluation)
     {
         string name = ParameterName(parameter.Name);
-        string local = LocalName(parameter, name);
         AstType type = parameter.Type;
         string raw = mapper.Type(type);
 
         if (parameter.Role is ParameterRole.ExtensionCount)
         {
-            return new(null, "out " + local, string.Empty) { Locals = [$"uint {local} = 0;"] };
+            return new(null, "out " + name, string.Empty) { Initializers = [$"uint {name} = 0;"] };
         }
 
         if (parameter.Role is ParameterRole.ExtensionProperties or ParameterRole.ExtensionNames)
         {
-            return PlanExtensionArray(parameter, name, local);
+            return PlanExtensionArray(parameter, name);
         }
 
         if (type.Kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference)
@@ -76,12 +76,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
             if (element.Kind is NativeTypeKind.FunctionProto or NativeTypeKind.FunctionNoProto)
             {
-                return PlanCallback(type, name, local);
+                return PlanCallback(type, name);
             }
 
             if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
             {
-                return PlanString(parameter, name, local, raw, retained);
+                return PlanString(parameter, name, initialization);
             }
 
             if (element.Kind is NativeTypeKind.Record && element.Name is "NVSDK_NGX_Parameter" or "NVSDK_NGX_Handle")
@@ -91,12 +91,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
             if (parameter.Role is ParameterRole.CudaDevice)
             {
-                return PlanCudaDevice(name, local);
+                return PlanCudaDevice(name);
             }
 
             if (mapper.IsRecord(element))
             {
-                return PlanRecord(parameter, name, local, retained);
+                return PlanRecord(parameter, name, evaluation);
             }
 
             if (parameter.Direction is ParameterDirection.Out)
@@ -109,33 +109,36 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (mapper.IsRecord(type))
         {
+            string local = name + "Native";
+            string scope = mapper.Allocates(type.Name) ? ", scope" : string.Empty;
+
             return new($"in {mapper.PublicType(type)} {name}", local, "in " + name)
             {
-                Locals = [$"{raw} {local} = default;"],
-                Setup = [writer => writer.Line($"{local} = new(in {name});")],
-                Cleanup = [$"{local}.Dispose();"]
+                Setup = [writer => writer.Line($"{raw} {local} = new(in {name}{scope});")],
+                UsesCallScope = scope.Length is not 0
             };
         }
 
         return new($"{mapper.PublicType(type)} {name}", name, name);
     }
 
-    private ParameterPlan PlanExtensionArray(AstParameter parameter, string name, string local)
+    private ParameterPlan PlanExtensionArray(AstParameter parameter, string name)
     {
         bool properties = parameter.Role is ParameterRole.ExtensionProperties;
         string element = properties ? "NGXVkExtensionProperties" : "string";
-        string native = properties ? "NGXVkExtensionPropertiesNative*" : "sbyte**";
+        string native = properties ? "NGXVkExtensionPropertiesNative*" : "byte**";
+        string local = "p" + char.ToUpperInvariant(name[0]) + name[1..];
         string count = ParameterName(parameter.CountParameter);
 
         return new($"out {element}[] {name}", "out " + local, "out " + name)
         {
-            Locals = [$"{name} = [];", $"{native} {local} = null;"],
+            Initializers = [$"{name} = [];", $"{native} {local} = null;"],
             Outputs = [writer =>
             {
                 writer.Line($"{name} = new {element}[checked((int){count})];");
                 WriteGuard(writer, $"{name}.Length is not 0 && {local} is null", "throw new InvalidOperationException(\"NGX returned a null extension array.\");");
                 writer.BeginBlock($"for (int i = 0; i < {name}.Length; i++)");
-                writer.Line($"{name}[i] = {(properties ? $"new(in {local}[i])" : $"NGXMarshal.PtrToString({local}[i], NGXEncoding.Utf8)!")};");
+                writer.Line($"{name}[i] = {(properties ? $"new(in {local}[i])" : $"Marshal.PtrToStringUTF8((nint){local}[i])!")};");
                 writer.EndBlock();
             }],
             Output = (element + "[]", name),
@@ -143,18 +146,19 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         };
     }
 
-    private ParameterPlan PlanCallback(AstType type, string name, string local)
+    private ParameterPlan PlanCallback(AstType type, string name)
     {
         if (mapper.CallbackName(type) is not string callback)
         {
             return new($"nint {name}", name, name);
         }
 
-        return new($"{callback}? {name}", local, name)
+        string local = "guarded" + char.ToUpperInvariant(name[0]) + name[1..];
+
+        return new($"{callback}? {name}", $"{local} is null ? 0 : Marshal.GetFunctionPointerForDelegate({local})", name)
         {
-            Locals = [$"nint {local} = 0;"],
-            Setup = [writer => writer.Line($"{local} = NgxCallbacks.Acquire({name});")],
-            Cleanup = [$"NgxCallbacks.Release({local});"]
+            Setup = [writer => writer.Line($"{callback}? {local} = CallbackGuard.Wrap({name});")],
+            KeepAlive = local
         };
     }
 
@@ -162,12 +166,13 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
     {
         return new($"{mapper.ManagedRecord(type.Name)} {name}", name, name)
         {
-            Setup = [writer => WriteGuard(writer, $"{name}.IsNull", $"throw new ArgumentException(\"A non-null NGX handle is required.\", nameof({name}));")],
-            ParameterHandle = type.Name is "NVSDK_NGX_Parameter" ? name + ".Value" : null
+            Setup = [writer => writer.Line($"ArgumentNullException.ThrowIfNull((void*){name}.Value, nameof({name}));")],
+            ParameterHandle = type.Name is "NVSDK_NGX_Parameter" ? name : null,
+            IsValidation = true
         };
     }
 
-    private ParameterPlan PlanRecord(AstParameter parameter, string name, string local, bool retained)
+    private ParameterPlan PlanRecord(AstParameter parameter, string name, bool evaluation)
     {
         AstType element = parameter.Type.Element!;
         string managed = mapper.PublicType(element);
@@ -182,54 +187,81 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         };
         string declaration = $"{modifier}{managed}{(optional ? "?" : string.Empty)} {name}";
         string forward = modifier + name;
+        string local = name + "Native";
 
         if (output)
         {
             return new(declaration, "out " + local, forward)
             {
-                Locals = [$"{native} {local} = default;", $"{name} = default;"],
+                Initializers = [$"{name} = default;", $"{native} {local} = default;"],
                 Outputs = [writer => writer.Line($"{name} = new(in {local});")],
                 Output = (managed, name),
                 NativeOutputName = parameter.Name
             };
         }
 
-        List<Action<CodeWriter>> setup = [];
-
-        if (parameter.Role is ParameterRole.FrameGenerationOptions)
+        if (evaluation && mapper.RequiresScope(element.Name))
         {
-            setup.Add(writer => writer.Line($"storage!.HasFrameGenerationOptions = {name}.HasValue;"));
+            return PlanRetainedRecord(parameter, declaration, forward, name, native, optional);
         }
 
-        setup.Add(writer =>
-        {
-            if (optional)
-            {
-                WriteGuard(writer, $"{name} is {managed} {name}Value", $"{local} = new(in {name}Value);");
-            }
-            else
-            {
-                writer.Line($"{local} = new(in {name});");
-            }
-        });
+        string scope = mapper.Allocates(element.Name) ? ", scope" : string.Empty;
 
-        List<string> locals = [$"{native} {local} = default;"];
-        string argument = optional ? $"{name}.HasValue ? &{local} : null" : "&" + local;
-
-        if (retained)
+        if (optional)
         {
-            string pointer = "p" + char.ToUpperInvariant(name[0]) + name[1..];
-            locals.Add($"{native}* {pointer} = null;");
-            setup.Add(writer => writer.Line($"{pointer} = {(optional ? name + ".HasValue ? " : string.Empty)}storage!.Take(ref {local}){(optional ? " : null" : string.Empty)};"));
-            argument = pointer;
+            return new(declaration, $"{name}.HasValue ? &{local} : null", forward)
+            {
+                Initializers = [$"{native} {local} = default;"],
+                Setup = [writer => WriteGuard(writer, $"{name} is {managed} {name}Value", $"{local} = new(in {name}Value{scope});")],
+                Optional = (managed, name),
+                UsesCallScope = scope.Length is not 0
+            };
         }
 
-        return new(declaration, argument, forward)
+        return new(declaration, "&" + local, forward)
         {
-            Locals = [.. locals],
-            Setup = [.. setup],
-            Cleanup = [$"{local}.Dispose();"],
-            Optional = optional ? (managed, name) : null
+            Setup = [writer => writer.Line($"{native} {local} = new(in {name}{scope});")],
+            UsesCallScope = scope.Length is not 0
+        };
+    }
+
+    private ParameterPlan PlanRetainedRecord(AstParameter parameter, string declaration, string forward, string name, string native, bool optional)
+    {
+        AstType element = parameter.Type.Element!;
+        string scope = name + "Scope";
+        string pointer = "p" + char.ToUpperInvariant(name[0]) + name[1..];
+        string conversionScope = mapper.Allocates(element.Name) ? ", " + scope : string.Empty;
+        string managed = mapper.PublicType(element);
+
+        if (optional)
+        {
+            return new(declaration, pointer, forward)
+            {
+                Initializers = [$"NativeScope? {scope} = null;", $"{native}* {pointer} = null;"],
+                Setup = [writer =>
+                {
+                    writer.BlankLine();
+                    writer.BeginBlock($"if ({name} is {managed} {name}Value)");
+                    writer.Line($"{scope} = new();");
+                    writer.Line($"{pointer} = {scope}.Alloc(new {native}(in {name}Value{conversionScope}));");
+                    writer.EndBlock();
+                }],
+                Optional = (managed, name),
+                RetainedScope = scope,
+                RetainedOptional = true,
+                SlotParameter = parameter.Name
+            };
+        }
+
+        return new(declaration, pointer, forward)
+        {
+            Setup = [writer =>
+            {
+                writer.Line($"NativeScope {scope} = new();");
+                writer.Line($"{native}* {pointer} = {scope}.Alloc(new {native}(in {name}{conversionScope}));");
+            }],
+            RetainedScope = scope,
+            SlotParameter = parameter.Name
         };
     }
 
@@ -239,10 +271,9 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         return new($"out {managed} {name}", "out " + name, "out " + name)
         {
-            Locals = [$"{name} = default;"],
+            Initializers = [$"{name} = default;"],
             Output = (managed, name),
-            NativeOutputName = parameter.Name,
-            Allocated = managed is "NGXParameter" ? name + ".Value" : null
+            NativeOutputName = parameter.Name
         };
     }
 
@@ -266,105 +297,77 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
     private void WriteBody(CodeWriter text, FunctionPlan plan)
     {
-        if (plan.IsRetained)
-        {
-            text.Line("NativeCall? storage = new();");
-            text.Line("NGXResult result = NGXResult.Fail;");
-            text.Line("bool attached = false;");
-            text.Line("bool returned = false;");
-        }
-
-        foreach (string local in plan.Parameters.SelectMany(static parameter => parameter.Locals))
+        foreach (string local in plan.Parameters.SelectMany(static parameter => parameter.Initializers))
         {
             text.Line(local);
         }
 
-        if (plan.HasCudaDevice)
-        {
-            text.Line("bool cudaSucceeded = false;");
-        }
-
-        if (plan.IsGuarded)
-        {
-            text.BlankLine();
-            text.BeginBlock("try");
-        }
-
-        foreach (Action<CodeWriter> statement in plan.Parameters.SelectMany(static parameter => parameter.Setup))
-        {
-            statement(text);
-        }
-
-        if (plan.Allocated.Length is not 0)
-        {
-            text.Line("NgxLifetime.PrepareParameters();");
-        }
+        text.BlankLine();
 
         if (plan.IsInitialization)
         {
-            text.Line($"NgxLifetime.BeginInitialization(\"{plan.Group}\", {plan.Device}, storage!);");
-            text.Line("attached = true;");
+            text.Line("NativeScope scope = new();");
+            text.BlankLine();
         }
-
-        if (plan.IsEvaluation)
+        else if (plan.UsesCallScope)
         {
-            text.Line($"NgxLifetime.BeginParameters({plan.ParameterHandle}, \"{plan.Group}.{plan.Method}\", storage!);");
-            text.Line("attached = true;");
+            text.Line("using NativeScope scope = new();");
+            text.BlankLine();
         }
 
+        bool previousValidation = false;
+        foreach (ParameterPlan parameter in plan.Parameters)
+        {
+            if (previousValidation && !parameter.IsValidation)
+            {
+                text.BlankLine();
+            }
+
+            foreach (Action<CodeWriter> statement in parameter.Setup)
+            {
+                statement(text);
+            }
+
+            if (parameter.Setup.Length is not 0)
+            {
+                previousValidation = parameter.IsValidation;
+            }
+        }
+
+        if (previousValidation)
+        {
+            text.BlankLine();
+        }
+
+        string arguments = string.Join(", ", plan.Parameters.Select(static parameter => parameter.Argument));
         if (plan.CanReturnDirectly)
         {
             text.BlankLine();
-            text.Line($"return {plan.Method}Native({string.Join(", ", plan.Parameters.Select(static parameter => parameter.Argument))});");
+            text.Line($"return {plan.Method}Native({arguments});");
 
             return;
         }
 
-        string assignment = (plan.Result, plan.IsRetained) switch
-        {
-            ("void", _) => string.Empty,
-            (_, true) => "result = ",
-            _ => $"{plan.NativeResult} result = "
-        };
-        text.Line($"{assignment}{plan.Method}Native({string.Join(", ", plan.Parameters.Select(static parameter => parameter.Argument))});");
+        text.Line($"{(plan.Result is "void" ? string.Empty : $"{plan.NativeResult} result = ")}{plan.Method}Native({arguments});");
 
-        if (plan.IsRetained)
+        foreach (ParameterPlan parameter in plan.Parameters.Where(static parameter => parameter.KeepAlive is not null))
         {
-            text.Line("returned = true;");
+            text.Line($"GC.KeepAlive({parameter.KeepAlive});");
         }
 
+        WriteLifetime(text, plan);
         WriteOutputs(text, plan);
-
-        if (plan.Method is "DestroyParameters")
-        {
-            WriteGuard(text, "result is NGXResult.Success", $"NgxLifetime.ReleaseParameters({plan.ParameterHandle}, destroyed: true);");
-        }
-
-        if (plan.IsShutdown)
-        {
-            WriteGuard(text, "result is NGXResult.Success", $"NgxLifetime.Shutdown(\"{plan.Group}\", {plan.Device});");
-        }
-
-        if (plan.HasCudaDevice && !plan.IsShutdown)
-        {
-            text.Line("cudaSucceeded = result is NGXResult.Success;");
-        }
 
         if (plan.Result is not "void")
         {
             string returned = plan.Function.Result.Kind switch
             {
                 NativeTypeKind.Record when mapper.IsRecord(plan.Function.Result) => "new(in result)",
-                NativeTypeKind.Pointer => "NGXMarshal.PtrToString(result, NGXEncoding.NativeWide)",
+                NativeTypeKind.Pointer => "NativeTextHelper.ReadWide(result)",
                 _ => "result"
             };
             text.BlankLine();
             text.Line($"return {returned};");
-        }
-
-        if (plan.IsGuarded)
-        {
-            WriteCleanup(text, plan);
         }
     }
 
@@ -389,37 +392,64 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         }
     }
 
-    private static ParameterPlan PlanString(AstParameter parameter, string name, string local, string raw, bool retained)
+    private static ParameterPlan PlanString(AstParameter parameter, string name, bool initialization)
     {
-        string encoding = parameter.Type.Element!.Kind is NativeTypeKind.WChar ? "NativeWide" : "Utf8";
-        bool required = parameter.Role is ParameterRole.RequiredName;
-        List<Action<CodeWriter>> setup = [];
-
-        if (required)
+        if (parameter.Role is ParameterRole.RequiredName)
         {
-            setup.Add(writer => writer.Line($"ArgumentNullException.ThrowIfNull({name});"));
+            return new($"string {name}", name, name)
+            {
+                Setup = [writer => writer.Line($"ArgumentNullException.ThrowIfNull({name});")],
+                IsValidation = true
+            };
         }
 
-        setup.Add(writer => writer.Line($"{local} = {(raw is "void*" ? string.Empty : $"({raw})")}{(retained ? "storage!.String" : "NGXMarshal.StringToPtr")}({name}, NGXEncoding.{encoding});"));
+        string allocation = parameter.Type.Element!.Kind is NativeTypeKind.WChar ? "AllocWide" : "AllocUtf8";
 
-        return new($"string{(required ? string.Empty : "?")} {name}", local, name)
+        return new($"string? {name}", $"scope.{allocation}({name})", name) { UsesCallScope = !initialization };
+    }
+
+    private static ParameterPlan PlanCudaDevice(string name)
+    {
+        string local = "p" + char.ToUpperInvariant(name[0]) + name[1..];
+
+        return new($"NGXCUDADevice? {name}", local, name)
         {
-            Locals = [$"{raw} {local} = null;"],
-            Setup = [.. setup],
-            Cleanup = retained ? [] : [$"NGXMarshal.Free({local});"]
+            Setup = [writer => writer.Line($"NGXCUDADeviceNative* {local} = {name} is NGXCUDADevice {name}Value ? NativeLifetime.GetCudaDevice({name}Value) : null;")],
+            Optional = ("NGXCUDADevice", name),
+            Device = "(nint)" + local
         };
     }
 
-    private static ParameterPlan PlanCudaDevice(string name, string local)
+    private static void WriteLifetime(CodeWriter text, FunctionPlan plan)
     {
-        return new($"NGXCUDADevice? {name}", local, name)
+        if (plan.IsInitialization)
         {
-            Locals = [$"NGXCUDADeviceNative* {local} = null;"],
-            Setup = [writer => WriteGuard(writer, $"{name} is NGXCUDADevice deviceValue", $"{local} = NgxLifetime.CudaDevice(deviceValue);")],
-            Optional = ("NGXCUDADevice", name),
-            Device = "(nint)" + local,
-            HasCudaDevice = true
-        };
+            text.Line($"NativeLifetime.Retain({GraphicsApi(plan.Group)}, {plan.Device}, scope, result);");
+        }
+
+        foreach (ParameterPlan parameter in plan.Parameters.Where(static parameter => parameter.RetainedScope is not null))
+        {
+            string retain = $"NativeLifetime.Retain({GraphicsApi(plan.Group)}, {plan.ParameterHandle}, \"{plan.Group}.{plan.Method}.{parameter.SlotParameter}\", {parameter.RetainedScope}, result);";
+
+            if (parameter.RetainedOptional)
+            {
+                WriteGuard(text, $"{parameter.RetainedScope} is not null", retain);
+            }
+            else
+            {
+                text.Line(retain);
+            }
+        }
+
+        if (plan.Method is "DestroyParameters")
+        {
+            WriteGuard(text, "result is NGXResult.Success", $"NativeLifetime.Release({plan.ParameterHandle});");
+        }
+
+        if (plan.IsShutdown)
+        {
+            WriteGuard(text, "result is NGXResult.Success", $"NativeLifetime.Release({GraphicsApi(plan.Group)}, {plan.Device});");
+        }
     }
 
     private static void WriteOutputs(CodeWriter text, FunctionPlan plan)
@@ -430,7 +460,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             return;
         }
 
-        if (conversions || plan.Allocated.Length is not 0)
+        if (conversions)
         {
             if (plan.IsStatus)
             {
@@ -440,11 +470,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
             {
                 output(text);
-            }
-
-            if (plan.Allocated.Length is not 0)
-            {
-                text.Line($"NgxLifetime.RegisterParameters(\"{plan.Group}\", {plan.Allocated});");
             }
 
             if (plan.IsStatus)
@@ -474,62 +499,9 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         }
     }
 
-    private static string LocalName(AstParameter parameter, string name)
+    private static string GraphicsApi(string group)
     {
-        if (parameter.Role is ParameterRole.ExtensionCount)
-        {
-            return name;
-        }
-
-        if (parameter.Role is ParameterRole.ExtensionProperties or ParameterRole.ExtensionNames)
-        {
-            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
-        }
-
-        if (parameter.Type.Kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference && parameter.Type.Element!.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
-        {
-            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
-        }
-
-        if (parameter.Role is ParameterRole.CudaDevice)
-        {
-            return "p" + char.ToUpperInvariant(name[0]) + name[1..];
-        }
-
-        return name + "Native";
-    }
-
-    private static void WriteCleanup(CodeWriter text, FunctionPlan plan)
-    {
-        text.EndBlock();
-        text.BeginBlock("finally", continuation: true);
-
-        if (plan.IsInitialization)
-        {
-            WriteGuard(text, "attached", $"NgxLifetime.EndInitialization(\"{plan.Group}\", {plan.Device}, returned && result is NGXResult.Success, ref storage);");
-        }
-
-        if (plan.IsEvaluation)
-        {
-            WriteGuard(text, "attached", $"NgxLifetime.EndParameters({plan.ParameterHandle}, \"{plan.Group}.{plan.Method}\", returned, result is NGXResult.Success, ref storage);");
-        }
-
-        if (plan.IsRetained)
-        {
-            text.Line("storage?.Dispose();");
-        }
-
-        foreach (string statement in plan.Parameters.SelectMany(static parameter => parameter.Cleanup).Reverse())
-        {
-            text.Line(statement);
-        }
-
-        if (plan.HasCudaDevice)
-        {
-            text.Line($"NgxLifetime.FinishCudaDevice({plan.Device}, cudaSucceeded);");
-        }
-
-        text.EndBlock();
+        return "NGXGraphicsAPI." + (group is "CUDA" ? "Cuda" : group);
     }
 
     private class ParameterPlan(string? declaration, string argument, string forward)
@@ -540,11 +512,9 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public readonly string Forward = forward;
 
-        public string[] Locals { get; init; } = [];
+        public string[] Initializers { get; init; } = [];
 
         public Action<CodeWriter>[] Setup { get; init; } = [];
-
-        public string[] Cleanup { get; init; } = [];
 
         public Action<CodeWriter>[] Outputs { get; init; } = [];
 
@@ -558,12 +528,20 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public string? ParameterHandle { get; init; }
 
-        public string? Allocated { get; init; }
+        public string? KeepAlive { get; init; }
 
-        public bool HasCudaDevice { get; init; }
+        public string? RetainedScope { get; init; }
+
+        public bool RetainedOptional { get; init; }
+
+        public string? SlotParameter { get; init; }
+
+        public bool UsesCallScope { get; init; }
+
+        public bool IsValidation { get; init; }
     }
 
-    private class FunctionPlan(string group, AstFunction function, string method, string nativeResult, string result, bool initialization, bool evaluation, ParameterPlan[] parameters)
+    private class FunctionPlan(string group, AstFunction function, string method, string nativeResult, string result, bool initialization, ParameterPlan[] parameters)
     {
         public readonly string Group = group;
 
@@ -577,8 +555,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public readonly bool IsInitialization = initialization;
 
-        public readonly bool IsEvaluation = evaluation;
-
         public readonly ParameterPlan[] Parameters = parameters;
 
         public readonly string[] Declarations = [.. parameters.Where(static parameter => parameter.Declaration is not null).Select(static parameter => parameter.Declaration!)];
@@ -591,20 +567,14 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         public string Device => Parameters.Select(static parameter => parameter.Device).LastOrDefault(static value => value is not null) ?? "0";
 
-        public string ParameterHandle => Parameters.Select(static parameter => parameter.ParameterHandle).LastOrDefault(static value => value is not null) ?? "0";
+        public string ParameterHandle => Parameters.Select(static parameter => parameter.ParameterHandle).LastOrDefault(static value => value is not null) ?? "default";
 
-        public string Allocated => Parameters.Select(static parameter => parameter.Allocated).LastOrDefault(static value => value is not null) ?? string.Empty;
-
-        public bool IsRetained => IsInitialization || IsEvaluation;
+        public bool UsesCallScope => Parameters.Any(static parameter => parameter.UsesCallScope);
 
         public bool IsStatus => Result is "NGXResult";
 
-        public bool HasCudaDevice => Parameters.Any(static parameter => parameter.HasCudaDevice);
-
-        public bool IsGuarded => IsRetained || Parameters.Any(static parameter => parameter.Cleanup.Length is not 0) || HasCudaDevice;
-
         public bool IsShutdown => Method.StartsWith("Shutdown", StringComparison.Ordinal);
 
-        public bool CanReturnDirectly => !IsGuarded && Outputs.Length is 0 && Result is not "void" && Result == NativeResult && Method is not "DestroyParameters" && !IsShutdown;
+        public bool CanReturnDirectly => !IsInitialization && !Parameters.Any(static parameter => parameter.RetainedScope is not null || parameter.KeepAlive is not null) && Outputs.Length is 0 && Result is not "void" && Result == NativeResult && Method is not "DestroyParameters" && !IsShutdown;
     }
 }

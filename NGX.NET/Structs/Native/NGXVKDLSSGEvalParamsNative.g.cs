@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 80)]
-internal unsafe struct NGXVKDLSSGEvalParamsNative : IDisposable
+internal unsafe struct NGXVKDLSSGEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXResourceVKNative* PBackbuffer;
@@ -35,82 +35,17 @@ internal unsafe struct NGXVKDLSSGEvalParamsNative : IDisposable
     [FieldOffset(72)]
     public NGXResourceVKNative* POutputDisableInterpolation;
 
-    public NGXVKDLSSGEvalParamsNative(in NGXVKDLSSGEvalParams value)
+    public NGXVKDLSSGEvalParamsNative(in NGXVKDLSSGEvalParams value, NativeScope scope)
     {
-        this = default;
-
-        try
-        {
-            if (value.Backbuffer is NGXResourceVK backbuffer)
-            {
-                PBackbuffer = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in backbuffer));
-            }
-
-            if (value.Depth is NGXResourceVK depth)
-            {
-                PDepth = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in depth));
-            }
-
-            if (value.MVecs is NGXResourceVK mVecs)
-            {
-                PMVecs = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in mVecs));
-            }
-
-            if (value.Hudless is NGXResourceVK hudless)
-            {
-                PHudless = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in hudless));
-            }
-
-            if (value.UI is NGXResourceVK ui)
-            {
-                PUI = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in ui));
-            }
-
-            if (value.UIAlpha is NGXResourceVK uiAlpha)
-            {
-                PUIAlpha = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in uiAlpha));
-            }
-
-            if (value.BidirectionalDistortionField is NGXResourceVK bidirectionalDistortionField)
-            {
-                PBidirectionalDistortionField = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in bidirectionalDistortionField));
-            }
-
-            if (value.OutputInterpFrame is NGXResourceVK outputInterpFrame)
-            {
-                POutputInterpFrame = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in outputInterpFrame));
-            }
-
-            if (value.OutputRealFrame is NGXResourceVK outputRealFrame)
-            {
-                POutputRealFrame = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in outputRealFrame));
-            }
-
-            if (value.OutputDisableInterpolation is NGXResourceVK outputDisableInterpolation)
-            {
-                POutputDisableInterpolation = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in outputDisableInterpolation));
-            }
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        NGXMarshal.FreeNative(POutputDisableInterpolation);
-        NGXMarshal.FreeNative(POutputRealFrame);
-        NGXMarshal.FreeNative(POutputInterpFrame);
-        NGXMarshal.FreeNative(PBidirectionalDistortionField);
-        NGXMarshal.FreeNative(PUIAlpha);
-        NGXMarshal.FreeNative(PUI);
-        NGXMarshal.FreeNative(PHudless);
-        NGXMarshal.FreeNative(PMVecs);
-        NGXMarshal.FreeNative(PDepth);
-        NGXMarshal.FreeNative(PBackbuffer);
-        this = default;
+        PBackbuffer = value.Backbuffer is NGXResourceVK backbuffer ? scope.Alloc(new NGXResourceVKNative(in backbuffer)) : null;
+        PDepth = value.Depth is NGXResourceVK depth ? scope.Alloc(new NGXResourceVKNative(in depth)) : null;
+        PMVecs = value.MVecs is NGXResourceVK mVecs ? scope.Alloc(new NGXResourceVKNative(in mVecs)) : null;
+        PHudless = value.Hudless is NGXResourceVK hudless ? scope.Alloc(new NGXResourceVKNative(in hudless)) : null;
+        PUI = value.UI is NGXResourceVK ui ? scope.Alloc(new NGXResourceVKNative(in ui)) : null;
+        PUIAlpha = value.UIAlpha is NGXResourceVK uiAlpha ? scope.Alloc(new NGXResourceVKNative(in uiAlpha)) : null;
+        PBidirectionalDistortionField = value.BidirectionalDistortionField is NGXResourceVK bidirectionalDistortionField ? scope.Alloc(new NGXResourceVKNative(in bidirectionalDistortionField)) : null;
+        POutputInterpFrame = value.OutputInterpFrame is NGXResourceVK outputInterpFrame ? scope.Alloc(new NGXResourceVKNative(in outputInterpFrame)) : null;
+        POutputRealFrame = value.OutputRealFrame is NGXResourceVK outputRealFrame ? scope.Alloc(new NGXResourceVKNative(in outputRealFrame)) : null;
+        POutputDisableInterpolation = value.OutputDisableInterpolation is NGXResourceVK outputDisableInterpolation ? scope.Alloc(new NGXResourceVKNative(in outputDisableInterpolation)) : null;
     }
 }

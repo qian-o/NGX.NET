@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 8)]
-internal unsafe struct NGXDimensionsNative : IDisposable
+internal unsafe struct NGXDimensionsNative
 {
     [FieldOffset(0)]
     public uint Width;
@@ -13,21 +13,7 @@ internal unsafe struct NGXDimensionsNative : IDisposable
 
     public NGXDimensionsNative(in NGXDimensions value)
     {
-        try
-        {
-            Width = value.Width;
-            Height = value.Height;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        Width = value.Width;
+        Height = value.Height;
     }
 }

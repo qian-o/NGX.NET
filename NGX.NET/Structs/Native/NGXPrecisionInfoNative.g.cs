@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 12)]
-internal unsafe struct NGXPrecisionInfoNative : IDisposable
+internal unsafe struct NGXPrecisionInfoNative
 {
     [FieldOffset(0)]
     public uint IsLowPrecision;
@@ -16,22 +16,8 @@ internal unsafe struct NGXPrecisionInfoNative : IDisposable
 
     public NGXPrecisionInfoNative(in NGXPrecisionInfo value)
     {
-        try
-        {
-            IsLowPrecision = value.IsLowPrecision;
-            Bias = value.Bias;
-            Scale = value.Scale;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        IsLowPrecision = value.IsLowPrecision;
+        Bias = value.Bias;
+        Scale = value.Scale;
     }
 }

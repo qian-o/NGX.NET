@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-internal unsafe struct NGXD3D11DLISPEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D11DLISPEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXD3D11FeatureEvalParamsNative Feature;
@@ -25,26 +25,11 @@ internal unsafe struct NGXD3D11DLISPEvalParamsNative : IDisposable
 
     public NGXD3D11DLISPEvalParamsNative(in NGXD3D11DLISPEvalParams value)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            InRectX = value.RectX;
-            InRectY = value.RectY;
-            InRectW = value.RectW;
-            InRectH = value.RectH;
-            InDenoise = value.Denoise;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature);
+        InRectX = value.RectX;
+        InRectY = value.RectY;
+        InRectW = value.RectW;
+        InRectH = value.RectH;
+        InDenoise = value.Denoise;
     }
 }

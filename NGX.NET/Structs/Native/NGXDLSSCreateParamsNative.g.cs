@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 28)]
-internal unsafe struct NGXDLSSCreateParamsNative : IDisposable
+internal unsafe struct NGXDLSSCreateParamsNative
 {
     [FieldOffset(0)]
     public NGXFeatureCreateParamsNative Feature;
@@ -16,23 +16,8 @@ internal unsafe struct NGXDLSSCreateParamsNative : IDisposable
 
     public NGXDLSSCreateParamsNative(in NGXDLSSCreateParams value)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            InFeatureCreateFlags = value.FeatureCreateFlags;
-            InEnableOutputSubrects = value.EnableOutputSubrects;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature);
+        InFeatureCreateFlags = value.FeatureCreateFlags;
+        InEnableOutputSubrects = value.EnableOutputSubrects;
     }
 }

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXVKFeatureEvalParamsNative : IDisposable
+internal unsafe struct NGXVKFeatureEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXResourceVKNative* PInColor;
@@ -14,36 +14,10 @@ internal unsafe struct NGXVKFeatureEvalParamsNative : IDisposable
     [FieldOffset(16)]
     public float InSharpness;
 
-    public NGXVKFeatureEvalParamsNative(in NGXVKFeatureEvalParams value)
+    public NGXVKFeatureEvalParamsNative(in NGXVKFeatureEvalParams value, NativeScope scope)
     {
-        this = default;
-
-        try
-        {
-            if (value.Color is NGXResourceVK color)
-            {
-                PInColor = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in color));
-            }
-
-            if (value.Output is NGXResourceVK output)
-            {
-                PInOutput = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in output));
-            }
-
-            InSharpness = value.Sharpness;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        NGXMarshal.FreeNative(PInOutput);
-        NGXMarshal.FreeNative(PInColor);
-        this = default;
+        PInColor = value.Color is NGXResourceVK color ? scope.Alloc(new NGXResourceVKNative(in color)) : null;
+        PInOutput = value.Output is NGXResourceVK output ? scope.Alloc(new NGXResourceVKNative(in output)) : null;
+        InSharpness = value.Sharpness;
     }
 }

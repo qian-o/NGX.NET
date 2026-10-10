@@ -18,189 +18,251 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         }
 
         string managed = mapper.ManagedRecord(name);
-        AstField[] fields = [.. record.Fields];
-        bool union = record.IsUnion;
-        List<(string Name, string Element, int Count)> buffers = [];
-        foreach (AstField field in fields)
+        CodeWriter text = CreateFile();
+        text.BeginBlock($"public struct {managed}");
+
+        foreach (AstField field in record.Fields)
         {
-            AstType type = field.Type;
-            if (type.Kind is not NativeTypeKind.ConstantArray || MathFieldType(name, field) is not null)
+            if (!(name is "NVSDK_NGX_PathListInfo" && field.Name is "Length"))
             {
-                continue;
+                text.Line($"public {mapper.PublicFieldType(name, field)} {PublicFieldName(name, field.Name)};");
+                text.BlankLine();
             }
-
-            string element = mapper.Type(type.Element!);
-            if (element is "sbyte" or "byte" or "float" or "uint" or "int")
-            {
-                continue;
-            }
-
-            if (element.EndsWith('*'))
-            {
-                element = $"NGXPointer<{element[..^1]}>";
-            }
-
-            buffers.Add((Name(field.Name) + "Buffer", element, type.Count));
         }
 
-        CodeWriter publicText = CreateFile();
-        publicText.BeginBlock($"public struct {managed}");
-        CodeWriter nativeText = CreateFile();
-        nativeText.Line($"[StructLayout(LayoutKind.Explicit, Size = {record.Size})]");
-        nativeText.BeginBlock($"internal unsafe struct {managed}Native : IDisposable");
+        WriteDefaults(text, name, managed, record.Fields);
 
-        foreach (AstField field in fields)
+        if (mapper.HasOutputConversion(name))
         {
-            string fieldName = field.Name;
-            AstType type = field.Type;
+            text.BeginBlock($"internal unsafe {managed}(in {managed}Native native)");
 
-            if (!(name is "NVSDK_NGX_PathListInfo" && fieldName is "Length"))
+            foreach (AstField field in record.Fields)
             {
-                publicText.Line($"public {mapper.PublicFieldType(name, field)} {PublicFieldName(name, fieldName)};");
-                publicText.BlankLine();
+                EmitFieldRead(text, name, field);
             }
 
-            nativeText.Line($"[FieldOffset({field.Offset / 8})]");
+            text.EndBlock();
+        }
 
-            if (MathFieldType(name, field) is string mathType)
+        text.EndBlock();
+        files[$"Structs/{managed}.g.cs"] = text.ToString();
+
+        if (mapper.HasNativeRecord(name))
+        {
+            WriteNativeRecord(record, managed);
+        }
+    }
+
+    private void WriteNativeRecord(AstRecord record, string managed)
+    {
+        CodeWriter text = CreateFile();
+        text.Line($"[StructLayout(LayoutKind.Explicit, Size = {record.Size})]");
+        text.BeginBlock($"internal unsafe struct {managed}Native");
+        List<(string Name, string Element, int Count)> buffers = [];
+
+        foreach (AstField field in record.Fields)
+        {
+            string name = NativeFieldName(field.Name);
+            AstType type = field.Type;
+            text.Line($"[FieldOffset({field.Offset / 8})]");
+
+            if (MathFieldType(record.Name, field) is string math)
             {
-                nativeText.Line($"public {mathType} {Name(fieldName)};");
+                text.Line($"public {math} {name};");
             }
             else if (type.Kind is NativeTypeKind.ConstantArray)
             {
                 string element = mapper.Type(type.Element!);
+
                 if (element is "sbyte" or "byte" or "float" or "uint" or "int")
                 {
-                    nativeText.Line($"public fixed {element} {Name(fieldName)}[{type.Count}];");
+                    text.Line($"public fixed {element} {name}[{type.Count}];");
                 }
                 else
                 {
-                    nativeText.Line($"public {Name(fieldName)}Buffer {Name(fieldName)};");
+                    element = element.EndsWith('*') ? "nint" : element;
+                    string buffer = name + "Buffer";
+                    buffers.Add((buffer, element, type.Count));
+                    text.Line($"public {buffer} {name};");
                 }
             }
             else
             {
-                nativeText.Line($"public {mapper.Type(type)} {Name(fieldName)};");
+                text.Line($"public {mapper.Type(type)} {name};");
             }
 
-            nativeText.BlankLine();
+            text.BlankLine();
         }
 
-        WriteDefaults(publicText, name, managed, fields);
-        nativeText.BeginBlock($"public {managed}Native(in {managed} value)");
-        if (NeedsDefaultInitialization(record))
+        if (mapper.HasInputConversion(record.Name))
         {
-            nativeText.Line("this = default;");
-            nativeText.BlankLine();
+            WriteNativeConstructor(text, record, managed);
         }
 
-        nativeText.BeginBlock("try");
-
-        if (union)
+        foreach ((string name, string element, int count) in buffers)
         {
-            AstField[] branches = [.. fields.Where(field => mapper.IsRecord(field.Type))];
-            if (branches.Length > 1)
+            text.Line($"[InlineArray({count})]");
+            text.BeginBlock($"internal struct {name}");
+            text.Line($"private {element} element;");
+            text.EndBlock();
+        }
+
+        text.EndBlock();
+        files[$"Structs/Native/{managed}Native.g.cs"] = text.ToString();
+    }
+
+    private void WriteNativeConstructor(CodeWriter text, AstRecord record, string managed)
+    {
+        string scope = mapper.Allocates(record.Name) ? ", NativeScope scope" : string.Empty;
+        text.BeginBlock($"public {managed}Native(in {managed} value{scope})");
+
+        if (record.IsUnion || record.Name is "NVSDK_NGX_PathListInfo" || record.Fields.Any(field => field.Type.Kind is NativeTypeKind.ConstantArray && MathFieldType(record.Name, field) is null))
+        {
+            text.Line("this = default;");
+        }
+
+        if (record.IsUnion)
+        {
+            WriteUnionConstructor(text, record);
+        }
+        else
+        {
+            WriteConstructorValidation(text, record.Name);
+
+            foreach (AstField field in record.Fields)
             {
-                WriteGuard(nativeText, $"value.{PublicFieldName(name, branches[0].Name)}.HasValue && value.{PublicFieldName(name, branches[1].Name)}.HasValue", "throw new ArgumentException(\"Only one union member may be specified.\", nameof(value));");
+                EmitFieldConstruction(text, record.Name, field);
+            }
+        }
+
+        text.EndBlock();
+    }
+
+    private void WriteUnionConstructor(CodeWriter text, AstRecord record)
+    {
+        AstField[] branches = [.. record.Fields.Where(field => mapper.IsRecord(field.Type))];
+        if (branches.Length > 1)
+        {
+            WriteGuard(text, $"value.{PublicFieldName(record.Name, branches[0].Name)}.HasValue && value.{PublicFieldName(record.Name, branches[1].Name)}.HasValue", "throw new ArgumentException(\"Only one union member may be specified.\", nameof(value));");
+        }
+
+        for (int i = 0; i < branches.Length; i++)
+        {
+            AstField branch = branches[i];
+            string target = NativeFieldName(branch.Name);
+            string source = PublicFieldName(record.Name, branch.Name);
+            string local = ParameterName(branch.Name);
+            string type = mapper.PublicType(branch.Type);
+            string scope = mapper.Allocates(branch.Type.Name) ? ", scope" : string.Empty;
+            text.BeginBlock($"{(i is 0 ? "if" : "else if")} (value.{source} is {type} {local})", continuation: i is not 0);
+            text.Line($"{target} = new(in {local}{scope});");
+            text.EndBlock();
+        }
+
+        foreach (AstField field in record.Fields.Where(field => !mapper.IsRecord(field.Type)))
+        {
+            text.BeginBlock("else", continuation: true);
+            text.Line($"{NativeFieldName(field.Name)} = value.{PublicFieldName(record.Name, field.Name)};");
+            text.EndBlock();
+        }
+    }
+
+    private void EmitFieldConstruction(CodeWriter text, string record, AstField field)
+    {
+        string target = NativeFieldName(field.Name);
+        string source = "value." + PublicFieldName(record, field.Name);
+        AstType type = field.Type;
+
+        if (record is "NVSDK_NGX_PathListInfo")
+        {
+            if (field.Name is "Path")
+            {
+                text.BlankLine();
+                text.BeginBlock("if (value.Paths is string[] paths && paths.Length > 0)");
+                text.Line("Path = (void**)scope.Alloc<nint>(paths.Length);");
+                text.Line("Length = (uint)paths.Length;");
+                text.BlankLine();
+                text.BeginBlock("for (int i = 0; i < paths.Length; i++)");
+                text.Line("ArgumentNullException.ThrowIfNull(paths[i]);");
+                text.Line("Path[i] = scope.AllocWide(paths[i]);");
+                text.EndBlock();
+                text.EndBlock();
             }
 
-            for (int i = 0; i < branches.Length; i++)
+            return;
+        }
+
+        if (MathFieldType(record, field) is string math)
+        {
+            text.Line(math.EndsWith('*') ? $"{target} = {source}.HasValue ? scope.Alloc({source}.Value) : null;" : $"{target} = {source};");
+
+            return;
+        }
+
+        if (type.Kind is NativeTypeKind.ConstantArray)
+        {
+            AstType element = type.Element!;
+            string input = ParameterName(field.Name);
+            text.BlankLine();
+            text.BeginBlock($"if ({source} is {mapper.PublicFieldType(record, field).TrimEnd('?')} {input})");
+            WriteGuard(text, $"{input}.Length > {type.Count}", $"throw new ArgumentException(\"{target} accepts at most {type.Count} elements.\", nameof(value));");
+            text.BeginBlock($"for (int i = 0; i < {input}.Length; i++)");
+            EmitAssignment(text, element, $"{target}[i]", $"{input}[i]", mapper.Type(element).EndsWith('*'));
+            text.EndBlock();
+            text.EndBlock();
+
+            return;
+        }
+
+        EmitAssignment(text, type, target, source);
+    }
+
+    private void EmitAssignment(CodeWriter text, AstType type, string target, string source, bool pointerStorage = false)
+    {
+        string expression;
+
+        if (mapper.IsRecord(type))
+        {
+            expression = $"new(in {source}{(mapper.Allocates(type.Name) ? ", scope" : string.Empty)})";
+        }
+        else if (type.Kind is NativeTypeKind.Pointer)
+        {
+            AstType element = type.Element!;
+
+            if (mapper.CallbackName(type) is string callback)
             {
-                string field = Name(branches[i].Name);
-                string source = PublicFieldName(name, branches[i].Name);
-                string local = ParameterName(branches[i].Name);
-                string type = mapper.PublicType(branches[i].Type);
-                nativeText.BeginBlock($"{(i is 0 ? "if" : "else if")} (value.{source} is {type} {local})", continuation: i is not 0);
-                nativeText.Line($"{field} = new(in {local});");
-                nativeText.EndBlock();
+                string local = ParameterName(target);
+                text.Line($"{callback}? {local} = CallbackGuard.Wrap({source});");
+                text.Line($"{target} = {local} is null ? 0 : scope.Keep({local});");
+
+                return;
             }
 
-            foreach (AstField field in fields.Where(field => !mapper.IsRecord(field.Type)))
+            if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
             {
-                nativeText.BeginBlock("else", continuation: true);
-                nativeText.Line($"{Name(field.Name)} = value.{PublicFieldName(name, field.Name)};");
-                nativeText.EndBlock();
+                expression = $"scope.{(element.Kind is NativeTypeKind.WChar ? "AllocWide" : "AllocUtf8")}({source})";
+            }
+            else if (mapper.IsRecord(element))
+            {
+                string local = ParameterName(Regex.Replace(target, @"\[.*\]", string.Empty)) + (pointerStorage ? "Element" : string.Empty);
+                string scope = mapper.Allocates(element.Name) ? ", scope" : string.Empty;
+                expression = $"{source} is {mapper.PublicType(element)} {local} ? {(pointerStorage ? "(nint)" : string.Empty)}scope.Alloc(new {mapper.Type(element)}(in {local}{scope})) : {(pointerStorage ? "0" : "null")}";
+            }
+            else if (element.Kind is NativeTypeKind.ULongLong or NativeTypeKind.ULong)
+            {
+                expression = $"{source}.HasValue ? {(pointerStorage ? "(nint)" : string.Empty)}scope.Alloc({source}.GetValueOrDefault()) : {(pointerStorage ? "0" : "null")}";
+            }
+            else
+            {
+                expression = mapper.Type(type) is "nint" ? source : $"({mapper.Type(type)}){source}";
             }
         }
         else
         {
-            if (name is "NVSDK_NGX_LoggingInfo")
-            {
-                WriteGuard(nativeText, "value.DisableOtherLoggingSinks && value.LoggingCallback is null", "throw new ArgumentException(\"A logging callback is required when disabling other logging sinks.\", nameof(value));");
-            }
-
-            if (name is "NVSDK_NGX_Application_Identifier")
-            {
-                WriteGuard(nativeText, "(value.IdentifierType is NGXApplicationIdentifierType.ProjectId) != value.V.ProjectDesc.HasValue", "throw new ArgumentException(\"Application identifier and active union member disagree.\", nameof(value));");
-                WriteGuard(nativeText, "value.IdentifierType is not (NGXApplicationIdentifierType.ProjectId or NGXApplicationIdentifierType.ApplicationId)", "throw new ArgumentOutOfRangeException(nameof(value));");
-            }
-
-            if (name is "NVSDK_NGX_Resource_VK")
-            {
-                WriteGuard(nativeText, "(value.Type is NGXResourceVKType.VkImageView && value.Resource.BufferInfo.HasValue) || (value.Type is NGXResourceVKType.VkBuffer && value.Resource.ImageViewInfo.HasValue)", "throw new ArgumentException(\"Resource type and union member disagree.\", nameof(value));");
-            }
-
-            foreach (AstField field in fields)
-            {
-                EmitFieldConstruction(nativeText, name, field);
-            }
+            expression = source;
         }
 
-        nativeText.EndBlock();
-        nativeText.BeginBlock("catch", continuation: true);
-        nativeText.Line("Dispose();");
-        nativeText.BlankLine();
-        nativeText.Line("throw;");
-        nativeText.EndBlock();
-        nativeText.EndBlock();
-        nativeText.BeginBlock("public void Dispose()");
-
-        if (!union)
-        {
-            foreach (AstField field in fields.Reverse())
-            {
-                EmitFieldDisposal(nativeText, name, field);
-            }
-        }
-
-        nativeText.Line("this = default;");
-        nativeText.EndBlock();
-
-        foreach ((string bufferName, string element, int count) in buffers)
-        {
-            nativeText.Line($"[InlineArray({count})]");
-            nativeText.BeginBlock($"internal struct {bufferName}");
-            nativeText.Line($"private {element} element;");
-            nativeText.EndBlock();
-        }
-
-        nativeText.EndBlock();
-
-        if (!union)
-        {
-            publicText.BeginBlock($"internal unsafe {managed}(in {managed}Native native)");
-
-            foreach (AstField field in fields)
-            {
-                EmitFieldRead(publicText, name, field);
-            }
-
-            publicText.EndBlock();
-        }
-
-        publicText.EndBlock();
-        files[$"Structs/{managed}.g.cs"] = publicText.ToString();
-        files[$"Structs/Native/{managed}Native.g.cs"] = nativeText.ToString();
-    }
-
-    private bool NeedsDefaultInitialization(AstRecord record)
-    {
-        if (record.IsUnion || record.Name is "NVSDK_NGX_PathListInfo")
-        {
-            return true;
-        }
-
-        return record.Fields.Any(field => (field.Type.Kind is NativeTypeKind.ConstantArray && MathFieldType(record.Name, field) is null) || (field.Type is { Kind: NativeTypeKind.Pointer, Element: not null } type && mapper.IsRecord(type.Element)));
+        text.Line($"{target} = {expression};");
     }
 
     private void WriteHandle(string native)
@@ -225,9 +287,6 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         text.BeginBlock("public override string ToString()");
         text.Line($"return $\"{name} {{{{ Value = {{Value}}, IsNull = {{IsNull}} }}}}\";");
         text.EndBlock();
-        text.BeginBlock("public void Deconstruct(out nint value)");
-        text.Line("value = Value;");
-        text.EndBlock();
         text.BeginBlock($"public static bool operator ==({name} left, {name} right)");
         text.Line("return left.Equals(right);");
         text.EndBlock();
@@ -238,221 +297,12 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         files[$"Structs/{name}.g.cs"] = text.ToString();
     }
 
-    private void EmitFieldConstruction(CodeWriter text, string record, AstField field)
-    {
-        string name = field.Name;
-        string target = Name(name);
-        string source = "value." + PublicFieldName(record, name);
-        AstType type = field.Type;
-
-        if (record is "NVSDK_NGX_PathListInfo")
-        {
-            if (name is "Length")
-            {
-                return;
-            }
-
-            text.BlankLine();
-            text.BeginBlock("if (value.Paths is string[] paths && paths.Length > 0)");
-            text.Line("Path = (void**)NativeMemory.AllocZeroed(checked((nuint)paths.Length * (nuint)sizeof(void*)));");
-            text.Line("Length = checked((uint)paths.Length);");
-            text.BlankLine();
-            text.BeginBlock("for (int i = 0; i < paths.Length; i++)");
-            text.Line("ArgumentNullException.ThrowIfNull(paths[i]);");
-            text.Line("Path[i] = NGXMarshal.TextToPtr(paths[i], NGXEncoding.NativeWide);");
-            text.EndBlock();
-            text.EndBlock();
-
-            return;
-        }
-
-        if (MathFieldType(record, field) is string math)
-        {
-            text.Line(math.EndsWith('*') ? $"{target} = {source}.HasValue ? NGXMarshal.AllocValue({source}.Value) : null;" : $"{target} = {source};");
-
-            return;
-        }
-
-        if (type.Kind is NativeTypeKind.ConstantArray)
-        {
-            AstType element = type.Element!;
-            int count = type.Count;
-            text.BlankLine();
-
-            if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU)
-            {
-                text.BeginBlock($"fixed (sbyte* buffer = {target})");
-                text.Line($"NGXMarshal.WriteUtf8({source}, new Span<byte>(buffer, {count}));");
-                text.EndBlock();
-            }
-            else
-            {
-                string input = ParameterName(name);
-                text.BeginBlock($"if ({source} is {mapper.PublicFieldType(record, field).TrimEnd('?')} {input})");
-                WriteGuard(text, $"{input}.Length > {count}", $"throw new ArgumentException(\"{target} accepts at most {count} elements.\", nameof(value));");
-                text.BeginBlock($"for (int i = 0; i < {input}.Length; i++)");
-                EmitAssignment(text, element, $"{target}[i]", $"{input}[i]");
-                text.EndBlock();
-                text.EndBlock();
-            }
-
-            return;
-        }
-
-        EmitAssignment(text, type, target, source);
-    }
-
-    private void EmitAssignment(CodeWriter text, AstType type, string target, string source)
-    {
-        string expression;
-        NativeTypeKind kind = type.Kind;
-        if (kind is NativeTypeKind.Record)
-        {
-            expression = $"new(in {source})";
-        }
-        else if (kind is NativeTypeKind.Pointer)
-        {
-            AstType element = type.Element!;
-            NativeTypeKind elementKind = element.Kind;
-            if (mapper.CallbackName(type) is not null)
-            {
-                expression = $"NgxCallbacks.Acquire({source})";
-            }
-            else if (elementKind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
-            {
-                expression = $"{(mapper.Type(type) is "void*" ? string.Empty : $"({mapper.Type(type)})")}NGXMarshal.TextToPtr({source}, NGXEncoding.{(elementKind is NativeTypeKind.WChar ? "NativeWide" : "Utf8")})";
-            }
-            else if (mapper.IsRecord(element))
-            {
-                string local = ParameterName(Regex.Replace(target, @"\[.*\]", string.Empty)) + (target.Contains('[') ? "Element" : string.Empty);
-                WriteGuard(text, $"{source} is {mapper.PublicType(element)} {local}", $"{target} = NGXMarshal.AllocNative<{mapper.Type(element)}>(new(in {local}));");
-
-                return;
-            }
-            else if (elementKind is NativeTypeKind.ULongLong or NativeTypeKind.ULong)
-            {
-                expression = $"{source}.HasValue ? NGXMarshal.AllocValue({source}.GetValueOrDefault()) : null";
-            }
-            else
-            {
-                expression = mapper.Type(type) is "nint" ? source : $"({mapper.Type(type)}){source}";
-            }
-        }
-        else
-        {
-            expression = source;
-        }
-
-        text.Line($"{target} = {expression};");
-    }
-
-    private void EmitFieldDisposal(CodeWriter text, string record, AstField field)
-    {
-        string name = field.Name;
-        string target = Name(name);
-        AstType type = field.Type;
-
-        if (record is "NVSDK_NGX_PathListInfo")
-        {
-            if (name is "Path")
-            {
-                text.BeginBlock("if (Path is not null)");
-                text.BeginBlock("for (int i = checked((int)Length) - 1; i >= 0; i--)");
-                text.Line("NGXMarshal.Free(Path[i]);");
-                text.EndBlock();
-                text.Line("NativeMemory.Free(Path);");
-                text.EndBlock();
-            }
-
-            return;
-        }
-
-        if (record is "NVSDK_NGX_Application_Identifier" && name is "v")
-        {
-            WriteGuard(text, "IdentifierType is NGXApplicationIdentifierType.ProjectId", "V.ProjectDesc.Dispose();");
-
-            return;
-        }
-
-        if (MathFieldType(record, field) is string math)
-        {
-            if (math.EndsWith('*'))
-            {
-                text.Line($"NGXMarshal.Free({target});");
-            }
-
-            return;
-        }
-
-        if (type.Kind is NativeTypeKind.ConstantArray)
-        {
-            string? release = ReleaseExpression(type.Element!, $"{target}[i]", mapper.Type(type.Element!).EndsWith('*'));
-            if (release is not null)
-            {
-                text.BlankLine();
-                text.BeginBlock($"for (int i = {type.Count - 1}; i >= 0; i--)");
-                text.Line(release);
-                text.EndBlock();
-            }
-        }
-        else if (ReleaseExpression(type, target) is string release)
-        {
-            text.Line(release);
-        }
-    }
-
-    private string? ReleaseExpression(AstType type, string value, bool pointerWrapper = false)
-    {
-        if (mapper.IsRecord(type))
-        {
-            return value + ".Dispose();";
-        }
-
-        if (type.Kind is not NativeTypeKind.Pointer)
-        {
-            return null;
-        }
-
-        if (mapper.CallbackName(type) is not null)
-        {
-            return $"NgxCallbacks.Release({value});";
-        }
-
-        AstType element = type.Element!;
-        if (mapper.IsRecord(element))
-        {
-            return $"NGXMarshal.FreeNative{(pointerWrapper ? $"<{mapper.Type(element)}>" : string.Empty)}({value});";
-        }
-
-        return element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar or NativeTypeKind.ULongLong or NativeTypeKind.ULong ? $"NGXMarshal.Free({value});" : null;
-    }
-
     private void EmitFieldRead(CodeWriter text, string record, AstField field)
     {
         string name = field.Name;
         string target = PublicFieldName(record, name);
         string source = "native." + Name(name);
         AstType type = field.Type;
-
-        if (record is "NVSDK_NGX_PathListInfo")
-        {
-            if (name is "Path")
-            {
-                text.Line("Paths = new string[checked((int)native.Length)];");
-                text.BeginBlock("for (int i = 0; i < Paths.Length; i++)");
-                text.Line("Paths[i] = NGXMarshal.PtrToString(native.Path[i], NGXEncoding.NativeWide)!;");
-                text.EndBlock();
-            }
-
-            return;
-        }
-
-        if (record is "NVSDK_NGX_Application_Identifier" && name is "v")
-        {
-            text.Line("V = native.IdentifierType is NGXApplicationIdentifierType.ProjectId ? new() { ProjectDesc = new NGXProjectIdDescription(in native.V.ProjectDesc) } : new() { ApplicationId = native.V.ApplicationId };");
-
-            return;
-        }
 
         if (record is "NVSDK_NGX_Resource_VK" && name is "Resource")
         {
@@ -474,15 +324,15 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
             if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU)
             {
                 text.BlankLine();
-                text.BeginBlock($"fixed (sbyte* buffer = {source})");
-                text.Line($"{target} = NGXMarshal.ReadUtf8(new ReadOnlySpan<byte>(buffer, {type.Count}));");
+                text.BeginBlock($"fixed (byte* buffer = {source})");
+                text.Line($"{target} = NativeTextHelper.ReadUtf8(new ReadOnlySpan<byte>(buffer, {type.Count}));");
                 text.EndBlock();
             }
             else
             {
                 text.Line($"{target} = new {mapper.PublicType(element)}[{type.Count}];");
                 text.BeginBlock($"for (int i = 0; i < {target}.Length; i++)");
-                text.Line($"{target}[i] = {ReadExpression(element, source + "[i]", mapper.Type(element).EndsWith('*'))};");
+                text.Line($"{target}[i] = {ReadExpression(element, source + "[i]")};");
                 text.EndBlock();
             }
         }
@@ -492,45 +342,33 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         }
     }
 
-    private string ReadExpression(AstType type, string source, bool pointerWrapper = false)
+    private string ReadExpression(AstType type, string source)
     {
         if (mapper.IsRecord(type))
         {
             return $"new(in {source})";
         }
 
-        if (type.Kind is NativeTypeKind.Pointer)
+        return type.Kind is NativeTypeKind.Pointer && mapper.Type(type) is not "nint" ? "(nint)" + source : source;
+    }
+
+    private static void WriteConstructorValidation(CodeWriter text, string name)
+    {
+        if (name is "NVSDK_NGX_LoggingInfo")
         {
-            if (mapper.CallbackName(type) is string cb)
-            {
-                return $"{source} is 0 ? null : Marshal.GetDelegateForFunctionPointer<{cb}>({source})";
-            }
-
-            AstType element = type.Element!;
-            NativeTypeKind kind = element.Kind;
-            if (kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
-            {
-                return $"NGXMarshal.PtrToString({source}, NGXEncoding.{(kind is NativeTypeKind.WChar ? "NativeWide" : "Utf8")})";
-            }
-
-            if (mapper.IsRecord(element))
-            {
-                string pointer = pointerWrapper ? $"({mapper.Type(type)}){source}" : source;
-
-                return $"{(pointerWrapper ? $"({pointer})" : pointer)} is null ? null : new {mapper.PublicType(element)}(in *{pointer})";
-            }
-
-            if (kind is NativeTypeKind.ULongLong or NativeTypeKind.ULong)
-            {
-                string pointer = pointerWrapper ? $"({mapper.Type(type)}){source}" : source;
-
-                return $"{(pointerWrapper ? $"({pointer})" : pointer)} is null ? null : *{pointer}";
-            }
-
-            return mapper.Type(type) is "nint" ? source : "(nint)" + source;
+            WriteGuard(text, "value.DisableOtherLoggingSinks && value.LoggingCallback is null", "throw new ArgumentException(\"A logging callback is required when disabling other logging sinks.\", nameof(value));");
         }
 
-        return source;
+        if (name is "NVSDK_NGX_Application_Identifier")
+        {
+            WriteGuard(text, "(value.IdentifierType is NGXApplicationIdentifierType.ProjectId) != value.V.ProjectDesc.HasValue", "throw new ArgumentException(\"Application identifier and active union member disagree.\", nameof(value));");
+            WriteGuard(text, "value.IdentifierType is not (NGXApplicationIdentifierType.ProjectId or NGXApplicationIdentifierType.ApplicationId)", "throw new ArgumentOutOfRangeException(nameof(value));");
+        }
+
+        if (name is "NVSDK_NGX_Resource_VK")
+        {
+            WriteGuard(text, "(value.Type is NGXResourceVKType.VkImageView && value.Resource.BufferInfo.HasValue) || (value.Type is NGXResourceVKType.VkBuffer && value.Resource.ImageViewInfo.HasValue)", "throw new ArgumentException(\"Resource type and union member disagree.\", nameof(value));");
+        }
     }
 
     private static void WriteDefaults(CodeWriter text, string record, string name, AstField[] fields)

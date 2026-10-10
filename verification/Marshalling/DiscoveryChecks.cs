@@ -4,17 +4,23 @@ internal static unsafe class DiscoveryChecks
 {
     internal static void Run()
     {
+        using NativeScope scope = new();
         NGXFeatureDiscoveryInfo value = Discovery();
-        NGXFeatureDiscoveryInfoNative native = new(in value);
+        NGXFeatureDiscoveryInfoNative native = new(in value, scope);
         GC.Collect(2, GCCollectionMode.Forced, true, true);
-        NGXFeatureDiscoveryInfo restored = new(in native);
-        Assert(restored.Identifier.V.ProjectDesc!.Value.EngineVersion is "1.0\U0001F680", "UTF-8 nested identity");
-        Assert(restored.ApplicationDataPath == value.ApplicationDataPath, "Native-wide data path");
-        Assert(restored.FeatureInfo!.Value.PathListInfo.Paths!.SequenceEqual(value.FeatureInfo!.Value.PathListInfo.Paths!), "Nested paths");
-        native.Dispose();
-        native.Dispose();
-        Assert(native.FeatureInfo is null && native.ApplicationDataPath is null, "Native reset");
-        Assert(restored.FeatureInfo.Value.PathListInfo.Paths![0] is "/runtime/\u5E93", "Managed result independence");
+        Assert(Marshal.PtrToStringUTF8((nint)native.Identifier.V.ProjectDesc.EngineVersion) is "1.0\U0001F680", "UTF-8 nested identity");
+        Assert(NativeTextHelper.ReadWide(native.ApplicationDataPath) == value.ApplicationDataPath, "Native-wide data path");
+        Assert(native.FeatureInfo->PathListInfo.Length == value.FeatureInfo!.Value.PathListInfo.Paths!.Length, "Nested path count");
+
+        for (int i = 0; i < native.FeatureInfo->PathListInfo.Length; i++)
+        {
+            Assert(NativeTextHelper.ReadWide(native.FeatureInfo->PathListInfo.Path[i]) == value.FeatureInfo.Value.PathListInfo.Paths[i], "Nested path contents");
+        }
+
+        string firstPath = NativeTextHelper.ReadWide(native.FeatureInfo->PathListInfo.Path[0])!;
+        scope.Dispose();
+        scope.Dispose();
+        Assert(scope.IsDisposed && firstPath is "/runtime/\u5E93", "Scope cleanup and managed string independence");
         value.Identifier = new()
         {
             IdentifierType = NGXApplicationIdentifierType.ApplicationId,
@@ -23,10 +29,10 @@ internal static unsafe class DiscoveryChecks
                 ApplicationId = ulong.MaxValue
             }
         };
-        native = new(in value);
-        Assert(native.Identifier.V.ApplicationId is ulong.MaxValue, "Union integer arm");
-        native.Dispose();
+        using NativeScope identifierScope = new();
+        NGXApplicationIdentifierNative identifier = new(in value.Identifier, identifierScope);
+        Assert(identifier.V.ApplicationId is ulong.MaxValue, "Union integer arm");
 
-        Console.WriteLine("PASS nested constructor, Unicode paths and union round trip survive compacting GC");
+        Console.WriteLine("PASS nested conversion and Unicode paths survive compacting GC and scope cleanup");
     }
 }

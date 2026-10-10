@@ -72,7 +72,7 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial NGXResult InitWithProjectIDNative(sbyte* inProjectId, NGXEngineType inEngineType, sbyte* inEngineVersion, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
+        private static partial NGXResult InitWithProjectIDNative(byte* inProjectId, NGXEngineType inEngineType, byte* inEngineVersion, void* inApplicationDataPath, nint inDevice, NGXFeatureCommonInfoNative* inFeatureInfo, NGXVersion inSDKVersion);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D11_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -94,28 +94,17 @@ public static unsafe partial class Ngx
         public static NGXResult CreateDLISPExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXFeatureCreateParams dlispCreateParameters)
         {
             handle = default;
-            NGXFeatureCreateParamsNative dlispCreateParametersNative = default;
 
-            try
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
+
+            NGXFeatureCreateParamsNative dlispCreateParametersNative = new(in dlispCreateParameters);
+            NGXResult result = CreateDLISPExtNative(ctx, out handle, parameters, &dlispCreateParametersNative);
+            if (result is not NGXResult.Success)
             {
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlispCreateParametersNative = new(in dlispCreateParameters);
-                NGXResult result = CreateDLISPExtNative(ctx, out handle, parameters, &dlispCreateParametersNative);
-                if (result is not NGXResult.Success)
-                {
-                    handle = default;
-                }
-
-                return result;
+                handle = default;
             }
-            finally
-            {
-                dlispCreateParametersNative.Dispose();
-            }
+
+            return result;
         }
 
         public static NGXHandle CreateDLISPExt(nint ctx, NGXParameter parameters, in NGXFeatureCreateParams dlispCreateParameters)
@@ -132,28 +121,17 @@ public static unsafe partial class Ngx
         public static NGXResult CreateDLSSDExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXDLSSDCreateParams dlssDCreateParameters)
         {
             handle = default;
-            NGXDLSSDCreateParamsNative dlssDCreateParametersNative = default;
 
-            try
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
+
+            NGXDLSSDCreateParamsNative dlssDCreateParametersNative = new(in dlssDCreateParameters);
+            NGXResult result = CreateDLSSDExtNative(ctx, out handle, parameters, &dlssDCreateParametersNative);
+            if (result is not NGXResult.Success)
             {
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlssDCreateParametersNative = new(in dlssDCreateParameters);
-                NGXResult result = CreateDLSSDExtNative(ctx, out handle, parameters, &dlssDCreateParametersNative);
-                if (result is not NGXResult.Success)
-                {
-                    handle = default;
-                }
-
-                return result;
+                handle = default;
             }
-            finally
-            {
-                dlssDCreateParametersNative.Dispose();
-            }
+
+            return result;
         }
 
         public static NGXHandle CreateDLSSDExt(nint ctx, NGXParameter parameters, in NGXDLSSDCreateParams dlssDCreateParameters)
@@ -170,28 +148,17 @@ public static unsafe partial class Ngx
         public static NGXResult CreateDLSSExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXDLSSCreateParams dlssCreateParameters)
         {
             handle = default;
-            NGXDLSSCreateParamsNative dlssCreateParametersNative = default;
 
-            try
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
+
+            NGXDLSSCreateParamsNative dlssCreateParametersNative = new(in dlssCreateParameters);
+            NGXResult result = CreateDLSSExtNative(ctx, out handle, parameters, &dlssCreateParametersNative);
+            if (result is not NGXResult.Success)
             {
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlssCreateParametersNative = new(in dlssCreateParameters);
-                NGXResult result = CreateDLSSExtNative(ctx, out handle, parameters, &dlssCreateParametersNative);
-                if (result is not NGXResult.Success)
-                {
-                    handle = default;
-                }
-
-                return result;
+                handle = default;
             }
-            finally
-            {
-                dlssCreateParametersNative.Dispose();
-            }
+
+            return result;
         }
 
         public static NGXHandle CreateDLSSExt(nint ctx, NGXParameter parameters, in NGXDLSSCreateParams dlssCreateParameters)
@@ -207,140 +174,43 @@ public static unsafe partial class Ngx
 
         public static NGXResult EvaluateDLISPExt(nint ctx, NGXHandle handle, NGXParameter parameters, in NGXD3D11DLISPEvalParams dlispEvalParameters)
         {
-            NativeCall? storage = new();
-            NGXResult result = NGXResult.Fail;
-            bool attached = false;
-            bool returned = false;
-            NGXD3D11DLISPEvalParamsNative dlispEvalParametersNative = default;
-            NGXD3D11DLISPEvalParamsNative* pDlispEvalParameters = null;
+            ArgumentNullException.ThrowIfNull((void*)handle.Value, nameof(handle));
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            try
-            {
-                if (handle.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(handle));
-                }
+            NGXD3D11DLISPEvalParamsNative dlispEvalParametersNative = new(in dlispEvalParameters);
 
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlispEvalParametersNative = new(in dlispEvalParameters);
-                pDlispEvalParameters = storage!.Take(ref dlispEvalParametersNative);
-                NgxLifetime.BeginParameters(parameters.Value, "D3D11.EvaluateDLISPExt", storage!);
-                attached = true;
-                result = EvaluateDLISPExtNative(ctx, handle, parameters, pDlispEvalParameters);
-                returned = true;
-
-                return result;
-            }
-            finally
-            {
-                if (attached)
-                {
-                    NgxLifetime.EndParameters(parameters.Value, "D3D11.EvaluateDLISPExt", returned, result is NGXResult.Success, ref storage);
-                }
-
-                storage?.Dispose();
-                dlispEvalParametersNative.Dispose();
-            }
+            return EvaluateDLISPExtNative(ctx, handle, parameters, &dlispEvalParametersNative);
         }
 
         public static NGXResult EvaluateDLSSDExt(nint ctx, NGXHandle handle, NGXParameter parameters, in NGXD3D11DLSSDEvalParams dlssDEvalParameters)
         {
-            NativeCall? storage = new();
-            NGXResult result = NGXResult.Fail;
-            bool attached = false;
-            bool returned = false;
-            NGXD3D11DLSSDEvalParamsNative dlssDEvalParametersNative = default;
-            NGXD3D11DLSSDEvalParamsNative* pDlssDEvalParameters = null;
+            ArgumentNullException.ThrowIfNull((void*)handle.Value, nameof(handle));
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            try
-            {
-                if (handle.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(handle));
-                }
+            NativeScope dlssDEvalParametersScope = new();
+            NGXD3D11DLSSDEvalParamsNative* pDlssDEvalParameters = dlssDEvalParametersScope.Alloc(new NGXD3D11DLSSDEvalParamsNative(in dlssDEvalParameters, dlssDEvalParametersScope));
+            NGXResult result = EvaluateDLSSDExtNative(ctx, handle, parameters, pDlssDEvalParameters);
+            NativeLifetime.Retain(NGXGraphicsAPI.D3D11, parameters, "D3D11.EvaluateDLSSDExt.pInDlssDEvalParams", dlssDEvalParametersScope, result);
 
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlssDEvalParametersNative = new(in dlssDEvalParameters);
-                pDlssDEvalParameters = storage!.Take(ref dlssDEvalParametersNative);
-                NgxLifetime.BeginParameters(parameters.Value, "D3D11.EvaluateDLSSDExt", storage!);
-                attached = true;
-                result = EvaluateDLSSDExtNative(ctx, handle, parameters, pDlssDEvalParameters);
-                returned = true;
-
-                return result;
-            }
-            finally
-            {
-                if (attached)
-                {
-                    NgxLifetime.EndParameters(parameters.Value, "D3D11.EvaluateDLSSDExt", returned, result is NGXResult.Success, ref storage);
-                }
-
-                storage?.Dispose();
-                dlssDEvalParametersNative.Dispose();
-            }
+            return result;
         }
 
         public static NGXResult EvaluateDLSSExt(nint ctx, NGXHandle handle, NGXParameter parameters, in NGXD3D11DLSSEvalParams dlssEvalParameters)
         {
-            NativeCall? storage = new();
-            NGXResult result = NGXResult.Fail;
-            bool attached = false;
-            bool returned = false;
-            NGXD3D11DLSSEvalParamsNative dlssEvalParametersNative = default;
-            NGXD3D11DLSSEvalParamsNative* pDlssEvalParameters = null;
+            ArgumentNullException.ThrowIfNull((void*)handle.Value, nameof(handle));
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            try
-            {
-                if (handle.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(handle));
-                }
+            NGXD3D11DLSSEvalParamsNative dlssEvalParametersNative = new(in dlssEvalParameters);
 
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                dlssEvalParametersNative = new(in dlssEvalParameters);
-                pDlssEvalParameters = storage!.Take(ref dlssEvalParametersNative);
-                NgxLifetime.BeginParameters(parameters.Value, "D3D11.EvaluateDLSSExt", storage!);
-                attached = true;
-                result = EvaluateDLSSExtNative(ctx, handle, parameters, pDlssEvalParameters);
-                returned = true;
-
-                return result;
-            }
-            finally
-            {
-                if (attached)
-                {
-                    NgxLifetime.EndParameters(parameters.Value, "D3D11.EvaluateDLSSExt", returned, result is NGXResult.Success, ref storage);
-                }
-
-                storage?.Dispose();
-                dlssEvalParametersNative.Dispose();
-            }
+            return EvaluateDLSSExtNative(ctx, handle, parameters, &dlssEvalParametersNative);
         }
 
         public static NGXResult AllocateParameters(out NGXParameter parameters)
         {
             parameters = default;
-            NgxLifetime.PrepareParameters();
+
             NGXResult result = AllocateParametersNative(out parameters);
-            if (result is NGXResult.Success)
-            {
-                NgxLifetime.RegisterParameters("D3D11", parameters.Value);
-            }
-            else
+            if (result is not NGXResult.Success)
             {
                 parameters = default;
             }
@@ -363,10 +233,7 @@ public static unsafe partial class Ngx
         {
             handle = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = CreateFeatureNative(deviceCtx, featureID, parameters, out handle);
             if (result is not NGXResult.Success)
@@ -390,16 +257,13 @@ public static unsafe partial class Ngx
 
         public static NGXResult DestroyParameters(NGXParameter parameters)
         {
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = DestroyParametersNative(parameters);
 
             if (result is NGXResult.Success)
             {
-                NgxLifetime.ReleaseParameters(parameters.Value, destroyed: true);
+                NativeLifetime.Release(parameters);
             }
 
             return result;
@@ -407,68 +271,34 @@ public static unsafe partial class Ngx
 
         public static NGXResult EvaluateFeature(nint deviceCtx, NGXHandle featureHandle, NGXParameter parameters, NGXPfnProgressCallback? callback)
         {
-            nint callbackNative = 0;
+            ArgumentNullException.ThrowIfNull((void*)featureHandle.Value, nameof(featureHandle));
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            try
-            {
-                if (featureHandle.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(featureHandle));
-                }
+            NGXPfnProgressCallback? guardedCallback = CallbackGuard.Wrap(callback);
+            NGXResult result = EvaluateFeatureNative(deviceCtx, featureHandle, parameters, guardedCallback is null ? 0 : Marshal.GetFunctionPointerForDelegate(guardedCallback));
+            GC.KeepAlive(guardedCallback);
 
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                callbackNative = NgxCallbacks.Acquire(callback);
-                NGXResult result = EvaluateFeatureNative(deviceCtx, featureHandle, parameters, callbackNative);
-
-                return result;
-            }
-            finally
-            {
-                NgxCallbacks.Release(callbackNative);
-            }
+            return result;
         }
 
         public static NGXResult EvaluateFeatureC(nint deviceCtx, NGXHandle featureHandle, NGXParameter parameters, NGXPfnProgressCallbackC? callback)
         {
-            nint callbackNative = 0;
+            ArgumentNullException.ThrowIfNull((void*)featureHandle.Value, nameof(featureHandle));
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            try
-            {
-                if (featureHandle.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(featureHandle));
-                }
+            NGXPfnProgressCallbackC? guardedCallback = CallbackGuard.Wrap(callback);
+            NGXResult result = EvaluateFeatureCNative(deviceCtx, featureHandle, parameters, guardedCallback is null ? 0 : Marshal.GetFunctionPointerForDelegate(guardedCallback));
+            GC.KeepAlive(guardedCallback);
 
-                if (parameters.IsNull)
-                {
-                    throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-                }
-
-                callbackNative = NgxCallbacks.Acquire(callback);
-                NGXResult result = EvaluateFeatureCNative(deviceCtx, featureHandle, parameters, callbackNative);
-
-                return result;
-            }
-            finally
-            {
-                NgxCallbacks.Release(callbackNative);
-            }
+            return result;
         }
 
         public static NGXResult GetCapabilityParameters(out NGXParameter parameters)
         {
             parameters = default;
-            NgxLifetime.PrepareParameters();
+
             NGXResult result = GetCapabilityParametersNative(out parameters);
-            if (result is NGXResult.Success)
-            {
-                NgxLifetime.RegisterParameters("D3D11", parameters.Value);
-            }
-            else
+            if (result is not NGXResult.Success)
             {
                 parameters = default;
             }
@@ -489,29 +319,23 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement supported)
         {
-            NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = default;
-            NGXFeatureRequirementNative supportedNative = default;
             supported = default;
+            NGXFeatureRequirementNative supportedNative = default;
 
-            try
-            {
-                featureDiscoveryInfoNative = new(in featureDiscoveryInfo);
-                NGXResult result = GetFeatureRequirementsNative(adapter, &featureDiscoveryInfoNative, out supportedNative);
-                if (result is NGXResult.Success)
-                {
-                    supported = new(in supportedNative);
-                }
-                else
-                {
-                    supported = default;
-                }
+            using NativeScope scope = new();
 
-                return result;
-            }
-            finally
+            NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
+            NGXResult result = GetFeatureRequirementsNative(adapter, &featureDiscoveryInfoNative, out supportedNative);
+            if (result is NGXResult.Success)
             {
-                featureDiscoveryInfoNative.Dispose();
+                supported = new(in supportedNative);
             }
+            else
+            {
+                supported = default;
+            }
+
+            return result;
         }
 
         public static NGXFeatureRequirement GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
@@ -528,13 +352,9 @@ public static unsafe partial class Ngx
         public static NGXResult GetParameters(out NGXParameter parameters)
         {
             parameters = default;
-            NgxLifetime.PrepareParameters();
+
             NGXResult result = GetParametersNative(out parameters);
-            if (result is NGXResult.Success)
-            {
-                NgxLifetime.RegisterParameters("D3D11", parameters.Value);
-            }
-            else
+            if (result is not NGXResult.Success)
             {
                 parameters = default;
             }
@@ -557,10 +377,7 @@ public static unsafe partial class Ngx
         {
             sizeInBytes = default;
 
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetScratchBufferSizeNative(featureId, parameters, out sizeInBytes);
             if (result is not NGXResult.Success)
@@ -584,41 +401,19 @@ public static unsafe partial class Ngx
 
         public static NGXResult Init(ulong applicationId, string? applicationDataPath, nint device, NGXFeatureCommonInfo? featureInfo, NGXVersion sdkVersion)
         {
-            NativeCall? storage = new();
-            NGXResult result = NGXResult.Fail;
-            bool attached = false;
-            bool returned = false;
-            void* pApplicationDataPath = null;
             NGXFeatureCommonInfoNative featureInfoNative = default;
-            NGXFeatureCommonInfoNative* pFeatureInfo = null;
 
-            try
+            NativeScope scope = new();
+
+            if (featureInfo is NGXFeatureCommonInfo featureInfoValue)
             {
-                pApplicationDataPath = storage!.String(applicationDataPath, NGXEncoding.NativeWide);
-
-                if (featureInfo is NGXFeatureCommonInfo featureInfoValue)
-                {
-                    featureInfoNative = new(in featureInfoValue);
-                }
-
-                pFeatureInfo = featureInfo.HasValue ? storage!.Take(ref featureInfoNative) : null;
-                NgxLifetime.BeginInitialization("D3D11", device, storage!);
-                attached = true;
-                result = InitNative(applicationId, pApplicationDataPath, device, pFeatureInfo, sdkVersion);
-                returned = true;
-
-                return result;
+                featureInfoNative = new(in featureInfoValue, scope);
             }
-            finally
-            {
-                if (attached)
-                {
-                    NgxLifetime.EndInitialization("D3D11", device, returned && result is NGXResult.Success, ref storage);
-                }
 
-                storage?.Dispose();
-                featureInfoNative.Dispose();
-            }
+            NGXResult result = InitNative(applicationId, scope.AllocWide(applicationDataPath), device, featureInfo.HasValue ? &featureInfoNative : null, sdkVersion);
+            NativeLifetime.Retain(NGXGraphicsAPI.D3D11, device, scope, result);
+
+            return result;
         }
 
         public static NGXResult Init(ulong applicationId, string? applicationDataPath, nint device, in NGXFeatureCommonInfo featureInfo, NGXVersion sdkVersion)
@@ -628,45 +423,19 @@ public static unsafe partial class Ngx
 
         public static NGXResult InitWithProjectID(string? projectId, NGXEngineType engineType, string? engineVersion, string? applicationDataPath, nint device, NGXFeatureCommonInfo? featureInfo, NGXVersion sdkVersion)
         {
-            NativeCall? storage = new();
-            NGXResult result = NGXResult.Fail;
-            bool attached = false;
-            bool returned = false;
-            sbyte* pProjectId = null;
-            sbyte* pEngineVersion = null;
-            void* pApplicationDataPath = null;
             NGXFeatureCommonInfoNative featureInfoNative = default;
-            NGXFeatureCommonInfoNative* pFeatureInfo = null;
 
-            try
+            NativeScope scope = new();
+
+            if (featureInfo is NGXFeatureCommonInfo featureInfoValue)
             {
-                pProjectId = (sbyte*)storage!.String(projectId, NGXEncoding.Utf8);
-                pEngineVersion = (sbyte*)storage!.String(engineVersion, NGXEncoding.Utf8);
-                pApplicationDataPath = storage!.String(applicationDataPath, NGXEncoding.NativeWide);
-
-                if (featureInfo is NGXFeatureCommonInfo featureInfoValue)
-                {
-                    featureInfoNative = new(in featureInfoValue);
-                }
-
-                pFeatureInfo = featureInfo.HasValue ? storage!.Take(ref featureInfoNative) : null;
-                NgxLifetime.BeginInitialization("D3D11", device, storage!);
-                attached = true;
-                result = InitWithProjectIDNative(pProjectId, engineType, pEngineVersion, pApplicationDataPath, device, pFeatureInfo, sdkVersion);
-                returned = true;
-
-                return result;
+                featureInfoNative = new(in featureInfoValue, scope);
             }
-            finally
-            {
-                if (attached)
-                {
-                    NgxLifetime.EndInitialization("D3D11", device, returned && result is NGXResult.Success, ref storage);
-                }
 
-                storage?.Dispose();
-                featureInfoNative.Dispose();
-            }
+            NGXResult result = InitWithProjectIDNative(scope.AllocUtf8(projectId), engineType, scope.AllocUtf8(engineVersion), scope.AllocWide(applicationDataPath), device, featureInfo.HasValue ? &featureInfoNative : null, sdkVersion);
+            NativeLifetime.Retain(NGXGraphicsAPI.D3D11, device, scope, result);
+
+            return result;
         }
 
         public static NGXResult InitWithProjectID(string? projectId, NGXEngineType engineType, string? engineVersion, string? applicationDataPath, nint device, in NGXFeatureCommonInfo featureInfo, NGXVersion sdkVersion)
@@ -676,10 +445,7 @@ public static unsafe partial class Ngx
 
         public static NGXResult ReleaseFeature(NGXHandle handle)
         {
-            if (handle.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX handle is required.", nameof(handle));
-            }
+            ArgumentNullException.ThrowIfNull((void*)handle.Value, nameof(handle));
 
             return ReleaseFeatureNative(handle);
         }
@@ -690,7 +456,7 @@ public static unsafe partial class Ngx
 
             if (result is NGXResult.Success)
             {
-                NgxLifetime.Shutdown("D3D11", 0);
+                NativeLifetime.Release(NGXGraphicsAPI.D3D11, 0);
             }
 
             return result;
@@ -702,7 +468,7 @@ public static unsafe partial class Ngx
 
             if (result is NGXResult.Success)
             {
-                NgxLifetime.Shutdown("D3D11", device);
+                NativeLifetime.Release(NGXGraphicsAPI.D3D11, device);
             }
 
             return result;

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 8)]
-internal unsafe struct NGXCoordinatesNative : IDisposable
+internal unsafe struct NGXCoordinatesNative
 {
     [FieldOffset(0)]
     public uint X;
@@ -13,21 +13,7 @@ internal unsafe struct NGXCoordinatesNative : IDisposable
 
     public NGXCoordinatesNative(in NGXCoordinates value)
     {
-        try
-        {
-            X = value.X;
-            Y = value.Y;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        X = value.X;
+        Y = value.Y;
     }
 }

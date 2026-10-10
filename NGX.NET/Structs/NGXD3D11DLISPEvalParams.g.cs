@@ -15,14 +15,4 @@ public struct NGXD3D11DLISPEvalParams
     public uint RectH;
 
     public float Denoise;
-
-    internal unsafe NGXD3D11DLISPEvalParams(in NGXD3D11DLISPEvalParamsNative native)
-    {
-        Feature = new(in native.Feature);
-        RectX = native.InRectX;
-        RectY = native.InRectY;
-        RectW = native.InRectW;
-        RectH = native.InRectH;
-        Denoise = native.InDenoise;
-    }
 }

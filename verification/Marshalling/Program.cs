@@ -13,6 +13,7 @@ internal static class Program
             DiscoveryChecks.Run();
             InvalidInputChecks.Run();
             FixedStringChecks.Run();
+            ScopeChecks.Run();
             EvaluationChecks.Run();
             GBufferChecks.Run();
             CallbackChecks.Run();
@@ -24,6 +25,7 @@ internal static class Program
             DefaultChecks.Run();
             HandleChecks.Run();
             ConcurrentLifetimeChecks.Run();
+            DlssAllocationChecks.Run();
             AllocationChecks.Run();
 
             return 0;

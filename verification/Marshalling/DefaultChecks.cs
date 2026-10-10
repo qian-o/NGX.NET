@@ -10,7 +10,6 @@ internal static class DefaultChecks
         value = default;
         native = new(in value);
         Assert(native.MultiFrameCount is 0 && native.MinRelativeLinearDepthObjectSeparation == 0, "Explicit zeros");
-        native.Dispose();
 
         Console.WriteLine("PASS SDK defaults preserve the distinction between new and default");
     }

@@ -29,11 +29,6 @@ public readonly struct NGXHandle(nint value) : IEquatable<NGXHandle>
         return $"NGXHandle {{ Value = {Value}, IsNull = {IsNull} }}";
     }
 
-    public void Deconstruct(out nint value)
-    {
-        value = Value;
-    }
-
     public static bool operator ==(NGXHandle left, NGXHandle right)
     {
         return left.Equals(right);

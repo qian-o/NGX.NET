@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 368)]
-internal unsafe struct NGXD3D12DLSSEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D12DLSSEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXD3D12FeatureEvalParamsNative Feature;
@@ -103,60 +103,37 @@ internal unsafe struct NGXD3D12DLSSEvalParamsNative : IDisposable
 
     public NGXD3D12DLSSEvalParamsNative(in NGXD3D12DLSSEvalParams value)
     {
-        try
-        {
-            Feature = new(in value.Feature);
-            PInDepth = value.Depth;
-            PInMotionVectors = value.MotionVectors;
-            InJitterOffsetX = value.JitterOffsetX;
-            InJitterOffsetY = value.JitterOffsetY;
-            InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
-            InReset = value.Reset;
-            InMVScaleX = value.MVScaleX;
-            InMVScaleY = value.MVScaleY;
-            PInTransparencyMask = value.TransparencyMask;
-            PInExposureTexture = value.ExposureTexture;
-            PInBiasCurrentColorMask = value.BiasCurrentColorMask;
-            InColorSubrectBase = new(in value.ColorSubrectBase);
-            InDepthSubrectBase = new(in value.DepthSubrectBase);
-            InMVSubrectBase = new(in value.MVSubrectBase);
-            InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
-            InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
-            InOutputSubrectBase = new(in value.OutputSubrectBase);
-            InPreExposure = value.PreExposure;
-            InExposureScale = value.ExposureScale;
-            InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
-            InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
-            GBufferSurface = new(in value.GBufferSurface);
-            InToneMapperType = value.ToneMapperType;
-            PInMotionVectors3D = value.MotionVectors3D;
-            PInIsParticleMask = value.IsParticleMask;
-            PInAnimatedTextureMask = value.AnimatedTextureMask;
-            PInDepthHighRes = value.DepthHighResolution;
-            PInPositionViewSpace = value.PositionViewSpace;
-            InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
-            PInRayTracingHitDistance = value.RayTracingHitDistance;
-            PInMotionVectorsReflections = value.MotionVectorsReflections;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        GBufferSurface.Dispose();
-        InOutputSubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InColorSubrectBase.Dispose();
-        InRenderSubrectDimensions.Dispose();
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature);
+        PInDepth = value.Depth;
+        PInMotionVectors = value.MotionVectors;
+        InJitterOffsetX = value.JitterOffsetX;
+        InJitterOffsetY = value.JitterOffsetY;
+        InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
+        InReset = value.Reset;
+        InMVScaleX = value.MVScaleX;
+        InMVScaleY = value.MVScaleY;
+        PInTransparencyMask = value.TransparencyMask;
+        PInExposureTexture = value.ExposureTexture;
+        PInBiasCurrentColorMask = value.BiasCurrentColorMask;
+        InColorSubrectBase = new(in value.ColorSubrectBase);
+        InDepthSubrectBase = new(in value.DepthSubrectBase);
+        InMVSubrectBase = new(in value.MVSubrectBase);
+        InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
+        InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
+        InOutputSubrectBase = new(in value.OutputSubrectBase);
+        InPreExposure = value.PreExposure;
+        InExposureScale = value.ExposureScale;
+        InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
+        InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
+        GBufferSurface = new(in value.GBufferSurface);
+        InToneMapperType = value.ToneMapperType;
+        PInMotionVectors3D = value.MotionVectors3D;
+        PInIsParticleMask = value.IsParticleMask;
+        PInAnimatedTextureMask = value.AnimatedTextureMask;
+        PInDepthHighRes = value.DepthHighResolution;
+        PInPositionViewSpace = value.PositionViewSpace;
+        InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
+        PInRayTracingHitDistance = value.RayTracingHitDistance;
+        PInMotionVectorsReflections = value.MotionVectorsReflections;
     }
 }

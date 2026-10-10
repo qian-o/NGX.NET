@@ -23,18 +23,4 @@ public struct NGXDLSSDCreateParams
     public int FeatureCreateFlags;
 
     public bool EnableOutputSubrects;
-
-    internal unsafe NGXDLSSDCreateParams(in NGXDLSSDCreateParamsNative native)
-    {
-        DenoiseMode = native.InDenoiseMode;
-        RoughnessMode = native.InRoughnessMode;
-        UseHWDepth = native.InUseHWDepth;
-        Width = native.InWidth;
-        Height = native.InHeight;
-        TargetWidth = native.InTargetWidth;
-        TargetHeight = native.InTargetHeight;
-        PerfQualityValue = native.InPerfQualityValue;
-        FeatureCreateFlags = native.InFeatureCreateFlags;
-        EnableOutputSubrects = native.InEnableOutputSubrects;
-    }
 }

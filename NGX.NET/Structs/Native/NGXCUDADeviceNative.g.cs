@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-internal unsafe struct NGXCUDADeviceNative : IDisposable
+internal unsafe struct NGXCUDADeviceNative
 {
     [FieldOffset(0)]
     public void* CudaContext;
@@ -13,21 +13,7 @@ internal unsafe struct NGXCUDADeviceNative : IDisposable
 
     public NGXCUDADeviceNative(in NGXCUDADevice value)
     {
-        try
-        {
-            CudaContext = (void*)value.CudaContext;
-            CudaStream = (void*)value.CudaStream;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        CudaContext = (void*)value.CudaContext;
+        CudaStream = (void*)value.CudaStream;
     }
 }

@@ -10,17 +10,14 @@ public static unsafe partial class Ngx
     {
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_Parameter_Reset")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        private static partial void ResetNative(nint parameters);
+        private static partial void ResetNative(NGXParameter parameters);
 
         public static void Reset(NGXParameter parameters)
         {
-            if (parameters.IsNull)
-            {
-                throw new ArgumentException("A non-null NGX parameter handle is required.", nameof(parameters));
-            }
+            ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
-            ResetNative(parameters.Value);
-            NgxLifetime.ReleaseParameters(parameters.Value);
+            ResetNative(parameters);
+            NativeLifetime.Release(parameters);
         }
     }
 }

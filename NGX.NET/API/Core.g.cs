@@ -29,7 +29,7 @@ public static unsafe partial class Ngx
     {
         void* result = GetResultAsStringNative(ngxResult);
 
-        return NGXMarshal.PtrToString(result, NGXEncoding.NativeWide);
+        return NativeTextHelper.ReadWide(result);
     }
 
     public static NGXResourceVK CreateBufferResourceVK(nint buffer, uint sizeInBytes, bool readWrite)
@@ -41,35 +41,18 @@ public static unsafe partial class Ngx
 
     public static NGXResourceVK CreateImageViewResourceVK(nint imageView, nint image, in NGXVkImageSubresourceRange subresourceRange, NGXVkFormat format, uint width, uint height, bool readWrite)
     {
-        NGXVkImageSubresourceRangeNative subresourceRangeNative = default;
+        NGXVkImageSubresourceRangeNative subresourceRangeNative = new(in subresourceRange);
+        NGXResourceVKNative result = CreateImageViewResourceVKNative(imageView, image, subresourceRangeNative, format, width, height, readWrite);
 
-        try
-        {
-            subresourceRangeNative = new(in subresourceRange);
-            NGXResourceVKNative result = CreateImageViewResourceVKNative(imageView, image, subresourceRangeNative, format, width, height, readWrite);
-
-            return new(in result);
-        }
-        finally
-        {
-            subresourceRangeNative.Dispose();
-        }
+        return new(in result);
     }
 
     public static NGXResult UpdateFeature(in NGXApplicationIdentifier applicationId, NGXFeature featureID)
     {
-        NGXApplicationIdentifierNative applicationIdNative = default;
+        using NativeScope scope = new();
 
-        try
-        {
-            applicationIdNative = new(in applicationId);
-            NGXResult result = UpdateFeatureNative(&applicationIdNative, featureID);
+        NGXApplicationIdentifierNative applicationIdNative = new(in applicationId, scope);
 
-            return result;
-        }
-        finally
-        {
-            applicationIdNative.Dispose();
-        }
+        return UpdateFeatureNative(&applicationIdNative, featureID);
     }
 }

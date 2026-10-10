@@ -10,9 +10,9 @@ public struct NGXVkExtensionProperties
 
     internal unsafe NGXVkExtensionProperties(in NGXVkExtensionPropertiesNative native)
     {
-        fixed (sbyte* buffer = native.ExtensionName)
+        fixed (byte* buffer = native.ExtensionName)
         {
-            ExtensionName = NGXMarshal.ReadUtf8(new ReadOnlySpan<byte>(buffer, 256));
+            ExtensionName = NativeTextHelper.ReadUtf8(new ReadOnlySpan<byte>(buffer, 256));
         }
 
         SpecVersion = native.SpecVersion;

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 368)]
-internal unsafe struct NGXVKDLSSEvalParamsNative : IDisposable
+internal unsafe struct NGXVKDLSSEvalParamsNative
 {
     [FieldOffset(0)]
     public NGXVKFeatureEvalParamsNative Feature;
@@ -101,127 +101,39 @@ internal unsafe struct NGXVKDLSSEvalParamsNative : IDisposable
     [FieldOffset(360)]
     public NGXResourceVKNative* PInMotionVectorsReflections;
 
-    public NGXVKDLSSEvalParamsNative(in NGXVKDLSSEvalParams value)
+    public NGXVKDLSSEvalParamsNative(in NGXVKDLSSEvalParams value, NativeScope scope)
     {
-        this = default;
-
-        try
-        {
-            Feature = new(in value.Feature);
-
-            if (value.Depth is NGXResourceVK depth)
-            {
-                PInDepth = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in depth));
-            }
-
-            if (value.MotionVectors is NGXResourceVK motionVectors)
-            {
-                PInMotionVectors = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in motionVectors));
-            }
-
-            InJitterOffsetX = value.JitterOffsetX;
-            InJitterOffsetY = value.JitterOffsetY;
-            InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
-            InReset = value.Reset;
-            InMVScaleX = value.MVScaleX;
-            InMVScaleY = value.MVScaleY;
-
-            if (value.TransparencyMask is NGXResourceVK transparencyMask)
-            {
-                PInTransparencyMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in transparencyMask));
-            }
-
-            if (value.ExposureTexture is NGXResourceVK exposureTexture)
-            {
-                PInExposureTexture = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in exposureTexture));
-            }
-
-            if (value.BiasCurrentColorMask is NGXResourceVK biasCurrentColorMask)
-            {
-                PInBiasCurrentColorMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in biasCurrentColorMask));
-            }
-
-            InColorSubrectBase = new(in value.ColorSubrectBase);
-            InDepthSubrectBase = new(in value.DepthSubrectBase);
-            InMVSubrectBase = new(in value.MVSubrectBase);
-            InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
-            InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
-            InOutputSubrectBase = new(in value.OutputSubrectBase);
-            InPreExposure = value.PreExposure;
-            InExposureScale = value.ExposureScale;
-            InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
-            InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
-            GBufferSurface = new(in value.GBufferSurface);
-            InToneMapperType = value.ToneMapperType;
-
-            if (value.MotionVectors3D is NGXResourceVK motionVectors3D)
-            {
-                PInMotionVectors3D = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in motionVectors3D));
-            }
-
-            if (value.IsParticleMask is NGXResourceVK isParticleMask)
-            {
-                PInIsParticleMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in isParticleMask));
-            }
-
-            if (value.AnimatedTextureMask is NGXResourceVK animatedTextureMask)
-            {
-                PInAnimatedTextureMask = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in animatedTextureMask));
-            }
-
-            if (value.DepthHighResolution is NGXResourceVK depthHighResolution)
-            {
-                PInDepthHighRes = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in depthHighResolution));
-            }
-
-            if (value.PositionViewSpace is NGXResourceVK positionViewSpace)
-            {
-                PInPositionViewSpace = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in positionViewSpace));
-            }
-
-            InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
-
-            if (value.RayTracingHitDistance is NGXResourceVK rayTracingHitDistance)
-            {
-                PInRayTracingHitDistance = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in rayTracingHitDistance));
-            }
-
-            if (value.MotionVectorsReflections is NGXResourceVK motionVectorsReflections)
-            {
-                PInMotionVectorsReflections = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in motionVectorsReflections));
-            }
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        NGXMarshal.FreeNative(PInMotionVectorsReflections);
-        NGXMarshal.FreeNative(PInRayTracingHitDistance);
-        NGXMarshal.FreeNative(PInPositionViewSpace);
-        NGXMarshal.FreeNative(PInDepthHighRes);
-        NGXMarshal.FreeNative(PInAnimatedTextureMask);
-        NGXMarshal.FreeNative(PInIsParticleMask);
-        NGXMarshal.FreeNative(PInMotionVectors3D);
-        GBufferSurface.Dispose();
-        InOutputSubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InColorSubrectBase.Dispose();
-        NGXMarshal.FreeNative(PInBiasCurrentColorMask);
-        NGXMarshal.FreeNative(PInExposureTexture);
-        NGXMarshal.FreeNative(PInTransparencyMask);
-        InRenderSubrectDimensions.Dispose();
-        NGXMarshal.FreeNative(PInMotionVectors);
-        NGXMarshal.FreeNative(PInDepth);
-        Feature.Dispose();
-        this = default;
+        Feature = new(in value.Feature, scope);
+        PInDepth = value.Depth is NGXResourceVK depth ? scope.Alloc(new NGXResourceVKNative(in depth)) : null;
+        PInMotionVectors = value.MotionVectors is NGXResourceVK motionVectors ? scope.Alloc(new NGXResourceVKNative(in motionVectors)) : null;
+        InJitterOffsetX = value.JitterOffsetX;
+        InJitterOffsetY = value.JitterOffsetY;
+        InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
+        InReset = value.Reset;
+        InMVScaleX = value.MVScaleX;
+        InMVScaleY = value.MVScaleY;
+        PInTransparencyMask = value.TransparencyMask is NGXResourceVK transparencyMask ? scope.Alloc(new NGXResourceVKNative(in transparencyMask)) : null;
+        PInExposureTexture = value.ExposureTexture is NGXResourceVK exposureTexture ? scope.Alloc(new NGXResourceVKNative(in exposureTexture)) : null;
+        PInBiasCurrentColorMask = value.BiasCurrentColorMask is NGXResourceVK biasCurrentColorMask ? scope.Alloc(new NGXResourceVKNative(in biasCurrentColorMask)) : null;
+        InColorSubrectBase = new(in value.ColorSubrectBase);
+        InDepthSubrectBase = new(in value.DepthSubrectBase);
+        InMVSubrectBase = new(in value.MVSubrectBase);
+        InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
+        InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
+        InOutputSubrectBase = new(in value.OutputSubrectBase);
+        InPreExposure = value.PreExposure;
+        InExposureScale = value.ExposureScale;
+        InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
+        InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
+        GBufferSurface = new(in value.GBufferSurface, scope);
+        InToneMapperType = value.ToneMapperType;
+        PInMotionVectors3D = value.MotionVectors3D is NGXResourceVK motionVectors3D ? scope.Alloc(new NGXResourceVKNative(in motionVectors3D)) : null;
+        PInIsParticleMask = value.IsParticleMask is NGXResourceVK isParticleMask ? scope.Alloc(new NGXResourceVKNative(in isParticleMask)) : null;
+        PInAnimatedTextureMask = value.AnimatedTextureMask is NGXResourceVK animatedTextureMask ? scope.Alloc(new NGXResourceVKNative(in animatedTextureMask)) : null;
+        PInDepthHighRes = value.DepthHighResolution is NGXResourceVK depthHighResolution ? scope.Alloc(new NGXResourceVKNative(in depthHighResolution)) : null;
+        PInPositionViewSpace = value.PositionViewSpace is NGXResourceVK positionViewSpace ? scope.Alloc(new NGXResourceVKNative(in positionViewSpace)) : null;
+        InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
+        PInRayTracingHitDistance = value.RayTracingHitDistance is NGXResourceVK rayTracingHitDistance ? scope.Alloc(new NGXResourceVKNative(in rayTracingHitDistance)) : null;
+        PInMotionVectorsReflections = value.MotionVectorsReflections is NGXResourceVK motionVectorsReflections ? scope.Alloc(new NGXResourceVKNative(in motionVectorsReflections)) : null;
     }
 }

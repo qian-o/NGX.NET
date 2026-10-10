@@ -4,20 +4,19 @@ internal static class InitializationChecks
 {
     internal static void Run()
     {
-        NativeCall? call = Storage();
-        NgxLifetime.BeginInitialization("test", 1, call);
-        NgxLifetime.EndInitialization("test", 1, true, ref call);
-        Assert(call is null && NgxCallbacks.Count is 1, "Init commit ownership");
-        call = Storage();
-        NgxLifetime.BeginInitialization("test", 2, call);
-        NgxLifetime.EndInitialization("test", 2, false, ref call);
-        call!.Dispose();
-        Assert(NgxCallbacks.Count is 1, "Init rollback");
-        NgxLifetime.Shutdown("test", 2);
-        Assert(NgxCallbacks.Count is 1, "Different device retained");
-        NgxLifetime.Shutdown("test", 1);
-        Assert(NgxCallbacks.Count is 0, "Shutdown cleanup");
+        TrackingScope initialized = Storage();
+        NativeLifetime.Retain(NGXGraphicsAPI.D3D12, 1, initialized, NGXResult.Success);
+        Assert(!initialized.IsDisposed, "Init commit ownership");
+        TrackingScope failed = Storage();
+        NativeLifetime.Retain(NGXGraphicsAPI.D3D12, 2, failed, NGXResult.Fail);
+        Assert(failed.IsDisposed && !initialized.IsDisposed, "Init rollback");
+        NativeLifetime.Release(NGXGraphicsAPI.D3D12, 2);
+        Assert(!initialized.IsDisposed, "Different device retained");
+        TrackingScope additional = Storage();
+        NativeLifetime.Retain(NGXGraphicsAPI.D3D12, 1, additional, NGXResult.Success);
+        NativeLifetime.Release(NGXGraphicsAPI.D3D12, 1);
+        Assert(initialized.IsDisposed && additional.IsDisposed, "Shutdown releases every initialized scope for its device");
 
-        Console.WriteLine("PASS Init ownership is reserved before native entry, committed or rolled back internally");
+        Console.WriteLine("PASS initialization scopes commit after success, release failures and survive until shutdown");
     }
 }

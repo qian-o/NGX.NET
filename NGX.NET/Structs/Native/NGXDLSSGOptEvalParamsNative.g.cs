@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 592)]
-internal unsafe struct NGXDLSSGOptEvalParamsNative : IDisposable
+internal unsafe struct NGXDLSSGOptEvalParamsNative
 {
     [FieldOffset(0)]
     public uint MultiFrameCount;
@@ -151,86 +151,53 @@ internal unsafe struct NGXDLSSGOptEvalParamsNative : IDisposable
 
     public NGXDLSSGOptEvalParamsNative(in NGXDLSSGOptEvalParams value)
     {
-        try
-        {
-            MultiFrameCount = value.MultiFrameCount;
-            MultiFrameIndex = value.MultiFrameIndex;
-            CameraViewToClip = value.CameraViewToClip;
-            ClipToCameraView = value.ClipToCameraView;
-            ClipToLensClip = value.ClipToLensClip;
-            ClipToPrevClip = value.ClipToPrevClip;
-            PrevClipToClip = value.PrevClipToClip;
-            JitterOffset = value.JitterOffset;
-            MvecScale = value.MvecScale;
-            CameraPinholeOffset = value.CameraPinholeOffset;
-            CameraPos = value.CameraPos;
-            CameraUp = value.CameraUp;
-            CameraRight = value.CameraRight;
-            CameraFwd = value.CameraFwd;
-            CameraNear = value.CameraNear;
-            CameraFar = value.CameraFar;
-            CameraFOV = value.CameraFOV;
-            CameraAspectRatio = value.CameraAspectRatio;
-            ColorBuffersHDR = value.ColorBuffersHDR;
-            DepthInverted = value.DepthInverted;
-            CameraMotionIncluded = value.CameraMotionIncluded;
-            Reset = value.Reset;
-            AutomodeOverrideReset = value.AutomodeOverrideReset;
-            NotRenderingGameFrames = value.NotRenderingGameFrames;
-            OrthoProjection = value.OrthoProjection;
-            MotionVectorsInvalidValue = value.MotionVectorsInvalidValue;
-            MotionVectorsDilated = value.MotionVectorsDilated;
-            MenuDetectionEnabled = value.MenuDetectionEnabled;
-            MvecsSubrectBase = new(in value.MvecsSubrectBase);
-            MvecsSubrectSize = new(in value.MvecsSubrectSize);
-            DepthSubrectBase = new(in value.DepthSubrectBase);
-            DepthSubrectSize = new(in value.DepthSubrectSize);
-            HudLessSubrectBase = new(in value.HudLessSubrectBase);
-            HudLessSubrectSize = new(in value.HudLessSubrectSize);
-            UiSubrectBase = new(in value.UiSubrectBase);
-            UiSubrectSize = new(in value.UiSubrectSize);
-            UiAlphaSubrectBase = new(in value.UiAlphaSubrectBase);
-            UiAlphaSubrectSize = new(in value.UiAlphaSubrectSize);
-            BidirectionalDistFieldSubrectBase = new(in value.BidirectionalDistFieldSubrectBase);
-            BidirectionalDistFieldSubrectSize = new(in value.BidirectionalDistFieldSubrectSize);
-            BidirectionalDistFieldPrecisionInfo = new(in value.BidirectionalDistFieldPrecisionInfo);
-            MinRelativeLinearDepthObjectSeparation = value.MinRelativeLinearDepthObjectSeparation;
-            BackbufferSubrectBase = new(in value.BackbufferSubrectBase);
-            BackbufferSubrectSize = new(in value.BackbufferSubrectSize);
-            OutputInterpSubrectBase = new(in value.OutputInterpSubrectBase);
-            OutputInterpSubrectSize = new(in value.OutputInterpSubrectSize);
-            OutputRealSubrectBase = new(in value.OutputRealSubrectBase);
-            OutputRealSubrectSize = new(in value.OutputRealSubrectSize);
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        OutputRealSubrectSize.Dispose();
-        OutputRealSubrectBase.Dispose();
-        OutputInterpSubrectSize.Dispose();
-        OutputInterpSubrectBase.Dispose();
-        BackbufferSubrectSize.Dispose();
-        BackbufferSubrectBase.Dispose();
-        BidirectionalDistFieldPrecisionInfo.Dispose();
-        BidirectionalDistFieldSubrectSize.Dispose();
-        BidirectionalDistFieldSubrectBase.Dispose();
-        UiAlphaSubrectSize.Dispose();
-        UiAlphaSubrectBase.Dispose();
-        UiSubrectSize.Dispose();
-        UiSubrectBase.Dispose();
-        HudLessSubrectSize.Dispose();
-        HudLessSubrectBase.Dispose();
-        DepthSubrectSize.Dispose();
-        DepthSubrectBase.Dispose();
-        MvecsSubrectSize.Dispose();
-        MvecsSubrectBase.Dispose();
-        this = default;
+        MultiFrameCount = value.MultiFrameCount;
+        MultiFrameIndex = value.MultiFrameIndex;
+        CameraViewToClip = value.CameraViewToClip;
+        ClipToCameraView = value.ClipToCameraView;
+        ClipToLensClip = value.ClipToLensClip;
+        ClipToPrevClip = value.ClipToPrevClip;
+        PrevClipToClip = value.PrevClipToClip;
+        JitterOffset = value.JitterOffset;
+        MvecScale = value.MvecScale;
+        CameraPinholeOffset = value.CameraPinholeOffset;
+        CameraPos = value.CameraPos;
+        CameraUp = value.CameraUp;
+        CameraRight = value.CameraRight;
+        CameraFwd = value.CameraFwd;
+        CameraNear = value.CameraNear;
+        CameraFar = value.CameraFar;
+        CameraFOV = value.CameraFOV;
+        CameraAspectRatio = value.CameraAspectRatio;
+        ColorBuffersHDR = value.ColorBuffersHDR;
+        DepthInverted = value.DepthInverted;
+        CameraMotionIncluded = value.CameraMotionIncluded;
+        Reset = value.Reset;
+        AutomodeOverrideReset = value.AutomodeOverrideReset;
+        NotRenderingGameFrames = value.NotRenderingGameFrames;
+        OrthoProjection = value.OrthoProjection;
+        MotionVectorsInvalidValue = value.MotionVectorsInvalidValue;
+        MotionVectorsDilated = value.MotionVectorsDilated;
+        MenuDetectionEnabled = value.MenuDetectionEnabled;
+        MvecsSubrectBase = new(in value.MvecsSubrectBase);
+        MvecsSubrectSize = new(in value.MvecsSubrectSize);
+        DepthSubrectBase = new(in value.DepthSubrectBase);
+        DepthSubrectSize = new(in value.DepthSubrectSize);
+        HudLessSubrectBase = new(in value.HudLessSubrectBase);
+        HudLessSubrectSize = new(in value.HudLessSubrectSize);
+        UiSubrectBase = new(in value.UiSubrectBase);
+        UiSubrectSize = new(in value.UiSubrectSize);
+        UiAlphaSubrectBase = new(in value.UiAlphaSubrectBase);
+        UiAlphaSubrectSize = new(in value.UiAlphaSubrectSize);
+        BidirectionalDistFieldSubrectBase = new(in value.BidirectionalDistFieldSubrectBase);
+        BidirectionalDistFieldSubrectSize = new(in value.BidirectionalDistFieldSubrectSize);
+        BidirectionalDistFieldPrecisionInfo = new(in value.BidirectionalDistFieldPrecisionInfo);
+        MinRelativeLinearDepthObjectSeparation = value.MinRelativeLinearDepthObjectSeparation;
+        BackbufferSubrectBase = new(in value.BackbufferSubrectBase);
+        BackbufferSubrectSize = new(in value.BackbufferSubrectSize);
+        OutputInterpSubrectBase = new(in value.OutputInterpSubrectBase);
+        OutputInterpSubrectSize = new(in value.OutputInterpSubrectSize);
+        OutputRealSubrectBase = new(in value.OutputRealSubrectBase);
+        OutputRealSubrectSize = new(in value.OutputRealSubrectSize);
     }
 }

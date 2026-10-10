@@ -37,7 +37,7 @@ See [ownership and native inputs](documents/ownership.md) and [results and outpu
 
 Native NGX calls support `win-x64`, `win-arm64`, `linux-x64` and `linux-arm64`. Assembly loading and managed conversion remain available on other platforms; unsupported platforms are rejected when the native library is resolved.
 
-The package includes `ngx-bridge` and NVIDIA DLSS feature libraries from `native/<rid>/`, packaged in `runtimes/<rid>/native/`. Use `Ngx.RuntimeDirectory` in the initialization path list. Keep GPU resources and their native views alive for the entire submitted work lifetime.
+The package includes `ngx-bridge` and NVIDIA DLSS feature libraries from `native/<rid>/`, packaged in `runtimes/<rid>/native/`. Use `Ngx.RuntimeDirectory` in the initialization path list. Keep GPU resources and their native views alive for the entire submitted work lifetime. Binding-owned inputs are retained only when the SDK keeps their addresses; D3D11/D3D12 DLSS evaluation uses allocation-free stack conversion.
 
 ## Updating bindings
 

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 632)]
-internal unsafe struct NGXCUDADLSSDEvalParamsNative : IDisposable
+internal unsafe struct NGXCUDADLSSDEvalParamsNative
 {
     [FieldOffset(0)]
     public void* PInDiffuseAlbedo;
@@ -206,114 +206,74 @@ internal unsafe struct NGXCUDADLSSDEvalParamsNative : IDisposable
     [FieldOffset(624)]
     public NGXCoordinatesNative InTransparencyLayerOpacitySubrectBase;
 
-    public NGXCUDADLSSDEvalParamsNative(in NGXCUDADLSSDEvalParams value)
+    public NGXCUDADLSSDEvalParamsNative(in NGXCUDADLSSDEvalParams value, NativeScope scope)
     {
-        try
-        {
-            PInDiffuseAlbedo = (void*)value.DiffuseAlbedo;
-            PInSpecularAlbedo = (void*)value.SpecularAlbedo;
-            PInNormals = (void*)value.Normals;
-            PInRoughness = (void*)value.Roughness;
-            PInColor = (void*)value.Color;
-            PInOutput = (void*)value.Output;
-            PInDepth = (void*)value.Depth;
-            PInMotionVectors = (void*)value.MotionVectors;
-            InJitterOffsetX = value.JitterOffsetX;
-            InJitterOffsetY = value.JitterOffsetY;
-            InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
-            InReset = value.Reset;
-            InMVScaleX = value.MVScaleX;
-            InMVScaleY = value.MVScaleY;
-            PInTransparencyMask = (void*)value.TransparencyMask;
-            PInExposureTexture = (void*)value.ExposureTexture;
-            PInBiasCurrentColorMask = (void*)value.BiasCurrentColorMask;
-            InDiffuseAlbedoSubrectBase = new(in value.DiffuseAlbedoSubrectBase);
-            InSpecularAlbedoSubrectBase = new(in value.SpecularAlbedoSubrectBase);
-            InNormalsSubrectBase = new(in value.NormalsSubrectBase);
-            InRoughnessSubrectBase = new(in value.RoughnessSubrectBase);
-            InColorSubrectBase = new(in value.ColorSubrectBase);
-            InDepthSubrectBase = new(in value.DepthSubrectBase);
-            InMVSubrectBase = new(in value.MVSubrectBase);
-            InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
-            InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
-            InOutputSubrectBase = new(in value.OutputSubrectBase);
-            PInReflectedAlbedo = (void*)value.ReflectedAlbedo;
-            PInColorBeforeParticles = (void*)value.ColorBeforeParticles;
-            PInColorBeforeTransparency = (void*)value.ColorBeforeTransparency;
-            PInColorBeforeFog = (void*)value.ColorBeforeFog;
-            PInDiffuseHitDistance = (void*)value.DiffuseHitDistance;
-            PInSpecularHitDistance = (void*)value.SpecularHitDistance;
-            PInDiffuseRayDirection = (void*)value.DiffuseRayDirection;
-            PInSpecularRayDirection = (void*)value.SpecularRayDirection;
-            PInDiffuseRayDirectionHitDistance = (void*)value.DiffuseRayDirectionHitDistance;
-            PInSpecularRayDirectionHitDistance = (void*)value.SpecularRayDirectionHitDistance;
-            InReflectedAlbedoSubrectBase = new(in value.ReflectedAlbedoSubrectBase);
-            InColorBeforeParticlesSubrectBase = new(in value.ColorBeforeParticlesSubrectBase);
-            InColorBeforeTransparencySubrectBase = new(in value.ColorBeforeTransparencySubrectBase);
-            InColorBeforeFogSubrectBase = new(in value.ColorBeforeFogSubrectBase);
-            InDiffuseHitDistanceSubrectBase = new(in value.DiffuseHitDistanceSubrectBase);
-            InSpecularHitDistanceSubrectBase = new(in value.SpecularHitDistanceSubrectBase);
-            InDiffuseRayDirectionSubrectBase = new(in value.DiffuseRayDirectionSubrectBase);
-            InSpecularRayDirectionSubrectBase = new(in value.SpecularRayDirectionSubrectBase);
-            InDiffuseRayDirectionHitDistanceSubrectBase = new(in value.DiffuseRayDirectionHitDistanceSubrectBase);
-            InSpecularRayDirectionHitDistanceSubrectBase = new(in value.SpecularRayDirectionHitDistanceSubrectBase);
-            PInWorldToViewMatrix = value.WorldToViewMatrix.HasValue ? NGXMarshal.AllocValue(value.WorldToViewMatrix.Value) : null;
-            PInViewToClipMatrix = value.ViewToClipMatrix.HasValue ? NGXMarshal.AllocValue(value.ViewToClipMatrix.Value) : null;
-            InPreExposure = value.PreExposure;
-            InExposureScale = value.ExposureScale;
-            InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
-            InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
-            GBufferSurface = new(in value.GBufferSurface);
-            InToneMapperType = value.ToneMapperType;
-            PInMotionVectors3D = (void*)value.MotionVectors3D;
-            PInIsParticleMask = (void*)value.IsParticleMask;
-            PInAnimatedTextureMask = (void*)value.AnimatedTextureMask;
-            PInDepthHighRes = (void*)value.DepthHighResolution;
-            PInPositionViewSpace = (void*)value.PositionViewSpace;
-            InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
-            PInRayTracingHitDistance = (void*)value.RayTracingHitDistance;
-            PInMotionVectorsReflections = (void*)value.MotionVectorsReflections;
-            PInTransparencyLayer = (void*)value.TransparencyLayer;
-            InTransparencyLayerSubrectBase = new(in value.TransparencyLayerSubrectBase);
-            PInTransparencyLayerOpacity = (void*)value.TransparencyLayerOpacity;
-            InTransparencyLayerOpacitySubrectBase = new(in value.TransparencyLayerOpacitySubrectBase);
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        InTransparencyLayerOpacitySubrectBase.Dispose();
-        InTransparencyLayerSubrectBase.Dispose();
-        GBufferSurface.Dispose();
-        NGXMarshal.Free(PInViewToClipMatrix);
-        NGXMarshal.Free(PInWorldToViewMatrix);
-        InSpecularRayDirectionHitDistanceSubrectBase.Dispose();
-        InDiffuseRayDirectionHitDistanceSubrectBase.Dispose();
-        InSpecularRayDirectionSubrectBase.Dispose();
-        InDiffuseRayDirectionSubrectBase.Dispose();
-        InSpecularHitDistanceSubrectBase.Dispose();
-        InDiffuseHitDistanceSubrectBase.Dispose();
-        InColorBeforeFogSubrectBase.Dispose();
-        InColorBeforeTransparencySubrectBase.Dispose();
-        InColorBeforeParticlesSubrectBase.Dispose();
-        InReflectedAlbedoSubrectBase.Dispose();
-        InOutputSubrectBase.Dispose();
-        InBiasCurrentColorSubrectBase.Dispose();
-        InTranslucencySubrectBase.Dispose();
-        InMVSubrectBase.Dispose();
-        InDepthSubrectBase.Dispose();
-        InColorSubrectBase.Dispose();
-        InRoughnessSubrectBase.Dispose();
-        InNormalsSubrectBase.Dispose();
-        InSpecularAlbedoSubrectBase.Dispose();
-        InDiffuseAlbedoSubrectBase.Dispose();
-        InRenderSubrectDimensions.Dispose();
-        this = default;
+        PInDiffuseAlbedo = (void*)value.DiffuseAlbedo;
+        PInSpecularAlbedo = (void*)value.SpecularAlbedo;
+        PInNormals = (void*)value.Normals;
+        PInRoughness = (void*)value.Roughness;
+        PInColor = (void*)value.Color;
+        PInOutput = (void*)value.Output;
+        PInDepth = (void*)value.Depth;
+        PInMotionVectors = (void*)value.MotionVectors;
+        InJitterOffsetX = value.JitterOffsetX;
+        InJitterOffsetY = value.JitterOffsetY;
+        InRenderSubrectDimensions = new(in value.RenderSubrectDimensions);
+        InReset = value.Reset;
+        InMVScaleX = value.MVScaleX;
+        InMVScaleY = value.MVScaleY;
+        PInTransparencyMask = (void*)value.TransparencyMask;
+        PInExposureTexture = (void*)value.ExposureTexture;
+        PInBiasCurrentColorMask = (void*)value.BiasCurrentColorMask;
+        InDiffuseAlbedoSubrectBase = new(in value.DiffuseAlbedoSubrectBase);
+        InSpecularAlbedoSubrectBase = new(in value.SpecularAlbedoSubrectBase);
+        InNormalsSubrectBase = new(in value.NormalsSubrectBase);
+        InRoughnessSubrectBase = new(in value.RoughnessSubrectBase);
+        InColorSubrectBase = new(in value.ColorSubrectBase);
+        InDepthSubrectBase = new(in value.DepthSubrectBase);
+        InMVSubrectBase = new(in value.MVSubrectBase);
+        InTranslucencySubrectBase = new(in value.TranslucencySubrectBase);
+        InBiasCurrentColorSubrectBase = new(in value.BiasCurrentColorSubrectBase);
+        InOutputSubrectBase = new(in value.OutputSubrectBase);
+        PInReflectedAlbedo = (void*)value.ReflectedAlbedo;
+        PInColorBeforeParticles = (void*)value.ColorBeforeParticles;
+        PInColorBeforeTransparency = (void*)value.ColorBeforeTransparency;
+        PInColorBeforeFog = (void*)value.ColorBeforeFog;
+        PInDiffuseHitDistance = (void*)value.DiffuseHitDistance;
+        PInSpecularHitDistance = (void*)value.SpecularHitDistance;
+        PInDiffuseRayDirection = (void*)value.DiffuseRayDirection;
+        PInSpecularRayDirection = (void*)value.SpecularRayDirection;
+        PInDiffuseRayDirectionHitDistance = (void*)value.DiffuseRayDirectionHitDistance;
+        PInSpecularRayDirectionHitDistance = (void*)value.SpecularRayDirectionHitDistance;
+        InReflectedAlbedoSubrectBase = new(in value.ReflectedAlbedoSubrectBase);
+        InColorBeforeParticlesSubrectBase = new(in value.ColorBeforeParticlesSubrectBase);
+        InColorBeforeTransparencySubrectBase = new(in value.ColorBeforeTransparencySubrectBase);
+        InColorBeforeFogSubrectBase = new(in value.ColorBeforeFogSubrectBase);
+        InDiffuseHitDistanceSubrectBase = new(in value.DiffuseHitDistanceSubrectBase);
+        InSpecularHitDistanceSubrectBase = new(in value.SpecularHitDistanceSubrectBase);
+        InDiffuseRayDirectionSubrectBase = new(in value.DiffuseRayDirectionSubrectBase);
+        InSpecularRayDirectionSubrectBase = new(in value.SpecularRayDirectionSubrectBase);
+        InDiffuseRayDirectionHitDistanceSubrectBase = new(in value.DiffuseRayDirectionHitDistanceSubrectBase);
+        InSpecularRayDirectionHitDistanceSubrectBase = new(in value.SpecularRayDirectionHitDistanceSubrectBase);
+        PInWorldToViewMatrix = value.WorldToViewMatrix.HasValue ? scope.Alloc(value.WorldToViewMatrix.Value) : null;
+        PInViewToClipMatrix = value.ViewToClipMatrix.HasValue ? scope.Alloc(value.ViewToClipMatrix.Value) : null;
+        InPreExposure = value.PreExposure;
+        InExposureScale = value.ExposureScale;
+        InIndicatorInvertXAxis = value.IndicatorInvertXAxis;
+        InIndicatorInvertYAxis = value.IndicatorInvertYAxis;
+        GBufferSurface = new(in value.GBufferSurface, scope);
+        InToneMapperType = value.ToneMapperType;
+        PInMotionVectors3D = (void*)value.MotionVectors3D;
+        PInIsParticleMask = (void*)value.IsParticleMask;
+        PInAnimatedTextureMask = (void*)value.AnimatedTextureMask;
+        PInDepthHighRes = (void*)value.DepthHighResolution;
+        PInPositionViewSpace = (void*)value.PositionViewSpace;
+        InFrameTimeDeltaInMsec = value.FrameTimeDeltaInMsec;
+        PInRayTracingHitDistance = (void*)value.RayTracingHitDistance;
+        PInMotionVectorsReflections = (void*)value.MotionVectorsReflections;
+        PInTransparencyLayer = (void*)value.TransparencyLayer;
+        InTransparencyLayerSubrectBase = new(in value.TransparencyLayerSubrectBase);
+        PInTransparencyLayerOpacity = (void*)value.TransparencyLayerOpacity;
+        InTransparencyLayerOpacitySubrectBase = new(in value.TransparencyLayerOpacitySubrectBase);
     }
 }

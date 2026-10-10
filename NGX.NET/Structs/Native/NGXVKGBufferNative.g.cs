@@ -3,54 +3,32 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 136)]
-internal unsafe struct NGXVKGBufferNative : IDisposable
+internal unsafe struct NGXVKGBufferNative
 {
     [FieldOffset(0)]
     public PInAttribBuffer PInAttrib;
 
-    public NGXVKGBufferNative(in NGXVKGBuffer value)
+    public NGXVKGBufferNative(in NGXVKGBuffer value, NativeScope scope)
     {
         this = default;
 
-        try
+        if (value.Attributes is NGXResourceVK?[] attributes)
         {
-            if (value.Attributes is NGXResourceVK?[] attributes)
+            if (attributes.Length > 17)
             {
-                if (attributes.Length > 17)
-                {
-                    throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
-                }
+                throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+            }
 
-                for (int i = 0; i < attributes.Length; i++)
-                {
-                    if (attributes[i] is NGXResourceVK attributesElement)
-                    {
-                        PInAttrib[i] = NGXMarshal.AllocNative<NGXResourceVKNative>(new(in attributesElement));
-                    }
-                }
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                PInAttrib[i] = attributes[i] is NGXResourceVK attributesElement ? (nint)scope.Alloc(new NGXResourceVKNative(in attributesElement)) : 0;
             }
         }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        for (int i = 16; i >= 0; i--)
-        {
-            NGXMarshal.FreeNative<NGXResourceVKNative>(PInAttrib[i]);
-        }
-
-        this = default;
     }
 
     [InlineArray(17)]
     internal struct PInAttribBuffer
     {
-        private NGXPointer<NGXResourceVKNative> element;
+        private nint element;
     }
 }

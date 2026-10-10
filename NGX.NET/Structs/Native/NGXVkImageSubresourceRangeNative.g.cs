@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-internal unsafe struct NGXVkImageSubresourceRangeNative : IDisposable
+internal unsafe struct NGXVkImageSubresourceRangeNative
 {
     [FieldOffset(0)]
     public uint AspectMask;
@@ -22,24 +22,10 @@ internal unsafe struct NGXVkImageSubresourceRangeNative : IDisposable
 
     public NGXVkImageSubresourceRangeNative(in NGXVkImageSubresourceRange value)
     {
-        try
-        {
-            AspectMask = value.AspectMask;
-            BaseMipLevel = value.BaseMipLevel;
-            LevelCount = value.LevelCount;
-            BaseArrayLayer = value.BaseArrayLayer;
-            LayerCount = value.LayerCount;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        AspectMask = value.AspectMask;
+        BaseMipLevel = value.BaseMipLevel;
+        LevelCount = value.LevelCount;
+        BaseArrayLayer = value.BaseArrayLayer;
+        LayerCount = value.LayerCount;
     }
 }

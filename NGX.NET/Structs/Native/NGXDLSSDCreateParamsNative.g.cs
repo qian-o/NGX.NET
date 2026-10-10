@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 40)]
-internal unsafe struct NGXDLSSDCreateParamsNative : IDisposable
+internal unsafe struct NGXDLSSDCreateParamsNative
 {
     [FieldOffset(0)]
     public NGXDLSSDenoiseMode InDenoiseMode;
@@ -37,29 +37,15 @@ internal unsafe struct NGXDLSSDCreateParamsNative : IDisposable
 
     public NGXDLSSDCreateParamsNative(in NGXDLSSDCreateParams value)
     {
-        try
-        {
-            InDenoiseMode = value.DenoiseMode;
-            InRoughnessMode = value.RoughnessMode;
-            InUseHWDepth = value.UseHWDepth;
-            InWidth = value.Width;
-            InHeight = value.Height;
-            InTargetWidth = value.TargetWidth;
-            InTargetHeight = value.TargetHeight;
-            InPerfQualityValue = value.PerfQualityValue;
-            InFeatureCreateFlags = value.FeatureCreateFlags;
-            InEnableOutputSubrects = value.EnableOutputSubrects;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        InDenoiseMode = value.DenoiseMode;
+        InRoughnessMode = value.RoughnessMode;
+        InUseHWDepth = value.UseHWDepth;
+        InWidth = value.Width;
+        InHeight = value.Height;
+        InTargetWidth = value.TargetWidth;
+        InTargetHeight = value.TargetHeight;
+        InPerfQualityValue = value.PerfQualityValue;
+        InFeatureCreateFlags = value.FeatureCreateFlags;
+        InEnableOutputSubrects = value.EnableOutputSubrects;
     }
 }

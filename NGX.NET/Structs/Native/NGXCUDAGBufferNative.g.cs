@@ -3,51 +3,32 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 136)]
-internal unsafe struct NGXCUDAGBufferNative : IDisposable
+internal unsafe struct NGXCUDAGBufferNative
 {
     [FieldOffset(0)]
     public PInAttribBuffer PInAttrib;
 
-    public NGXCUDAGBufferNative(in NGXCUDAGBuffer value)
+    public NGXCUDAGBufferNative(in NGXCUDAGBuffer value, NativeScope scope)
     {
         this = default;
 
-        try
+        if (value.Attributes is ulong?[] attributes)
         {
-            if (value.Attributes is ulong?[] attributes)
+            if (attributes.Length > 17)
             {
-                if (attributes.Length > 17)
-                {
-                    throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
-                }
+                throw new ArgumentException("PInAttrib accepts at most 17 elements.", nameof(value));
+            }
 
-                for (int i = 0; i < attributes.Length; i++)
-                {
-                    PInAttrib[i] = attributes[i].HasValue ? NGXMarshal.AllocValue(attributes[i].GetValueOrDefault()) : null;
-                }
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                PInAttrib[i] = attributes[i].HasValue ? (nint)scope.Alloc(attributes[i].GetValueOrDefault()) : 0;
             }
         }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        for (int i = 16; i >= 0; i--)
-        {
-            NGXMarshal.Free(PInAttrib[i]);
-        }
-
-        this = default;
     }
 
     [InlineArray(17)]
     internal struct PInAttribBuffer
     {
-        private NGXPointer<ulong> element;
+        private nint element;
     }
 }

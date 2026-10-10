@@ -9,11 +9,4 @@ public struct NGXProjectIdDescription
     public NGXEngineType EngineType;
 
     public string? EngineVersion;
-
-    internal unsafe NGXProjectIdDescription(in NGXProjectIdDescriptionNative native)
-    {
-        ProjectId = NGXMarshal.PtrToString(native.ProjectId, NGXEncoding.Utf8);
-        EngineType = native.EngineType;
-        EngineVersion = NGXMarshal.PtrToString(native.EngineVersion, NGXEncoding.Utf8);
-    }
 }

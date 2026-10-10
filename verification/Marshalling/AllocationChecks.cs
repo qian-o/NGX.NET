@@ -19,26 +19,16 @@ internal static unsafe class AllocationChecks
         }
 
         long bytes = GC.GetAllocatedBytesForCurrentThread() - before;
-        NgxLifetime.ReleaseParameters(321);
-        Console.WriteLine($"INFO {Iterations} retained RR calls; {(double)bytes / Iterations} managed bytes per call; {Unsafe.SizeOf<NGXVKDLSSDEvalParams>()} managed description bytes; 19 native pointees and 1 native root allocation per call.");
+        NativeLifetime.Release(new NGXParameter(321));
+        Console.WriteLine($"INFO {Iterations} retained RR calls; {(double)bytes / Iterations} managed bytes per call; {Unsafe.SizeOf<NGXVKDLSSDEvalParams>()} managed description bytes.");
 
-        Console.WriteLine("PASS constructor and retained RR conversion allocation measurement");
+        Console.WriteLine("PASS retained RR conversion allocation measurement");
     }
 
     private static void RetainedFrame(NGXVKDLSSDEvalParams value)
     {
-        NativeCall? call = new();
-        NGXVKDLSSDEvalParamsNative native = new(in value);
-        try
-        {
-            call.Take(ref native);
-            NgxLifetime.BeginParameters(321, "measure", call);
-            NgxLifetime.EndParameters(321, "measure", true, true, ref call);
-        }
-        finally
-        {
-            native.Dispose();
-            call?.Dispose();
-        }
+        NativeScope scope = new();
+        scope.Alloc(new NGXVKDLSSDEvalParamsNative(in value, scope));
+        NativeLifetime.Retain(NGXGraphicsAPI.Vulkan, new NGXParameter(321), "measure", scope, NGXResult.Success);
     }
 }

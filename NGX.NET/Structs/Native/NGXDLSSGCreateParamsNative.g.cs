@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 24)]
-internal unsafe struct NGXDLSSGCreateParamsNative : IDisposable
+internal unsafe struct NGXDLSSGCreateParamsNative
 {
     [FieldOffset(0)]
     public uint Width;
@@ -25,25 +25,11 @@ internal unsafe struct NGXDLSSGCreateParamsNative : IDisposable
 
     public NGXDLSSGCreateParamsNative(in NGXDLSSGCreateParams value)
     {
-        try
-        {
-            Width = value.Width;
-            Height = value.Height;
-            NativeBackbufferFormat = value.NativeBackbufferFormat;
-            RenderWidth = value.RenderWidth;
-            RenderHeight = value.RenderHeight;
-            DynamicResolutionScaling = value.DynamicResolutionScaling;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        Width = value.Width;
+        Height = value.Height;
+        NativeBackbufferFormat = value.NativeBackbufferFormat;
+        RenderWidth = value.RenderWidth;
+        RenderHeight = value.RenderHeight;
+        DynamicResolutionScaling = value.DynamicResolutionScaling;
     }
 }

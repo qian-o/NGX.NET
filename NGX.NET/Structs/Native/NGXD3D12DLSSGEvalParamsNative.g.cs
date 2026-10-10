@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 80)]
-internal unsafe struct NGXD3D12DLSSGEvalParamsNative : IDisposable
+internal unsafe struct NGXD3D12DLSSGEvalParamsNative
 {
     [FieldOffset(0)]
     public nint PBackbuffer;
@@ -37,29 +37,15 @@ internal unsafe struct NGXD3D12DLSSGEvalParamsNative : IDisposable
 
     public NGXD3D12DLSSGEvalParamsNative(in NGXD3D12DLSSGEvalParams value)
     {
-        try
-        {
-            PBackbuffer = value.Backbuffer;
-            PDepth = value.Depth;
-            PMVecs = value.MVecs;
-            PHudless = value.Hudless;
-            PUI = value.UI;
-            PUIAlpha = value.UIAlpha;
-            PBidirectionalDistortionField = value.BidirectionalDistortionField;
-            POutputInterpFrame = value.OutputInterpFrame;
-            POutputRealFrame = value.OutputRealFrame;
-            POutputDisableInterpolation = value.OutputDisableInterpolation;
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        this = default;
+        PBackbuffer = value.Backbuffer;
+        PDepth = value.Depth;
+        PMVecs = value.MVecs;
+        PHudless = value.Hudless;
+        PUI = value.UI;
+        PUIAlpha = value.UIAlpha;
+        PBidirectionalDistortionField = value.BidirectionalDistortionField;
+        POutputInterpFrame = value.OutputInterpFrame;
+        POutputRealFrame = value.OutputRealFrame;
+        POutputDisableInterpolation = value.OutputDisableInterpolation;
     }
 }

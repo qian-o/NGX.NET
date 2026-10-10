@@ -15,14 +15,4 @@ public struct NGXCUDADLISPEvalParams
     public uint RectH;
 
     public float Denoise;
-
-    internal unsafe NGXCUDADLISPEvalParams(in NGXCUDADLISPEvalParamsNative native)
-    {
-        Feature = new(in native.Feature);
-        RectX = native.InRectX;
-        RectY = native.InRectY;
-        RectW = native.InRectW;
-        RectH = native.InRectH;
-        Denoise = native.InDenoise;
-    }
 }

@@ -13,13 +13,4 @@ public struct NGXFeatureCreateParams
     public uint TargetHeight;
 
     public NGXPerfQualityValue PerfQualityValue;
-
-    internal unsafe NGXFeatureCreateParams(in NGXFeatureCreateParamsNative native)
-    {
-        Width = native.InWidth;
-        Height = native.InHeight;
-        TargetWidth = native.InTargetWidth;
-        TargetHeight = native.InTargetHeight;
-        PerfQualityValue = native.InPerfQualityValue;
-    }
 }

@@ -3,7 +3,7 @@
 namespace NGX.NET;
 
 [StructLayout(LayoutKind.Explicit, Size = 40)]
-internal unsafe struct NGXFeatureCommonInfoNative : IDisposable
+internal unsafe struct NGXFeatureCommonInfoNative
 {
     [FieldOffset(0)]
     public NGXPathListInfoNative PathListInfo;
@@ -14,26 +14,10 @@ internal unsafe struct NGXFeatureCommonInfoNative : IDisposable
     [FieldOffset(24)]
     public NGXLoggingInfoNative LoggingInfo;
 
-    public NGXFeatureCommonInfoNative(in NGXFeatureCommonInfo value)
+    public NGXFeatureCommonInfoNative(in NGXFeatureCommonInfo value, NativeScope scope)
     {
-        try
-        {
-            PathListInfo = new(in value.PathListInfo);
-            InternalData = value.InternalData;
-            LoggingInfo = new(in value.LoggingInfo);
-        }
-        catch
-        {
-            Dispose();
-
-            throw;
-        }
-    }
-
-    public void Dispose()
-    {
-        LoggingInfo.Dispose();
-        PathListInfo.Dispose();
-        this = default;
+        PathListInfo = new(in value.PathListInfo, scope);
+        InternalData = value.InternalData;
+        LoggingInfo = new(in value.LoggingInfo, scope);
     }
 }

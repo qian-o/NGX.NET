@@ -7,6 +7,10 @@ internal class TypeMapper
 
     private readonly Models models;
     private readonly Dictionary<string, string> unionNames = [];
+    private readonly HashSet<string> inputRecords = [];
+    private readonly HashSet<string> outputRecords = [];
+    private readonly HashSet<string> allocatingRecords = [];
+    private readonly HashSet<string> stableRecords = [];
 
     internal TypeMapper(Models models)
     {
@@ -23,6 +27,8 @@ internal class TypeMapper
                 }
             }
         }
+
+        AnalyzeConversions();
     }
 
     internal string ManagedRecord(string name)
@@ -166,7 +172,8 @@ internal class TypeMapper
         {
             NativeTypeKind.Void => "void",
             NativeTypeKind.Bool => "Bool8",
-            NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.SChar => "sbyte",
+            NativeTypeKind.CharS or NativeTypeKind.CharU => "byte",
+            NativeTypeKind.SChar => "sbyte",
             NativeTypeKind.UChar => "byte",
             NativeTypeKind.Short => "short",
             NativeTypeKind.UShort => "ushort",
@@ -186,6 +193,11 @@ internal class TypeMapper
     internal string NativeParameterType(AstParameter parameter)
     {
         AstType type = parameter.Type;
+
+        if (parameter.Role is ParameterRole.RequiredName)
+        {
+            return "string";
+        }
 
         if (parameter.Direction is ParameterDirection.Out)
         {
@@ -213,6 +225,138 @@ internal class TypeMapper
         }
 
         return Type(type);
+    }
+
+    internal bool HasNativeRecord(string name)
+    {
+        return inputRecords.Contains(name) || outputRecords.Contains(name);
+    }
+
+    internal bool HasInputConversion(string name)
+    {
+        return inputRecords.Contains(name);
+    }
+
+    internal bool HasOutputConversion(string name)
+    {
+        return outputRecords.Contains(name) && !models.Records[name].IsUnion;
+    }
+
+    internal bool Allocates(string name)
+    {
+        return allocatingRecords.Contains(name);
+    }
+
+    internal bool RequiresScope(string name)
+    {
+        return allocatingRecords.Contains(name) || stableRecords.Contains(name);
+    }
+
+    private void AnalyzeConversions()
+    {
+        foreach (AstFunction function in models.Functions.Values)
+        {
+            AddRecord(outputRecords, function.Result);
+
+            foreach (AstParameter parameter in function.Parameters)
+            {
+                AddRecord(parameter.Direction is ParameterDirection.Out ? outputRecords : inputRecords, parameter.Type);
+            }
+        }
+
+        ExpandRecords(inputRecords);
+        ExpandRecords(outputRecords);
+
+        foreach (AstRecord record in models.Records.Values.Where(static record => !record.IsOpaque))
+        {
+            if (record.Name is "NVSDK_NGX_PathListInfo" || record.Fields.Any(field => FieldAllocates(record.Name, field)))
+            {
+                allocatingRecords.Add(record.Name);
+            }
+
+            if (record.Fields.Any(field => field.Type.Kind is NativeTypeKind.ConstantArray && MathFieldType(record.Name, field) is not null))
+            {
+                stableRecords.Add(record.Name);
+            }
+        }
+
+        PropagateRequirements(allocatingRecords);
+        PropagateRequirements(stableRecords);
+    }
+
+    private void AddRecord(HashSet<string> names, AstType type)
+    {
+        while (type.Kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference or NativeTypeKind.ConstantArray)
+        {
+            type = type.Element!;
+        }
+
+        if (IsRecord(type))
+        {
+            names.Add(type.Name);
+        }
+    }
+
+    private void ExpandRecords(HashSet<string> names)
+    {
+        int previous;
+        do
+        {
+            previous = names.Count;
+
+            foreach (string name in names.ToArray())
+            {
+                foreach (AstField field in models.Records[name].Fields)
+                {
+                    AddRecord(names, field.Type);
+                }
+            }
+        }
+        while (names.Count != previous);
+    }
+
+    private bool FieldAllocates(string record, AstField field)
+    {
+        AstType type = field.Type;
+
+        while (type.Kind is NativeTypeKind.ConstantArray)
+        {
+            type = type.Element!;
+        }
+
+        if (type.Kind is not NativeTypeKind.Pointer)
+        {
+            return false;
+        }
+
+        AstType element = type.Element!;
+
+        return CallbackName(type) is not null || IsRecord(element) || element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar or NativeTypeKind.ULongLong or NativeTypeKind.ULong || MathFieldType(record, field)?.EndsWith('*') is true;
+    }
+
+    private void PropagateRequirements(HashSet<string> names)
+    {
+        int previous;
+        do
+        {
+            previous = names.Count;
+
+            foreach (AstRecord record in models.Records.Values.Where(static record => !record.IsOpaque))
+            {
+                HashSet<string> dependencies = [];
+
+                foreach (AstField field in record.Fields)
+                {
+                    AddRecord(dependencies, field.Type);
+                }
+
+                if (dependencies.Overlaps(names))
+                {
+                    names.Add(record.Name);
+                }
+            }
+        }
+        while (names.Count != previous);
     }
 
     internal static string[] CallbackArguments(string name)

@@ -1,11 +1,12 @@
 ﻿namespace Marshalling;
 
-internal static class InvalidInputChecks
+internal static unsafe class InvalidInputChecks
 {
-    private static readonly string[] InvalidPaths = ["bad\0path", "\uD800"];
+    private static readonly string[] AcceptedPaths = ["bad\0path", "\uD800"];
 
     internal static void Run()
     {
+        using NativeScope scope = new();
         NGXFeatureDiscoveryInfo value = Discovery();
         value.FeatureInfo = new()
         {
@@ -14,14 +15,14 @@ internal static class InvalidInputChecks
                 Paths = ["first", null!]
             }
         };
-        Throws<ArgumentNullException>(() => new NGXFeatureDiscoveryInfoNative(in value));
+        Throws<ArgumentNullException>(() => new NGXFeatureDiscoveryInfoNative(in value, scope));
         value.Identifier.IdentifierType = NGXApplicationIdentifierType.ApplicationId;
-        Throws<ArgumentException>(() => new NGXFeatureDiscoveryInfoNative(in value));
+        Throws<ArgumentException>(() => new NGXFeatureDiscoveryInfoNative(in value, scope));
         NGXVKGBuffer buffer = new()
         {
             Attributes = new NGXResourceVK?[18]
         };
-        Throws<ArgumentException>(() => new NGXVKGBufferNative(in buffer));
+        Throws<ArgumentException>(() => new NGXVKGBufferNative(in buffer, scope));
         NGXResourceVKUnion union = new()
         {
             ImageViewInfo = new(),
@@ -32,22 +33,27 @@ internal static class InvalidInputChecks
         {
             DisableOtherLoggingSinks = true
         };
-        Throws<ArgumentException>(() => new NGXLoggingInfoNative(in logging));
-        Throws<ArgumentException>(static () => Ngx.Parameter.Reset(default));
+        Throws<ArgumentException>(() => new NGXLoggingInfoNative(in logging, scope));
+        Throws<ArgumentNullException>(static () => Ngx.Parameter.Reset(default));
 
-        foreach (string bad in InvalidPaths)
+        foreach (string path in AcceptedPaths)
         {
-            NGXFeatureDiscoveryInfo invalid = Discovery();
-            invalid.FeatureInfo = new()
+            NGXFeatureDiscoveryInfo accepted = Discovery();
+            accepted.FeatureInfo = new()
             {
                 PathListInfo = new()
                 {
-                    Paths = ["first", bad]
+                    Paths = ["first", path]
                 }
             };
-            Throws<ArgumentException>(() => new NGXFeatureDiscoveryInfoNative(in invalid));
+            NGXFeatureDiscoveryInfoNative native = new(in accepted, scope);
+            string expected = path.Contains('\0') ? "bad" : "\uFFFD";
+            Assert(NativeTextHelper.ReadWide(native.FeatureInfo->PathListInfo.Path[1]) == expected, "Accepted NUL and invalid Unicode path semantics");
         }
 
-        Console.WriteLine("PASS constructor failure, union discriminator and bounded arrays reject invalid input");
+        scope.Dispose();
+        Assert(scope.IsDisposed, "Scope cleanup after partial constructor failure");
+
+        Console.WriteLine("PASS bounded arrays and union guards reject invalid shapes; native text accepts NUL and invalid Unicode");
     }
 }

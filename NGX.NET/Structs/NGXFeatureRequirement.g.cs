@@ -15,9 +15,9 @@ public struct NGXFeatureRequirement
         FeatureSupported = native.FeatureSupported;
         MinHWArchitecture = native.MinHWArchitecture;
 
-        fixed (sbyte* buffer = native.MinOSVersion)
+        fixed (byte* buffer = native.MinOSVersion)
         {
-            MinOSVersion = NGXMarshal.ReadUtf8(new ReadOnlySpan<byte>(buffer, 255));
+            MinOSVersion = NativeTextHelper.ReadUtf8(new ReadOnlySpan<byte>(buffer, 255));
         }
     }
 }
