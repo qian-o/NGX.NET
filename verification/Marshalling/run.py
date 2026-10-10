@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import struct
 import subprocess
 import tempfile
 
@@ -19,6 +20,39 @@ def execute(arguments):
     return result.stdout
 
 
+def read_pe_exports(binary):
+    data = binary.read_bytes()
+    header = struct.unpack_from("<I", data, 0x3C)[0]
+    if data[:2] != b"MZ" or data[header:header + 4] != b"PE\0\0":
+        raise RuntimeError("Invalid PE image: " + str(binary))
+    optional = header + 24
+    if struct.unpack_from("<H", data, optional)[0] != 0x20B:
+        raise RuntimeError("Expected a PE32+ image: " + str(binary))
+    count = struct.unpack_from("<H", data, header + 6)[0]
+    table = optional + struct.unpack_from("<H", data, header + 20)[0]
+    sections = [struct.unpack_from("<IIII", data, table + (i * 40) + 8) for i in range(count)]
+
+    def offset(rva):
+        for _, address, raw_size, raw_offset in sections:
+            if address <= rva < address + raw_size:
+                return raw_offset + rva - address
+        raise RuntimeError(f"PE export RVA is outside file-backed sections: {rva:#x}")
+
+    export_rva = struct.unpack_from("<I", data, optional + 112)[0]
+    if export_rva == 0:
+        return set()
+    directory = offset(export_rva)
+    name_count = struct.unpack_from("<I", data, directory + 24)[0]
+    if name_count == 0:
+        return set()
+    names = offset(struct.unpack_from("<I", data, directory + 32)[0])
+    exports = set()
+    for i in range(name_count):
+        name = offset(struct.unpack_from("<I", data, names + (i * 4))[0])
+        exports.add(data[name:data.index(b"\0", name)].decode("ascii"))
+    return exports
+
+
 def verify_exports(ast):
     imports = set()
     for source in (ROOT / "NGX.NET/API").glob("*.g.cs"):
@@ -27,10 +61,10 @@ def verify_exports(ast):
     for rid, platform in ast["platforms"].items():
         windows = rid.startswith("win-")
         binary = ROOT / "native" / rid / ("ngx-bridge.dll" if windows else "libngx-bridge.so")
-        output = execute(["objdump", "-p" if windows else "-T", str(binary)])
         if windows:
-            exports = set(re.findall(r"^\s*\d+\s+0x[0-9a-fA-F]+\s+(\S+)\s*$", output, re.MULTILINE))
+            exports = read_pe_exports(binary)
         else:
+            output = execute(["objdump", "-T", str(binary)])
             exports = {
                 line.split()[-1]
                 for line in output.splitlines()
