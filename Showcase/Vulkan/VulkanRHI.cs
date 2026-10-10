@@ -793,7 +793,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
         List<string> instanceExtensions = [];
         for (int i = 0; i < requiredExtensionCount; i++)
         {
-            instanceExtensions.Add(NGXMarshal.PtrToString(requiredExtensions[i], NGXEncoding.Utf8)!);
+            instanceExtensions.Add(Marshal.PtrToStringUTF8((nint)requiredExtensions[i])!);
         }
 
         instanceExtensions.AddRange(NGX.VulkanExtensions());
@@ -899,7 +899,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
             HashSet<string> extensionNames = [];
             foreach (ExtensionProperties extension in availableExtensions)
             {
-                extensionNames.Add(NGXMarshal.PtrToString(extension.ExtensionName, NGXEncoding.Utf8)!);
+                extensionNames.Add(Marshal.PtrToStringUTF8((nint)extension.ExtensionName)!);
             }
 
             bool rayQuery = queryFeatures.RayQuery && accelerationFeatures.AccelerationStructure && features12.BufferDeviceAddress && RayExtensions.All(extensionNames.Contains);
@@ -930,7 +930,7 @@ internal unsafe class VulkanRHI(IWindow window, ImGuiHandler ui) : RHI(window, u
                 separatePresentQueue = families[i].QueueCount > 1;
                 RayQuerySupported = rayQuery;
                 RayQueryStatus = rayQuery ? "VK_KHR_ray_query" : "Requires Vulkan rayQuery, accelerationStructure and bufferDeviceAddress";
-                AdapterName = NGXMarshal.PtrToString(properties.DeviceName, NGXEncoding.Utf8) ?? "Vulkan GPU";
+                AdapterName = Marshal.PtrToStringUTF8((nint)properties.DeviceName) ?? "Vulkan GPU";
                 ulong alignment = properties.Limits.MinUniformBufferOffsetAlignment;
                 uniformStride = (int)(((ulong)RenderLayout.UniformStride + alignment - 1) / alignment * alignment);
 
