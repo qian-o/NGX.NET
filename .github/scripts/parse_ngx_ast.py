@@ -1,4 +1,4 @@
-"""Extract application declarations and ABI layouts on the target Actions runner."""
+﻿"""Extract application declarations and ABI layouts on the target Actions runner."""
 
 from __future__ import annotations
 
@@ -8,8 +8,7 @@ import re
 import subprocess
 
 
-# These headers implement the optional header-only CUDA loader, not additional
-# application APIs. Its Core signatures must never enter the application ABI.
+# Optional header-only CUDA loaders expose Core signatures outside the application ABI.
 IMPLEMENTATION_HEADERS = {"nvsdk_ngx_loader.h", "nvsdk_ngx_standalone_common.h", "nvsdk_ngx_standalone_cuda.h"}
 
 
@@ -23,7 +22,6 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
 
     windows = rid.startswith("win-")
     compiler = llvm / "bin" / ("clang.exe" if windows else "clang++")
-    cx.Config.set_compatibility_check(False)
     cx.Config.set_library_file(str(llvm / ("bin/libclang.dll" if windows else "lib/libclang.so")))
     resource = subprocess.check_output([str(compiler), "-print-resource-dir"], text=True).strip()
 
@@ -105,8 +103,7 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
             for child in c.get_children():
                 walk(child)
 
-    # Parse helpers individually: upstream repeats some shared inline helpers in
-    # the D3D/CUDA/Vulkan headers. Compiling all headers together is not supported.
+    # Separate units avoid repeated shared inline helpers in the D3D/CUDA/Vulkan headers.
     headers = sorted(p.relative_to(sdk / "include").as_posix() for p in (sdk / "include").rglob("*.h") if p.relative_to(sdk / "include").as_posix() not in IMPLEMENTATION_HEADERS)
     for header in headers:
         if not windows and ("_d3d" in header or header in ("nvsdk_ngx_helpers_dlssd.h", "nvsdk_ngx_helpers_dlssg.h")):
@@ -120,7 +117,8 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
             prologue += '#include "nvsdk_ngx_helpers_d3d.h"\n'
         if "dlssd_cuda" in header:
             prologue += '#include "nvsdk_ngx_helpers_cuda.h"\n'
-        unit.write_text(prologue + '#include "' + header + '"\n')
+        with unit.open("w", encoding="utf-8", newline="\n") as stream:
+            stream.write(prologue + '#include "' + header + '"\n')
         tu = cx.Index.create().parse(str(unit), args=flags, options=cx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
         errors = [str(d) for d in tu.diagnostics if d.severity >= cx.Diagnostic.Error]
         if errors:

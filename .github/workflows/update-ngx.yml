@@ -1,4 +1,4 @@
-name: Update NGX
+﻿name: Update NGX
 
 on:
   workflow_dispatch:
@@ -12,22 +12,19 @@ concurrency:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
-    outputs:
-      matrix: ${{ steps.sdk.outputs.matrix }}
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-python@main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: '3.x'
-          check-latest: true
+          python-version: '3.13.16'
+          pip-version: '26.2.1'
       - name: Download one official SDK
-        id: sdk
         env:
           GH_TOKEN: ${{ github.token }}
         run: python .github/scripts/build_ngx.py prepare --root "${{ runner.temp }}/sdk"
-      - uses: actions/upload-artifact@main
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ngx-sdk
           path: ${{ runner.temp }}/sdk
@@ -38,16 +35,27 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2022
+            arch: x64
+          - rid: win-arm64
+            runner: windows-2022
+            arch: arm64
+          - rid: linux-x64
+            runner: ubuntu-24.04
+          - rid: linux-arm64
+            runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-python@main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: '3.x'
-          check-latest: true
-      - uses: actions/download-artifact@main
+          python-version: '3.13.16'
+          pip-version: '26.2.1'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ngx-sdk
           path: ${{ runner.temp }}/sdk
@@ -55,19 +63,19 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $installation = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $installation = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -version '[17.0,18.0)' -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           Import-Module "$installation\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $installation -SkipAutomaticLocation -DevCmdArguments '-arch=${{ matrix.arch }} -host_arch=x64'
           foreach ($name in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH')) {
               "$name=$([Environment]::GetEnvironmentVariable($name))" >> $env:GITHUB_ENV
           }
       - name: Install extraction dependency
-        run: python -m pip install --upgrade pip libclang
+        run: python -m pip install clang==21.1.7
       - name: Extract declarations and build the bridge
         env:
           GH_TOKEN: ${{ github.token }}
         run: python .github/scripts/build_ngx.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
-      - uses: actions/upload-artifact@main
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ngx-${{ matrix.rid }}
           path: ${{ runner.temp }}/result
@@ -76,26 +84,26 @@ jobs:
   update:
     if: github.ref_type == 'branch'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
+      pull-requests: write
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           lfs: true
-      - uses: actions/setup-python@main
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: '3.x'
-          check-latest: true
-      - uses: actions/download-artifact@main
+          python-version: '3.13.16'
+          pip-version: '26.2.1'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: ngx-*-*
           path: ${{ runner.temp }}/artifacts
-      - uses: actions/setup-dotnet@main
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
-          check-latest: true
+          dotnet-version: '10.0.401'
       - name: Merge the four targets
         run: python .github/scripts/build_ngx.py merge --root "${{ runner.temp }}/artifacts" --output .
       - name: Generate bindings and verify direct output
@@ -104,11 +112,22 @@ jobs:
           dotnet run --project verification/Generation -- .
           dotnet build NGX.NET.slnx -c Release --warnaserror
           dotnet format NGX.NET.slnx --no-restore --verify-no-changes --include-generated --exclude NGX.NET.Generator/obj NGX.NET/obj Showcase/obj --severity warn
-      - name: Commit the complete update to the triggering branch
+          python3 verification/Marshalling/run.py
+      - name: Submit the complete update for review
         env:
-          NGX_BRANCH: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          NGX_BASE_BRANCH: ${{ github.ref_name }}
+          NGX_REPOSITORY: ${{ github.repository }}
+          NGX_UPDATE_BRANCH: update-ngx/${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          git add native NGX.NET.Generator/ast.json NGX.NET
+          git add bridge native NGX.NET.Generator/ast.json NGX.NET NuGet.Packaging.props
           if git diff --cached --quiet; then exit 0; fi
-          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Update NGX SDK and all native runtimes'
-          git push origin "HEAD:refs/heads/$NGX_BRANCH"
+          git switch --create "$NGX_UPDATE_BRANCH"
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Update NGX SDK and native bridge sources'
+          git push origin "HEAD:refs/heads/$NGX_UPDATE_BRANCH"
+          cat > "$RUNNER_TEMP/ngx-update-pr.md" <<'BODY'
+          Update the NVIDIA SDK source and all four native runtimes together with the exact generated bridge translation units and linker inputs. The SDK release and commit are recorded in ast.json, and the package version is updated in NuGet.Packaging.props.
+
+          Validation passed: deterministic binding generation, generation checks, Release build with warnings as errors, format verification, and managed marshalling/layout/export checks. Native NVIDIA GPU execution remains unverified.
+          BODY
+          gh pr create --repo "$NGX_REPOSITORY" --base "$NGX_BASE_BRANCH" --head "$NGX_UPDATE_BRANCH" --title 'Update NGX SDK and native bridge sources' --body-file "$RUNNER_TEMP/ngx-update-pr.md"

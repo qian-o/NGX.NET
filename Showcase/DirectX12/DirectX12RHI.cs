@@ -485,7 +485,7 @@ internal unsafe class DirectX12RHI(IWindow window, ImGuiHandler ui) : RHI(window
                     adapter = candidate;
                     candidate = default;
                     nvidiaSelected = nvidia;
-                    AdapterName = NGXMarshal.PtrToString(description.Description, NGXEncoding.NativeWide)!;
+                    AdapterName = Marshal.PtrToStringUni((nint)description.Description)!;
                 }
             }
             finally

@@ -3,6 +3,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="LICENSE" />
+    <File Path="NuGet.Packaging.props" />
     <File Path="README.md" />
   </Folder>
   <Project Path="NGX.NET.Generator/NGX.NET.Generator.csproj" />

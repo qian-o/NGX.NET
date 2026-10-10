@@ -1,11 +1,5 @@
-"""Run from any directory: python3 verification/Marshalling/run.py
+"""Verify generated bindings, managed conversion, callbacks, lifetime, and exports."""
 
-Requires .NET 10, Python 3 and LLVM-compatible objdump. Does not compile C++ or
-load NVIDIA libraries. Tests exercise production Native constructors, callback thunks and lifetime management.
-The expected-failing visibility compilation is checked for CS0122.
-"""
-
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -30,7 +24,6 @@ def verify_exports(ast):
     for source in (ROOT / "NGX.NET/API").glob("*.g.cs"):
         imports.update(re.findall(r'EntryPoint = "([^"]+)"', source.read_text(encoding="utf-8-sig")))
     imports.add("NGX_Bridge_Parameter_Reset")
-    targets = {}
     for rid, platform in ast["platforms"].items():
         windows = rid.startswith("win-")
         binary = ROOT / "native" / rid / ("ngx-bridge.dll" if windows else "libngx-bridge.so")
@@ -46,17 +39,7 @@ def verify_exports(ast):
         expected = {function["export"] for function in platform["functions"]} | {"NGX_Bridge_Parameter_Reset"}
         if expected - exports or expected - imports:
             raise RuntimeError(f"{rid}: missing exports {expected - exports}; missing imports {expected - imports}")
-        targets[rid] = {
-            "dataRecords": sum(not record["opaque"] for record in platform["records"]),
-            "opaqueRecords": sum(record["opaque"] for record in platform["records"]),
-            "functions": len(platform["functions"]),
-            "expectedExportsIncludingReset": len(expected),
-            "matchedExports": len(expected & exports),
-            "unexpectedExports": sorted(exports - expected),
-            "binarySha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
-        }
         print(f"PASS {rid}: {len(expected)} expected binary exports and managed import names")
-    return targets
 
 
 def verify_generation():
@@ -67,7 +50,7 @@ def verify_generation():
         shutil.copyfile(ROOT / "NGX.NET.Generator/ast.json", root / "NGX.NET.Generator/ast.json")
         print(execute([*generator, str(root)]), end="")
         print(execute(["dotnet", "run", "--project", "verification/Generation/Generation.csproj", "--", str(root), str(ROOT)]), end="")
-        handle = root / "NGX.NET/Types/NGXHandle.g.cs"
+        handle = root / "NGX.NET/Structs/NGXHandle.g.cs"
         canonical = handle.read_bytes()
         handle.write_bytes(canonical.removeprefix(b"\xef\xbb\xbf"))
         repaired = execute([*generator, str(root)])
@@ -92,40 +75,11 @@ def main():
     print("PASS negative compiler test: internal native type rejected with CS0122")
     ast_path = ROOT / "NGX.NET.Generator/ast.json"
     ast = json.loads(ast_path.read_text())
-    targets = verify_exports(ast)
-    result_path = HERE / "results.json"
-    results = json.loads(result_path.read_text())
-    results["generationStyle"] = "direct Emitter output passed syntax/style checks in a fresh directory; BOM repair and repeated generation passed without a formatter"
-    results["generationValidationSha256"] = {
-        str(path.relative_to(HERE.parent / "Generation")): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted((HERE.parent / "Generation").glob("*"))
-        if path.suffix in {".cs", ".csproj"}
-    }
-    results["safeConsumer"] = "production signatures compiled with AllowUnsafeBlocks=false; native SDK calls were not executed"
-    results["nativeVisibility"] = "external access rejected by compiler with CS0122"
-    results["nativeExportAudit"] = targets
-    results["astSha256"] = hashlib.sha256(ast_path.read_bytes()).hexdigest()
-    results["validationSha256"] = {
-        str(path.relative_to(HERE)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(HERE.rglob("*"))
-        if path.is_file() and not {"bin", "obj"}.intersection(path.relative_to(HERE).parts)
-        and path.suffix in {".cs", ".csproj", ".py"}
-    }
-    results["contractFindings"] = [
-        "Constructors clean up partially initialized native values before rethrowing.",
-        "Initialization storage and callbacks remain rooted until matching successful shutdown; CUDA descriptors use stable storage.",
-        "Helper parameter snapshots retain native pointer inputs until replacement, Reset, DestroyParameters, or backend shutdown. Omitted DLSSG options preserve earlier matrix storage.",
-        "Failed helper calls preserve earlier snapshots because native failure may occur before or after pointer-map writes.",
-        "Opaque handles remain borrowed values and require explicit SDK release; the binding does not manage GPU resource completion."
-    ]
+    verify_exports(ast)
     generated = execute(["dotnet", "run", "--project", "NGX.NET.Generator/NGX.NET.Generator.csproj", "--", str(ROOT)])
     if "0 changed." not in generated:
         raise RuntimeError("Generator was not deterministic: " + generated)
     print("PASS deterministic regeneration: 0 changed files")
-    results["regeneration"] = "0 changed files"
-    sources = sorted(p for folder in ["NGX.NET", "NGX.NET.Generator"] for p in (ROOT / folder).rglob("*.cs") if not {"bin", "obj"}.intersection(p.relative_to(ROOT).parts))
-    results["managedSourcesSha256"] = hashlib.sha256(b"".join(str(p.relative_to(ROOT)).encode() + b"\0" + p.read_bytes() for p in sources)).hexdigest()
-    result_path.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n")
     print("Validation complete. NVIDIA GPU/runtime and NativeAOT execution remain unverified.")
 
 
