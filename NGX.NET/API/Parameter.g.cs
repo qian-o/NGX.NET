@@ -103,7 +103,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetDNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = outValueNative;
                 }
@@ -122,7 +122,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static double GetD(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetD(inParameter, inName, out double outValue), "Ngx.Parameter.GetD");
+            NGXResult result = GetD(inParameter, inName, out double outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetD");
+            }
 
             return outValue;
         }
@@ -146,7 +150,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetD3d11ResourceNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = (nint)outValueNative;
                 }
@@ -165,7 +169,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nint GetD3d11Resource(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetD3d11Resource(inParameter, inName, out nint outValue), "Ngx.Parameter.GetD3d11Resource");
+            NGXResult result = GetD3d11Resource(inParameter, inName, out nint outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetD3d11Resource");
+            }
 
             return outValue;
         }
@@ -189,7 +197,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetD3d12ResourceNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = (nint)outValueNative;
                 }
@@ -208,7 +216,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nint GetD3d12Resource(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetD3d12Resource(inParameter, inName, out nint outValue), "Ngx.Parameter.GetD3d12Resource");
+            NGXResult result = GetD3d12Resource(inParameter, inName, out nint outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetD3d12Resource");
+            }
 
             return outValue;
         }
@@ -232,7 +244,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetFNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = outValueNative;
                 }
@@ -251,7 +263,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static float GetF(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetF(inParameter, inName, out float outValue), "Ngx.Parameter.GetF");
+            NGXResult result = GetF(inParameter, inName, out float outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetF");
+            }
 
             return outValue;
         }
@@ -275,7 +291,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetINative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = outValueNative;
                 }
@@ -294,7 +310,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static int GetI(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetI(inParameter, inName, out int outValue), "Ngx.Parameter.GetI");
+            NGXResult result = GetI(inParameter, inName, out int outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetI");
+            }
 
             return outValue;
         }
@@ -318,7 +338,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetUINative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = outValueNative;
                 }
@@ -337,7 +357,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static uint GetUI(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetUI(inParameter, inName, out uint outValue), "Ngx.Parameter.GetUI");
+            NGXResult result = GetUI(inParameter, inName, out uint outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetUI");
+            }
 
             return outValue;
         }
@@ -361,7 +385,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetULLNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = outValueNative;
                 }
@@ -380,7 +404,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static ulong GetULL(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetULL(inParameter, inName, out ulong outValue), "Ngx.Parameter.GetULL");
+            NGXResult result = GetULL(inParameter, inName, out ulong outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetULL");
+            }
 
             return outValue;
         }
@@ -404,7 +432,7 @@ public static unsafe partial class Ngx
                 ArgumentNullException.ThrowIfNull(inName);
                 inNameNative = (sbyte*)NGXMarshal.StringToPtr(inName, NGXEncoding.Utf8);
                 NGXResult result = GetVoidPointerNative(inParameter.Value, inNameNative, &outValueNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outValue = (nint)outValueNative;
                 }
@@ -423,7 +451,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nint GetVoidPointer(NGXParameter inParameter, string inName)
         {
-            ThrowIfFailed(GetVoidPointer(inParameter, inName, out nint outValue), "Ngx.Parameter.GetVoidPointer");
+            NGXResult result = GetVoidPointer(inParameter, inName, out nint outValue);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Parameter.GetVoidPointer");
+            }
 
             return outValue;
         }

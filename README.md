@@ -10,6 +10,8 @@ Use `Ngx` for SDK calls. Public structures contain managed values; their native
 representations and string conversion are internal to the assembly.
 Text inputs reject embedded NUL and invalid Unicode; native parameter-key
 constants retain their literal byte/terminator semantics.
+Check results directly against `NGXResult.Success`. Only that value is treated
+as success; the caller decides how to handle any other result.
 
 ```csharp
 using NGX.NET;
@@ -31,13 +33,26 @@ NGXResult result = Ngx.D3D12.InitWithProjectID(
     featureInfo,
     NGXVersion.Api);
 
-Ngx.ThrowIfFailed(result);
+if (result is not NGXResult.Success)
+{
+    throw new NGXException(result, "Ngx.D3D12.InitWithProjectID");
+}
+
 NGXParameter parameters = Ngx.D3D12.GetCapabilityParameters();
 int available = Ngx.Parameter.GetI(parameters, Ngx.ParameterSuperSamplingAvailable);
 
 // After all features and their GPU work have finished:
-Ngx.ThrowIfFailed(Ngx.D3D12.DestroyParameters(parameters));
-Ngx.ThrowIfFailed(Ngx.D3D12.Shutdown1(device));
+result = Ngx.D3D12.DestroyParameters(parameters);
+if (result is not NGXResult.Success)
+{
+    throw new NGXException(result, "Ngx.D3D12.DestroyParameters");
+}
+
+result = Ngx.D3D12.Shutdown1(device);
+if (result is not NGXResult.Success)
+{
+    throw new NGXException(result, "Ngx.D3D12.Shutdown1");
+}
 ```
 
 Methods returning `NGXResult` with output parameters also have an overload that
@@ -101,6 +116,8 @@ delegate and contain exceptions for the entire native registration lifetime.
 ## Migrating from the pointer API
 
 - Replace `NGX.NET.NGX` and its aliases with `Ngx`.
+- Compare results directly with `NGXResult.Success` and handle failures at the
+  call site. Use `.Length` for array counts.
 - Enum members use PascalCase: `Custom`, `Dlaa`, `IsHdr`, `Api` and
   `FailFeatureNotSupported`. Their SDK values are unchanged.
 - Pass strings, arrays and structures directly. Outputs can use return values or `out`;

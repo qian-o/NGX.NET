@@ -62,7 +62,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetOptimalSettingsNative(pInParams.Value, inUserSelectedWidth, inUserSelectedHeight, inPerfQualityValue, &pOutRenderOptimalWidthNative, &pOutRenderOptimalHeightNative, &pOutRenderMaxWidthNative, &pOutRenderMaxHeightNative, &pOutRenderMinWidthNative, &pOutRenderMinHeightNative, &pOutSharpnessNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 pOutRenderOptimalWidth = pOutRenderOptimalWidthNative;
                 pOutRenderOptimalHeight = pOutRenderOptimalHeightNative;
@@ -82,7 +82,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static OptimalSettings GetOptimalSettings(NGXParameter pInParams, uint inUserSelectedWidth, uint inUserSelectedHeight, NGXPerfQualityValue inPerfQualityValue)
         {
-            ThrowIfFailed(GetOptimalSettings(pInParams, inUserSelectedWidth, inUserSelectedHeight, inPerfQualityValue, out uint pOutRenderOptimalWidth, out uint pOutRenderOptimalHeight, out uint pOutRenderMaxWidth, out uint pOutRenderMaxHeight, out uint pOutRenderMinWidth, out uint pOutRenderMinHeight, out float pOutSharpness), "Ngx.DLSSD.GetOptimalSettings");
+            NGXResult result = GetOptimalSettings(pInParams, inUserSelectedWidth, inUserSelectedHeight, inPerfQualityValue, out uint pOutRenderOptimalWidth, out uint pOutRenderOptimalHeight, out uint pOutRenderMaxWidth, out uint pOutRenderMaxHeight, out uint pOutRenderMinWidth, out uint pOutRenderMinHeight, out float pOutSharpness);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.DLSSD.GetOptimalSettings");
+            }
 
             return new(pOutRenderOptimalWidth, pOutRenderOptimalHeight, pOutRenderMaxWidth, pOutRenderMaxHeight, pOutRenderMinWidth, pOutRenderMinHeight, pOutSharpness);
         }
@@ -101,7 +105,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetStatsNative(pInParams.Value, &pVRAMAllocatedBytesNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 pVRAMAllocatedBytes = pVRAMAllocatedBytesNative;
             }
@@ -115,7 +119,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static ulong GetStats(NGXParameter pInParams)
         {
-            ThrowIfFailed(GetStats(pInParams, out ulong pVRAMAllocatedBytes), "Ngx.DLSSD.GetStats");
+            NGXResult result = GetStats(pInParams, out ulong pVRAMAllocatedBytes);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.DLSSD.GetStats");
+            }
 
             return pVRAMAllocatedBytes;
         }
@@ -136,7 +144,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetStats1Native(pInParams.Value, &pVRAMAllocatedBytesNative, &pOptLevelNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 pVRAMAllocatedBytes = pVRAMAllocatedBytesNative;
                 pOptLevel = pOptLevelNative;
@@ -151,7 +159,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static Stats1 GetStats1(NGXParameter pInParams)
         {
-            ThrowIfFailed(GetStats1(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel), "Ngx.DLSSD.GetStats1");
+            NGXResult result = GetStats1(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.DLSSD.GetStats1");
+            }
 
             return new(pVRAMAllocatedBytes, pOptLevel);
         }
@@ -174,7 +186,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetStats2Native(pInParams.Value, &pVRAMAllocatedBytesNative, &pOptLevelNative, &isDevSnippetBranchNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 pVRAMAllocatedBytes = pVRAMAllocatedBytesNative;
                 pOptLevel = pOptLevelNative;
@@ -190,7 +202,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static Stats2 GetStats2(NGXParameter pInParams)
         {
-            ThrowIfFailed(GetStats2(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel, out uint isDevSnippetBranch), "Ngx.DLSSD.GetStats2");
+            NGXResult result = GetStats2(pInParams, out ulong pVRAMAllocatedBytes, out uint pOptLevel, out uint isDevSnippetBranch);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.DLSSD.GetStats2");
+            }
 
             return new(pVRAMAllocatedBytes, pOptLevel, isDevSnippetBranch);
         }

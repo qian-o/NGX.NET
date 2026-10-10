@@ -150,7 +150,7 @@ public static unsafe partial class Ngx
 
                 pInDlssgCreateParamsNative = new(in pInDlssgCreateParams);
                 NGXResult result = CreateDLSSGNative(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssgCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -169,7 +169,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSG(nint pInCmdBuf, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSGCreateParams pInDlssgCreateParams)
         {
-            ThrowIfFailed(CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssgCreateParams), "Ngx.Vulkan.CreateDLSSG");
+            NGXResult result = CreateDLSSG(pInCmdBuf, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssgCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateDLSSG");
+            }
 
             return ppOutHandle;
         }
@@ -188,7 +192,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = EstimateVRAMDLSSGNative(inParams.Value, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, &estimatedVRAMInBytesNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 estimatedVRAMInBytes = estimatedVRAMInBytesNative;
             }
@@ -202,7 +206,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nuint EstimateVRAMDLSSG(NGXParameter inParams, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat)
         {
-            ThrowIfFailed(EstimateVRAMDLSSG(inParams, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, out nuint estimatedVRAMInBytes), "Ngx.Vulkan.EstimateVRAMDLSSG");
+            NGXResult result = EstimateVRAMDLSSG(inParams, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, out nuint estimatedVRAMInBytes);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.EstimateVRAMDLSSG");
+            }
 
             return estimatedVRAMInBytes;
         }
@@ -254,7 +262,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSG", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSG", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -289,7 +297,7 @@ public static unsafe partial class Ngx
 
                 pInDlispCreateParamsNative = new(in pInDlispCreateParams);
                 NGXResult result = CreateDLISPExtNative(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlispCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -308,7 +316,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLISPExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXFeatureCreateParams pInDlispCreateParams)
         {
-            ThrowIfFailed(CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlispCreateParams), "Ngx.Vulkan.CreateDLISPExt");
+            NGXResult result = CreateDLISPExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlispCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateDLISPExt");
+            }
 
             return ppOutHandle;
         }
@@ -331,7 +343,7 @@ public static unsafe partial class Ngx
 
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExt1Native(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -350,7 +362,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSDExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSDCreateParams pInDlssDCreateParams)
         {
-            ThrowIfFailed(CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.Vulkan.CreateDLSSDExt1");
+            NGXResult result = CreateDLSSDExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateDLSSDExt1");
+            }
 
             return ppOutHandle;
         }
@@ -373,7 +389,7 @@ public static unsafe partial class Ngx
 
                 pInDlssCreateParamsNative = new(in pInDlssCreateParams);
                 NGXResult result = CreateDLSSExtNative(inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -392,7 +408,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSExt(nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
         {
-            ThrowIfFailed(CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams), "Ngx.Vulkan.CreateDLSSExt");
+            NGXResult result = CreateDLSSExt(inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateDLSSExt");
+            }
 
             return ppOutHandle;
         }
@@ -415,7 +435,7 @@ public static unsafe partial class Ngx
 
                 pInDlssCreateParamsNative = new(in pInDlssCreateParams);
                 NGXResult result = CreateDLSSExt1Native(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, &ppOutHandleNative, pInParams.Value, &pInDlssCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -434,7 +454,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSExt1(nint inDevice, nint inCmdList, uint inCreationNodeMask, uint inVisibilityNodeMask, NGXParameter pInParams, in NGXDLSSCreateParams pInDlssCreateParams)
         {
-            ThrowIfFailed(CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams), "Ngx.Vulkan.CreateDLSSExt1");
+            NGXResult result = CreateDLSSExt1(inDevice, inCmdList, inCreationNodeMask, inVisibilityNodeMask, out NGXHandle ppOutHandle, pInParams, in pInDlssCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateDLSSExt1");
+            }
 
             return ppOutHandle;
         }
@@ -476,7 +500,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLISPExt", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -521,7 +545,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSDExt", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -566,7 +590,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSExt", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "Vulkan.EvaluateDLSSExt", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -583,7 +607,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = AllocateParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
@@ -598,7 +622,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter AllocateParameters()
         {
-            ThrowIfFailed(AllocateParameters(out NGXParameter outParameters), "Ngx.Vulkan.AllocateParameters");
+            NGXResult result = AllocateParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.AllocateParameters");
+            }
 
             return outParameters;
         }
@@ -617,7 +645,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = CreateFeatureNative(inCmdBuffer, inFeatureID, inParameters.Value, &outHandleNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outHandle = new(outHandleNative);
             }
@@ -631,7 +659,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateFeature(nint inCmdBuffer, NGXFeature inFeatureID, NGXParameter inParameters)
         {
-            ThrowIfFailed(CreateFeature(inCmdBuffer, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.Vulkan.CreateFeature");
+            NGXResult result = CreateFeature(inCmdBuffer, inFeatureID, inParameters, out NGXHandle outHandle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateFeature");
+            }
 
             return outHandle;
         }
@@ -650,7 +682,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = CreateFeature1Native(inDevice, inCmdList, inFeatureID, inParameters.Value, &outHandleNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outHandle = new(outHandleNative);
             }
@@ -664,7 +696,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateFeature1(nint inDevice, nint inCmdList, NGXFeature inFeatureID, NGXParameter inParameters)
         {
-            ThrowIfFailed(CreateFeature1(inDevice, inCmdList, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.Vulkan.CreateFeature1");
+            NGXResult result = CreateFeature1(inDevice, inCmdList, inFeatureID, inParameters, out NGXHandle outHandle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.CreateFeature1");
+            }
 
             return outHandle;
         }
@@ -681,7 +717,7 @@ public static unsafe partial class Ngx
 
             NGXResult result = DestroyParametersNative(inParameters.Value);
 
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 NgxLifetime.ReleaseParameters(inParameters.Value, destroyed: true);
             }
@@ -758,7 +794,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = GetCapabilityParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
@@ -773,7 +809,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter GetCapabilityParameters()
         {
-            ThrowIfFailed(GetCapabilityParameters(out NGXParameter outParameters), "Ngx.Vulkan.GetCapabilityParameters");
+            NGXResult result = GetCapabilityParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetCapabilityParameters");
+            }
 
             return outParameters;
         }
@@ -792,7 +832,7 @@ public static unsafe partial class Ngx
             {
                 featureDiscoveryInfoNative = new(in featureDiscoveryInfo);
                 NGXResult result = GetFeatureDeviceExtensionRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, &outExtensionCountNative, &outExtensionPropertiesNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outExtensionProperties = new NGXVkExtensionProperties[checked((int)outExtensionCountNative)];
 
@@ -821,7 +861,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXVkExtensionProperties[] GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
         {
-            ThrowIfFailed(GetFeatureDeviceExtensionRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties), "Ngx.Vulkan.GetFeatureDeviceExtensionRequirements");
+            NGXResult result = GetFeatureDeviceExtensionRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetFeatureDeviceExtensionRequirements");
+            }
 
             return outExtensionProperties;
         }
@@ -840,7 +884,7 @@ public static unsafe partial class Ngx
             {
                 featureDiscoveryInfoNative = new(in featureDiscoveryInfo);
                 NGXResult result = GetFeatureInstanceExtensionRequirementsNative(&featureDiscoveryInfoNative, &outExtensionCountNative, &outExtensionPropertiesNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outExtensionProperties = new NGXVkExtensionProperties[checked((int)outExtensionCountNative)];
 
@@ -869,7 +913,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXVkExtensionProperties[] GetFeatureInstanceExtensionRequirements(in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
         {
-            ThrowIfFailed(GetFeatureInstanceExtensionRequirements(in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties), "Ngx.Vulkan.GetFeatureInstanceExtensionRequirements");
+            NGXResult result = GetFeatureInstanceExtensionRequirements(in featureDiscoveryInfo, out NGXVkExtensionProperties[] outExtensionProperties);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetFeatureInstanceExtensionRequirements");
+            }
 
             return outExtensionProperties;
         }
@@ -887,7 +935,7 @@ public static unsafe partial class Ngx
             {
                 featureDiscoveryInfoNative = new(in featureDiscoveryInfo);
                 NGXResult result = GetFeatureRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, &outSupportedNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outSupported = new(in outSupportedNative);
                 }
@@ -906,7 +954,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXFeatureRequirement GetFeatureRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
         {
-            ThrowIfFailed(GetFeatureRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported), "Ngx.Vulkan.GetFeatureRequirements");
+            NGXResult result = GetFeatureRequirements(instance, physicalDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetFeatureRequirements");
+            }
 
             return outSupported;
         }
@@ -920,7 +972,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = GetParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("Vulkan", outParameters.Value);
@@ -935,7 +987,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter GetParameters()
         {
-            ThrowIfFailed(GetParameters(out NGXParameter outParameters), "Ngx.Vulkan.GetParameters");
+            NGXResult result = GetParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetParameters");
+            }
 
             return outParameters;
         }
@@ -954,7 +1010,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetScratchBufferSizeNative(inFeatureId, inParameters.Value, &outSizeInBytesNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outSizeInBytes = outSizeInBytesNative;
             }
@@ -968,7 +1024,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters)
         {
-            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes), "Ngx.Vulkan.GetScratchBufferSize");
+            NGXResult result = GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.GetScratchBufferSize");
+            }
 
             return outSizeInBytes;
         }
@@ -1007,7 +1067,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -1061,7 +1121,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && Succeeded(result), ref storage);
+                    NgxLifetime.EndInitialization("Vulkan", inDevice, returned && result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -1104,7 +1164,7 @@ public static unsafe partial class Ngx
             outDeviceExts = [];
             sbyte** outDeviceExtsNative = null;
             NGXResult result = RequiredExtensionsNative(&outInstanceExtCountNative, &outInstanceExtsNative, &outDeviceExtCountNative, &outDeviceExtsNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outInstanceExts = new string[checked((int)outInstanceExtCountNative)];
 
@@ -1140,7 +1200,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static Extensions RequiredExtensions()
         {
-            ThrowIfFailed(RequiredExtensions(out string[] outInstanceExts, out string[] outDeviceExts), "Ngx.Vulkan.RequiredExtensions");
+            NGXResult result = RequiredExtensions(out string[] outInstanceExts, out string[] outDeviceExts);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.Vulkan.RequiredExtensions");
+            }
 
             return new(outInstanceExts, outDeviceExts);
         }
@@ -1152,7 +1216,7 @@ public static unsafe partial class Ngx
         {
             NGXResult result = ShutdownNative();
 
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 NgxLifetime.Shutdown("Vulkan", 0);
             }
@@ -1167,7 +1231,7 @@ public static unsafe partial class Ngx
         {
             NGXResult result = Shutdown1Native(inDevice);
 
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 NgxLifetime.Shutdown("Vulkan", inDevice);
             }

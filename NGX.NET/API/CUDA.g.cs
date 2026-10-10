@@ -122,7 +122,7 @@ public static unsafe partial class Ngx
 
                 pDlispCreateParamsNative = new(in pDlispCreateParams);
                 NGXResult result = CreateDLISPExtNative(&ppOutHandleNative, pInParams.Value, &pDlispCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -141,7 +141,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLISPExt(NGXParameter pInParams, in NGXFeatureCreateParams pDlispCreateParams)
         {
-            ThrowIfFailed(CreateDLISPExt(out NGXHandle ppOutHandle, pInParams, in pDlispCreateParams), "Ngx.CUDA.CreateDLISPExt");
+            NGXResult result = CreateDLISPExt(out NGXHandle ppOutHandle, pInParams, in pDlispCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateDLISPExt");
+            }
 
             return ppOutHandle;
         }
@@ -164,7 +168,7 @@ public static unsafe partial class Ngx
 
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExtNative(&ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
@@ -183,7 +187,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSDExt(NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
-            ThrowIfFailed(CreateDLSSDExt(out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt");
+            NGXResult result = CreateDLSSDExt(out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateDLSSDExt");
+            }
 
             return ppOutHandle;
         }
@@ -213,12 +221,12 @@ public static unsafe partial class Ngx
 
                 pInDlssDCreateParamsNative = new(in pInDlssDCreateParams);
                 NGXResult result = CreateDLSSDExt1Native(inDeviceNative, &ppOutHandleNative, pInParams.Value, &pInDlssDCreateParamsNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     ppOutHandle = new(ppOutHandleNative);
                 }
 
-                cudaSucceeded = Succeeded(result);
+                cudaSucceeded = result is NGXResult.Success;
 
                 return result;
             }
@@ -235,7 +243,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSDExt1(NGXCUDADevice? inDevice, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
-            ThrowIfFailed(CreateDLSSDExt1(inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt1");
+            NGXResult result = CreateDLSSDExt1(inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateDLSSDExt1");
+            }
 
             return ppOutHandle;
         }
@@ -254,7 +266,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateDLSSDExt1(in NGXCUDADevice inDevice, NGXParameter pInParams, in NGXCUDADLSSDCreateParams pInDlssDCreateParams)
         {
-            ThrowIfFailed(CreateDLSSDExt1((NGXCUDADevice?)inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams), "Ngx.CUDA.CreateDLSSDExt1");
+            NGXResult result = CreateDLSSDExt1((NGXCUDADevice?)inDevice, out NGXHandle ppOutHandle, pInParams, in pInDlssDCreateParams);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateDLSSDExt1");
+            }
 
             return ppOutHandle;
         }
@@ -296,7 +312,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLISPExt", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLISPExt", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -341,7 +357,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLSSDExt", returned, Succeeded(result), ref storage);
+                    NgxLifetime.EndParameters(pInParams.Value, "CUDA.EvaluateDLSSDExt", returned, result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -358,7 +374,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = AllocateParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
@@ -373,7 +389,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter AllocateParameters()
         {
-            ThrowIfFailed(AllocateParameters(out NGXParameter outParameters), "Ngx.CUDA.AllocateParameters");
+            NGXResult result = AllocateParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.AllocateParameters");
+            }
 
             return outParameters;
         }
@@ -392,7 +412,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = CreateFeatureNative(inFeatureID, inParameters.Value, &outHandleNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outHandle = new(outHandleNative);
             }
@@ -406,7 +426,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateFeature(NGXFeature inFeatureID, NGXParameter inParameters)
         {
-            ThrowIfFailed(CreateFeature(inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature");
+            NGXResult result = CreateFeature(inFeatureID, inParameters, out NGXHandle outHandle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateFeature");
+            }
 
             return outHandle;
         }
@@ -434,12 +458,12 @@ public static unsafe partial class Ngx
                 }
 
                 NGXResult result = CreateFeature1Native(inDeviceNative, inFeatureID, inParameters.Value, &outHandleNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outHandle = new(outHandleNative);
                 }
 
-                cudaSucceeded = Succeeded(result);
+                cudaSucceeded = result is NGXResult.Success;
 
                 return result;
             }
@@ -455,7 +479,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateFeature1(NGXCUDADevice? inDevice, NGXFeature inFeatureID, NGXParameter inParameters)
         {
-            ThrowIfFailed(CreateFeature1(inDevice, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature1");
+            NGXResult result = CreateFeature1(inDevice, inFeatureID, inParameters, out NGXHandle outHandle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateFeature1");
+            }
 
             return outHandle;
         }
@@ -474,7 +502,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXHandle CreateFeature1(in NGXCUDADevice inDevice, NGXFeature inFeatureID, NGXParameter inParameters)
         {
-            ThrowIfFailed(CreateFeature1((NGXCUDADevice?)inDevice, inFeatureID, inParameters, out NGXHandle outHandle), "Ngx.CUDA.CreateFeature1");
+            NGXResult result = CreateFeature1((NGXCUDADevice?)inDevice, inFeatureID, inParameters, out NGXHandle outHandle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.CreateFeature1");
+            }
 
             return outHandle;
         }
@@ -491,7 +523,7 @@ public static unsafe partial class Ngx
 
             NGXResult result = DestroyParametersNative(inParameters.Value);
 
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 NgxLifetime.ReleaseParameters(inParameters.Value, destroyed: true);
             }
@@ -568,7 +600,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = GetCapabilityParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
@@ -583,7 +615,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter GetCapabilityParameters()
         {
-            ThrowIfFailed(GetCapabilityParameters(out NGXParameter outParameters), "Ngx.CUDA.GetCapabilityParameters");
+            NGXResult result = GetCapabilityParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.GetCapabilityParameters");
+            }
 
             return outParameters;
         }
@@ -601,7 +637,7 @@ public static unsafe partial class Ngx
             {
                 featureDiscoveryInfoNative = new(in featureDiscoveryInfo);
                 NGXResult result = GetFeatureRequirementsNative(cudaDevice, &featureDiscoveryInfoNative, &outSupportedNative);
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     outSupported = new(in outSupportedNative);
                 }
@@ -620,7 +656,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXFeatureRequirement GetFeatureRequirements(int cudaDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo)
         {
-            ThrowIfFailed(GetFeatureRequirements(cudaDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported), "Ngx.CUDA.GetFeatureRequirements");
+            NGXResult result = GetFeatureRequirements(cudaDevice, in featureDiscoveryInfo, out NGXFeatureRequirement outSupported);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.GetFeatureRequirements");
+            }
 
             return outSupported;
         }
@@ -634,7 +674,7 @@ public static unsafe partial class Ngx
             nint outParametersNative = default;
             NgxLifetime.PrepareParameters();
             NGXResult result = GetParametersNative(&outParametersNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outParameters = new(outParametersNative);
                 NgxLifetime.RegisterParameters("CUDA", outParameters.Value);
@@ -649,7 +689,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static NGXParameter GetParameters()
         {
-            ThrowIfFailed(GetParameters(out NGXParameter outParameters), "Ngx.CUDA.GetParameters");
+            NGXResult result = GetParameters(out NGXParameter outParameters);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.GetParameters");
+            }
 
             return outParameters;
         }
@@ -668,7 +712,7 @@ public static unsafe partial class Ngx
             }
 
             NGXResult result = GetScratchBufferSizeNative(inFeatureId, inParameters.Value, &outSizeInBytesNative);
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 outSizeInBytes = outSizeInBytesNative;
             }
@@ -682,7 +726,11 @@ public static unsafe partial class Ngx
         /// <exception cref="NGXException">The NGX operation failed.</exception>
         public static nuint GetScratchBufferSize(NGXFeature inFeatureId, NGXParameter inParameters)
         {
-            ThrowIfFailed(GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes), "Ngx.CUDA.GetScratchBufferSize");
+            NGXResult result = GetScratchBufferSize(inFeatureId, inParameters, out nuint outSizeInBytes);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, "Ngx.CUDA.GetScratchBufferSize");
+            }
 
             return outSizeInBytes;
         }
@@ -721,7 +769,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                    NgxLifetime.EndInitialization("CUDA", 0, returned && result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -771,7 +819,7 @@ public static unsafe partial class Ngx
                 attached = true;
                 result = Init1Native(inApplicationId, inApplicationDataPathNative, inDeviceNative, inFeatureInfoNativePointer, inSDKVersion);
                 returned = true;
-                cudaSucceeded = Succeeded(result);
+                cudaSucceeded = result is NGXResult.Success;
 
                 return result;
             }
@@ -779,7 +827,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndInitialization("CUDA", (nint)inDeviceNative, returned && Succeeded(result), ref storage);
+                    NgxLifetime.EndInitialization("CUDA", (nint)inDeviceNative, returned && result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -834,7 +882,7 @@ public static unsafe partial class Ngx
             {
                 if (attached)
                 {
-                    NgxLifetime.EndInitialization("CUDA", 0, returned && Succeeded(result), ref storage);
+                    NgxLifetime.EndInitialization("CUDA", 0, returned && result is NGXResult.Success, ref storage);
                 }
 
                 storage?.Dispose();
@@ -872,7 +920,7 @@ public static unsafe partial class Ngx
         {
             NGXResult result = ShutdownNative();
 
-            if (Succeeded(result))
+            if (result is NGXResult.Success)
             {
                 NgxLifetime.Shutdown("CUDA", 0);
             }
@@ -897,7 +945,7 @@ public static unsafe partial class Ngx
 
                 NGXResult result = Shutdown1Native(inDeviceNative);
 
-                if (Succeeded(result))
+                if (result is NGXResult.Success)
                 {
                     NgxLifetime.Shutdown("CUDA", (nint)inDeviceNative);
                 }

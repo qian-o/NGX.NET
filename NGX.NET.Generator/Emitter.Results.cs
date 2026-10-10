@@ -58,7 +58,10 @@ internal partial class Emitter
         WriteSummary(text, $"Returns the outputs of {operation} after checking the NGX result.");
         text.Line("/// <exception cref=\"NGXException\">The NGX operation failed.</exception>");
         text.BeginBlock($"public static {returned} {method}({string.Join(", ", inputs)})");
-        text.Line($"ThrowIfFailed({method}({string.Join(", ", arguments)}), \"{operation}\");");
+        text.Line($"NGXResult result = {method}({string.Join(", ", arguments)});");
+        text.BeginBlock("if (result is not NGXResult.Success)");
+        text.Line($"throw new NGXException(result, \"{operation}\");");
+        text.EndBlock();
         text.BlankLine();
         text.Line($"return {value};");
         text.EndBlock();

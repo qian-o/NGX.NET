@@ -594,7 +594,7 @@ internal partial class Emitter
         {
             if (status)
             {
-                text.BeginBlock("if (Succeeded(result))");
+                text.BeginBlock("if (result is NGXResult.Success)");
             }
 
             foreach (Action<CodeWriter> output in outputs)
@@ -615,17 +615,17 @@ internal partial class Emitter
 
         if (method is "DestroyParameters")
         {
-            WriteGuard(text, "Succeeded(result)", $"NgxLifetime.ReleaseParameters({parameterHandle}, destroyed: true);");
+            WriteGuard(text, "result is NGXResult.Success", $"NgxLifetime.ReleaseParameters({parameterHandle}, destroyed: true);");
         }
 
         if (method.StartsWith("Shutdown", StringComparison.Ordinal))
         {
-            WriteGuard(text, "Succeeded(result)", $"NgxLifetime.Shutdown(\"{group}\", {device});");
+            WriteGuard(text, "result is NGXResult.Success", $"NgxLifetime.Shutdown(\"{group}\", {device});");
         }
 
         if (cudaDevice && !method.StartsWith("Shutdown", StringComparison.Ordinal))
         {
-            text.Line("cudaSucceeded = Succeeded(result);");
+            text.Line("cudaSucceeded = result is NGXResult.Success;");
         }
 
         if (result is not "void")
@@ -647,12 +647,12 @@ internal partial class Emitter
 
             if (init)
             {
-                WriteGuard(text, "attached", $"NgxLifetime.EndInitialization(\"{group}\", {device}, returned && Succeeded(result), ref storage);");
+                WriteGuard(text, "attached", $"NgxLifetime.EndInitialization(\"{group}\", {device}, returned && result is NGXResult.Success, ref storage);");
             }
 
             if (evaluate)
             {
-                WriteGuard(text, "attached", $"NgxLifetime.EndParameters({parameterHandle}, \"{group}.{method}\", returned, Succeeded(result), ref storage);");
+                WriteGuard(text, "attached", $"NgxLifetime.EndParameters({parameterHandle}, \"{group}.{method}\", returned, result is NGXResult.Success, ref storage);");
             }
 
             if (retained)

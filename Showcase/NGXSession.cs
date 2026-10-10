@@ -66,7 +66,11 @@ internal class NGXSession : IDisposable
             return;
         }
 
-        Ngx.ThrowIfFailed(result);
+        if (result is not NGXResult.Success)
+        {
+            throw new NGXException(result, nameof(Initialize));
+        }
+
         initialized = true;
         capabilities = isVulkan ? Ngx.Vulkan.GetCapabilityParameters() : Ngx.D3D12.GetCapabilityParameters();
         parameters = isVulkan ? Ngx.Vulkan.AllocateParameters() : Ngx.D3D12.AllocateParameters();
@@ -143,7 +147,12 @@ internal class NGXSession : IDisposable
             DestroyParameters(ref frameParameters);
             DestroyParameters(ref parameters);
             DestroyParameters(ref capabilities);
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device));
+            NGXResult result = isVulkan ? Ngx.Vulkan.Shutdown1(device) : Ngx.D3D12.Shutdown1(device);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, nameof(Ngx.Vulkan.Shutdown1));
+            }
+
             initialized = false;
         }
     }
@@ -203,6 +212,7 @@ internal class NGXSession : IDisposable
         NativeImage generated = output.Describe();
         generated.Vulkan.ReadWrite = true;
 
+        NGXResult result;
         if (isVulkan)
         {
             NGXVKDLSSGEvalParams evaluate = new()
@@ -215,7 +225,7 @@ internal class NGXSession : IDisposable
                 POutputInterpFrame = generated.Vulkan
             };
 
-            Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, evaluate, options));
+            result = Ngx.Vulkan.EvaluateDLSSG(command, generation, frameParameters, evaluate, options);
         }
         else
         {
@@ -229,7 +239,12 @@ internal class NGXSession : IDisposable
                 POutputInterpFrame = generated.DirectX
             };
 
-            Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, evaluate, options));
+            result = Ngx.D3D12.EvaluateDLSSG(command, generation, frameParameters, evaluate, options);
+        }
+
+        if (result is not NGXResult.Success)
+        {
+            throw new NGXException(result, nameof(Generate));
         }
 
         // A reset produces a copy of the real frame; present that real frame once.
@@ -295,7 +310,12 @@ internal class NGXSession : IDisposable
     {
         if (!handle.IsNull)
         {
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.ReleaseFeature(handle) : Ngx.D3D12.ReleaseFeature(handle));
+            NGXResult result = isVulkan ? Ngx.Vulkan.ReleaseFeature(handle) : Ngx.D3D12.ReleaseFeature(handle);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, nameof(Ngx.Vulkan.ReleaseFeature));
+            }
+
             handle = default;
         }
     }
@@ -304,7 +324,12 @@ internal class NGXSession : IDisposable
     {
         if (!value.IsNull)
         {
-            Ngx.ThrowIfFailed(isVulkan ? Ngx.Vulkan.DestroyParameters(value) : Ngx.D3D12.DestroyParameters(value));
+            NGXResult result = isVulkan ? Ngx.Vulkan.DestroyParameters(value) : Ngx.D3D12.DestroyParameters(value);
+            if (result is not NGXResult.Success)
+            {
+                throw new NGXException(result, nameof(Ngx.Vulkan.DestroyParameters));
+            }
+
             value = default;
         }
     }
@@ -359,6 +384,7 @@ internal class NGXSession : IDisposable
             Width = (uint)inputWidth,
             Height = (uint)inputHeight
         };
+        NGXResult result;
         if (!isVulkan)
         {
             if (settings.Reconstruction is Reconstruction.RayReconstruction)
@@ -386,7 +412,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate));
+                result = Ngx.D3D12.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate);
             }
             else
             {
@@ -410,7 +436,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, evaluate));
+                result = Ngx.D3D12.EvaluateDLSSExt(command, reconstruction, parameters, evaluate);
             }
         }
         else
@@ -440,7 +466,7 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate));
+                result = Ngx.Vulkan.EvaluateDLSSDExt(command, reconstruction, parameters, evaluate);
             }
             else
             {
@@ -464,8 +490,13 @@ internal class NGXSession : IDisposable
                     InFrameTimeDeltaInMsec = delta * 1000
                 };
 
-                Ngx.ThrowIfFailed(Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, evaluate));
+                result = Ngx.Vulkan.EvaluateDLSSExt(command, reconstruction, parameters, evaluate);
             }
+        }
+
+        if (result is not NGXResult.Success)
+        {
+            throw new NGXException(result, nameof(EvaluateImages));
         }
     }
 }

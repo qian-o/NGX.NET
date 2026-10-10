@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NGX.NET;
@@ -15,90 +14,53 @@ public static unsafe partial class Ngx
 
     static Ngx()
     {
-        NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, Resolve);
-    }
-
-    /// <summary>
-    /// Directory containing the bridge and packaged NVIDIA feature libraries.
-    /// Pass this directory in NGXFeatureCommonInfo when initializing NGX.
-    /// </summary>
-    public static string RuntimeDirectory
-    {
-        get
+        string os;
+        string file;
+        if (OperatingSystem.IsWindows())
         {
-            string os;
-
-            if (OperatingSystem.IsWindows())
-            {
-                os = "win";
-            }
-            else if (OperatingSystem.IsLinux())
-            {
-                os = "linux";
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
-            }
-
-            string arch = RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.X64 => "x64",
-                Architecture.Arm64 => "arm64",
-                _ => throw new PlatformNotSupportedException("NGX supports x64 and arm64.")
-            };
-            string directory = Path.Combine(AppContext.BaseDirectory, "runtimes", $"{os}-{arch}", "native");
-
-            return Directory.Exists(directory) ? directory : AppContext.BaseDirectory;
+            os = "win";
+            file = "ngx-bridge.dll";
         }
-    }
-
-    /// <summary>
-    /// Applies the official NVSDK_NGX_SUCCEED macro. NGX success is not zero.
-    /// </summary>
-    public static bool Succeeded(NGXResult result)
-    {
-        return ((uint)result & 0xFFF00000u) is not (uint)NGXResult.Fail;
-    }
-
-    /// <summary>
-    /// Applies the official NVSDK_NGX_FAILED macro.
-    /// </summary>
-    public static bool Failed(NGXResult result)
-    {
-        return !Succeeded(result);
-    }
-
-    /// <summary>
-    /// Throws an NGXException only when the official failure predicate is true.
-    /// </summary>
-    public static void ThrowIfFailed(NGXResult result, [CallerArgumentExpression(nameof(result))] string? operation = null)
-    {
-        if (Failed(result))
+        else if (OperatingSystem.IsLinux())
         {
-            throw new NGXException(result, operation);
+            os = "linux";
+            file = "libngx-bridge.so";
         }
-    }
-
-    /// <summary>
-    /// Counts elements, equivalent to NVSDK_NGX_ARRAY_LEN for a managed span.
-    /// </summary>
-    public static nuint ArrayLength<T>(ReadOnlySpan<T> values)
-    {
-        return (nuint)values.Length;
-    }
-
-    private static nint Resolve(string name, Assembly assembly, DllImportSearchPath? searchPath)
-    {
-        if (name is not LibraryName)
+        else
         {
+            throw new PlatformNotSupportedException("NGX supports Windows and Linux.");
+        }
+
+        string architecture = RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X64 => "x64",
+            Architecture.Arm64 => "arm64",
+            _ => throw new PlatformNotSupportedException("NGX supports x64 and arm64.")
+        };
+        string directory = Path.Combine(AppContext.BaseDirectory, "runtimes", $"{os}-{architecture}", "native");
+        RuntimeDirectory = Directory.Exists(directory) ? directory : AppContext.BaseDirectory;
+        nint library = Load(Path.Combine(directory, file), Path.Combine(AppContext.BaseDirectory, file), file);
+        NativeLibrary.SetDllImportResolver(typeof(Ngx).Assembly, (name, _, _) => name is LibraryName ? library : 0);
+
+        static nint Load(params string[] paths)
+        {
+            foreach (string path in paths)
+            {
+                if (NativeLibrary.TryLoad(path, out nint handle))
+                {
+                    return handle;
+                }
+            }
+
             return 0;
         }
-
-        string file = OperatingSystem.IsWindows() ? "ngx-bridge.dll" : "libngx-bridge.so";
-
-        return NativeLibrary.Load(Path.Combine(RuntimeDirectory, file), assembly, searchPath);
     }
+
+    /// <summary>
+    /// Directory containing the packaged NVIDIA feature libraries.
+    /// Pass this directory in NGXFeatureCommonInfo when initializing NGX.
+    /// </summary>
+    public static string RuntimeDirectory { get; }
 
     public static partial class Parameter
     {

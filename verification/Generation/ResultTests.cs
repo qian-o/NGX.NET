@@ -51,7 +51,7 @@ internal static class ResultTests
                 }
 
                 InvocationExpressionSyntax[] calls = [.. overload.DescendantNodes().OfType<InvocationExpressionSyntax>()];
-                Require(calls.Length is 2 && calls[0].Expression.ToString() is "ThrowIfFailed" && calls[1].Expression.ToString() == original.Identifier.ValueText, $"Result wrapper bypassed the original method: {original.Identifier}.");
+                Require(calls.Length is 1 && calls[0].Expression.ToString() == original.Identifier.ValueText, $"Result wrapper bypassed the original method: {original.Identifier}.");
                 count++;
             }
         }
@@ -120,15 +120,12 @@ internal static class ResultTests
         string scalar = Methods(files["API/Parameter.g.cs"]).Single(static method => method.Identifier.ValueText is "GetI" && method.ReturnType.ToString() is "int").ToString();
         string arrays = Methods(files["API/Vulkan.g.cs"]).Single(static method => method.Identifier.ValueText is "RequiredExtensions" && method.ReturnType.ToString() is "Extensions").ToString();
         string settings = Methods(files["API/DLSS.g.cs"]).Single(static method => method.Identifier.ValueText is "GetOptimalSettings" && method.ReturnType.ToString() is "OptimalSettings").ToString();
-        string failure = string.Join('\n', Methods(File.ReadAllText(Path.Combine(root, "NGX.NET/Ngx.cs"))).Where(static method => method.Identifier.ValueText is "Succeeded" or "Failed" or "ThrowIfFailed"));
         string source = $$"""
-            using System.Runtime.CompilerServices;
             namespace NGX.NET;
             public static partial class Ngx
             {
                 public static NGXResult TestResult;
                 public static int Calls;
-                {{failure}}
                 public static class Parameter
                 {
                     {{scalar}}
@@ -179,13 +176,14 @@ internal static class ResultTests
                     OptimalSettings settings = Ngx.DLSS.GetOptimalSettings(parameters, 1920, 1080, NGXPerfQualityValue.MaxQuality);
                     Require(settings.RenderOptimalWidth == 1920 && settings.RenderOptimalHeight == 1080 && settings.RenderMaxWidth == 1921 && settings.RenderMaxHeight == 1082 && settings.RenderMinWidth == 1917 && settings.RenderMinHeight == 1076 && settings.Sharpness == 0.25f, "Multiple-output order");
                     Require(Ngx.Calls == 3, "Underlying call duplicated");
-                    // Non-failure status values must use NGX's mask, not equality with Success.
-                    Ngx.TestResult = (NGXResult)2;
-                    Require(Ngx.Parameter.GetI(parameters, "test") == 16, "Success predicate");
-                    Ngx.TestResult = NGXResult.FailInvalidParameter;
-                    CheckFailure(() => Ngx.Parameter.GetI(parameters, "test"), "Ngx.Parameter.GetI");
-                    CheckFailure(() => Ngx.Vulkan.RequiredExtensions(), "Ngx.Vulkan.RequiredExtensions");
-                    CheckFailure(() => Ngx.DLSS.GetOptimalSettings(parameters, 1920, 1080, NGXPerfQualityValue.MaxQuality), "Ngx.DLSS.GetOptimalSettings");
+                    // Only the explicit Success value permits returning outputs.
+                    foreach (NGXResult result in new[] { NGXResult.Fail, NGXResult.FailInvalidParameter, (NGXResult)0, (NGXResult)2 })
+                    {
+                        Ngx.TestResult = result;
+                        CheckFailure(() => Ngx.Parameter.GetI(parameters, "test"), "Ngx.Parameter.GetI");
+                        CheckFailure(() => Ngx.Vulkan.RequiredExtensions(), "Ngx.Vulkan.RequiredExtensions");
+                        CheckFailure(() => Ngx.DLSS.GetOptimalSettings(parameters, 1920, 1080, NGXPerfQualityValue.MaxQuality), "Ngx.DLSS.GetOptimalSettings");
+                    }
                 }
 
                 private static void CheckFailure(Action call, string operation)
