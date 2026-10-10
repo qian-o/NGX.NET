@@ -226,7 +226,7 @@ internal unsafe struct NGXD3D12DLSSDEvalParamsNative(in NGXD3D12DLSSDEvalParams 
     public NGXCoordinatesNative InColorBeforeDepthOfFieldSubrectBase = new(in value.ColorBeforeDepthOfFieldSubrectBase);
 
     [FieldOffset(576)]
-    public NGXCoordinatesNative InColorAfterDepthOfFieldSubtectBase = new(in value.ColorAfterDepthOfFieldSubtectBase);
+    public NGXCoordinatesNative InColorAfterDepthOfFieldSubtectBase = new(in value.ColorAfterDepthOfFieldSubrectBase);
 
     [FieldOffset(584)]
     public Matrix4x4* PInWorldToViewMatrix = value.WorldToViewMatrix.HasValue ? scope.Alloc(value.WorldToViewMatrix.Value) : null;

@@ -150,7 +150,7 @@ public struct NGXD3D12DLSSDEvalParams
 
     public NGXCoordinates ColorBeforeDepthOfFieldSubrectBase;
 
-    public NGXCoordinates ColorAfterDepthOfFieldSubtectBase;
+    public NGXCoordinates ColorAfterDepthOfFieldSubrectBase;
 
     public Matrix4x4? WorldToViewMatrix;
 

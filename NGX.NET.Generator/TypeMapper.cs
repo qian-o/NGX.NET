@@ -521,7 +521,12 @@ internal class TypeMapper
 
     internal static string PublicFieldName(string record, string field)
     {
-        return record is "NVSDK_NGX_PathListInfo" && field is "Path" ? "Paths" : Name(ManagedName(field));
+        return (record, field) switch
+        {
+            ("NVSDK_NGX_PathListInfo", "Path") => "Paths",
+            ("NVSDK_NGX_D3D11_DLSSD_Eval_Params" or "NVSDK_NGX_D3D12_DLSSD_Eval_Params", "InColorAfterDepthOfFieldSubtectBase") => "ColorAfterDepthOfFieldSubrectBase",
+            _ => Name(ManagedName(field))
+        };
     }
 
     internal static string? MathFieldType(string record, AstField field)
