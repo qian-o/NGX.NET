@@ -81,7 +81,7 @@ public static unsafe partial class Ngx
 
         static Parameter()
         {
-            RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
+            NativeLoader.Register();
         }
 
         /// <summary>

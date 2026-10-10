@@ -3,21 +3,12 @@ using System.Text;
 
 namespace NGX.NET;
 
-/// <summary>
-/// Explicit conversion between managed text and null-terminated native strings.
-/// </summary>
 public static unsafe class NGXMarshal
 {
     private static readonly Encoding UTF8 = new UTF8Encoding(false, true);
     private static readonly Encoding UTF16 = new UnicodeEncoding(false, false, true);
     private static readonly Encoding UTF32 = new UTF32Encoding(false, false, true);
 
-    /// <summary>
-    /// Allocates and encodes the complete string, preserving embedded null
-    /// characters and appending a terminator. Null maps to a null pointer.
-    /// Invalid Unicode is rejected. Release the allocation with Free after
-    /// native code no longer uses it.
-    /// </summary>
     public static void* StringToPtr(string? value, NGXEncoding encoding)
     {
         Encoding codec = GetEncoding(encoding);
@@ -46,12 +37,6 @@ public static unsafe class NGXMarshal
         }
     }
 
-    /// <summary>
-    /// Copies native text up to the first null character into a managed string
-    /// without freeing the source. The pointer must remain readable through its
-    /// terminator. A null pointer returns null. This does not round-trip strings
-    /// containing embedded null characters.
-    /// </summary>
     public static string? PtrToString(void* pointer, NGXEncoding encoding)
     {
         Encoding codec = GetEncoding(encoding);
@@ -71,10 +56,6 @@ public static unsafe class NGXMarshal
         return codec.GetString(new ReadOnlySpan<byte>(pointer, length));
     }
 
-    /// <summary>
-    /// Releases memory allocated by StringToPtr. Null is allowed. Do not free
-    /// borrowed SDK pointers or pinned managed buffers with this method.
-    /// </summary>
     public static void Free(void* pointer)
     {
         NativeMemory.Free(pointer);

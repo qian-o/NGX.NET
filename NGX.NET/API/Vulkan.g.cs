@@ -129,7 +129,7 @@ public static unsafe partial class Ngx
 
         static Vulkan()
         {
-            RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
+            NativeLoader.Register();
         }
 
         /// <summary>

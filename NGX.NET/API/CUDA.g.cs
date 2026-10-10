@@ -101,7 +101,7 @@ public static unsafe partial class Ngx
 
         static CUDA()
         {
-            RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
+            NativeLoader.Register();
         }
 
         /// <summary>

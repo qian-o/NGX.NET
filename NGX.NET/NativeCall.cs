@@ -1,14 +1,11 @@
 ﻿namespace NGX.NET;
 
-// Internal ownership for SDK inputs retained after a call. No public scope or
-// initialization object is required. All data constructors still live on Native.
 internal unsafe class NativeCall : IDisposable
 {
     private NativeOwner? values;
     private List<nint>? strings;
 
-    // The DLSSG helper leaves its matrix pointers unchanged when optional
-    // settings are omitted. Their previous native storage must remain alive.
+    // Omitted DLSSG options leave earlier matrix pointers unchanged.
     internal bool HasFrameGenerationOptions { get; set; }
 
     public void Dispose()

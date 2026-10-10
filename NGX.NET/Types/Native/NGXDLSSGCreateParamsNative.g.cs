@@ -47,7 +47,7 @@ internal unsafe struct NGXDLSSGCreateParamsNative : IDisposable
     /// NVSDK_NGX_DLSSG_Create_Params::DynamicResolutionScaling
     /// </summary>
     [FieldOffset(20)]
-    public NGXBool8 DynamicResolutionScaling;
+    public Bool8 DynamicResolutionScaling;
 
     public NGXDLSSGCreateParamsNative(in NGXDLSSGCreateParams value)
     {

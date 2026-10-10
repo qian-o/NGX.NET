@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>$(StandardTargetFramework)</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">

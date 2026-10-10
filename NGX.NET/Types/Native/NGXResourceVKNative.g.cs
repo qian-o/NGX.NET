@@ -29,7 +29,7 @@ internal unsafe struct NGXResourceVKNative : IDisposable
     /// NVSDK_NGX_Resource_VK::ReadWrite
     /// </summary>
     [FieldOffset(52)]
-    public NGXBool8 ReadWrite;
+    public Bool8 ReadWrite;
 
     public NGXResourceVKNative(in NGXResourceVK value)
     {

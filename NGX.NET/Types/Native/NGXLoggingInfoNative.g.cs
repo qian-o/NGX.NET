@@ -29,7 +29,7 @@ internal unsafe struct NGXLoggingInfoNative : IDisposable
     /// NVSDK_NGX_LoggingInfo::DisableOtherLoggingSinks
     /// </summary>
     [FieldOffset(12)]
-    public NGXBool8 DisableOtherLoggingSinks;
+    public Bool8 DisableOtherLoggingSinks;
 
     public NGXLoggingInfoNative(in NGXLoggingInfo value)
     {

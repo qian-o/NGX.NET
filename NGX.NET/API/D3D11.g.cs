@@ -97,7 +97,7 @@ public static unsafe partial class Ngx
 
         static D3D11()
         {
-            RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
+            NativeLoader.Register();
         }
 
         /// <summary>

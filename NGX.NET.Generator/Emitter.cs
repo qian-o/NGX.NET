@@ -248,12 +248,9 @@ internal partial class Emitter
             text.BlankLine();
         }
 
-        if (group.Length is not 0)
-        {
-            text.BeginBlock($"static {group}()");
-            text.Line("RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);");
-            text.EndBlock();
-        }
+        text.BeginBlock($"static {(group.Length is 0 ? "Ngx" : group)}()");
+        text.Line("NativeLoader.Register();");
+        text.EndBlock();
 
         foreach (JsonElement function in ordered)
         {
@@ -1451,7 +1448,7 @@ internal partial class Emitter
         return kind switch
         {
             "VOID" => "void",
-            "BOOL" => "NGXBool8",
+            "BOOL" => "Bool8",
             "CHAR_S" or "CHAR_U" or "SCHAR" => "sbyte",
             "UCHAR" => "byte",
             "SHORT" => "short",

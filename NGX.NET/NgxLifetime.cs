@@ -99,9 +99,7 @@ internal static unsafe class NgxLifetime
         NativeCall current = call!;
         call = null;
 
-        // Early failures may leave old pointers. DLSSG additionally leaves
-        // its optional matrix pointers unchanged when options are omitted.
-        // Registration precedes native entry; committing needs no allocation.
+        // Failed calls and omitted DLSSG options may leave earlier pointers in use.
         if (succeeded)
         {
             for (int i = entries.Count - 1; i >= 0; i--)

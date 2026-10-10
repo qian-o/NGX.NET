@@ -4,6 +4,10 @@
 
 C# bindings for NVIDIA NGX.
 
+Native SDK calls support Windows and Linux on x64 and arm64. Assembly loading and
+managed conversion remain available on other platforms; unsupported platforms
+are rejected when the native library is resolved.
+
 ## API
 
 Use `Ngx` for SDK calls. Public structures contain managed values; their native

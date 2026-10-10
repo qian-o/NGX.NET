@@ -126,43 +126,43 @@ internal unsafe struct NGXDLSSGOptEvalParamsNative : IDisposable
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::colorBuffersHDR
     /// </summary>
     [FieldOffset(416)]
-    public NGXBool8 ColorBuffersHDR;
+    public Bool8 ColorBuffersHDR;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::depthInverted
     /// </summary>
     [FieldOffset(417)]
-    public NGXBool8 DepthInverted;
+    public Bool8 DepthInverted;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::cameraMotionIncluded
     /// </summary>
     [FieldOffset(418)]
-    public NGXBool8 CameraMotionIncluded;
+    public Bool8 CameraMotionIncluded;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::reset
     /// </summary>
     [FieldOffset(419)]
-    public NGXBool8 Reset;
+    public Bool8 Reset;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::automodeOverrideReset
     /// </summary>
     [FieldOffset(420)]
-    public NGXBool8 AutomodeOverrideReset;
+    public Bool8 AutomodeOverrideReset;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::notRenderingGameFrames
     /// </summary>
     [FieldOffset(421)]
-    public NGXBool8 NotRenderingGameFrames;
+    public Bool8 NotRenderingGameFrames;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::orthoProjection
     /// </summary>
     [FieldOffset(422)]
-    public NGXBool8 OrthoProjection;
+    public Bool8 OrthoProjection;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::motionVectorsInvalidValue
@@ -174,13 +174,13 @@ internal unsafe struct NGXDLSSGOptEvalParamsNative : IDisposable
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::motionVectorsDilated
     /// </summary>
     [FieldOffset(428)]
-    public NGXBool8 MotionVectorsDilated;
+    public Bool8 MotionVectorsDilated;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::menuDetectionEnabled
     /// </summary>
     [FieldOffset(429)]
-    public NGXBool8 MenuDetectionEnabled;
+    public Bool8 MenuDetectionEnabled;
 
     /// <summary>
     /// NVSDK_NGX_DLSSG_Opt_Eval_Params::mvecsSubrectBase

@@ -33,7 +33,7 @@ public static unsafe partial class Ngx
 
         static DLSSD()
         {
-            RuntimeHelpers.RunClassConstructor(typeof(Ngx).TypeHandle);
+            NativeLoader.Register();
         }
 
         /// <summary>

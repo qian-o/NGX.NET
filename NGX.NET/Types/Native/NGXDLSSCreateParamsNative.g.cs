@@ -29,7 +29,7 @@ internal unsafe struct NGXDLSSCreateParamsNative : IDisposable
     /// NVSDK_NGX_DLSS_Create_Params::InEnableOutputSubrects
     /// </summary>
     [FieldOffset(24)]
-    public NGXBool8 InEnableOutputSubrects;
+    public Bool8 InEnableOutputSubrects;
 
     public NGXDLSSCreateParamsNative(in NGXDLSSCreateParams value)
     {
