@@ -1,13 +1,14 @@
-"""Prepare one SDK, build NGX bridges, and merge four targets.
+﻿"""Prepare one SDK, build NGX bridges, and merge four targets.
 
-SDK downloads, libclang, generated C++ and native compilation stay in Actions.
-The workflow commits the generated bindings, ast.json, and native binaries.
+SDK downloads, AST extraction and native compilation stay in Actions.
+The workflow submits bridge sources, bindings, ast.json and binaries in a PR.
 """
 
 from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -26,6 +27,13 @@ PLATFORMS = {
     "linux-arm64": ("Linux_aarch64", "libnvsdk_ngx.a"),
 }
 
+LLVM_VERSION = "21.1.7"
+LLVM_ARCHIVES = {
+    "windows": ("clang+llvm-21.1.7-x86_64-pc-windows-msvc.tar.xz", "70a2b73f2f14f787557f90abf380e7170b54e97b893218999144de5284b4f8f8"),
+    "linux-x64": ("LLVM-21.1.7-Linux-X64.tar.xz", "621ab8424178ffc28db0facc5aefd3fc11f5dea339aac171b36fa0b8d4b368cb"),
+    "linux-arm64": ("LLVM-21.1.7-Linux-ARM64.tar.xz", "aa85ddc8ba95ac5f2febddb51a6891ee0e57ac058c6455395d5a4bfa5650d44b"),
+}
+
 
 def request(url):
     headers = {"User-Agent": "NGX.NET"}
@@ -39,9 +47,14 @@ def api(path):
     return json.loads(request("https://api.github.com/repos/" + path))
 
 
+def write_text(path, value, encoding="utf-8"):
+    with path.open("w", encoding=encoding, newline="\n") as stream:
+        stream.write(value)
+
+
 def save(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_text(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
 def download(repository, commit, paths, root):
@@ -71,24 +84,21 @@ def prepare(root):
     headers = [item["path"] for item in tree["tree"] if item["type"] == "blob" and item["path"].startswith("include/")]
     download("KhronosGroup/Vulkan-Headers", vulkan_commit, headers, root / "vulkan")
     save(root / "source.json", {"repository": "https://github.com/NVIDIA/DLSS", "release": release["tag_name"], "commit": commit, "vulkanCommit": vulkan_commit})
-    if output := os.environ.get("GITHUB_OUTPUT"):
-        catalog = request("https://raw.githubusercontent.com/actions/runner-images/main/README.md").decode()
-        labels = [label for line in catalog.splitlines() if "preview" not in line.lower() and "beta" not in line.lower() for label in re.findall(r"`(ubuntu-\d+\.\d+-arm)`", line)]
-        arm_runner = max(labels, key=lambda label: tuple(map(int, label.split("-")[1].split("."))))
-        matrix = {"include": [{"rid": "win-x64", "runner": "windows-latest", "arch": "x64"}, {"rid": "win-arm64", "runner": "windows-latest", "arch": "arm64"}, {"rid": "linux-x64", "runner": "ubuntu-latest"}, {"rid": "linux-arm64", "runner": arm_runner}]}
-        with open(output, "a", encoding="utf-8") as stream:
-            stream.write("matrix=" + json.dumps(matrix) + "\n")
     print(f"Using {release['tag_name']} at {commit}", flush=True)
 
 
 def install_llvm(scratch, rid):
-    release = api("llvm/llvm-project/releases/latest")
-    suffix = "-x86_64-pc-windows-msvc.tar.xz" if rid.startswith("win-") else "-Linux-ARM64.tar.xz" if rid.endswith("arm64") else "-Linux-X64.tar.xz"
-    asset = next(asset for asset in release["assets"] if asset["name"].endswith(suffix))
-    archive = scratch / asset["name"]
-    print("Using " + asset["name"], flush=True)
-    with urllib.request.urlopen(asset["browser_download_url"], timeout=180) as response, archive.open("wb") as output:
+    name, checksum = LLVM_ARCHIVES["windows" if rid.startswith("win-") else rid]
+    archive = scratch / name
+    print("Using " + name, flush=True)
+    url = f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{LLVM_VERSION}/{name}"
+    with urllib.request.urlopen(url, timeout=180) as response, archive.open("wb") as output:
         shutil.copyfileobj(response, output)
+
+    with archive.open("rb") as stream:
+        if hashlib.file_digest(stream, "sha256").hexdigest() != checksum:
+            raise RuntimeError("LLVM archive checksum does not match: " + name)
+
     destination = scratch / "llvm"
     with tarfile.open(archive) as package:
         package.extractall(destination, filter="data")
@@ -136,11 +146,13 @@ def build(root, scratch, output, rid):
     reset = 'extern "C" ' + prefix + ' void NGX_Bridge_Parameter_Reset(NVSDK_NGX_Parameter* parameters)\n{\n    parameters->Reset();\n}\n'
     wrappers.setdefault("nvsdk_ngx_params.h", []).append(reset)
     exports.append("NGX_Bridge_Parameter_Reset")
+    generated = output / "bridge" / rid
+    generated.mkdir(parents=True, exist_ok=True)
     sources = []
     for header, bodies in wrappers.items():
-        p = scratch / (header + ".bridge.cpp")
+        p = generated / (header + ".bridge.cpp")
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(Path(units[header]).read_text() + "\n" + "\n".join(bodies))
+        write_text(p, Path(units[header]).read_text(encoding="utf-8") + "\n" + "\n".join(bodies))
         sources.append(p)
     platform, lib = PLATFORMS[rid]
     loader = root / "lib" / platform / lib
@@ -148,12 +160,12 @@ def build(root, scratch, output, rid):
     native.mkdir(parents=True, exist_ok=True)
     bridge = native / ("ngx-bridge.dll" if windows else "libngx-bridge.so")
     if windows:
-        definition = scratch / "ngx-bridge.def"
-        definition.write_text("LIBRARY ngx-bridge\nEXPORTS\n" + "\n".join(exports) + "\n")
+        definition = generated / "ngx-bridge.def"
+        write_text(definition, "LIBRARY ngx-bridge\nEXPORTS\n" + "\n".join(exports) + "\n")
         run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++latest", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
     else:
-        script = scratch / "ngx-bridge.map"
-        script.write_text("{\n global:\n" + "\n".join("    " + n + ";" for n in exports) + "\n local: *;\n};\n")
+        script = generated / "ngx-bridge.map"
+        write_text(script, "{\n global:\n" + "\n".join("    " + n + ";" for n in exports) + "\n local: *;\n};\n")
         run([compiler, "-shared", "-fPIC", "-O2", "-std=" + standard, "-fvisibility=hidden", "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "-I" + str(root / "include"), "-I" + str(root / "vulkan/include"), *sources, "-Wl,--whole-archive", loader, "-Wl,--no-whole-archive", "-ldl", "-pthread", "-Wl,-z,defs", "-Wl,--version-script=" + str(script), "-o", bridge], scratch)
     for p in (root / "lib" / platform / "rel").iterdir():
         shutil.copy2(p, native / p.name)
@@ -166,14 +178,40 @@ def merge(root, output):
     source = None
     for rid in PLATFORMS:
         artifact = root / f"ngx-{rid}"
-        fragment = json.loads((artifact / "ast.json").read_text())
-        source = fragment["source"]
+        fragment = json.loads((artifact / "ast.json").read_text(encoding="utf-8"))
+        if source is None:
+            source = fragment["source"]
+        elif fragment["source"] != source:
+            raise RuntimeError("SDK sources differ between target artifacts: " + rid)
+
+        binary = "ngx-bridge.dll" if rid.startswith("win-") else "libngx-bridge.so"
+        linker_input = "ngx-bridge.def" if rid.startswith("win-") else "ngx-bridge.map"
+        if not (artifact / "native" / rid / binary).is_file():
+            raise RuntimeError("Native bridge is missing from target artifact: " + rid)
+
+        generated = artifact / "bridge" / rid
+        if not (generated / linker_input).is_file() or not any(generated.rglob("*.bridge.cpp")):
+            raise RuntimeError("Bridge sources are missing from target artifact: " + rid)
+
         platforms[rid] = fragment["platform"]
-        destination = output / "native" / rid
-        if destination.exists():
-            shutil.rmtree(destination)
-        shutil.copytree(artifact / "native" / rid, destination)
+
+    packaging = output / "NuGet.Packaging.props"
+    metadata = packaging.read_text(encoding="utf-8-sig")
+    version = source["release"].removeprefix("v")
+    metadata, replacements = re.subn(r"(?<=<Version>)[^<]*(?=</Version>)", lambda match: version, metadata)
+    if replacements != 1:
+        raise RuntimeError("NuGet.Packaging.props must contain one package Version.")
+
+    for rid in PLATFORMS:
+        artifact = root / f"ngx-{rid}"
+        for directory in ("bridge", "native"):
+            destination = output / directory / rid
+            if destination.exists():
+                shutil.rmtree(destination)
+            shutil.copytree(artifact / directory / rid, destination)
+
     save(output / "NGX.NET.Generator" / "ast.json", {"source": source, "platforms": platforms})
+    write_text(packaging, metadata, encoding="utf-8-sig")
 
 
 def main():

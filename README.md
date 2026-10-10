@@ -39,7 +39,11 @@ The package includes `ngx-bridge` and NVIDIA DLSS feature libraries from `native
 
 ## Updating bindings
 
-Run the **Update NGX** GitHub Actions workflow to obtain the SDK, native binaries and `ast.json`. The package version is recorded in `NuGet.Packaging.props`. Regenerate and verify locally:
+Run the **Update NGX** GitHub Actions workflow to obtain one SDK release, all four native targets and `ast.json`. The workflow commits the exact generated bridge translation units and linker inputs to `bridge/<rid>/`, outside Git LFS, and writes the package version in `NuGet.Packaging.props`. The first bridge sources are produced by CI.
+
+Updates are submitted from a dedicated branch as a pull request after all checks pass. Enable **Allow GitHub Actions to create and approve pull requests** in the repository's Actions settings. Python 3.13.16, matching LLVM/libclang 21.1.7 and Action commit SHAs are fixed; runner OS labels are explicit. Hosted image revisions and Visual Studio minor versions remain maintained by GitHub.
+
+Regenerate and verify locally:
 
 ```sh
 dotnet run --project NGX.NET.Generator -- .
