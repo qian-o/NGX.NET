@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-
-namespace NGX.NET.Generator;
+﻿namespace NGX.NET.Generator;
 
 internal static class Program
 {
@@ -15,7 +12,7 @@ internal static class Program
             string root = args.Length > 0 ? Path.GetFullPath(args[0]) : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../"));
             string input = Path.Combine(root, "NGX.NET.Generator", "ast.json");
             using JsonDocument document = JsonDocument.Parse(File.ReadAllText(input));
-            Emitter emitter = new(document.RootElement);
+            GenerationPipeline emitter = new(AstReader.Read(document.RootElement));
             Dictionary<string, string> files = emitter.Generate();
             string output = Path.Combine(root, "NGX.NET");
             int changed = 0;

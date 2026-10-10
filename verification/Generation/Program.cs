@@ -16,8 +16,8 @@ internal static class Program
     {
         string root = Path.GetFullPath(args[0]);
         using JsonDocument ast = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "NGX.NET.Generator/ast.json")));
-        Dictionary<string, string> first = new Emitter(ast.RootElement).Generate();
-        Dictionary<string, string> second = new Emitter(ast.RootElement).Generate();
+        Dictionary<string, string> first = new GenerationPipeline(AstReader.Read(ast.RootElement)).Generate();
+        Dictionary<string, string> second = new GenerationPipeline(AstReader.Read(ast.RootElement)).Generate();
         Require(first.Count == second.Count, "Generation changed the number of files.");
 
         foreach ((string path, string source) in first)

@@ -1,0 +1,332 @@
+﻿namespace NGX.NET.Generator;
+
+internal class TypeMapper
+{
+    private static readonly HashSet<string> Acronyms = ["NGX", "DLSS", "DLSSD", "DLSSG", "DLAA", "DLISP", "CUDA", "D3D11", "D3D12", "VK", "UI", "ULL", "F", "D", "I", "API", "HDR", "SR", "RR", "RW", "VRAM"];
+    private static readonly string[] FunctionGroups = ["D3D11", "D3D12", "CUDA", "VULKAN", "VK", "Parameter", "DLSSD", "DLSS"];
+
+    private readonly Models models;
+    private readonly Dictionary<string, string> unionNames = [];
+
+    internal TypeMapper(Models models)
+    {
+        this.models = models;
+
+        foreach (AstRecord parent in models.Records.Values)
+        {
+            foreach (AstField field in parent.Fields)
+            {
+                AstType type = field.Type;
+                if (type.Kind is NativeTypeKind.Record && models.Records[type.Name].IsUnion)
+                {
+                    unionNames[type.Name] = TypeName(parent.Name) + "Union";
+                }
+            }
+        }
+    }
+
+    internal string ManagedRecord(string name)
+    {
+        return unionNames.GetValueOrDefault(name, TypeName(name));
+    }
+
+    internal bool IsRecord(AstType type)
+    {
+        return type.Kind is NativeTypeKind.Record && !models.Records[type.Name].IsOpaque;
+    }
+
+    internal string? CallbackName(AstType type)
+    {
+        string cpp = type.Cpp.Replace("const ", "", StringComparison.Ordinal);
+
+        return models.Aliases.ContainsKey(cpp) ? TypeName(cpp) : null;
+    }
+
+    internal string PublicType(AstType type)
+    {
+        NativeTypeKind kind = type.Kind;
+        if (kind is NativeTypeKind.Bool)
+        {
+            return "bool";
+        }
+
+        if (kind is NativeTypeKind.Record)
+        {
+            return ManagedRecord(type.Name);
+        }
+
+        if (kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference)
+        {
+            if (CallbackName(type) is string callback)
+            {
+                return callback + "?";
+            }
+
+            AstType element = type.Element!;
+            if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar)
+            {
+                return "string?";
+            }
+
+            if (IsRecord(element))
+            {
+                return PublicType(element) + "?";
+            }
+
+            if (element.Kind is NativeTypeKind.Record && element.Name is "NVSDK_NGX_Handle" or "NVSDK_NGX_Parameter")
+            {
+                return TypeName(element.Name);
+            }
+
+            if (element.Kind is NativeTypeKind.ULongLong or NativeTypeKind.ULong)
+            {
+                return "ulong?";
+            }
+
+            return "nint";
+        }
+
+        return Type(type);
+    }
+
+    internal string PublicFieldType(string record, AstField field)
+    {
+        if (record is "NVSDK_NGX_PathListInfo" && field.Name is "Path")
+        {
+            return "string[]?";
+        }
+
+        if (record is "NVSDK_NGX_FeatureCommonInfo" && field.Name is "InternalData")
+        {
+            return "nint";
+        }
+
+        AstType type = field.Type;
+        if (models.Records[record].IsUnion && IsRecord(type))
+        {
+            return PublicType(type) + "?";
+        }
+
+        if (MathFieldType(record, field) is string math)
+        {
+            return math.Replace("*", "?", StringComparison.Ordinal);
+        }
+
+        if (type.Kind is NativeTypeKind.ConstantArray)
+        {
+            AstType element = type.Element!;
+            if (element.Kind is NativeTypeKind.CharS or NativeTypeKind.CharU)
+            {
+                return "string?";
+            }
+
+            return PublicType(element) + "[]?";
+        }
+
+        return PublicType(type);
+    }
+
+    internal string Type(AstType type)
+    {
+        NativeTypeKind kind = type.Kind;
+        string cpp = type.Cpp.Replace("const ", "", StringComparison.Ordinal).Trim();
+        if (cpp is "size_t")
+        {
+            return "nuint";
+        }
+
+        if (cpp is "size_t *")
+        {
+            return "nuint*";
+        }
+
+        if (kind is NativeTypeKind.Pointer or NativeTypeKind.LValueReference or NativeTypeKind.RValueReference)
+        {
+            AstType element = type.Element!;
+            NativeTypeKind elementKind = element.Kind;
+            if (elementKind is NativeTypeKind.FunctionProto or NativeTypeKind.FunctionNoProto)
+            {
+                return "nint";
+            }
+
+            if (elementKind is NativeTypeKind.Record && models.Records[element.Name].IsOpaque)
+            {
+                return "nint";
+            }
+
+            return (elementKind is NativeTypeKind.WChar ? "void" : Type(element)) + "*";
+        }
+
+        if (kind is NativeTypeKind.Enum or NativeTypeKind.Record)
+        {
+            return ManagedRecord(type.Name) + (kind is NativeTypeKind.Record ? "Native" : "");
+        }
+
+        return kind switch
+        {
+            NativeTypeKind.Void => "void",
+            NativeTypeKind.Bool => "Bool8",
+            NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.SChar => "sbyte",
+            NativeTypeKind.UChar => "byte",
+            NativeTypeKind.Short => "short",
+            NativeTypeKind.UShort => "ushort",
+            NativeTypeKind.Int => "int",
+            NativeTypeKind.UInt => "uint",
+            NativeTypeKind.Long => type.Size is 8 ? "long" : "int",
+            NativeTypeKind.ULong => type.Size is 8 ? "ulong" : "uint",
+            NativeTypeKind.LongLong => "long",
+            NativeTypeKind.ULongLong => "ulong",
+            NativeTypeKind.Float => "float",
+            NativeTypeKind.Double => "double",
+            NativeTypeKind.WChar => throw new InvalidOperationException("Unsupported native wchar_t value."),
+            _ => throw new InvalidOperationException($"Unsupported native type: {type}")
+        };
+    }
+
+    internal static string[] CallbackArguments(string name)
+    {
+        if (name is "NVSDK_NGX_AppLogCallback")
+        {
+            return ["message", "loggingLevel", "sourceComponent"];
+        }
+
+        if (name.Contains("ProgressCallback", StringComparison.Ordinal))
+        {
+            return ["progress", "shouldCancel"];
+        }
+
+        if (name.Contains("_Parameter_", StringComparison.Ordinal))
+        {
+            return ["parameters", "name", "value"];
+        }
+
+        if (name.Contains("D3D12_ResourceAlloc", StringComparison.Ordinal))
+        {
+            return ["description", "state", "heap", "resource"];
+        }
+
+        if (name.Contains("D3D11_BufferAlloc", StringComparison.Ordinal))
+        {
+            return ["description", "buffer"];
+        }
+
+        if (name.Contains("D3D11_Tex2DAlloc", StringComparison.Ordinal))
+        {
+            return ["description", "texture"];
+        }
+
+        if (name.Contains("ResourceRelease", StringComparison.Ordinal))
+        {
+            return ["resource"];
+        }
+
+        if (name.Contains("GetCurrentSettings", StringComparison.Ordinal))
+        {
+            return ["handle", "parameters"];
+        }
+
+        if (name.Contains("EstimateVRAM", StringComparison.Ordinal))
+        {
+            return ["motionDepthWidth", "motionDepthHeight", "colorWidth", "colorHeight", "colorFormat", "motionFormat", "depthFormat", "hudlessFormat", "uiFormat", "estimatedBytes"];
+        }
+
+        if (name.Contains("GetStats", StringComparison.Ordinal) || name.Contains("GetOptimalSettings", StringComparison.Ordinal))
+        {
+            return ["parameters"];
+        }
+
+        throw new InvalidOperationException("Unclassified callback: " + name);
+    }
+
+    // PascalCase names cannot collide with C#'s lowercase keywords.
+
+    internal static string Name(string name)
+    {
+        name = name.Replace("NVSDK_NGX_", "", StringComparison.Ordinal);
+
+        return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static p => Acronyms.Contains(p) || p.Any(char.IsLower) ? char.ToUpperInvariant(p[0]) + p[1..] : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(p.ToLowerInvariant())));
+    }
+
+    internal static string TypeName(string native)
+    {
+        string name = Name(native);
+
+        return name.StartsWith("NGX", StringComparison.Ordinal) ? name : "NGX" + name;
+    }
+
+    internal static string ParameterName(string native)
+    {
+        string name = Name(native);
+        // Preserve existing camelCase prefixes, such as pVRAMAllocatedBytes.
+        name = char.IsLower(native[0]) ? char.ToLowerInvariant(name[0]) + name[1..] : JsonNamingPolicy.CamelCase.ConvertName(name);
+
+        return name switch
+        {
+            "abstract" or "as" or "base" or "bool" or "break" or "byte" or "case" or "catch" or "char" or "checked" or "class" or "const" or "continue" or "decimal" or "default" or "delegate" or "do" or "double" or "else" or "enum" or "event" or "explicit" or "extern" or "false" or "finally" or "fixed" or "float" or "for" or "foreach" or "goto" or "if" or "implicit" or "in" or "int" or "interface" or "internal" or "is" or "lock" or "long" or "namespace" or "new" or "null" or "object" or "operator" or "out" or "override" or "params" or "private" or "protected" or "public" or "readonly" or "ref" or "return" or "sbyte" or "sealed" or "short" or "sizeof" or "stackalloc" or "static" or "string" or "struct" or "switch" or "this" or "throw" or "true" or "try" or "typeof" or "uint" or "ulong" or "unchecked" or "unsafe" or "ushort" or "using" or "virtual" or "void" or "volatile" or "while" => "@" + name,
+            _ => name
+        };
+    }
+
+    internal static (string Group, string Method) FunctionName(string native)
+    {
+        if (native is "GetNGXResultAsString")
+        {
+            return ("", "GetResultAsString");
+        }
+
+        string name = native.StartsWith("NVSDK_NGX_", StringComparison.Ordinal) ? native[10..] : native[4..];
+        foreach (string prefix in FunctionGroups)
+        {
+            if (name.StartsWith(prefix + "_", StringComparison.Ordinal))
+            {
+                return (prefix is "VULKAN" or "VK" ? "Vulkan" : prefix, Name(name[(prefix.Length + 1)..]));
+            }
+        }
+
+        return ("", Name(name));
+    }
+
+    internal static string EnumMember(string value)
+    {
+        if (value.Replace("_", "", StringComparison.Ordinal) is "VKIMAGEVIEW")
+        {
+            return "VkImageView";
+        }
+
+        if (value.Replace("_", "", StringComparison.Ordinal) is "VKBUFFER")
+        {
+            return "VkBuffer";
+        }
+
+        return string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part =>
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(part, @"^[RGBADESX0-9]+$") && part.Any(char.IsDigit))
+            {
+                return part;
+            }
+
+            return string.Concat(System.Text.RegularExpressions.Regex.Matches(part, @"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+").Select(static match => char.ToUpperInvariant(match.Value[0]) + match.Value[1..].ToLowerInvariant()));
+        }));
+    }
+
+    internal static string PublicFieldName(string record, string field)
+    {
+        return record is "NVSDK_NGX_PathListInfo" && field is "Path" ? "Paths" : Name(field);
+    }
+
+    internal static string? MathFieldType(string record, AstField field)
+    {
+        return record switch
+        {
+            "NVSDK_NGX_DLSSG_Opt_Eval_Params" => field.Name switch
+            {
+                "cameraViewToClip" or "clipToCameraView" or "clipToLensClip" or "clipToPrevClip" or "prevClipToClip" => "Matrix4x4",
+                "jitterOffset" or "mvecScale" or "cameraPinholeOffset" => "Vector2",
+                "cameraPos" or "cameraUp" or "cameraRight" or "cameraFwd" => "Vector3",
+                _ => null
+            },
+            "NVSDK_NGX_CUDA_DLSSD_Eval_Params" or "NVSDK_NGX_D3D11_DLSSD_Eval_Params" or "NVSDK_NGX_D3D12_DLSSD_Eval_Params" or "NVSDK_NGX_VK_DLSSD_Eval_Params" when field.Name is "pInWorldToViewMatrix" or "pInViewToClipMatrix" => "Matrix4x4*",
+            _ => null
+        };
+    }
+}

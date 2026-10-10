@@ -240,7 +240,7 @@ internal static class ResultTests
     {
         using JsonDocument ast = JsonDocument.Parse(fixture.ToJsonString());
 
-        return new Emitter(ast.RootElement).Generate();
+        return new GenerationPipeline(AstReader.Read(ast.RootElement)).Generate();
     }
 
     private static void Reject(JsonObject fixture, string expected)

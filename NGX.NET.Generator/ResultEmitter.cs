@@ -1,13 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿namespace NGX.NET.Generator;
 
-namespace NGX.NET.Generator;
-
-internal partial class Emitter
+internal class ResultEmitter(Dictionary<string, string> files)
 {
     private readonly HashSet<string> signatures = [];
     private readonly Dictionary<string, (string Operation, (string Type, string Name)[] Fields)> resultTypes = [];
 
-    private void RegisterFunction(string group, string method, List<string> declarations)
+    internal void RegisterFunction(string group, string method, IReadOnlyList<string> declarations)
     {
         string parameters = string.Join(", ", declarations.Select(static declaration => Regex.Replace(declaration[..declaration.LastIndexOf(' ')], @"^(?:in|out|ref) ", "ref ")));
         string signature = $"{group}.{method}({parameters})";
@@ -17,7 +15,7 @@ internal partial class Emitter
         }
     }
 
-    private void WriteResultFunction(CodeWriter text, string group, string method, List<string> declarations, List<string> forward, List<(int Index, string Type, string Name)> outputs)
+    internal void WriteResultFunction(CodeWriter text, string group, string method, IReadOnlyList<string> declarations, IReadOnlyList<string> forward, IReadOnlyList<(int Index, string Type, string Name)> outputs)
     {
         HashSet<int> indices = [.. outputs.Select(static output => output.Index)];
         List<string> inputs = [.. declarations.Where((_, index) => !indices.Contains(index))];
@@ -67,7 +65,7 @@ internal partial class Emitter
         text.EndBlock();
     }
 
-    private void WriteResultTypes()
+    internal void WriteResultTypes()
     {
         foreach ((string name, (string operation, (string Type, string Name)[] fields)) in resultTypes.OrderBy(static entry => entry.Key, StringComparer.Ordinal))
         {
