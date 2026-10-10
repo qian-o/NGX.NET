@@ -97,8 +97,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLISPExt(out NGXHandle handle, NGXParameter parameters, in NGXFeatureCreateParams dlispCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXFeatureCreateParamsNative dlispCreateParametersNative = new(in dlispCreateParameters);
@@ -120,8 +118,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSDExt(out NGXHandle handle, NGXParameter parameters, in NGXCUDADLSSDCreateParams dlssDCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXCUDADLSSDCreateParamsNative dlssDCreateParametersNative = new(in dlssDCreateParameters);
@@ -143,8 +139,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSDExt1(NGXCUDADevice? device, out NGXHandle handle, NGXParameter parameters, in NGXCUDADLSSDCreateParams dlssDCreateParameters)
         {
-            handle = default;
-
             NGXCUDADeviceNative* pDevice = device is NGXCUDADevice deviceValue ? NativeLifetime.GetCudaDevice(deviceValue) : null;
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
@@ -205,8 +199,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult AllocateParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = AllocateParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -225,8 +217,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateFeature(NGXFeature featureID, NGXParameter parameters, out NGXHandle handle)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = CreateFeatureNative(featureID, parameters, out handle);
@@ -247,8 +237,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateFeature1(NGXCUDADevice? device, NGXFeature featureID, NGXParameter parameters, out NGXHandle handle)
         {
-            handle = default;
-
             NGXCUDADeviceNative* pDevice = device is NGXCUDADevice deviceValue ? NativeLifetime.GetCudaDevice(deviceValue) : null;
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
@@ -285,7 +273,6 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = DestroyParametersNative(parameters);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(parameters);
@@ -320,8 +307,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetCapabilityParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetCapabilityParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -340,21 +325,18 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureRequirements(int cudaDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement supported)
         {
-            supported = default;
-            NGXFeatureRequirementNative supportedNative = default;
-
             using NativeScope scope = new();
 
             NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
-            NGXResult result = GetFeatureRequirementsNative(cudaDevice, &featureDiscoveryInfoNative, out supportedNative);
-            if (result.IsSuccess)
-            {
-                supported = new(in supportedNative);
-            }
-            else
+            NGXResult result = GetFeatureRequirementsNative(cudaDevice, &featureDiscoveryInfoNative, out NGXFeatureRequirementNative supportedNative);
+            if (result.IsFailure)
             {
                 supported = default;
+
+                return result;
             }
+
+            supported = new(in supportedNative);
 
             return result;
         }
@@ -368,8 +350,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -388,8 +368,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            sizeInBytes = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetScratchBufferSizeNative(featureId, parameters, out sizeInBytes);
@@ -486,7 +464,6 @@ public static unsafe partial class Ngx
         public static NGXResult Shutdown()
         {
             NGXResult result = ShutdownNative();
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.Cuda, 0);
@@ -499,7 +476,6 @@ public static unsafe partial class Ngx
         {
             NGXCUDADeviceNative* pDevice = device is NGXCUDADevice deviceValue ? NativeLifetime.GetCudaDevice(deviceValue) : null;
             NGXResult result = Shutdown1Native(pDevice);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.Cuda, (nint)pDevice);

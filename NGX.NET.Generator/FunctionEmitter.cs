@@ -64,7 +64,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (parameter.Role is ParameterRole.ExtensionCount)
         {
-            return new(null, "out " + name, string.Empty) { Initializers = [$"uint {name} = 0;"] };
+            return new(null, "out uint " + name, string.Empty);
         }
 
         if (parameter.Role is ParameterRole.ExtensionProperties or ParameterRole.ExtensionNames)
@@ -132,13 +132,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         string local = "p" + char.ToUpperInvariant(name[0]) + name[1..];
         string count = ParameterName(parameter.CountParameter);
 
-        return new($"out {element}[] {name}", "out " + local, "out " + name)
+        return new($"out {element}[] {name}", $"out {native} {local}", "out " + name)
         {
-            Initializers = [$"{name} = [];", $"{native} {local} = null;"],
             Outputs = [writer =>
             {
-                writer.Line($"{name} = new {element}[checked((int){count})];");
-                WriteGuard(writer, $"{name}.Length is not 0 && {local} is null", "throw new InvalidOperationException(\"NGX returned a null extension array.\");");
+                writer.Line($"{name} = new {element}[{count}];");
+                WriteGuard(writer, $"{name}.Length is not 0 && {local} is null", "throw new InvalidOperationException(\"NGX returned a null extension array.\");", separate: false);
                 writer.BeginBlock($"for (int i = 0; i < {name}.Length; i++)");
                 writer.Line($"{name}[i] = {(properties ? $"new(in {local}[i])" : $"Marshal.PtrToStringUTF8((nint){local}[i])!")};");
                 writer.EndBlock();
@@ -192,9 +191,8 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (output)
         {
-            return new(declaration, "out " + local, forward)
+            return new(declaration, $"out {native} {local}", forward)
             {
-                Initializers = [$"{name} = default;", $"{native} {local} = default;"],
                 Outputs = [writer => writer.Line($"{name} = new(in {local});")],
                 Output = (managed, name)
             };
@@ -271,7 +269,6 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         return new($"out {managed} {name}", "out " + name, "out " + name)
         {
-            Initializers = [$"{name} = default;"],
             Output = (managed, name)
         };
     }
@@ -467,12 +464,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         if (plan.Method is "DestroyParameters")
         {
-            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({plan.ParameterHandle});");
+            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({plan.ParameterHandle});", separate: false);
         }
 
         if (plan.IsShutdown)
         {
-            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({GraphicsApi(plan.Group)}, {plan.Device});");
+            WriteGuard(text, "result.IsSuccess", $"NativeLifetime.Release({GraphicsApi(plan.Group)}, {plan.Device});", separate: false);
         }
     }
 
@@ -484,34 +481,23 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             return;
         }
 
-        if (conversions)
-        {
-            if (plan.IsStatus)
-            {
-                text.BeginBlock("if (result.IsSuccess)");
-            }
-
-            foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
-            {
-                output(text);
-            }
-
-            if (plan.IsStatus)
-            {
-                text.EndBlock();
-                text.BeginBlock("else", continuation: true);
-                WriteOutputReset(text, plan);
-                text.EndBlock();
-            }
-
-            return;
-        }
-
         if (plan.IsStatus)
         {
             text.BeginBlock("if (result.IsFailure)");
             WriteOutputReset(text, plan);
+
+            if (conversions)
+            {
+                text.BlankLine();
+                text.Line("return result;");
+            }
+
             text.EndBlock();
+        }
+
+        foreach (Action<CodeWriter> output in plan.Parameters.SelectMany(static parameter => parameter.Outputs))
+        {
+            output(text);
         }
     }
 

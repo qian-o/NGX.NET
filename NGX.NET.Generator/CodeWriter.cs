@@ -53,9 +53,13 @@ internal class CodeWriter
         BlankLine();
     }
 
-    internal static void WriteGuard(CodeWriter text, string condition, string statement)
+    internal static void WriteGuard(CodeWriter text, string condition, string statement, bool separate = true)
     {
-        text.BlankLine();
+        if (separate)
+        {
+            text.BlankLine();
+        }
+
         text.BeginBlock($"if ({condition})");
         text.Line(statement);
         text.EndBlock();

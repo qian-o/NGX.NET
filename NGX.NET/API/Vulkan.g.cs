@@ -125,8 +125,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSG(nint commandBuffer, uint creationNodeMask, uint visibilityNodeMask, out NGXHandle handle, NGXParameter parameters, in NGXDLSSGCreateParams dlssgCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSGCreateParamsNative dlssgCreateParametersNative = new(in dlssgCreateParameters);
@@ -148,8 +146,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
         {
-            estimatedVRAMInBytes = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = EstimateVRAMDLSSGNative(parameters, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, out estimatedVRAMInBytes);
@@ -203,8 +199,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLISPExt(nint commandList, uint creationNodeMask, uint visibilityNodeMask, out NGXHandle handle, NGXParameter parameters, in NGXFeatureCreateParams dlispCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXFeatureCreateParamsNative dlispCreateParametersNative = new(in dlispCreateParameters);
@@ -226,8 +220,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSDExt1(nint device, nint commandList, uint creationNodeMask, uint visibilityNodeMask, out NGXHandle handle, NGXParameter parameters, in NGXDLSSDCreateParams dlssDCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSDCreateParamsNative dlssDCreateParametersNative = new(in dlssDCreateParameters);
@@ -249,8 +241,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSExt(nint commandList, uint creationNodeMask, uint visibilityNodeMask, out NGXHandle handle, NGXParameter parameters, in NGXDLSSCreateParams dlssCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSCreateParamsNative dlssCreateParametersNative = new(in dlssCreateParameters);
@@ -272,8 +262,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSExt1(nint device, nint commandList, uint creationNodeMask, uint visibilityNodeMask, out NGXHandle handle, NGXParameter parameters, in NGXDLSSCreateParams dlssCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSCreateParamsNative dlssCreateParametersNative = new(in dlssCreateParameters);
@@ -334,8 +322,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult AllocateParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = AllocateParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -354,8 +340,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateFeature(nint commandBuffer, NGXFeature featureID, NGXParameter parameters, out NGXHandle handle)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = CreateFeatureNative(commandBuffer, featureID, parameters, out handle);
@@ -376,8 +360,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateFeature1(nint device, nint commandList, NGXFeature featureID, NGXParameter parameters, out NGXHandle handle)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = CreateFeature1Native(device, commandList, featureID, parameters, out handle);
@@ -401,7 +383,6 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = DestroyParametersNative(parameters);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(parameters);
@@ -436,8 +417,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetCapabilityParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetCapabilityParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -456,31 +435,26 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureDeviceExtensionRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXVkExtensionProperties[] extensionProperties)
         {
-            uint extensionCount = 0;
-            extensionProperties = [];
-            NGXVkExtensionPropertiesNative* pExtensionProperties = null;
-
             using NativeScope scope = new();
 
             NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
-            NGXResult result = GetFeatureDeviceExtensionRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, out extensionCount, out pExtensionProperties);
-            if (result.IsSuccess)
-            {
-                extensionProperties = new NGXVkExtensionProperties[checked((int)extensionCount)];
-
-                if (extensionProperties.Length is not 0 && pExtensionProperties is null)
-                {
-                    throw new InvalidOperationException("NGX returned a null extension array.");
-                }
-
-                for (int i = 0; i < extensionProperties.Length; i++)
-                {
-                    extensionProperties[i] = new(in pExtensionProperties[i]);
-                }
-            }
-            else
+            NGXResult result = GetFeatureDeviceExtensionRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, out uint extensionCount, out NGXVkExtensionPropertiesNative* pExtensionProperties);
+            if (result.IsFailure)
             {
                 extensionProperties = [];
+
+                return result;
+            }
+
+            extensionProperties = new NGXVkExtensionProperties[extensionCount];
+            if (extensionProperties.Length is not 0 && pExtensionProperties is null)
+            {
+                throw new InvalidOperationException("NGX returned a null extension array.");
+            }
+
+            for (int i = 0; i < extensionProperties.Length; i++)
+            {
+                extensionProperties[i] = new(in pExtensionProperties[i]);
             }
 
             return result;
@@ -495,31 +469,26 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureInstanceExtensionRequirements(in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXVkExtensionProperties[] extensionProperties)
         {
-            uint extensionCount = 0;
-            extensionProperties = [];
-            NGXVkExtensionPropertiesNative* pExtensionProperties = null;
-
             using NativeScope scope = new();
 
             NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
-            NGXResult result = GetFeatureInstanceExtensionRequirementsNative(&featureDiscoveryInfoNative, out extensionCount, out pExtensionProperties);
-            if (result.IsSuccess)
-            {
-                extensionProperties = new NGXVkExtensionProperties[checked((int)extensionCount)];
-
-                if (extensionProperties.Length is not 0 && pExtensionProperties is null)
-                {
-                    throw new InvalidOperationException("NGX returned a null extension array.");
-                }
-
-                for (int i = 0; i < extensionProperties.Length; i++)
-                {
-                    extensionProperties[i] = new(in pExtensionProperties[i]);
-                }
-            }
-            else
+            NGXResult result = GetFeatureInstanceExtensionRequirementsNative(&featureDiscoveryInfoNative, out uint extensionCount, out NGXVkExtensionPropertiesNative* pExtensionProperties);
+            if (result.IsFailure)
             {
                 extensionProperties = [];
+
+                return result;
+            }
+
+            extensionProperties = new NGXVkExtensionProperties[extensionCount];
+            if (extensionProperties.Length is not 0 && pExtensionProperties is null)
+            {
+                throw new InvalidOperationException("NGX returned a null extension array.");
+            }
+
+            for (int i = 0; i < extensionProperties.Length; i++)
+            {
+                extensionProperties[i] = new(in pExtensionProperties[i]);
             }
 
             return result;
@@ -534,21 +503,18 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureRequirements(nint instance, nint physicalDevice, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement supported)
         {
-            supported = default;
-            NGXFeatureRequirementNative supportedNative = default;
-
             using NativeScope scope = new();
 
             NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
-            NGXResult result = GetFeatureRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, out supportedNative);
-            if (result.IsSuccess)
-            {
-                supported = new(in supportedNative);
-            }
-            else
+            NGXResult result = GetFeatureRequirementsNative(instance, physicalDevice, &featureDiscoveryInfoNative, out NGXFeatureRequirementNative supportedNative);
+            if (result.IsFailure)
             {
                 supported = default;
+
+                return result;
             }
+
+            supported = new(in supportedNative);
 
             return result;
         }
@@ -562,8 +528,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -582,8 +546,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            sizeInBytes = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetScratchBufferSizeNative(featureId, parameters, out sizeInBytes);
@@ -655,44 +617,35 @@ public static unsafe partial class Ngx
 
         public static NGXResult RequiredExtensions(out string[] instanceExtensions, out string[] deviceExtensions)
         {
-            uint instanceExtensionCount = 0;
-            instanceExtensions = [];
-            byte** pInstanceExtensions = null;
-            uint deviceExtensionCount = 0;
-            deviceExtensions = [];
-            byte** pDeviceExtensions = null;
-
-            NGXResult result = RequiredExtensionsNative(out instanceExtensionCount, out pInstanceExtensions, out deviceExtensionCount, out pDeviceExtensions);
-            if (result.IsSuccess)
-            {
-                instanceExtensions = new string[checked((int)instanceExtensionCount)];
-
-                if (instanceExtensions.Length is not 0 && pInstanceExtensions is null)
-                {
-                    throw new InvalidOperationException("NGX returned a null extension array.");
-                }
-
-                for (int i = 0; i < instanceExtensions.Length; i++)
-                {
-                    instanceExtensions[i] = Marshal.PtrToStringUTF8((nint)pInstanceExtensions[i])!;
-                }
-
-                deviceExtensions = new string[checked((int)deviceExtensionCount)];
-
-                if (deviceExtensions.Length is not 0 && pDeviceExtensions is null)
-                {
-                    throw new InvalidOperationException("NGX returned a null extension array.");
-                }
-
-                for (int i = 0; i < deviceExtensions.Length; i++)
-                {
-                    deviceExtensions[i] = Marshal.PtrToStringUTF8((nint)pDeviceExtensions[i])!;
-                }
-            }
-            else
+            NGXResult result = RequiredExtensionsNative(out uint instanceExtensionCount, out byte** pInstanceExtensions, out uint deviceExtensionCount, out byte** pDeviceExtensions);
+            if (result.IsFailure)
             {
                 instanceExtensions = [];
                 deviceExtensions = [];
+
+                return result;
+            }
+
+            instanceExtensions = new string[instanceExtensionCount];
+            if (instanceExtensions.Length is not 0 && pInstanceExtensions is null)
+            {
+                throw new InvalidOperationException("NGX returned a null extension array.");
+            }
+
+            for (int i = 0; i < instanceExtensions.Length; i++)
+            {
+                instanceExtensions[i] = Marshal.PtrToStringUTF8((nint)pInstanceExtensions[i])!;
+            }
+
+            deviceExtensions = new string[deviceExtensionCount];
+            if (deviceExtensions.Length is not 0 && pDeviceExtensions is null)
+            {
+                throw new InvalidOperationException("NGX returned a null extension array.");
+            }
+
+            for (int i = 0; i < deviceExtensions.Length; i++)
+            {
+                deviceExtensions[i] = Marshal.PtrToStringUTF8((nint)pDeviceExtensions[i])!;
             }
 
             return result;
@@ -701,7 +654,6 @@ public static unsafe partial class Ngx
         public static NGXResult Shutdown()
         {
             NGXResult result = ShutdownNative();
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.Vulkan, 0);
@@ -713,7 +665,6 @@ public static unsafe partial class Ngx
         public static NGXResult Shutdown1(nint device)
         {
             NGXResult result = Shutdown1Native(device);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.Vulkan, device);

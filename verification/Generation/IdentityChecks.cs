@@ -56,6 +56,7 @@ internal static class IdentityChecks
             }
         }
 
+        OutputAssignmentChecks.Run(compilation, generated);
         DlssAllocationChecks.Run(compilation, generated);
         Console.WriteLine($"PASS {checkedCount} generated casts: 0 identity conversions; semantic compilation has no errors.");
     }

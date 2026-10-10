@@ -77,8 +77,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetD(NGXParameter parameter, string name, out double value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -100,8 +98,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetD3d11Resource(NGXParameter parameter, string name, out nint value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -123,8 +119,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetD3d12Resource(NGXParameter parameter, string name, out nint value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -146,8 +140,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetF(NGXParameter parameter, string name, out float value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -169,8 +161,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetI(NGXParameter parameter, string name, out int value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -192,8 +182,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetUI(NGXParameter parameter, string name, out uint value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -215,8 +203,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetULL(NGXParameter parameter, string name, out ulong value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 
@@ -238,8 +224,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetVoidPointer(NGXParameter parameter, string name, out nint value)
         {
-            value = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameter.Value, nameof(parameter));
             ArgumentNullException.ThrowIfNull(name);
 

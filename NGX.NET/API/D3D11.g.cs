@@ -93,8 +93,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLISPExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXFeatureCreateParams dlispCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXFeatureCreateParamsNative dlispCreateParametersNative = new(in dlispCreateParameters);
@@ -116,8 +114,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSDExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXDLSSDCreateParams dlssDCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSDCreateParamsNative dlssDCreateParametersNative = new(in dlssDCreateParameters);
@@ -139,8 +135,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateDLSSExt(nint ctx, out NGXHandle handle, NGXParameter parameters, in NGXDLSSCreateParams dlssCreateParameters)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXDLSSCreateParamsNative dlssCreateParametersNative = new(in dlssCreateParameters);
@@ -195,8 +189,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult AllocateParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = AllocateParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -215,8 +207,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult CreateFeature(nint deviceCtx, NGXFeature featureID, NGXParameter parameters, out NGXHandle handle)
         {
-            handle = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = CreateFeatureNative(deviceCtx, featureID, parameters, out handle);
@@ -240,7 +230,6 @@ public static unsafe partial class Ngx
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = DestroyParametersNative(parameters);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(parameters);
@@ -275,8 +264,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetCapabilityParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetCapabilityParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -295,21 +282,18 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetFeatureRequirements(nint adapter, in NGXFeatureDiscoveryInfo featureDiscoveryInfo, out NGXFeatureRequirement supported)
         {
-            supported = default;
-            NGXFeatureRequirementNative supportedNative = default;
-
             using NativeScope scope = new();
 
             NGXFeatureDiscoveryInfoNative featureDiscoveryInfoNative = new(in featureDiscoveryInfo, scope);
-            NGXResult result = GetFeatureRequirementsNative(adapter, &featureDiscoveryInfoNative, out supportedNative);
-            if (result.IsSuccess)
-            {
-                supported = new(in supportedNative);
-            }
-            else
+            NGXResult result = GetFeatureRequirementsNative(adapter, &featureDiscoveryInfoNative, out NGXFeatureRequirementNative supportedNative);
+            if (result.IsFailure)
             {
                 supported = default;
+
+                return result;
             }
+
+            supported = new(in supportedNative);
 
             return result;
         }
@@ -323,8 +307,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetParameters(out NGXParameter parameters)
         {
-            parameters = default;
-
             NGXResult result = GetParametersNative(out parameters);
             if (result.IsFailure)
             {
@@ -343,8 +325,6 @@ public static unsafe partial class Ngx
 
         public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            sizeInBytes = default;
-
             ArgumentNullException.ThrowIfNull((void*)parameters.Value, nameof(parameters));
 
             NGXResult result = GetScratchBufferSizeNative(featureId, parameters, out sizeInBytes);
@@ -417,7 +397,6 @@ public static unsafe partial class Ngx
         public static NGXResult Shutdown()
         {
             NGXResult result = ShutdownNative();
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.D3D11, 0);
@@ -429,7 +408,6 @@ public static unsafe partial class Ngx
         public static NGXResult Shutdown1(nint device)
         {
             NGXResult result = Shutdown1Native(device);
-
             if (result.IsSuccess)
             {
                 NativeLifetime.Release(NGXGraphicsAPI.D3D11, device);
