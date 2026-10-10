@@ -1,0 +1,10 @@
+﻿global using System.Reflection;
+global using System.Runtime.Loader;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Nodes;
+global using Microsoft.CodeAnalysis;
+global using Microsoft.CodeAnalysis.CSharp;
+global using Microsoft.CodeAnalysis.CSharp.Syntax;
+global using NGX.NET.Generator;
+global using static Generation.Check;

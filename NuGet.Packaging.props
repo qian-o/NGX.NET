@@ -1,0 +1,29 @@
+﻿<Project>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Version>310.9.1</Version>
+        <Authors>qian-o</Authors>
+        <Copyright>Copyright (c) 2026 qian-o</Copyright>
+        <Description>C# bindings for NVIDIA NGX.</Description>
+
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/qian-o/NGX.NET.git</RepositoryUrl>
+
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>NGX;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
+        <PackageProjectUrl>https://github.com/qian-o/NGX.NET</PackageProjectUrl>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

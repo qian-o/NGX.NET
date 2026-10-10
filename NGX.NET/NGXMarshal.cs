@@ -4,9 +4,9 @@ namespace NGX.NET;
 
 public static unsafe class NGXMarshal
 {
-    private static readonly Encoding UTF8 = new UTF8Encoding(false, true);
-    private static readonly Encoding UTF16 = new UnicodeEncoding(false, false, true);
-    private static readonly Encoding UTF32 = new UTF32Encoding(false, false, true);
+    private static readonly Encoding utf8 = new UTF8Encoding(false, true);
+    private static readonly Encoding utf16 = new UnicodeEncoding(false, false, true);
+    private static readonly Encoding utf32 = new UTF32Encoding(false, false, true);
 
     public static void* StringToPtr(string? value, NGXEncoding encoding)
     {
@@ -121,28 +121,28 @@ public static unsafe class NGXMarshal
             throw new ArgumentException("Text cannot contain an embedded null character.", nameof(value));
         }
 
-        int length = UTF8.GetByteCount(value);
+        int length = utf8.GetByteCount(value);
         if (length >= buffer.Length)
         {
             throw new ArgumentException("UTF-8 text exceeds the native buffer capacity.", nameof(value));
         }
 
-        UTF8.GetBytes(value, buffer);
+        utf8.GetBytes(value, buffer);
     }
 
     internal static string ReadUtf8(ReadOnlySpan<byte> buffer)
     {
         int end = buffer.IndexOf((byte)0);
 
-        return UTF8.GetString(end < 0 ? buffer : buffer[..end]);
+        return utf8.GetString(end < 0 ? buffer : buffer[..end]);
     }
 
     private static Encoding GetEncoding(NGXEncoding encoding)
     {
         return encoding switch
         {
-            NGXEncoding.Utf8 => UTF8,
-            NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? UTF16 : UTF32,
+            NGXEncoding.Utf8 => utf8,
+            NGXEncoding.NativeWide => OperatingSystem.IsWindows() ? utf16 : utf32,
             _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported native string encoding.")
         };
     }

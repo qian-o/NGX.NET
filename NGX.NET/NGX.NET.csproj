@@ -6,32 +6,6 @@
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <Version>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../NGX.NET.Generator/ast.json')), '"release"\s*:\s*"v?([^&quot;]+)"').Groups[1].Value)</Version>
-        <Authors>qian-o</Authors>
-        <Copyright>Copyright (c) 2026 qian-o</Copyright>
-        <Description>C# bindings for NVIDIA NGX.</Description>
-
-        <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>https://github.com/qian-o/NGX.NET.git</RepositoryUrl>
-
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>NGX;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
-        <PackageProjectUrl>https://github.com/qian-o/NGX.NET</PackageProjectUrl>
-
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
-
-    <ItemGroup Condition="'$(Configuration)' == 'Release'">
-        <None Include="..\LICENSE" Pack="true" PackagePath="\" />
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
-
     <ItemGroup>
         <InternalsVisibleTo Include="NGX.NET.Marshalling.Tests" />
         <None Include="..\native\**\*.dll;..\native\**\*.so*">
@@ -42,5 +16,7 @@
             <Pack>true</Pack>
         </None>
     </ItemGroup>
+
+    <Import Project="../NuGet.Packaging.props" />
 
 </Project>

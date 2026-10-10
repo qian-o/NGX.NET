@@ -7,6 +7,16 @@ internal static partial class NgxCallbacks
     private static readonly Lock gate = new();
     private static readonly Dictionary<nint, Delegate> roots = [];
 
+    internal static int Count
+    {
+        get
+        {
+            using Lock.Scope _ = gate.EnterScope();
+
+            return roots.Count;
+        }
+    }
+
     internal static void Release(nint pointer)
     {
         if (pointer is 0)

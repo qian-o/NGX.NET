@@ -2,8 +2,8 @@
 
 internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files)
 {
-    private static readonly Regex NumericInitializer = new(@"^-?\d+(?:\.\d+f)?$");
-    private static readonly Regex ZeroInitializer = new(@"^\{[0 ,.f]+\}$");
+    private static readonly Regex numericInitializer = new(@"^-?\d+(?:\.\d+f)?$");
+    private static readonly Regex zeroInitializer = new(@"^\{[0 ,.f]+\}$");
 
     internal void WriteRecord(string name, AstRecord record)
     {
@@ -544,7 +544,7 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
             }
 
             string value = declaration.Split('=', 2)[1].Trim();
-            if (NumericInitializer.IsMatch(value))
+            if (numericInitializer.IsMatch(value))
             {
                 if (field.Type.Kind is NativeTypeKind.Float)
                 {
@@ -560,7 +560,7 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
 
                 defaults.Add((PublicFieldName(record, field.Name), value));
             }
-            else if (!ZeroInitializer.IsMatch(value))
+            else if (!zeroInitializer.IsMatch(value))
             {
                 throw new InvalidOperationException($"Unsupported initializer: {value}.");
             }

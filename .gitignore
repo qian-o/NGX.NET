@@ -435,3 +435,6 @@ FodyWeavers.xsd
 
 ## DocFX generated files
 _site/
+
+# Local refactoring work
+.work/

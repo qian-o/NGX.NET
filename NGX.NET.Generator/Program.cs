@@ -2,7 +2,7 @@
 
 internal static class Program
 {
-    private static readonly UTF8Encoding UTF8 = new(true);
+    private static readonly UTF8Encoding utf8 = new(true);
     private static readonly string[] OutputDirectories = ["API", "Types", "Callbacks", "Enums", "Structs", "Delegates"];
 
     private static int Main(string[] args)
@@ -19,7 +19,7 @@ internal static class Program
             foreach ((string name, string source) in files)
             {
                 string path = Path.Combine(output, name);
-                byte[] content = [.. UTF8.GetPreamble(), .. UTF8.GetBytes(source)];
+                byte[] content = [.. utf8.GetPreamble(), .. utf8.GetBytes(source)];
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
                 if (!File.Exists(path) || !File.ReadAllBytes(path).AsSpan().SequenceEqual(content))

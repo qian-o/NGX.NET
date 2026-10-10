@@ -9,6 +9,16 @@ internal static unsafe class NgxLifetime
     private static readonly Dictionary<(nint Context, nint Stream), NativeValue<NGXCUDADeviceNative>> cudaDevices = [];
     private static readonly HashSet<nint> activeCudaDevices = [];
 
+    internal static (int Initialization, int ParameterData, int ParameterBackends) Counts
+    {
+        get
+        {
+            using Lock.Scope _ = gate.EnterScope();
+
+            return (initialization.Count, parameterData.Count, parameterBackends.Count);
+        }
+    }
+
     internal static void BeginInitialization(string backend, nint device, NativeCall call)
     {
         using Lock.Scope _ = gate.EnterScope();
