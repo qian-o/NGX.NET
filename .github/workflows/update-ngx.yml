@@ -87,7 +87,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
-      pull-requests: write
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -113,21 +112,11 @@ jobs:
           dotnet build NGX.NET.slnx -c Release --warnaserror
           dotnet format NGX.NET.slnx --no-restore --verify-no-changes --include-generated --exclude NGX.NET.Generator/obj NGX.NET/obj Showcase/obj --severity warn
           python3 verification/Marshalling/run.py
-      - name: Submit the complete update for review
+      - name: Commit the complete update
         env:
-          GH_TOKEN: ${{ github.token }}
-          NGX_BASE_BRANCH: ${{ github.ref_name }}
-          NGX_REPOSITORY: ${{ github.repository }}
-          NGX_UPDATE_BRANCH: update-ngx/${{ github.run_id }}-${{ github.run_attempt }}
+          NGX_TARGET_BRANCH: ${{ github.ref_name }}
         run: |
           git add bridge native NGX.NET.Generator/ast.json NGX.NET NuGet.Packaging.props
           if git diff --cached --quiet; then exit 0; fi
-          git switch --create "$NGX_UPDATE_BRANCH"
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Update NGX SDK and native bridge sources'
-          git push origin "HEAD:refs/heads/$NGX_UPDATE_BRANCH"
-          cat > "$RUNNER_TEMP/ngx-update-pr.md" <<'BODY'
-          Update the NVIDIA SDK source and all four native runtimes together with the exact generated bridge translation units and linker inputs. The SDK release and commit are recorded in ast.json, and the package version is updated in NuGet.Packaging.props.
-
-          Validation passed: deterministic binding generation, generation checks, Release build with warnings as errors, format verification, and managed marshalling/layout/export checks. Native NVIDIA GPU execution remains unverified.
-          BODY
-          gh pr create --repo "$NGX_REPOSITORY" --base "$NGX_BASE_BRANCH" --head "$NGX_UPDATE_BRANCH" --title 'Update NGX SDK and native bridge sources' --body-file "$RUNNER_TEMP/ngx-update-pr.md"
+          git push origin "HEAD:refs/heads/$NGX_TARGET_BRANCH"
