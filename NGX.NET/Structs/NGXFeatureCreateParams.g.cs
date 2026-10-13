@@ -1,0 +1,15 @@
+﻿namespace NGX.NET;
+
+[StructLayout(LayoutKind.Sequential)]
+public struct NGXFeatureCreateParams
+{
+    public uint Width;
+
+    public uint Height;
+
+    public uint TargetWidth;
+
+    public uint TargetHeight;
+
+    public NGXPerfQualityValue PerfQualityValue;
+}

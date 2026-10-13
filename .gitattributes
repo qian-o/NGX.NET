@@ -1,0 +1,2 @@
+* text=auto
+native/** filter=lfs diff=lfs merge=lfs -text
