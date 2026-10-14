@@ -18,7 +18,7 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_DLSS_GET_STATS_2")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetStats2(NGXParameter parameters, ulong* vramAllocatedBytes, uint* optLevel, uint* isDeviceSnippetBranch);
+        public static partial NGXResult GetStats2(NGXParameter parameters, ulong* vramAllocatedBytes, uint* optLevel, uint* isDevSnippetBranch);
 
         static DLSS()
         {
@@ -70,15 +70,15 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult GetStats2(NGXParameter parameters, out ulong vramAllocatedBytes, out uint optLevel, out uint isDeviceSnippetBranch)
+        public static NGXResult GetStats2(NGXParameter parameters, out ulong vramAllocatedBytes, out uint optLevel, out uint isDevSnippetBranch)
         {
             fixed (ulong* pVramAllocatedBytes = &vramAllocatedBytes)
             {
                 fixed (uint* pOptLevel = &optLevel)
                 {
-                    fixed (uint* pIsDeviceSnippetBranch = &isDeviceSnippetBranch)
+                    fixed (uint* pIsDevSnippetBranch = &isDevSnippetBranch)
                     {
-                        return GetStats2(parameters, pVramAllocatedBytes, pOptLevel, pIsDeviceSnippetBranch);
+                        return GetStats2(parameters, pVramAllocatedBytes, pOptLevel, pIsDevSnippetBranch);
                     }
                 }
             }

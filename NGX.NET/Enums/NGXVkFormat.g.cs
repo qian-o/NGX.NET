@@ -562,11 +562,11 @@ public enum NGXVkFormat : int
 
     R8BoolArm = 1000460000,
 
-    R16SfloatFpencodingBfloat16Arm = 1000460001,
+    R16SfloatFpEncodingBfloat16Arm = 1000460001,
 
-    R8SfloatFpencodingFloat8E4M3Arm = 1000460002,
+    R8SfloatFpEncodingFloat8E4M3Arm = 1000460002,
 
-    R8SfloatFpencodingFloat8E5M2Arm = 1000460003,
+    R8SfloatFpEncodingFloat8E5M2Arm = 1000460003,
 
     R16G16Sfixed5Nv = 1000464000,
 

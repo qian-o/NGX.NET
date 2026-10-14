@@ -763,21 +763,21 @@ public static unsafe partial class Ngx
 
     public static ReadOnlySpan<byte> ParameterGBufferAlbedo => "GBuffer.Albedo\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib10 => "GBuffer.Attrib.10\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib10 => "GBuffer.Attrib.10\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib11 => "GBuffer.Attrib.11\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib11 => "GBuffer.Attrib.11\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib12 => "GBuffer.Attrib.12\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib12 => "GBuffer.Attrib.12\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib13 => "GBuffer.Attrib.13\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib13 => "GBuffer.Attrib.13\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib14 => "GBuffer.Attrib.14\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib14 => "GBuffer.Attrib.14\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib15 => "GBuffer.Attrib.15\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib15 => "GBuffer.Attrib.15\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib8 => "GBuffer.Attrib.8\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib8 => "GBuffer.Attrib.8\0"u8;
 
-    public static ReadOnlySpan<byte> ParameterGBufferAtrrib9 => "GBuffer.Attrib.9\0"u8;
+    public static ReadOnlySpan<byte> ParameterGBufferAttrib9 => "GBuffer.Attrib.9\0"u8;
 
     public static ReadOnlySpan<byte> ParameterGBufferDiffuseAlbedo => "GBuffer.DiffuseAlbedo\0"u8;
 

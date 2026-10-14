@@ -2,33 +2,33 @@
 
 public enum NGXGBufferType : int
 {
-    GbufferAlbedo = 0,
+    Albedo = 0,
 
-    GbufferRoughness = 1,
+    Roughness = 1,
 
-    GbufferMetallic = 2,
+    Metallic = 2,
 
-    GbufferSpecular = 3,
+    Specular = 3,
 
-    GbufferSubsurface = 4,
+    Subsurface = 4,
 
-    GbufferNormals = 5,
+    Normals = 5,
 
-    GbufferShadingmodelid = 6,
+    ShadingModelId = 6,
 
-    GbufferMaterialid = 7,
+    MaterialId = 7,
 
-    GbufferSpecularAlbedo = 8,
+    SpecularAlbedo = 8,
 
-    GbufferIndirectAlbedo = 9,
+    IndirectAlbedo = 9,
 
-    GbufferSpecularMvec = 10,
+    SpecularMvec = 10,
 
-    GbufferDisocclMask = 11,
+    DisocclMask = 11,
 
-    GbufferEmissive = 12,
+    Emissive = 12,
 
-    GbufferResponsivityMask = 13,
+    ResponsivityMask = 13,
 
     Num = 17,
 }

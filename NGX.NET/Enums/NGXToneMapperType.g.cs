@@ -2,13 +2,13 @@
 
 public enum NGXToneMapperType : int
 {
-    TonemapperString = 0,
+    String = 0,
 
-    TonemapperReinhard = 1,
+    Reinhard = 1,
 
-    TonemapperOneoverluma = 2,
+    OneOverLuma = 2,
 
-    TonemapperAces = 3,
+    Aces = 3,
 
     Num = 4,
 }

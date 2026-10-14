@@ -4,6 +4,16 @@ internal class TypeMapper
 {
     private static readonly HashSet<string> Acronyms = ["NGX", "DLSS", "DLSSD", "DLSSG", "DLAA", "DLISP", "CUDA", "D3D11", "D3D12", "VK", "UI", "ULL", "F", "D", "I", "API", "HDR", "SR", "RR", "RW", "VRAM"];
     private static readonly string[] FunctionGroups = ["D3D11", "D3D12", "CUDA", "VULKAN", "VK", "Parameter", "DLSSD", "DLSS"];
+    // Restore word boundaries lost in uppercase native tokens and correct the SDK's Attrib typo.
+    private static readonly Dictionary<string, string> NativeWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["SHADINGMODELID"] = "ShadingModelId",
+        ["MATERIALID"] = "MaterialId",
+        ["ONEOVERLUMA"] = "OneOverLuma",
+        ["IMAGEVIEW"] = "ImageView",
+        ["FPENCODING"] = "FpEncoding",
+        ["Atrrib"] = "Attrib"
+    };
 
     private readonly AstModel model;
     private readonly Dictionary<string, string> unionNames = [];
@@ -107,7 +117,7 @@ internal class TypeMapper
     {
         name = name.Replace("NVSDK_NGX_", string.Empty, StringComparison.Ordinal);
 
-        return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part => Acronyms.Contains(part) || part.Any(char.IsLower) ? $"{char.ToUpperInvariant(part[0])}{part[1..]}" : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part.ToLowerInvariant())));
+        return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part => NativeWords.GetValueOrDefault(part, Acronyms.Contains(part) || part.Any(char.IsLower) ? $"{char.ToUpperInvariant(part[0])}{part[1..]}" : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part.ToLowerInvariant()))));
     }
 
     internal static string GetTypeName(string native)
@@ -134,26 +144,22 @@ internal class TypeMapper
 
     internal static string GetEnumMemberName(string enumName, string nativeMember)
     {
-        string prefix = $"{enumName}_";
-        bool hasPrefix = nativeMember.StartsWith(prefix, StringComparison.Ordinal);
-        string member = hasPrefix ? nativeMember[prefix.Length..] : nativeMember.Replace("NVSDK_NGX_", string.Empty, StringComparison.Ordinal);
+        const string TypeSuffix = "Type";
+        string normalized = enumName.Replace("_", string.Empty, StringComparison.Ordinal);
+        string withoutType = normalized.EndsWith(TypeSuffix, StringComparison.Ordinal) ? normalized[..^TypeSuffix.Length] : normalized;
+        string[] parts = nativeMember.Split('_');
 
-        if (!hasPrefix)
+        // Native member prefixes may omit the enum's Type suffix. Match at underscore boundaries and retain a member name.
+        for (int i = parts.Length - 1; i > 0; i--)
         {
-            string[] parts = nativeMember.Split('_');
-            string normalized = enumName.Replace("_", string.Empty, StringComparison.Ordinal);
-            for (int i = 1; i < parts.Length; i++)
+            string prefix = string.Concat(parts.Take(i));
+            if (prefix.Equals(normalized, StringComparison.OrdinalIgnoreCase) || prefix.Equals(withoutType, StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Concat(parts.Take(i)).Equals(normalized, StringComparison.OrdinalIgnoreCase))
-                {
-                    member = string.Join("_", parts.Skip(i));
-
-                    break;
-                }
+                return GetEnumMemberName(string.Join("_", parts.Skip(i)));
             }
         }
 
-        return GetEnumMemberName(member);
+        return GetEnumMemberName(nativeMember.Replace("NVSDK_NGX_", string.Empty, StringComparison.Ordinal));
     }
 
     internal static (string Group, string Method) GetFunctionName(string native)
@@ -177,18 +183,13 @@ internal class TypeMapper
 
     internal static string GetEnumMemberName(string value)
     {
-        if (value.Replace("_", string.Empty, StringComparison.Ordinal) is "VKIMAGEVIEW")
-        {
-            return "VkImageView";
-        }
-
-        if (value.Replace("_", string.Empty, StringComparison.Ordinal) is "VKBUFFER")
-        {
-            return "VkBuffer";
-        }
-
         return string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part =>
         {
+            if (NativeWords.TryGetValue(part, out string? word))
+            {
+                return word;
+            }
+
             if (Regex.IsMatch(part, @"^[RGBADESX0-9]+$") && part.Any(char.IsDigit))
             {
                 return part;
@@ -243,7 +244,7 @@ internal class TypeMapper
         string name = Regex.Replace(native, @"^[pP]+(?=[A-Z_])_?", string.Empty);
         name = Regex.Replace(name, @"^(?:In|in|Out|out)(?=[A-Z_]|$)_?", string.Empty);
 
-        return Regex.Replace(name, @"(?:Params|Cmd|Dev|Attrib|Buf|Exts|Ext|Res)(?=[A-Z0-9_]|$)", static match => match.Value switch
+        return Regex.Replace(name, @"(?:Params|Cmd|Dev(?=Ctx)|Attrib|Buf|Exts|Ext|Res)(?=[A-Z0-9_]|$)", static match => match.Value switch
         {
             "Params" => "Parameters",
             "Cmd" => "Command",

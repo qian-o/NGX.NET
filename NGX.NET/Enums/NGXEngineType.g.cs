@@ -10,5 +10,5 @@ public enum NGXEngineType : int
 
     Omniverse = 3,
 
-    EngineCount = 4,
+    Count = 4,
 }
