@@ -17,14 +17,14 @@ internal class CodeWriter
     {
         if (hasPendingBlankLine && text.Length is not 0)
         {
-            text.Append('\n');
+            text.AppendLine();
         }
 
         hasPendingBlankLine = false;
         isBlockStart = false;
         text.Append(' ', indentationLevel * 4);
         text.Append(value);
-        text.Append('\n');
+        text.AppendLine();
     }
 
     internal void WriteBlankLine()
