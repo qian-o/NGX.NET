@@ -143,6 +143,8 @@ public static unsafe partial class Ngx
 
     public static ReadOnlySpan<byte> DLSSGParameterLinearizedDepthScale => "DLSSG.LinearizedDepth_Scale\0"u8;
 
+    public static ReadOnlySpan<byte> DLSSGParameterLiteCandidateBlendingEnabled => "DLSSG.LiteCandidateBlendingEnabled\0"u8;
+
     public static ReadOnlySpan<byte> DLSSGParameterMVecs => "DLSSG.MVecs\0"u8;
 
     public static ReadOnlySpan<byte> DLSSGParameterMVecsSubrectBaseX => "DLSSG.MVecsSubrectBaseX\0"u8;

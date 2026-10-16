@@ -1,8 +1,8 @@
 {
   "source": {
     "repository": "https://github.com/NVIDIA/DLSS",
-    "release": "v310.9.1",
-    "commit": "374959484e79a640feaba44c93ac8cfb0a03f5b5",
+    "release": "v310.9.16",
+    "commit": "9981c6350dc58c0ce21f024fd65e31e851c31689",
     "vulkanCommit": "c46850864f4661461b0f6cb9922c058ffea4915e"
   },
   "platforms": {
@@ -20774,6 +20774,13 @@
           "name": "NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_Scale",
           "tokens": [
             "\"DLSSG.LinearizedDepth_Scale\""
+          ],
+          "functionLike": false
+        },
+        {
+          "name": "NVSDK_NGX_DLSSG_Parameter_LiteCandidateBlendingEnabled",
+          "tokens": [
+            "\"DLSSG.LiteCandidateBlendingEnabled\""
           ],
           "functionLike": false
         },
@@ -44798,6 +44805,13 @@
           "functionLike": false
         },
         {
+          "name": "NVSDK_NGX_DLSSG_Parameter_LiteCandidateBlendingEnabled",
+          "tokens": [
+            "\"DLSSG.LiteCandidateBlendingEnabled\""
+          ],
+          "functionLike": false
+        },
+        {
           "name": "NVSDK_NGX_DLSSG_Parameter_MVecs",
           "tokens": [
             "\"DLSSG.MVecs\""
@@ -63245,6 +63259,13 @@
           "functionLike": false
         },
         {
+          "name": "NVSDK_NGX_DLSSG_Parameter_LiteCandidateBlendingEnabled",
+          "tokens": [
+            "\"DLSSG.LiteCandidateBlendingEnabled\""
+          ],
+          "functionLike": false
+        },
+        {
           "name": "NVSDK_NGX_DLSSG_Parameter_MVecs",
           "tokens": [
             "\"DLSSG.MVecs\""
@@ -81678,6 +81699,13 @@
           "name": "NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_Scale",
           "tokens": [
             "\"DLSSG.LinearizedDepth_Scale\""
+          ],
+          "functionLike": false
+        },
+        {
+          "name": "NVSDK_NGX_DLSSG_Parameter_LiteCandidateBlendingEnabled",
+          "tokens": [
+            "\"DLSSG.LiteCandidateBlendingEnabled\""
           ],
           "functionLike": false
         },
