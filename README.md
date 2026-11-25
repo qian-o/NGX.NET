@@ -27,7 +27,7 @@ Add `<NGXRuntime>` to your `.csproj` to stage DLSS runtime libraries (`nvngx_dls
     <!-- Download official binaries (cached in system temp): All | win-x64 | win-arm64 | linux-x64 | linux-arm64 -->
     <NGXRuntime Include="win-x64" />
 
-    <!-- Or copy from a local directory or file (use None to clear inherited entries) -->
+    <!-- Or copy from a local directory or file -->
     <!--
     <NGXRuntime Include="win-x64">
         <Path>path\to\dlss\lib\Windows_x86_64\rel</Path>
