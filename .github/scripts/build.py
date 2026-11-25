@@ -249,11 +249,15 @@ def build(root: Path, scratch: Path, output: Path, rid: str) -> None:
 
 
 def merge(root: Path, output: Path) -> None:
+    artifacts = {}
     platforms = {}
     natives = {}
     source = None
     for rid in PLATFORMS:
         artifact = root / f"target-{rid}"
+        if not artifact.is_dir() and len(PLATFORMS) == 1:
+            artifact = root
+        artifacts[rid] = artifact
         fragment = json.loads((artifact / "ast.json").read_text(encoding="utf-8"))
         if fragment["rid"] != rid:
             raise RuntimeError("Target artifact RID does not match: " + rid)
@@ -285,8 +289,8 @@ def merge(root: Path, output: Path) -> None:
     destination = output / "native"
     if destination.exists():
         shutil.rmtree(destination)
-    for rid in PLATFORMS:
-        shutil.copytree(root / f"target-{rid}" / "native" / rid, destination / rid)
+    for rid, artifact in artifacts.items():
+        shutil.copytree(artifact / "native" / rid, destination / rid)
 
     merged_source = {
         "repository": source["repository"],
