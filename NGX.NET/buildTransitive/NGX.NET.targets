@@ -28,6 +28,8 @@ namespace NGX.NET.Tasks
         private const int MaxAttempts = 3;
         private const int ReadTimeoutSeconds = 60;
         private const int BufferSize = 64 * 1024;
+        private static readonly StringComparison PathComparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        private static readonly StringComparer PathComparer = Path.DirectorySeparatorChar == '\\' ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
         private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
 
         [Required]
@@ -236,7 +238,7 @@ namespace NGX.NET.Tasks
             }
 
             Dictionary<string, List<ITaskItem>> resolvedByRid = new Dictionary<string, List<ITaskItem>>(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, int> localAllRootHits = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, int> localAllRootHits = new Dictionary<string, int>(PathComparer);
             List<string> localAllRootsSeen = new List<string>();
             List<DownloadEntry> downloadEntries = new List<DownloadEntry>();
             bool flattenToRoot = !string.IsNullOrWhiteSpace(RuntimeIdentifier);
@@ -672,7 +674,7 @@ namespace NGX.NET.Tasks
         private bool AddFileCheckingDuplicates(Dictionary<string, string> filesByName, string fileName, string fullPath, string rid)
         {
             string existingPath;
-            if (filesByName.TryGetValue(fileName, out existingPath) && !string.Equals(existingPath, fullPath, StringComparison.OrdinalIgnoreCase))
+            if (filesByName.TryGetValue(fileName, out existingPath) && !string.Equals(existingPath, fullPath, PathComparison))
             {
                 Log.LogError("NGX.NET: Duplicate runtime file '{0}' for '{1}' specified at both '{2}' and '{3}'.", fileName, rid, existingPath, fullPath);
                 return false;
@@ -784,7 +786,42 @@ namespace NGX.NET.Tasks
             }
 
             return fileName.EndsWith(".so", StringComparison.OrdinalIgnoreCase)
-                || (fileName.IndexOf(".so.", StringComparison.Ordinal) > 0);
+                || HasNumericSoSuffix(fileName);
+        }
+
+        private static bool HasNumericSoSuffix(string fileName)
+        {
+            int markerIndex = fileName.IndexOf(".so.", StringComparison.Ordinal);
+            if (markerIndex <= 0)
+            {
+                return false;
+            }
+
+            string suffix = fileName.Substring(markerIndex + 4);
+            if (suffix.Length == 0)
+            {
+                return false;
+            }
+
+            string[] segments = suffix.Split('.');
+            foreach (string segment in segments)
+            {
+                if (segment.Length == 0)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < segment.Length; i++)
+                {
+                    char c = segment[i];
+                    if ((c < '0') || (c > '9'))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private void LogHigh(string format, params object[] args)
@@ -854,7 +891,7 @@ namespace NGX.NET.Tasks
     </UsingTask>
 
     <Target Name="_NgxInitializeRuntimeLayout"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'">
 
         <PropertyGroup>
             <_NgxNormalizedRids Condition="'$(RuntimeIdentifier)' != ''">;$(RuntimeIdentifier.Trim().ToLowerInvariant());</_NgxNormalizedRids>
@@ -869,7 +906,7 @@ namespace NGX.NET.Tasks
     <Target Name="_NgxStageRuntimeAssets"
             BeforeTargets="AssignTargetPaths"
             DependsOnTargets="_NgxInitializeRuntimeLayout"
-            Condition="'@(NGXRuntime)' != '' and '$(DesignTimeBuild)' != 'true'">
+            Condition="'@(NGXRuntime)' != '' and '$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'">
 
         <NgxResolveRuntime RuntimeItems="@(NGXRuntime)"
                            ManifestEntries="@(_NgxManifestEntry)"
@@ -897,7 +934,7 @@ namespace NGX.NET.Tasks
 
     <Target Name="_NgxGetTransitiveRuntimeAssets"
             DependsOnTargets="_NgxStageRuntimeAssets;_SplitProjectReferencesByFileExistence;_GetProjectReferenceTargetFrameworkProperties"
-            Condition="'$(DesignTimeBuild)' != 'true'"
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'"
             Returns="@(_NgxTransitiveRuntimeAsset)">
 
         <MSBuild Projects="@(_MSBuildProjectReferenceExistent)"
@@ -926,7 +963,7 @@ namespace NGX.NET.Tasks
     <Target Name="_NgxNormalizeBuildRuntimeAssets"
             AfterTargets="GetCopyToOutputDirectoryItems"
             DependsOnTargets="_NgxInitializeRuntimeLayout;_NgxGetTransitiveRuntimeAssets"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'">
 
         <ItemGroup>
             <_NgxBuildRemoveAsset Include="@(_NgxChildRuntimeAsset);@(_NgxResolvedAsset)" />
@@ -965,7 +1002,7 @@ namespace NGX.NET.Tasks
     <Target Name="_NgxNormalizePublishRuntimeAssets"
             AfterTargets="GetCopyToPublishDirectoryItems"
             DependsOnTargets="_NgxInitializeRuntimeLayout;_NgxGetTransitiveRuntimeAssets"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'">
 
         <ItemGroup>
             <_NgxPublishRemoveAsset Include="@(_NgxChildRuntimeAsset);@(_NgxResolvedAsset)" />
@@ -1005,7 +1042,7 @@ namespace NGX.NET.Tasks
     <Target Name="_NgxExcludeCoreNativeFromSingleFile"
             AfterTargets="ComputeResolvedFilesToPublishList"
             BeforeTargets="_ComputeFilesToBundle;_ComputeResolvedFilesToPublishTypes"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true'">
 
         <ItemGroup>
             <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
