@@ -13,7 +13,7 @@ public unsafe delegate void NGXD3D11Tex2DAllocCallback(nint arg0, nint* arg1);
 public unsafe delegate void NGXD3D12ResourceAllocCallback(nint arg0, int arg1, nint arg2, nint* arg3);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate NGXResult NGXDLSSGEstimateVRAMCallback(uint arg0, uint arg1, uint arg2, uint arg3, uint arg4, uint arg5, uint arg6, uint arg7, uint arg8, ulong* arg9);
+public unsafe delegate NGXResult NGXDLSSGEstimateVRAMCallback(uint arg0, uint arg1, uint arg2, uint arg3, uint arg4, uint arg5, uint arg6, uint arg7, uint arg8, nuint* arg9);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public unsafe delegate NGXResult NGXDLSSGGetCurrentSettingsCallback(NGXHandle arg0, NGXParameter arg1);

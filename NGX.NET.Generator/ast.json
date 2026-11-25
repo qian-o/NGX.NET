@@ -3,13 +3,13 @@
     "repository": "https://github.com/NVIDIA/DLSS",
     "release": "v310.9.16",
     "commit": "9981c6350dc58c0ce21f024fd65e31e851c31689",
-    "vulkanCommit": "d277a0a3cda9c682708c93279f0c72cd6b0ae3f3",
+    "vulkanCommit": "6802bb4733b63ed5efd3adb308a6c885ef180ea1",
     "natives": {
       "win-x64": {
-        "ngx-bridge.dll": "bd681d7a367530470f5821a298a8fd9c91b1ad3dc43a5dd417dc370e1999c9c8"
+        "ngx-bridge.dll": "74a69a0dde17feac25295c4f13985bb7ee1dedc66cf70b8cbfd44b7e936b8c9e"
       },
       "win-arm64": {
-        "ngx-bridge.dll": "f273e43764d9bc66a21c5ba89c5caf4d94c158d2273bf5595535287698fbad3c"
+        "ngx-bridge.dll": "324f0bdcf4fc246a43f70f1d77cc1ea3a11d82d4b2ac44d0dfc40990d36f0515"
       },
       "linux-x64": {
         "libngx-bridge.so": "1b0184b463141f65d5c856388ecb056a05f62f49f61319bc6846a053b5f9fdc2"
@@ -2245,7 +2245,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2451,7 +2451,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2536,7 +2536,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2628,7 +2628,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -2642,7 +2642,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2734,7 +2734,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2826,7 +2826,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -2840,7 +2840,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -2932,7 +2932,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -3003,7 +3003,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -3074,7 +3074,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -3954,7 +3954,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -3999,7 +3999,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -4013,7 +4013,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -6504,7 +6504,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -6575,7 +6575,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -6589,7 +6589,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -6689,7 +6689,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -6782,7 +6782,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -6909,7 +6909,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -6923,7 +6923,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -6951,7 +6951,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -7012,7 +7012,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -7059,7 +7059,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -7073,7 +7073,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -7236,7 +7236,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -7250,7 +7250,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -7264,7 +7264,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -7278,11 +7278,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -7300,11 +7300,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -7332,11 +7332,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -7354,11 +7354,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -7472,7 +7472,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -7486,7 +7486,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -7500,7 +7500,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -7514,11 +7514,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -7536,11 +7536,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -7568,11 +7568,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -7590,11 +7590,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -7790,7 +7790,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -7975,7 +7975,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -9028,7 +9028,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -9043,7 +9043,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -9076,11 +9076,11 @@
                 "kind": "CONSTANTARRAY",
                 "size": 136,
                 "element": {
-                  "cpp": "unsigned long long *",
+                  "cpp": "CUtexObject *",
                   "kind": "POINTER",
                   "size": 8,
                   "element": {
-                    "cpp": "unsigned long long",
+                    "cpp": "CUtexObject",
                     "kind": "ULONGLONG",
                     "size": 8
                   }
@@ -14272,7 +14272,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -14288,7 +14288,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -20243,7 +20243,7 @@
           "kind": "POINTER",
           "size": 8,
           "element": {
-            "cpp": "NVSDK_NGX_Result (unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long long *)",
+            "cpp": "NVSDK_NGX_Result (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, size_t *)",
             "kind": "FUNCTIONPROTO",
             "size": 1,
             "result": {
@@ -20254,56 +20254,56 @@
             },
             "arguments": [
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned long long *",
+                "cpp": "size_t *",
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "size_t",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -26316,7 +26316,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -26522,7 +26522,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -26607,7 +26607,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -26699,7 +26699,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -26713,7 +26713,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -26805,7 +26805,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -26897,7 +26897,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -26911,7 +26911,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -27003,7 +27003,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -27074,7 +27074,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -27145,7 +27145,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -28025,7 +28025,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -28070,7 +28070,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -28084,7 +28084,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -30575,7 +30575,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -30646,7 +30646,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -30660,7 +30660,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -30760,7 +30760,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -30853,7 +30853,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -30980,7 +30980,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -30994,7 +30994,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -31022,7 +31022,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -31083,7 +31083,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -31130,7 +31130,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -31144,7 +31144,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -31307,7 +31307,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -31321,7 +31321,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -31335,7 +31335,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -31349,11 +31349,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -31371,11 +31371,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -31403,11 +31403,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -31425,11 +31425,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -31543,7 +31543,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -31557,7 +31557,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -31571,7 +31571,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -31585,11 +31585,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -31607,11 +31607,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -31639,11 +31639,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -31661,11 +31661,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -31861,7 +31861,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -32046,7 +32046,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -33099,7 +33099,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -33114,7 +33114,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -33147,11 +33147,11 @@
                 "kind": "CONSTANTARRAY",
                 "size": 136,
                 "element": {
-                  "cpp": "unsigned long long *",
+                  "cpp": "CUtexObject *",
                   "kind": "POINTER",
                   "size": 8,
                   "element": {
-                    "cpp": "unsigned long long",
+                    "cpp": "CUtexObject",
                     "kind": "ULONGLONG",
                     "size": 8
                   }
@@ -38343,7 +38343,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -38359,7 +38359,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -44314,7 +44314,7 @@
           "kind": "POINTER",
           "size": 8,
           "element": {
-            "cpp": "NVSDK_NGX_Result (unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long long *)",
+            "cpp": "NVSDK_NGX_Result (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, size_t *)",
             "kind": "FUNCTIONPROTO",
             "size": 1,
             "result": {
@@ -44325,56 +44325,56 @@
             },
             "arguments": [
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned long long *",
+                "cpp": "size_t *",
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "size_t",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -49166,7 +49166,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49372,7 +49372,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49457,7 +49457,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49549,7 +49549,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -49563,7 +49563,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49655,7 +49655,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49747,7 +49747,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -49761,7 +49761,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49853,7 +49853,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49924,7 +49924,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -49995,7 +49995,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -50875,7 +50875,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -50920,7 +50920,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -50934,7 +50934,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -51943,7 +51943,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -52014,7 +52014,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -52028,7 +52028,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -52128,7 +52128,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -52221,7 +52221,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -52348,7 +52348,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -52362,7 +52362,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -52390,7 +52390,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -52451,7 +52451,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -52498,7 +52498,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -52512,7 +52512,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -52675,7 +52675,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -52689,7 +52689,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -52703,7 +52703,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -52717,11 +52717,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -52739,11 +52739,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -52771,11 +52771,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -52793,11 +52793,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -52911,7 +52911,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -52925,7 +52925,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -52939,7 +52939,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -52953,11 +52953,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -52975,11 +52975,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -53007,11 +53007,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -53029,11 +53029,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -53229,7 +53229,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -53414,7 +53414,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -54467,7 +54467,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -54482,7 +54482,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -54515,11 +54515,11 @@
                 "kind": "CONSTANTARRAY",
                 "size": 136,
                 "element": {
-                  "cpp": "unsigned long long *",
+                  "cpp": "CUtexObject *",
                   "kind": "POINTER",
                   "size": 8,
                   "element": {
-                    "cpp": "unsigned long long",
+                    "cpp": "CUtexObject",
                     "kind": "ULONGLONG",
                     "size": 8
                   }
@@ -56839,7 +56839,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -56855,7 +56855,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -62810,7 +62810,7 @@
           "kind": "POINTER",
           "size": 8,
           "element": {
-            "cpp": "NVSDK_NGX_Result (unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long *)",
+            "cpp": "NVSDK_NGX_Result (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, size_t *)",
             "kind": "FUNCTIONPROTO",
             "size": 1,
             "result": {
@@ -62821,56 +62821,56 @@
             },
             "arguments": [
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned long *",
+                "cpp": "size_t *",
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long",
+                  "cpp": "size_t",
                   "kind": "ULONG",
                   "size": 8
                 }
@@ -67650,7 +67650,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -67856,7 +67856,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -67941,7 +67941,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68033,7 +68033,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -68047,7 +68047,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68139,7 +68139,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68231,7 +68231,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -68245,7 +68245,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68337,7 +68337,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68408,7 +68408,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -68479,7 +68479,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -69359,7 +69359,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -69404,7 +69404,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -69418,7 +69418,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -70427,7 +70427,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -70498,7 +70498,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -70512,7 +70512,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -70612,7 +70612,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -70705,7 +70705,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkCommandBuffer_T",
+                  "cpp": "struct VkCommandBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkCommandBuffer_T"
@@ -70832,7 +70832,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -70846,7 +70846,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -70874,7 +70874,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -70935,7 +70935,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned int",
+                  "cpp": "uint32_t",
                   "kind": "UINT",
                   "size": 4
                 }
@@ -70982,7 +70982,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -70996,7 +70996,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -71159,7 +71159,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -71173,7 +71173,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -71187,7 +71187,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -71201,11 +71201,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -71223,11 +71223,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -71255,11 +71255,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -71277,11 +71277,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -71395,7 +71395,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkInstance_T",
+                  "cpp": "struct VkInstance_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkInstance_T"
@@ -71409,7 +71409,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkPhysicalDevice_T",
+                  "cpp": "struct VkPhysicalDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkPhysicalDevice_T"
@@ -71423,7 +71423,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -71437,11 +71437,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkInstance_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkInstance, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -71459,11 +71459,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkInstance_T *",
+                      "cpp": "VkInstance",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkInstance_T",
+                        "cpp": "struct VkInstance_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkInstance_T"
@@ -71491,11 +71491,11 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "void (*(VkDevice_T *, const char *))()",
+                  "cpp": "PFN_vkVoidFunction (VkDevice, const char *)",
                   "kind": "FUNCTIONPROTO",
                   "size": 1,
                   "result": {
-                    "cpp": "void (*)()",
+                    "cpp": "PFN_vkVoidFunction",
                     "kind": "POINTER",
                     "size": 8,
                     "element": {
@@ -71513,11 +71513,11 @@
                   },
                   "arguments": [
                     {
-                      "cpp": "VkDevice_T *",
+                      "cpp": "VkDevice",
                       "kind": "POINTER",
                       "size": 8,
                       "element": {
-                        "cpp": "VkDevice_T",
+                        "cpp": "struct VkDevice_T",
                         "kind": "RECORD",
                         "size": -2,
                         "name": "VkDevice_T"
@@ -71713,7 +71713,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkDevice_T",
+                  "cpp": "struct VkDevice_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkDevice_T"
@@ -71898,7 +71898,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkBuffer_T",
+                  "cpp": "struct VkBuffer_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkBuffer_T"
@@ -72951,7 +72951,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -72966,7 +72966,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long long",
+                  "cpp": "CUtexObject",
                   "kind": "ULONGLONG",
                   "size": 8
                 }
@@ -72999,11 +72999,11 @@
                 "kind": "CONSTANTARRAY",
                 "size": 136,
                 "element": {
-                  "cpp": "unsigned long long *",
+                  "cpp": "CUtexObject *",
                   "kind": "POINTER",
                   "size": 8,
                   "element": {
-                    "cpp": "unsigned long long",
+                    "cpp": "CUtexObject",
                     "kind": "ULONGLONG",
                     "size": 8
                   }
@@ -75323,7 +75323,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImageView_T",
+                  "cpp": "struct VkImageView_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImageView_T"
@@ -75339,7 +75339,7 @@
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "VkImage_T",
+                  "cpp": "struct VkImage_T",
                   "kind": "RECORD",
                   "size": -2,
                   "name": "VkImage_T"
@@ -81294,7 +81294,7 @@
           "kind": "POINTER",
           "size": 8,
           "element": {
-            "cpp": "NVSDK_NGX_Result (unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long *)",
+            "cpp": "NVSDK_NGX_Result (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, size_t *)",
             "kind": "FUNCTIONPROTO",
             "size": 1,
             "result": {
@@ -81305,56 +81305,56 @@
             },
             "arguments": [
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned int",
+                "cpp": "uint32_t",
                 "kind": "UINT",
                 "size": 4
               },
               {
-                "cpp": "unsigned long *",
+                "cpp": "size_t *",
                 "kind": "POINTER",
                 "size": 8,
                 "element": {
-                  "cpp": "unsigned long",
+                  "cpp": "size_t",
                   "kind": "ULONG",
                   "size": 8
                 }
