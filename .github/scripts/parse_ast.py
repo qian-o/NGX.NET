@@ -28,9 +28,14 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
     target = ("aarch64" if rid.endswith("arm64") else "x86_64") + ("-pc-windows-msvc" if windows else "-linux-gnu")
     flags = ["-x", "c++", "-std=" + standard, "--target=" + target, "-resource-dir=" + resource, "-I" + str(sdk / "include"), "-I" + str(sdk / "vulkan" / "include"), "-DNGX_ENABLE_DEPRECATED_SHUTDOWN", "-DNGX_ENABLE_DEPRECATED_GET_PARAMETERS"]
     if windows:
+        include_paths = [p for p in os.environ.get("INCLUDE", "").split(";") if p]
+        if not include_paths:
+            raise RuntimeError("MSVC environment (INCLUDE) is not configured.")
         version = subprocess.run(["cl"], text=True, capture_output=True).stderr
-        flags += ["-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=" + re.search(r"\b\d+\.\d+\.\d+\b", version).group(), "-DNOMINMAX"]
-        for path in os.environ["INCLUDE"].split(";"):
+        match = re.search(r"\b\d+\.\d+\.\d+\b", version)
+        msvc_version = match.group() if match else "19.40"
+        flags += ["-fms-extensions", "-fms-compatibility", "-fms-compatibility-version=" + msvc_version, "-DNOMINMAX"]
+        for path in include_paths:
             flags += ["-isystem", path]
     else:
         search = subprocess.run([str(compiler), "-E", "-x", "c++", "-", "-v"], input="", text=True, capture_output=True, check=True).stderr

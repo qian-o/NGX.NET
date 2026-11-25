@@ -10,6 +10,7 @@ internal class GenerationPipeline(AstModel model)
         StructEmitter structs = new(mapper, files);
         FunctionEmitter functions = new(mapper, files);
         ConstantsEmitter constants = new(model, files);
+        CallbackEmitter callbacks = new(mapper, files);
         ManifestEmitter manifest = new(model, files);
 
         foreach ((string name, AstEnum value) in model.Enums)
@@ -28,6 +29,7 @@ internal class GenerationPipeline(AstModel model)
         }
 
         constants.WriteConstants();
+        callbacks.WriteCallbacks(model.Aliases);
         manifest.WriteManifest();
 
         return files;

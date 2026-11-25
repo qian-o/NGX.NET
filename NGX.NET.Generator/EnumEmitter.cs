@@ -7,7 +7,9 @@ internal class EnumEmitter(Dictionary<string, string> files)
         string managed = GetTypeName(name);
         bool isUnsigned = name is "NVSDK_NGX_Result" || value.Values.Any(static item => item.Value > int.MaxValue);
         bool isFlagsEnum = name is "NVSDK_NGX_DLSS_Feature_Flags" or "NVSDK_NGX_DLSSG_ResourceFlags" or "NVSDK_NGX_DLSSG_EvalFlags" or "NVSDK_NGX_Feature_Support_Result";
+        bool hasZero = value.Values.Any(static item => item.Value is 0);
         bool hasNone = false;
+        ValidateNames(value.Values.Select(item => (item.Name, GetEnumMemberName(name, item.Name))), $"enum members in {name}");
         CodeWriter text = CreateFile();
 
         if (isFlagsEnum)
@@ -38,7 +40,7 @@ internal class EnumEmitter(Dictionary<string, string> files)
             text.WriteBlankLine();
         }
 
-        if (isFlagsEnum && !hasNone)
+        if (isFlagsEnum && !hasZero && !hasNone)
         {
             text.WriteLine("None = 0");
         }

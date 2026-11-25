@@ -13,22 +13,22 @@ internal static class AstReader
         Dictionary<string, AstEnum> enums = Merge(platforms, "enums", ReadEnum, GetEnumSignature);
         Dictionary<string, AstFunction> functions = Merge(platforms, "functions", ReadFunction, GetFunctionSignature);
         Dictionary<string, AstMacro> macros = Merge(platforms, "macros", ReadMacro, GetMacroSignature);
-        Dictionary<string, string> aliases = [];
+        Dictionary<string, AstType> aliases = [];
         foreach (JsonElement platform in platforms)
         {
             foreach (JsonProperty alias in platform.GetProperty("aliases").EnumerateObject())
             {
-                string signature = GetTypeSignature(ReadType(alias.Value));
-                if (aliases.TryGetValue(alias.Name, out string? previous) && previous != signature)
+                AstType type = ReadType(alias.Value);
+                if (aliases.TryGetValue(alias.Name, out AstType? previous) && GetTypeSignature(previous) != GetTypeSignature(type))
                 {
                     throw new InvalidOperationException($"Incompatible native alias: {alias.Name}.");
                 }
 
-                aliases[alias.Name] = signature;
+                aliases[alias.Name] = type;
             }
         }
 
-        return new(source, records, enums, functions, macros);
+        return new(source, records, enums, functions, macros, aliases);
     }
 
     private static AstSource ReadSource(JsonElement value)
@@ -176,8 +176,9 @@ internal static class AstReader
         AstType? result = value.TryGetProperty("result", out JsonElement returned) ? ReadType(returned) : null;
         AstType[] arguments = value.TryGetProperty("arguments", out JsonElement parameters) ? [.. parameters.EnumerateArray().Select(ReadType)] : [];
         int count = value.TryGetProperty("count", out JsonElement length) ? length.GetInt32() : 0;
+        string callingConvention = value.TryGetProperty("callingConvention", out JsonElement convention) ? convention.GetString()! : "Cdecl";
 
-        return new(cpp, kind, sizeInBytes, name, element, result, arguments, count);
+        return new(cpp, kind, sizeInBytes, name, element, result, arguments, count, callingConvention);
     }
 
     private static AstFunction ReadFunction(JsonElement value)

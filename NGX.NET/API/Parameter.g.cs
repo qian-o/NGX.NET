@@ -84,6 +84,28 @@ public static unsafe partial class Ngx
             }
         }
 
+        public static NGXResult GetD(NGXParameter parameter, ReadOnlySpan<byte> name, out double value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (double* pValue = &value)
+                    {
+                        return GetD(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (double* pValue = &value)
+            {
+                return GetD(parameter, pNameTerminated, pValue);
+            }
+        }
+
         public static NGXResult GetD3d11Resource(NGXParameter parameter, string name, out nint value)
         {
             using NGXStrings strings = new();
@@ -92,6 +114,28 @@ public static unsafe partial class Ngx
             fixed (nint* pValue = &value)
             {
                 return GetD3d11Resource(parameter, pName, pValue);
+            }
+        }
+
+        public static NGXResult GetD3d11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (nint* pValue = &value)
+                    {
+                        return GetD3d11Resource(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (nint* pValue = &value)
+            {
+                return GetD3d11Resource(parameter, pNameTerminated, pValue);
             }
         }
 
@@ -106,6 +150,28 @@ public static unsafe partial class Ngx
             }
         }
 
+        public static NGXResult GetD3d12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (nint* pValue = &value)
+                    {
+                        return GetD3d12Resource(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (nint* pValue = &value)
+            {
+                return GetD3d12Resource(parameter, pNameTerminated, pValue);
+            }
+        }
+
         public static NGXResult GetF(NGXParameter parameter, string name, out float value)
         {
             using NGXStrings strings = new();
@@ -114,6 +180,28 @@ public static unsafe partial class Ngx
             fixed (float* pValue = &value)
             {
                 return GetF(parameter, pName, pValue);
+            }
+        }
+
+        public static NGXResult GetF(NGXParameter parameter, ReadOnlySpan<byte> name, out float value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (float* pValue = &value)
+                    {
+                        return GetF(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (float* pValue = &value)
+            {
+                return GetF(parameter, pNameTerminated, pValue);
             }
         }
 
@@ -128,6 +216,28 @@ public static unsafe partial class Ngx
             }
         }
 
+        public static NGXResult GetI(NGXParameter parameter, ReadOnlySpan<byte> name, out int value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (int* pValue = &value)
+                    {
+                        return GetI(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (int* pValue = &value)
+            {
+                return GetI(parameter, pNameTerminated, pValue);
+            }
+        }
+
         public static NGXResult GetUI(NGXParameter parameter, string name, out uint value)
         {
             using NGXStrings strings = new();
@@ -136,6 +246,28 @@ public static unsafe partial class Ngx
             fixed (uint* pValue = &value)
             {
                 return GetUI(parameter, pName, pValue);
+            }
+        }
+
+        public static NGXResult GetUI(NGXParameter parameter, ReadOnlySpan<byte> name, out uint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (uint* pValue = &value)
+                    {
+                        return GetUI(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (uint* pValue = &value)
+            {
+                return GetUI(parameter, pNameTerminated, pValue);
             }
         }
 
@@ -150,6 +282,28 @@ public static unsafe partial class Ngx
             }
         }
 
+        public static NGXResult GetULL(NGXParameter parameter, ReadOnlySpan<byte> name, out ulong value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (ulong* pValue = &value)
+                    {
+                        return GetULL(parameter, pName, pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (ulong* pValue = &value)
+            {
+                return GetULL(parameter, pNameTerminated, pValue);
+            }
+        }
+
         public static NGXResult GetVoidPointer(NGXParameter parameter, string name, out nint value)
         {
             using NGXStrings strings = new();
@@ -161,12 +315,50 @@ public static unsafe partial class Ngx
             }
         }
 
+        public static NGXResult GetVoidPointer(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    fixed (nint* pValue = &value)
+                    {
+                        return GetVoidPointer(parameter, pName, (void**)pValue);
+                    }
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            fixed (nint* pValue = &value)
+            {
+                return GetVoidPointer(parameter, pNameTerminated, (void**)pValue);
+            }
+        }
+
         public static void SetD(NGXParameter parameter, string name, double value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             SetD(parameter, pName, value);
+        }
+
+        public static void SetD(NGXParameter parameter, ReadOnlySpan<byte> name, double value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetD(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetD(parameter, pNameTerminated, value);
         }
 
         public static void SetD3d11Resource(NGXParameter parameter, string name, nint value)
@@ -177,12 +369,44 @@ public static unsafe partial class Ngx
             SetD3d11Resource(parameter, pName, value);
         }
 
+        public static void SetD3d11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetD3d11Resource(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetD3d11Resource(parameter, pNameTerminated, value);
+        }
+
         public static void SetD3d12Resource(NGXParameter parameter, string name, nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             SetD3d12Resource(parameter, pName, value);
+        }
+
+        public static void SetD3d12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetD3d12Resource(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetD3d12Resource(parameter, pNameTerminated, value);
         }
 
         public static void SetF(NGXParameter parameter, string name, float value)
@@ -193,12 +417,44 @@ public static unsafe partial class Ngx
             SetF(parameter, pName, value);
         }
 
+        public static void SetF(NGXParameter parameter, ReadOnlySpan<byte> name, float value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetF(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetF(parameter, pNameTerminated, value);
+        }
+
         public static void SetI(NGXParameter parameter, string name, int value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             SetI(parameter, pName, value);
+        }
+
+        public static void SetI(NGXParameter parameter, ReadOnlySpan<byte> name, int value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetI(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetI(parameter, pNameTerminated, value);
         }
 
         public static void SetUI(NGXParameter parameter, string name, uint value)
@@ -209,6 +465,22 @@ public static unsafe partial class Ngx
             SetUI(parameter, pName, value);
         }
 
+        public static void SetUI(NGXParameter parameter, ReadOnlySpan<byte> name, uint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetUI(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetUI(parameter, pNameTerminated, value);
+        }
+
         public static void SetULL(NGXParameter parameter, string name, ulong value)
         {
             using NGXStrings strings = new();
@@ -217,12 +489,44 @@ public static unsafe partial class Ngx
             SetULL(parameter, pName, value);
         }
 
+        public static void SetULL(NGXParameter parameter, ReadOnlySpan<byte> name, ulong value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetULL(parameter, pName, value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetULL(parameter, pNameTerminated, value);
+        }
+
         public static void SetVoidPointer(NGXParameter parameter, string name, nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             SetVoidPointer(parameter, pName, (void*)value);
+        }
+
+        public static void SetVoidPointer(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
+        {
+            if (!name.IsEmpty && (name[^1] is 0))
+            {
+                fixed (byte* pName = name)
+                {
+                    SetVoidPointer(parameter, pName, (void*)value);
+                }
+            }
+
+            using NGXStrings strings = new();
+            byte* pNameTerminated = strings.AllocUtf8(name);
+
+            SetVoidPointer(parameter, pNameTerminated, (void*)value);
         }
     }
 }

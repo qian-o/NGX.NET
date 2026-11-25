@@ -169,7 +169,7 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult EvaluateDLSSG(nint commandList, NGXHandle handle, NGXParameter parameters, in NGXD3D12DLSSGEvalParams dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters)
+        public static NGXResult EvaluateDLSSG(nint commandList, NGXHandle handle, NGXParameter parameters, in NGXD3D12DLSSGEvalParams dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters = null)
         {
             fixed (NGXD3D12DLSSGEvalParams* pDlssgEvalParameters = &dlssgEvalParameters)
             {
@@ -236,7 +236,7 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
@@ -244,7 +244,7 @@ public static unsafe partial class Ngx
             return Init(applicationId, pApplicationDataPath, device, featureInfo, sdkVersion);
         }
 
-        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             byte* pProjectId = strings.AllocUtf8(projectId);

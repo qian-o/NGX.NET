@@ -140,7 +140,7 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult EvaluateDLSSG(nint commandBuffer, NGXHandle handle, NGXParameter parameters, in NGXVKDLSSGEvalParams dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters)
+        public static NGXResult EvaluateDLSSG(nint commandBuffer, NGXHandle handle, NGXParameter parameters, in NGXVKDLSSGEvalParams dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters = null)
         {
             fixed (NGXVKDLSSGEvalParams* pDlssgEvalParameters = &dlssgEvalParameters)
             {
@@ -297,7 +297,7 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
@@ -305,7 +305,7 @@ public static unsafe partial class Ngx
             return Init(applicationId, pApplicationDataPath, instance, pd, device, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gipa, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gdpa, featureInfo, sdkVersion);
         }
 
-        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             byte* pProjectId = strings.AllocUtf8(projectId);

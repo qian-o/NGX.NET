@@ -201,7 +201,7 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult Init(ulong applicationId, string applicationDataPath, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult Init(ulong applicationId, string applicationDataPath, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
@@ -209,7 +209,7 @@ public static unsafe partial class Ngx
             return Init(applicationId, pApplicationDataPath, featureInfo, sdkVersion);
         }
 
-        public static NGXResult Init1(ulong applicationId, string applicationDataPath, NGXCUDADevice* device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult Init1(ulong applicationId, string applicationDataPath, NGXCUDADevice* device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
@@ -217,7 +217,7 @@ public static unsafe partial class Ngx
             return Init1(applicationId, pApplicationDataPath, device, featureInfo, sdkVersion);
         }
 
-        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion)
+        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             byte* pProjectId = strings.AllocUtf8(projectId);

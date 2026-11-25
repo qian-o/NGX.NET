@@ -190,6 +190,9 @@ dotnet_style_namespace_match_folder = false
 # Mutable ABI structures are read field by field through in parameters.
 dotnet_diagnostic.RCS1242.severity = none
 
+[NGX.NET/API/*.cs]
+dotnet_style_namespace_match_folder = false
+
 [**/obj/**]
 generated_code = true
 charset = unset

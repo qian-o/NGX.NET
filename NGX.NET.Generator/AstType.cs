@@ -1,6 +1,6 @@
 ﻿namespace NGX.NET.Generator;
 
-internal class AstType(string cpp, NativeTypeKind kind, int sizeInBytes, string name, AstType? element, AstType? result, AstType[] arguments, int count)
+internal class AstType(string cpp, NativeTypeKind kind, int sizeInBytes, string name, AstType? element, AstType? result, AstType[] arguments, int count, string callingConvention)
 {
     public readonly string Cpp = cpp;
 
@@ -17,4 +17,6 @@ internal class AstType(string cpp, NativeTypeKind kind, int sizeInBytes, string 
     public readonly AstType[] Arguments = arguments;
 
     public readonly int Count = count;
+
+    public readonly string CallingConvention = callingConvention;
 }

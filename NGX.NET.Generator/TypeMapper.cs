@@ -32,6 +32,8 @@ internal class TypeMapper
                 }
             }
         }
+
+        ValidateTypeNames();
     }
 
     internal string GetRecordName(string name)
@@ -75,7 +77,7 @@ internal class TypeMapper
             {
                 string arguments = string.Join(", ", element.Arguments.Select(GetManagedType).Append(GetManagedType(element.Result!)));
 
-                return $"delegate* unmanaged[Cdecl]<{arguments}>";
+                return $"delegate* unmanaged[{GetCallingConvention(element)}]<{arguments}>";
             }
 
             if (element.Kind is NativeTypeKind.Record && model.Records[element.Name].IsOpaque)
@@ -122,7 +124,8 @@ internal class TypeMapper
 
     internal static string GetTypeName(string native)
     {
-        string name = GetName(native);
+        string stripped = native.StartsWith("PFN_", StringComparison.Ordinal) ? native[4..] : native;
+        string name = GetName(stripped);
 
         return name.StartsWith("NGX", StringComparison.Ordinal) ? name : $"NGX{name}";
     }
@@ -237,6 +240,42 @@ internal class TypeMapper
         }
 
         return math;
+    }
+
+    internal static void ValidateNames(IEnumerable<(string Native, string Managed)> source, string scope)
+    {
+        Dictionary<string, string> names = new(StringComparer.Ordinal);
+        foreach ((string native, string managed) in source)
+        {
+            if (names.TryGetValue(managed, out string? previous))
+            {
+                throw new InvalidOperationException($"Conflicting managed name in {scope}: {previous} and {native} both map to {managed}.");
+            }
+
+            names.Add(managed, native);
+        }
+    }
+
+    internal static string GetCallingConvention(AstType type)
+    {
+        return type.CallingConvention switch
+        {
+            "Cdecl" => "Cdecl",
+            "Stdcall" or "StdCall" => "Stdcall",
+            _ => throw new InvalidOperationException($"Unsupported calling convention: {type.CallingConvention}.")
+        };
+    }
+
+    private void ValidateTypeNames()
+    {
+        IEnumerable<(string Native, string Managed)> records = model.Records
+            .Where(static pair => !pair.Value.IsOpaque || pair.Key is "NVSDK_NGX_Handle" or "NVSDK_NGX_Parameter")
+            .Select(pair => (pair.Key, GetRecordName(pair.Key)));
+        IEnumerable<(string Native, string Managed)> enums = model.Enums.Keys.Select(static name => (name, GetTypeName(name)));
+        IEnumerable<(string Native, string Managed)> aliases = model.Aliases
+            .Where(static pair => pair.Value is { Kind: NativeTypeKind.Pointer, Element.Kind: NativeTypeKind.FunctionProto or NativeTypeKind.FunctionNoProto })
+            .Select(static pair => (pair.Key, GetTypeName(pair.Key)));
+        ValidateNames(records.Concat(enums).Concat(aliases), "types");
     }
 
     private static string NormalizeName(string native)

@@ -14,6 +14,4 @@ public enum NGXFeatureSupportResult : int
     OsVersionBelowMinimumSupported = 1 << 3,
 
     NotImplemented = 1 << 4,
-
-    None = 0
 }

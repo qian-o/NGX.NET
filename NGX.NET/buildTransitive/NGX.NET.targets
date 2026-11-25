@@ -2,10 +2,15 @@
 
     <Import Project="$(MSBuildThisFileDirectory)NGX.NET.props" Condition="'$(_NgxSdkRelease)' == ''" />
 
+    <PropertyGroup>
+        <_NgxHttpReference Condition="'$(MSBuildRuntimeType)' == 'Full'"><![CDATA[<Reference Include="System.Net.Http" />]]></_NgxHttpReference>
+    </PropertyGroup>
+
     <UsingTask TaskName="NgxDownloadAssets"
                TaskFactory="RoslynCodeTaskFactory"
                AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <Task>
+            $(_NgxHttpReference)
             <Code Type="Class" Language="cs">
 <![CDATA[
 using System;
@@ -456,6 +461,20 @@ namespace NGX.NET.Tasks
             </_NgxNormalizedPublishAsset>
             <_SourceItemsToCopyToPublishDirectory Include="@(_NgxNormalizedPublishAsset)" />
             <AllPublishItemsFullPathWithTargetPath Include="@(_NgxNormalizedPublishAsset)" />
+        </ItemGroup>
+
+    </Target>
+
+    <Target Name="_NgxExcludeCoreNativeFromSingleFile"
+            AfterTargets="ComputeResolvedFilesToPublishList"
+            BeforeTargets="_ComputeFilesToBundle;_ComputeResolvedFilesToPublishTypes"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+
+        <ItemGroup>
+            <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+                                   Condition="'%(Filename)%(Extension)' == 'ngx-bridge.dll' or '%(Filename)%(Extension)' == 'libngx-bridge.so'">
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
         </ItemGroup>
 
     </Target>

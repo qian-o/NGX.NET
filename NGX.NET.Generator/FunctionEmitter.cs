@@ -37,8 +37,10 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         }
 
         AstFunction[] ordered = [.. source.OrderBy(static function => function.Name, StringComparer.Ordinal)];
+        ValidateNames(ordered.Select(static function => (function.Name, GetFunctionName(function.Name).Method)), $"functions in {(group.Length is 0 ? "Ngx" : group)}");
         foreach (AstFunction function in ordered)
         {
+            ValidateNames(function.Parameters.Select(static parameter => (parameter.Name, GetParameterName(parameter.Name))), $"parameters in {function.Name}");
             string method = GetFunctionName(function.Name).Method;
             string parameters = string.Join(", ", function.Parameters.Select(parameter => $"{mapper.GetManagedType(parameter.Type)} {GetParameterName(parameter.Name)}"));
             text.WriteLine($"[LibraryImport(LibraryName, EntryPoint = \"{function.Export}\")]");
@@ -53,7 +55,11 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
 
         foreach (AstFunction function in ordered)
         {
-            WriteOverload(text, function);
+            WriteOverload(text, function, useSpanName: false);
+            if (function.Name.StartsWith("NVSDK_NGX_Parameter_", StringComparison.Ordinal))
+            {
+                WriteOverload(text, function, useSpanName: true);
+            }
         }
 
         if (group.Length is not 0)
@@ -65,13 +71,17 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         files.Add($"API/{(group.Length is 0 ? "Core" : group)}.g.cs", text.ToString());
     }
 
-    private void WriteOverload(CodeWriter text, AstFunction function)
+    private void WriteOverload(CodeWriter text, AstFunction function, bool useSpanName)
     {
         string[] declarations = new string[function.Parameters.Length];
         string[] arguments = new string[function.Parameters.Length];
         List<string> fixedStatements = [];
         List<string> strings = [];
         bool hasOverload = false;
+        string method = GetFunctionName(function.Name).Method;
+        bool isInitMethod = method.StartsWith("Init", StringComparison.Ordinal);
+        string? spanName = null;
+        string? spanPointer = null;
         for (int i = 0; i < function.Parameters.Length; i++)
         {
             AstParameter parameter = function.Parameters[i];
@@ -83,19 +93,43 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             declarations[i] = $"{native} {name}";
             arguments[i] = name;
 
+            if (isInitMethod && native is "NGXFeatureCommonInfo*")
+            {
+                declarations[i] += " = null";
+            }
+            else if (isInitMethod && native is "NGXVersion")
+            {
+                declarations[i] += " = NGXVersion.Api";
+            }
+            else if (method is "EvaluateDLSSG" && native is "NGXDLSSGOptEvalParams*")
+            {
+                declarations[i] += " = null";
+            }
+
             if (type.Kind is NativeTypeKind.Bool)
             {
                 declarations[i] = $"bool {name}";
                 arguments[i] = $"{name} ? (byte)1 : (byte)0";
                 hasOverload = true;
             }
-            else if (type.Element is { Kind: NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar } element && (parameter.Name is "InName" || GetFunctionName(function.Name).Method.StartsWith("Init", StringComparison.Ordinal)))
+            else if (type.Element is { Kind: NativeTypeKind.CharS or NativeTypeKind.CharU or NativeTypeKind.WChar } element && (parameter.Name is "InName" || isInitMethod))
             {
-                string allocation = element.Kind is NativeTypeKind.WChar ? "AllocWide" : "AllocUtf8";
-                declarations[i] = $"string {name}";
-                arguments[i] = pointer;
-                strings.Add($"{native} {pointer} = strings.{allocation}({name});");
-                hasOverload = true;
+                if (useSpanName)
+                {
+                    declarations[i] = $"ReadOnlySpan<byte> {name}";
+                    arguments[i] = pointer;
+                    spanName = name;
+                    spanPointer = pointer;
+                    hasOverload = true;
+                }
+                else
+                {
+                    string allocation = element.Kind is NativeTypeKind.WChar ? "AllocWide" : "AllocUtf8";
+                    declarations[i] = $"string {name}";
+                    arguments[i] = pointer;
+                    strings.Add($"{native} {pointer} = strings.{allocation}({name});");
+                    hasOverload = true;
+                }
             }
             else if (function.Name is "NVSDK_NGX_VULKAN_Init" or "NVSDK_NGX_VULKAN_Init_with_ProjectID" && type.Cpp is "PFN_vkGetInstanceProcAddr" or "PFN_vkGetDeviceProcAddr")
             {
@@ -135,8 +169,24 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             return;
         }
 
-        string method = GetFunctionName(function.Name).Method;
         text.BeginBlock($"public static {mapper.GetManagedType(function.Result)} {method}({string.Join(", ", declarations)})");
+
+        if (spanName is not null && spanPointer is not null)
+        {
+            text.BeginBlock($"if (!{spanName}.IsEmpty && ({spanName}[^1] is 0))");
+            text.BeginBlock($"fixed (byte* {spanPointer} = {spanName})");
+            WriteInvocation(text, function.Result, method, arguments, fixedStatements);
+            text.EndBlock();
+            text.EndBlock();
+            string fallbackPointer = $"{spanPointer}Terminated";
+            string[] fallbackArguments = [.. arguments.Select(argument => argument == spanPointer ? fallbackPointer : argument)];
+            text.WriteLine("using NGXStrings strings = new();");
+            text.WriteLine($"byte* {fallbackPointer} = strings.AllocUtf8({spanName});");
+            text.WriteBlankLine();
+            WriteInvocation(text, function.Result, method, fallbackArguments, fixedStatements);
+            text.EndBlock();
+            return;
+        }
 
         if (strings.Count is not 0)
         {
@@ -150,19 +200,23 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             text.WriteBlankLine();
         }
 
+        WriteInvocation(text, function.Result, method, arguments, fixedStatements);
+        text.EndBlock();
+    }
+
+    private static void WriteInvocation(CodeWriter text, AstType result, string method, string[] arguments, List<string> fixedStatements)
+    {
         foreach (string statement in fixedStatements)
         {
             text.BeginBlock(statement);
         }
 
-        text.WriteLine($"{(function.Result.Kind is NativeTypeKind.Void ? string.Empty : "return ")}{method}({string.Join(", ", arguments)});");
+        text.WriteLine($"{(result.Kind is NativeTypeKind.Void ? string.Empty : "return ")}{method}({string.Join(", ", arguments)});");
 
         for (int i = 0; i < fixedStatements.Count; i++)
         {
             text.EndBlock();
         }
-
-        text.EndBlock();
     }
 
     private string GetBorrowModifier(AstParameter parameter)

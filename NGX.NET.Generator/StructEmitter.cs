@@ -18,6 +18,7 @@ internal class StructEmitter(TypeMapper mapper, Dictionary<string, string> files
         }
 
         string managed = mapper.GetRecordName(name);
+        ValidateNames(record.Fields.Select(field => (field.Name, GetFieldName(name, field.Name))), $"fields in {name}");
         CodeWriter text = CreateFile();
         text.WriteLine(record.IsUnion ? $"[StructLayout(LayoutKind.Explicit, Size = {record.SizeInBytes})]" : "[StructLayout(LayoutKind.Sequential)]");
         string modifier = record.Fields.Any(field => mapper.GetFieldType(name, field).Contains('*')) ? "unsafe " : string.Empty;

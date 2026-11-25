@@ -16,6 +16,60 @@ public unsafe class NGXStrings : DisposableObject
         return OperatingSystem.IsWindows() ? Alloc(value, Encoding.Unicode, sizeof(char)) : Alloc(value, Encoding.UTF32, sizeof(uint));
     }
 
+    public byte** AllocUtf8(ReadOnlySpan<string?> values)
+    {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+        if (values.IsEmpty)
+        {
+            return null;
+        }
+
+        byte** table = (byte**)NativeMemory.AllocZeroed(checked((nuint)values.Length * (nuint)sizeof(nint)));
+        allocations.Add((nint)table);
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            table[i] = AllocUtf8(values[i]);
+        }
+
+        return table;
+    }
+
+    public void** AllocWide(ReadOnlySpan<string?> values)
+    {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+        if (values.IsEmpty)
+        {
+            return null;
+        }
+
+        void** table = (void**)NativeMemory.AllocZeroed(checked((nuint)values.Length * (nuint)sizeof(nint)));
+        allocations.Add((nint)table);
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            table[i] = AllocWide(values[i]);
+        }
+
+        return table;
+    }
+
+    internal byte* AllocUtf8(ReadOnlySpan<byte> value)
+    {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+        int sizeInBytes = checked(value.Length + sizeof(byte));
+        allocations.EnsureCapacity(checked(allocations.Count + 1));
+
+        byte* pointer = (byte*)NativeMemory.AllocZeroed((nuint)sizeInBytes);
+        allocations.Add((nint)pointer);
+        value.CopyTo(new Span<byte>(pointer, value.Length));
+
+        return pointer;
+    }
+
     protected override void Destroy()
     {
         if (allocations is null)

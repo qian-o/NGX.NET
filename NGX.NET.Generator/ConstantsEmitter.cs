@@ -4,6 +4,9 @@ internal class ConstantsEmitter(AstModel model, Dictionary<string, string> files
 {
     internal void WriteConstants()
     {
+        ValidateNames(model.Macros.Values
+            .Where(static macro => !macro.IsFunctionLike && macro.Tokens.Length is not 0 && macro.Tokens.All(static token => token.StartsWith('"')))
+            .Select(static macro => (macro.Name, GetName(macro.Name))), "constants");
         CodeWriter text = CreateFile();
         text.BeginBlock("public static unsafe partial class Ngx");
 

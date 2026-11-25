@@ -128,7 +128,7 @@ def prepare(root: Path) -> None:
         runtimes[rid] = manifest
         shutil.rmtree(rel_dir)
 
-    vulkan_commit = api(VULKAN_REPOSITORY, "commits/HEAD")["sha"]
+    vulkan_commit = api(VULKAN_REPOSITORY, "tags?per_page=1")[0]["commit"]["sha"]
     vulkan_tree = api(VULKAN_REPOSITORY, f"git/trees/{vulkan_commit}?recursive=1")
     if vulkan_tree.get("truncated"):
         raise RuntimeError("Vulkan headers tree response is truncated.")
@@ -230,7 +230,7 @@ def build(root: Path, scratch: Path, output: Path, rid: str) -> None:
     if windows:
         definition = generated / "ngx-bridge.def"
         write_text(definition, "LIBRARY ngx-bridge\nEXPORTS\n" + "\n".join(exports) + "\n")
-        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++latest", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
+        run(["cl", "/nologo", "/LD", "/MT", "/O2", "/EHsc", "/std:c++latest", "/Brepro", "/DNGX_ENABLE_DEPRECATED_SHUTDOWN", "/DNGX_ENABLE_DEPRECATED_GET_PARAMETERS", "/I" + str(root / "include"), "/I" + str(root / "vulkan/include"), *sources, loader, "advapi32.lib", "ole32.lib", "shell32.lib", "version.lib", "shlwapi.lib", "user32.lib", "/link", "/BREPRO", "/DEF:" + str(definition), "/OUT:" + str(bridge)], scratch)
     else:
         script = generated / "ngx-bridge.map"
         write_text(script, "{\n global:\n" + "\n".join("    " + n + ";" for n in exports) + "\n local: *;\n};\n")
@@ -352,7 +352,7 @@ def verify_manifest(root: Path, source: dict) -> None:
 
     ElementTree.parse(targets_path)
     targets_text = targets_path.read_text(encoding="utf-8-sig")
-    for token in (f"{PREFIX}DownloadRuntime", f"{PREFIX}DownloadAssets", f"{PACKAGE}.props"):
+    for token in (f"{PREFIX}DownloadRuntime", f"{PREFIX}DownloadAssets", f"{PACKAGE}.props", "System.Net.Http", "ExcludeFromSingleFile"):
         if token not in targets_text:
             raise RuntimeError(f"buildTransitive/{PACKAGE}.targets missing expected symbol: {token}")
     print(f"Verified buildTransitive runtime manifest ({len(expected_entries)} entries) and targets.")
