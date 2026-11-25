@@ -1,0 +1,107 @@
+name: Update NGX
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Prepare SDK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python .github/scripts/build.py prepare --root "${{ runner.temp }}/sdk"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sdk
+          path: ${{ runner.temp }}/sdk
+          compression-level: 0
+          retention-days: 1
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2022
+            arch: x64
+          - rid: win-arm64
+            runner: windows-2022
+            arch: arm64
+          - rid: linux-x64
+            runner: ubuntu-24.04
+          - rid: linux-arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v8
+        with:
+          name: sdk
+          path: ${{ runner.temp }}/sdk
+      - name: Configure MSVC
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installation = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -version '[17.0,18.0)' -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          Import-Module "$installation\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $installation -SkipAutomaticLocation -DevCmdArguments '-arch=${{ matrix.arch }} -host_arch=x64'
+          foreach ($name in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH')) {
+              "$name=$([Environment]::GetEnvironmentVariable($name))" >> $env:GITHUB_ENV
+          }
+      - name: Build target
+        run: |
+          python -m pip install clang==21.1.7
+          python .github/scripts/build.py build --root "${{ runner.temp }}/sdk" --scratch "${{ runner.temp }}/build" --output "${{ runner.temp }}/result" --rid ${{ matrix.rid }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: target-${{ matrix.rid }}
+          path: ${{ runner.temp }}/result
+          retention-days: 1
+
+  update:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: target-*
+          path: ${{ runner.temp }}/artifacts
+      - name: Generate and verify
+        run: |
+          python .github/scripts/build.py merge --root "${{ runner.temp }}/artifacts" --output .
+          dotnet run --project NGX.NET.Generator -- .
+          dotnet build NGX.NET.slnx -c Release --warnaserror
+          dotnet format NGX.NET.slnx --no-restore --verify-no-changes --include-generated --severity warn
+          python .github/scripts/build.py verify --root .
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add native NGX.NET.Generator/ast.json NGX.NET NuGet.Packaging.props
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Update NGX SDK, bindings and native assets"
+          git push

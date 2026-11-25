@@ -1,0 +1,463 @@
+﻿<Project>
+
+    <Import Project="$(MSBuildThisFileDirectory)NGX.NET.props" Condition="'$(_NgxSdkRelease)' == ''" />
+
+    <UsingTask TaskName="NgxDownloadAssets"
+               TaskFactory="RoslynCodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <Task>
+            <Code Type="Class" Language="cs">
+<![CDATA[
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Build.Framework;
+
+namespace NGX.NET.Tasks
+{
+    public sealed class NgxDownloadAssets : Microsoft.Build.Utilities.Task, ICancelableTask
+    {
+        private const int MaxAttempts = 3;
+        private const int ReadTimeoutSeconds = 60;
+        private const int BufferSize = 64 * 1024;
+        private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
+
+        [Required]
+        public ITaskItem[] Assets { get; set; }
+
+        [Required]
+        public string CacheDirectory { get; set; }
+
+        [Required]
+        public string SdkRelease { get; set; }
+
+        public void Cancel()
+        {
+            try
+            {
+                cancellation.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+        }
+
+        public override bool Execute()
+        {
+            try
+            {
+                return ExecuteAsync().GetAwaiter().GetResult();
+            }
+            catch (OperationCanceledException)
+            {
+                LogHigh("NGX.NET: Runtime asset download canceled.");
+                return false;
+            }
+            finally
+            {
+                cancellation.Dispose();
+            }
+        }
+
+        private async Task<bool> ExecuteAsync()
+        {
+            Directory.CreateDirectory(CacheDirectory);
+            using (FileStream lockStream = AcquireLock(Path.Combine(CacheDirectory, ".lock")))
+            {
+                List<ITaskItem> pending = new List<ITaskItem>();
+                foreach (ITaskItem item in Assets)
+                {
+                    cancellation.Token.ThrowIfCancellationRequested();
+                    string cachedPath = item.GetMetadata("CachedPath");
+                    if ((!File.Exists(cachedPath)) || (!string.Equals(ComputeFileSha256(cachedPath), item.GetMetadata("Sha256"), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        pending.Add(item);
+                    }
+                }
+
+                if (pending.Count == 0)
+                {
+                    return true;
+                }
+
+                string tempRoot = Path.Combine(CacheDirectory, ".tmp-" + Guid.NewGuid().ToString("N"));
+                try
+                {
+                    using (HttpClient client = new HttpClient { Timeout = Timeout.InfiniteTimeSpan })
+                    {
+                        client.DefaultRequestHeaders.UserAgent.ParseAdd("NGX.NET");
+                        Stopwatch totalWatch = Stopwatch.StartNew();
+                        long totalBytes = 0;
+
+                        for (int i = 0; i < pending.Count; i++)
+                        {
+                            cancellation.Token.ThrowIfCancellationRequested();
+                            long downloaded = await DownloadWithRetryAsync(client, pending[i], i + 1, pending.Count, tempRoot).ConfigureAwait(false);
+                            if (downloaded < 0)
+                            {
+                                return false;
+                            }
+
+                            totalBytes += downloaded;
+                        }
+
+                        LogHigh("NGX.NET: Cached {0} runtime file(s) ({1}) for {2} in {3:F1}s.", pending.Count, FormatSize(totalBytes), SdkRelease, totalWatch.Elapsed.TotalSeconds);
+                        return true;
+                    }
+                }
+                finally
+                {
+                    DeleteIfExists(tempRoot, recursive: true);
+                }
+            }
+        }
+
+        private FileStream AcquireLock(string lockPath)
+        {
+            bool logged = false;
+            while (true)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                try
+                {
+                    return new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                }
+                catch (IOException)
+                {
+                    if (!logged)
+                    {
+                        LogHigh("NGX.NET: Waiting for another build process to finish downloading runtime assets ({0})...", SdkRelease);
+                        logged = true;
+                    }
+
+                    cancellation.Token.WaitHandle.WaitOne(250);
+                }
+            }
+        }
+
+        private async Task<long> DownloadWithRetryAsync(HttpClient client, ITaskItem item, int index, int totalCount, string tempRoot)
+        {
+            string rid = item.GetMetadata("Rid");
+            string assetName = item.GetMetadata("AssetName");
+            string url = item.GetMetadata("DownloadUrl");
+            string cachedPath = item.GetMetadata("CachedPath");
+            string expectedSha256 = item.GetMetadata("Sha256");
+            string tempFile = Path.Combine(tempRoot, rid, assetName);
+
+            for (int attempt = 1; ; attempt++)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                try
+                {
+                    using (CancellationTokenSource attemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token))
+                    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+                    {
+                        attemptCts.CancelAfter(TimeSpan.FromSeconds(ReadTimeoutSeconds));
+                        using (HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token).ConfigureAwait(false))
+                        {
+                            int statusCode = (int)response.StatusCode;
+                            if ((statusCode >= 400) && (statusCode < 500) && (response.StatusCode != (HttpStatusCode)408) && (response.StatusCode != (HttpStatusCode)429))
+                            {
+                                Log.LogError("NGX.NET: Failed to download '{0}' from '{1}': HTTP {2} ({3}).", assetName, url, statusCode, response.ReasonPhrase);
+                                return -1;
+                            }
+
+                            response.EnsureSuccessStatusCode();
+                            long? contentLength = response.Content.Headers.ContentLength;
+                            bool hasKnownLength = contentLength.HasValue && (contentLength.Value > 0);
+                            if (hasKnownLength)
+                            {
+                                LogHigh("NGX.NET: [{0}/{1}] Downloading {2}/{3} ({4}, {5})...", index, totalCount, rid, assetName, FormatSize(contentLength.Value), SdkRelease);
+                            }
+                            else
+                            {
+                                LogHigh("NGX.NET: [{0}/{1}] Downloading {2}/{3} ({4})...", index, totalCount, rid, assetName, SdkRelease);
+                            }
+
+                            CreateParentDirectory(tempFile);
+                            long downloaded = 0;
+                            string actualSha256;
+                            using (Stream responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                            using (FileStream fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, useAsync: true))
+                            using (SHA256 sha256 = SHA256.Create())
+                            {
+                                byte[] buffer = new byte[BufferSize];
+                                Stopwatch fileWatch = Stopwatch.StartNew();
+                                long lastLogMs = 0;
+                                int nextMilestone = 25;
+
+                                while (true)
+                                {
+                                    attemptCts.CancelAfter(TimeSpan.FromSeconds(ReadTimeoutSeconds));
+                                    int read = await responseStream.ReadAsync(buffer, 0, buffer.Length, attemptCts.Token).ConfigureAwait(false);
+                                    if (read == 0)
+                                    {
+                                        break;
+                                    }
+
+                                    sha256.TransformBlock(buffer, 0, read, null, 0);
+                                    await fileStream.WriteAsync(buffer, 0, read, cancellation.Token).ConfigureAwait(false);
+                                    downloaded += read;
+
+                                    if (hasKnownLength)
+                                    {
+                                        int percent = (int)((downloaded * 100L) / contentLength.Value);
+                                        if ((percent >= nextMilestone) && (percent < 100) && ((fileWatch.ElapsedMilliseconds - lastLogMs) >= 2000))
+                                        {
+                                            LogHigh("NGX.NET: [{0}/{1}] {2}/{3} - {4}% ({5} / {6})", index, totalCount, rid, assetName, percent, FormatSize(downloaded), FormatSize(contentLength.Value));
+                                            lastLogMs = fileWatch.ElapsedMilliseconds;
+                                            nextMilestone = ((percent / 25) + 1) * 25;
+                                        }
+                                    }
+                                    else if ((fileWatch.ElapsedMilliseconds - lastLogMs) >= 3000)
+                                    {
+                                        LogHigh("NGX.NET: [{0}/{1}] {2}/{3} - {4}...", index, totalCount, rid, assetName, FormatSize(downloaded));
+                                        lastLogMs = fileWatch.ElapsedMilliseconds;
+                                    }
+                                }
+
+                                sha256.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                                actualSha256 = BitConverter.ToString(sha256.Hash).Replace("-", string.Empty);
+                            }
+
+                            if (!string.Equals(actualSha256, expectedSha256, StringComparison.OrdinalIgnoreCase))
+                            {
+                                DeleteIfExists(tempFile);
+                                Log.LogError("NGX.NET: SHA-256 verification failed for '{0}' downloaded from '{1}'. Expected {2}, got {3}.", assetName, url, expectedSha256, actualSha256);
+                                return -1;
+                            }
+
+                            CreateParentDirectory(cachedPath);
+                            if (File.Exists(cachedPath))
+                            {
+                                File.Replace(tempFile, cachedPath, null);
+                            }
+                            else
+                            {
+                                File.Move(tempFile, cachedPath);
+                            }
+
+                            return downloaded;
+                        }
+                    }
+                }
+                catch (Exception ex) when ((ex is OperationCanceledException) || (ex is HttpRequestException) || (ex is IOException))
+                {
+                    DeleteIfExists(tempFile);
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException(cancellation.Token);
+                    }
+
+                    bool isTimeout = ex is OperationCanceledException;
+                    if (attempt >= MaxAttempts)
+                    {
+                        string prefix = isTimeout ? "NGX.NET: Timed out" : "NGX.NET: Failed";
+                        Log.LogError(prefix + " downloading '{0}' from '{1}': {2}", assetName, url, ex.Message);
+                        return -1;
+                    }
+
+                    string reason = isTimeout ? "timeout..." : "error: " + ex.Message;
+                    LogHigh("NGX.NET: Retrying {0}/{1} ({2}/{3}) after {4}", rid, assetName, attempt, MaxAttempts - 1, reason);
+                    cancellation.Token.WaitHandle.WaitOne(1000 * attempt);
+                }
+            }
+        }
+
+        private void LogHigh(string format, params object[] args)
+        {
+            string message = args.Length == 0 ? format : string.Format(CultureInfo.InvariantCulture, format, args);
+            Log.LogMessage(MessageImportance.High, message);
+        }
+
+        private static string ComputeFileSha256(string path)
+        {
+            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                return BitConverter.ToString(sha256.ComputeHash(stream)).Replace("-", string.Empty);
+            }
+        }
+
+        private static string FormatSize(long bytes)
+        {
+            if (bytes >= (1024L * 1024L))
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0:F1} MiB", bytes / (1024.0 * 1024.0));
+            }
+
+            if (bytes >= 1024L)
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0:F1} KiB", bytes / 1024.0);
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, "{0} B", bytes);
+        }
+
+        private static void CreateParentDirectory(string filePath)
+        {
+            string directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+        }
+
+        private static void DeleteIfExists(string path, bool recursive = false)
+        {
+            try
+            {
+                if (recursive)
+                {
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
+                }
+                else if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch
+            {
+            }
+        }
+    }
+}
+]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="_NgxInitializeRuntimeLayout"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+
+        <PropertyGroup>
+            <_NgxNormalizedRids Condition="'$(RuntimeIdentifier)' != ''">;$(RuntimeIdentifier.Trim().ToLowerInvariant());</_NgxNormalizedRids>
+            <_NgxNormalizedRids Condition="'$(_NgxNormalizedRids)' == '' and '$(RuntimeIdentifiers)' != ''">;$([System.Text.RegularExpressions.Regex]::Replace('$(RuntimeIdentifiers)', '\s+', '').ToLowerInvariant());</_NgxNormalizedRids>
+
+            <_NgxCacheRoot Condition="'$(_NgxCacheRoot)' == ''">$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))</_NgxCacheRoot>
+            <_NgxCacheRoot Condition="'$(_NgxCacheRoot)' == ''">$([System.IO.Path]::GetTempPath())</_NgxCacheRoot>
+            <_NgxCacheBaseDir>$([System.IO.Path]::GetFullPath('$([System.IO.Path]::Combine('$(_NgxCacheRoot)', 'NGX.NET', 'cache', '$(_NgxSdkRelease)'))'))</_NgxCacheBaseDir>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <_NgxRawCacheFile Include="@(_NgxManifestEntry->'$(_NgxCacheBaseDir)/%(Identity)')" />
+            <_NgxAllCacheFile Include="@(_NgxRawCacheFile->'%(FullPath)')" />
+            <_NgxAllCacheFile Update="@(_NgxAllCacheFile)">
+                <CachedPath>%(_NgxAllCacheFile.Identity)</CachedPath>
+                <DownloadUrl>$(_NgxDefaultBaseUrl)/%(_NgxAllCacheFile.RelativeUrl)</DownloadUrl>
+                <TargetOutputPath Condition="'$(RuntimeIdentifier)' != ''">%(_NgxAllCacheFile.AssetName)</TargetOutputPath>
+                <TargetOutputPath Condition="'$(RuntimeIdentifier)' == ''">runtimes/%(_NgxAllCacheFile.Rid)/native/%(_NgxAllCacheFile.AssetName)</TargetOutputPath>
+            </_NgxAllCacheFile>
+        </ItemGroup>
+
+    </Target>
+
+    <Target Name="_NgxResolveRuntimeAssets"
+            DependsOnTargets="_NgxInitializeRuntimeLayout"
+            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true'">
+
+        <ItemGroup>
+            <_NgxSelectedEntry Include="@(_NgxAllCacheFile)"
+                               Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxAllCacheFile.Rid);'))" />
+            <_NgxExistingCacheFile Include="@(_NgxSelectedEntry)" Condition="Exists('%(Identity)')" />
+        </ItemGroup>
+
+        <GetFileHash Files="@(_NgxExistingCacheFile)" Algorithm="SHA256" HashEncoding="hex" Condition="'@(_NgxExistingCacheFile)' != ''">
+            <Output TaskParameter="Items" ItemName="_NgxHashedCacheFile" />
+        </GetFileHash>
+
+        <ItemGroup Condition="'@(_NgxSelectedEntry)' != ''">
+            <_NgxValidCacheFile Include="@(_NgxHashedCacheFile)" Condition="$([System.String]::Equals('%(_NgxHashedCacheFile.FileHash)', '%(_NgxHashedCacheFile.Sha256)', System.StringComparison.OrdinalIgnoreCase))" />
+            <_NgxMissingEntry Include="@(_NgxSelectedEntry)" Exclude="@(_NgxValidCacheFile)" />
+        </ItemGroup>
+
+    </Target>
+
+    <Target Name="DownloadNgxRuntime"
+            DependsOnTargets="_NgxResolveRuntimeAssets"
+            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true' and '@(_NgxMissingEntry)' != ''">
+
+        <NgxDownloadAssets Assets="@(_NgxMissingEntry)"
+                           CacheDirectory="$(_NgxCacheBaseDir)"
+                           SdkRelease="$(_NgxSdkRelease)" />
+
+    </Target>
+
+    <Target Name="_NgxStageRuntimeAssets"
+            BeforeTargets="AssignTargetPaths"
+            DependsOnTargets="_NgxResolveRuntimeAssets;DownloadNgxRuntime"
+            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true'">
+
+        <ItemGroup Condition="'@(_NgxSelectedEntry)' != ''">
+            <None Include="@(_NgxSelectedEntry)">
+                <Link>%(_NgxSelectedEntry.TargetOutputPath)</Link>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+                <Pack>false</Pack>
+                <Visible>false</Visible>
+            </None>
+        </ItemGroup>
+
+    </Target>
+
+    <Target Name="_NgxNormalizeBuildRuntimeAssets"
+            AfterTargets="GetCopyToOutputDirectoryItems"
+            DependsOnTargets="_NgxInitializeRuntimeLayout"
+            Condition="'$(DesignTimeBuild)' != 'true' and '@(_SourceItemsToCopyToOutputDirectory)' != ''">
+
+        <ItemGroup>
+            <_NgxUnstagedBuildAsset Include="@(_NgxAllCacheFile)" Exclude="@(_SourceItemsToCopyToOutputDirectory)" />
+            <_NgxStagedBuildAsset Include="@(_NgxAllCacheFile)" Exclude="@(_NgxUnstagedBuildAsset)" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'@(_NgxStagedBuildAsset)' != ''">
+            <_SourceItemsToCopyToOutputDirectory Remove="@(_NgxAllCacheFile)" />
+            <AllItemsFullPathWithTargetPath Remove="@(_NgxAllCacheFile)" />
+            <_NgxNormalizedBuildAsset Include="@(_NgxStagedBuildAsset)"
+                                      Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxStagedBuildAsset.Rid);'))">
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <TargetPath>%(_NgxStagedBuildAsset.TargetOutputPath)</TargetPath>
+            </_NgxNormalizedBuildAsset>
+            <_SourceItemsToCopyToOutputDirectory Include="@(_NgxNormalizedBuildAsset)" />
+            <AllItemsFullPathWithTargetPath Include="@(_NgxNormalizedBuildAsset)" />
+        </ItemGroup>
+
+    </Target>
+
+    <Target Name="_NgxNormalizePublishRuntimeAssets"
+            AfterTargets="GetCopyToPublishDirectoryItems"
+            DependsOnTargets="_NgxInitializeRuntimeLayout"
+            Condition="'$(DesignTimeBuild)' != 'true' and '@(_SourceItemsToCopyToPublishDirectory)' != ''">
+
+        <ItemGroup>
+            <_NgxUnstagedPublishAsset Include="@(_NgxAllCacheFile)" Exclude="@(_SourceItemsToCopyToPublishDirectory)" />
+            <_NgxStagedPublishAsset Include="@(_NgxAllCacheFile)" Exclude="@(_NgxUnstagedPublishAsset)" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'@(_NgxStagedPublishAsset)' != ''">
+            <_SourceItemsToCopyToPublishDirectory Remove="@(_NgxAllCacheFile)" />
+            <AllPublishItemsFullPathWithTargetPath Remove="@(_NgxAllCacheFile)" />
+            <_NgxNormalizedPublishAsset Include="@(_NgxStagedPublishAsset)"
+                                        Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxStagedPublishAsset.Rid);'))">
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+                <TargetPath>%(_NgxStagedPublishAsset.TargetOutputPath)</TargetPath>
+            </_NgxNormalizedPublishAsset>
+            <_SourceItemsToCopyToPublishDirectory Include="@(_NgxNormalizedPublishAsset)" />
+            <AllPublishItemsFullPathWithTargetPath Include="@(_NgxNormalizedPublishAsset)" />
+        </ItemGroup>
+
+    </Target>
+
+</Project>

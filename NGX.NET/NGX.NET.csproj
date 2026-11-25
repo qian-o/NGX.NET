@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(StandardTargetFramework)</TargetFramework>
+        <IsAotCompatible>true</IsAotCompatible>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\native\**\ngx-bridge.dll;..\native\**\libngx-bridge.so">
+            <Link>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <PackagePath>runtimes/%(RecursiveDir)native/%(Filename)%(Extension)</PackagePath>
+            <Pack>true</Pack>
+        </None>
+        <None Update="buildTransitive\*.props;buildTransitive\*.targets">
+            <PackagePath>buildTransitive/%(Filename)%(Extension)</PackagePath>
+            <Pack>true</Pack>
+        </None>
+    </ItemGroup>
+
+    <Import Project="..\NuGet.Packaging.props" />
+
+</Project>

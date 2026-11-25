@@ -1,0 +1,5 @@
+* text=auto
+NGX.NET/**/*.g.cs text eol=lf
+NGX.NET/buildTransitive/* text eol=lf
+*.dll binary
+*.so binary

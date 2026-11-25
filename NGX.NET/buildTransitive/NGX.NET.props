@@ -1,0 +1,24 @@
+﻿<Project>
+
+    <PropertyGroup>
+        <_NgxSdkRelease>v310.9.16</_NgxSdkRelease>
+        <_NgxSdkCommit>9981c6350dc58c0ce21f024fd65e31e851c31689</_NgxSdkCommit>
+        <_NgxDefaultBaseUrl>https://raw.githubusercontent.com/NVIDIA/DLSS/9981c6350dc58c0ce21f024fd65e31e851c31689</_NgxDefaultBaseUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <_NgxManifestEntry Include="linux-arm64/libnvidia-ngx-dlss.so.310.9.16" Rid="linux-arm64" AssetName="libnvidia-ngx-dlss.so.310.9.16" RelativeUrl="lib/Linux_aarch64/rel/libnvidia-ngx-dlss.so.310.9.16" Sha256="AC59314B13B99F7688C13953052BBDBD5868460ECCC95CB19FC27FA08AE3E64C" />
+        <_NgxManifestEntry Include="linux-arm64/libnvidia-ngx-dlssd.so.310.9.16" Rid="linux-arm64" AssetName="libnvidia-ngx-dlssd.so.310.9.16" RelativeUrl="lib/Linux_aarch64/rel/libnvidia-ngx-dlssd.so.310.9.16" Sha256="E63031B4351A591E42EE226744D649303279365E4E3AE0FAC2A2A7F02C51B346" />
+        <_NgxManifestEntry Include="linux-arm64/libnvidia-ngx-dlssg.so.310.9.16" Rid="linux-arm64" AssetName="libnvidia-ngx-dlssg.so.310.9.16" RelativeUrl="lib/Linux_aarch64/rel/libnvidia-ngx-dlssg.so.310.9.16" Sha256="C45500C57EF47DB3CFE5DA4BC32921FC1F10995254B1AC9592CA31A4A92BB678" />
+        <_NgxManifestEntry Include="linux-x64/libnvidia-ngx-dlss.so.310.9.16" Rid="linux-x64" AssetName="libnvidia-ngx-dlss.so.310.9.16" RelativeUrl="lib/Linux_x86_64/rel/libnvidia-ngx-dlss.so.310.9.16" Sha256="30982C937AFED85C96B8D313323DE9A650A2EEC6DE1BB0F714B21750F4CE98F6" />
+        <_NgxManifestEntry Include="linux-x64/libnvidia-ngx-dlssd.so.310.9.16" Rid="linux-x64" AssetName="libnvidia-ngx-dlssd.so.310.9.16" RelativeUrl="lib/Linux_x86_64/rel/libnvidia-ngx-dlssd.so.310.9.16" Sha256="A5D59DE18841F15779039DDA567A15DD723BA737915F489271FDB5F109FBFB96" />
+        <_NgxManifestEntry Include="linux-x64/libnvidia-ngx-dlssg.so.310.9.16" Rid="linux-x64" AssetName="libnvidia-ngx-dlssg.so.310.9.16" RelativeUrl="lib/Linux_x86_64/rel/libnvidia-ngx-dlssg.so.310.9.16" Sha256="574839CAE01C835DE4D5845C36CA9CF75361F8160BD52397142C36A24E29E6F7" />
+        <_NgxManifestEntry Include="win-arm64/nvngx_dlss.dll" Rid="win-arm64" AssetName="nvngx_dlss.dll" RelativeUrl="lib/Windows_aarch64/rel/nvngx_dlss.dll" Sha256="922348B0F4AF9571D60AD1514FC225A87DA3A4DA64BC6B93F6B6F3ADB4BAA852" />
+        <_NgxManifestEntry Include="win-arm64/nvngx_dlssd.dll" Rid="win-arm64" AssetName="nvngx_dlssd.dll" RelativeUrl="lib/Windows_aarch64/rel/nvngx_dlssd.dll" Sha256="BF952D457BBC30F6ADA719AE46FE0FB135246587D05B112455056127BB2F1667" />
+        <_NgxManifestEntry Include="win-arm64/nvngx_dlssg.dll" Rid="win-arm64" AssetName="nvngx_dlssg.dll" RelativeUrl="lib/Windows_aarch64/rel/nvngx_dlssg.dll" Sha256="9CD0A94CD9EE3D1A0880CC2ED5A7985C19E5B0F09D17B6E538BB719C528AB9F9" />
+        <_NgxManifestEntry Include="win-x64/nvngx_dlss.dll" Rid="win-x64" AssetName="nvngx_dlss.dll" RelativeUrl="lib/Windows_x86_64/rel/nvngx_dlss.dll" Sha256="D00B5B0AB29C3CA101B70C3A5ECB3A01B7EF33766A3383A28A18623083E6123E" />
+        <_NgxManifestEntry Include="win-x64/nvngx_dlssd.dll" Rid="win-x64" AssetName="nvngx_dlssd.dll" RelativeUrl="lib/Windows_x86_64/rel/nvngx_dlssd.dll" Sha256="B49435AE346F227FEAFE7BBE937D88277EA0EE7323975EC06488F377FDB46CEE" />
+        <_NgxManifestEntry Include="win-x64/nvngx_dlssg.dll" Rid="win-x64" AssetName="nvngx_dlssg.dll" RelativeUrl="lib/Windows_x86_64/rel/nvngx_dlssg.dll" Sha256="8D59D49B36410DD6B62FEF2503A5871D347415BD85D943FA0848563A95DD50C7" />
+    </ItemGroup>
+
+</Project>
