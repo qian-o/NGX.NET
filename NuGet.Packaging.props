@@ -13,15 +13,13 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>NGX;NVIDIA;DLSS;DirectX11;DirectX12;Vulkan;CUDA;Graphics;GPU;CSharp</PackageTags>
         <PackageProjectUrl>https://github.com/qian-o/NGX.NET</PackageProjectUrl>
-
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
         <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
         <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
