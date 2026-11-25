@@ -6,10 +6,10 @@
     "vulkanCommit": "d277a0a3cda9c682708c93279f0c72cd6b0ae3f3",
     "natives": {
       "win-x64": {
-        "ngx-bridge.dll": "98a1d41f0a8d31f5a5e9cf7786dbbef80db347f285f07be78f3ee48bb0d41a69"
+        "ngx-bridge.dll": "bd681d7a367530470f5821a298a8fd9c91b1ad3dc43a5dd417dc370e1999c9c8"
       },
       "win-arm64": {
-        "ngx-bridge.dll": "9a16bdecd34786ce80b3ecb2bb199342b163d9d8176e88784d06b662a084a836"
+        "ngx-bridge.dll": "f273e43764d9bc66a21c5ba89c5caf4d94c158d2273bf5595535287698fbad3c"
       },
       "linux-x64": {
         "libngx-bridge.so": "1b0184b463141f65d5c856388ecb056a05f62f49f61319bc6846a053b5f9fdc2"
