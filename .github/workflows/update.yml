@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -105,3 +106,17 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Update NGX SDK, bindings and native assets"
           git push
+
+  cleanup:
+    needs: [prepare, build, update]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Delete artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ids=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[] | select(.expired | not) | .id')
+          for id in $ids; do
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+          done
