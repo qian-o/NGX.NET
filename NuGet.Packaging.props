@@ -1,7 +1,7 @@
 ﻿<Project>
 
     <PropertyGroup>
-        <Version>310.9.16.3</Version>
+        <Version>310.9.16</Version>
         <Authors>qian-o</Authors>
         <Copyright>Copyright (c) 2026 qian-o</Copyright>
         <Description>Low-level, zero-overhead C# bindings for NVIDIA NGX, including DLSS Super Resolution, Ray Reconstruction, and Frame Generation.</Description>
