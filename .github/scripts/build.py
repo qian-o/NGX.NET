@@ -450,8 +450,8 @@ def verify_package(root: Path, source: dict, package: Path | None) -> None:
     if not nupkg.is_file():
         raise RuntimeError(f"NuGet package not found: {nupkg}")
     snupkg = nupkg.with_suffix(".snupkg")
-    if not snupkg.is_file():
-        raise RuntimeError(f"Symbol package not found: {snupkg}")
+    if snupkg.exists():
+        raise RuntimeError(f"Unexpected symbol package: {snupkg}")
 
     with zipfile.ZipFile(nupkg) as archive:
         names = set(archive.namelist())
@@ -486,12 +486,7 @@ def verify_package(root: Path, source: dict, package: Path | None) -> None:
         if pkg_version != version:
             raise RuntimeError(f"Nuspec version mismatch: {pkg_version} != {version}")
 
-    with zipfile.ZipFile(snupkg) as symbols:
-        pdb_path = f"lib/{framework}/{PACKAGE}.pdb"
-        if pdb_path not in set(symbols.namelist()):
-            raise RuntimeError(f"Symbol package missing {pdb_path}")
-
-    print(f"Verified NuGet package: {nupkg.name} and {snupkg.name} ({len(expected_native)} core native files, 0 runtime files).")
+    print(f"Verified NuGet package: {nupkg.name} ({len(expected_native)} core native files, 0 runtime files).")
 
 
 def verify(root: Path, package: Path | None = None) -> None:

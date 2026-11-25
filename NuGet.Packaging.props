@@ -4,18 +4,16 @@
         <Version>310.9.16.1</Version>
         <Authors>qian-o</Authors>
         <Copyright>Copyright (c) 2026 qian-o</Copyright>
-        <Description>C# bindings for NVIDIA NGX.</Description>
+        <Description>Low-level, zero-overhead C# bindings for NVIDIA NGX, including DLSS Super Resolution, Ray Reconstruction, and Frame Generation.</Description>
 
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/qian-o/NGX.NET.git</RepositoryUrl>
 
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>NGX;NVIDIA;DLSS;Graphics;CSharp</PackageTags>
+        <PackageTags>NGX;NVIDIA;DLSS;DirectX11;DirectX12;Vulkan;CUDA;Graphics;GPU;CSharp</PackageTags>
         <PackageProjectUrl>https://github.com/qian-o/NGX.NET</PackageProjectUrl>
 
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
     </PropertyGroup>
 
