@@ -28,10 +28,10 @@ public unsafe delegate NGXResult NGXDLSSGetStatsCallback(NGXParameter arg0);
 public unsafe delegate NGXResult NGXParameterGetD(NGXParameter arg0, byte* arg1, double* arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate NGXResult NGXParameterGetD3d11Resource(NGXParameter arg0, byte* arg1, nint* arg2);
+public unsafe delegate NGXResult NGXParameterGetD3D11Resource(NGXParameter arg0, byte* arg1, nint* arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate NGXResult NGXParameterGetD3d12Resource(NGXParameter arg0, byte* arg1, nint* arg2);
+public unsafe delegate NGXResult NGXParameterGetD3D12Resource(NGXParameter arg0, byte* arg1, nint* arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public unsafe delegate NGXResult NGXParameterGetF(NGXParameter arg0, byte* arg1, float* arg2);
@@ -52,10 +52,10 @@ public unsafe delegate NGXResult NGXParameterGetVoidPointer(NGXParameter arg0, b
 public unsafe delegate void NGXParameterSetD(NGXParameter arg0, byte* arg1, double arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate void NGXParameterSetD3d11Resource(NGXParameter arg0, byte* arg1, nint arg2);
+public unsafe delegate void NGXParameterSetD3D11Resource(NGXParameter arg0, byte* arg1, nint arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate void NGXParameterSetD3d12Resource(NGXParameter arg0, byte* arg1, nint arg2);
+public unsafe delegate void NGXParameterSetD3D12Resource(NGXParameter arg0, byte* arg1, nint arg2);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public unsafe delegate void NGXParameterSetF(NGXParameter arg0, byte* arg1, float arg2);

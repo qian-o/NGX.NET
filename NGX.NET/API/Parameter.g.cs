@@ -10,11 +10,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetD3d11Resource(NGXParameter parameter, byte* name, nint* value);
+        public static partial NGXResult GetD3D11Resource(NGXParameter parameter, byte* name, nint* value);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetD3d12Resource(NGXParameter parameter, byte* name, nint* value);
+        public static partial NGXResult GetD3D12Resource(NGXParameter parameter, byte* name, nint* value);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_GetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -42,11 +42,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d11Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetD3d11Resource(NGXParameter parameter, byte* name, nint value);
+        public static partial void SetD3D11Resource(NGXParameter parameter, byte* name, nint value);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetD3d12Resource")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial void SetD3d12Resource(NGXParameter parameter, byte* name, nint value);
+        public static partial void SetD3D12Resource(NGXParameter parameter, byte* name, nint value);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_Parameter_SetF")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -106,18 +106,18 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult GetD3d11Resource(NGXParameter parameter, string name, out nint value)
+        public static NGXResult GetD3D11Resource(NGXParameter parameter, string name, out nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             fixed (nint* pValue = &value)
             {
-                return GetD3d11Resource(parameter, pName, pValue);
+                return GetD3D11Resource(parameter, pName, pValue);
             }
         }
 
-        public static NGXResult GetD3d11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
+        public static NGXResult GetD3D11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
         {
             if (!name.IsEmpty && (name[^1] is 0))
             {
@@ -125,7 +125,7 @@ public static unsafe partial class Ngx
                 {
                     fixed (nint* pValue = &value)
                     {
-                        return GetD3d11Resource(parameter, pName, pValue);
+                        return GetD3D11Resource(parameter, pName, pValue);
                     }
                 }
             }
@@ -135,22 +135,22 @@ public static unsafe partial class Ngx
 
             fixed (nint* pValue = &value)
             {
-                return GetD3d11Resource(parameter, pNameTerminated, pValue);
+                return GetD3D11Resource(parameter, pNameTerminated, pValue);
             }
         }
 
-        public static NGXResult GetD3d12Resource(NGXParameter parameter, string name, out nint value)
+        public static NGXResult GetD3D12Resource(NGXParameter parameter, string name, out nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
             fixed (nint* pValue = &value)
             {
-                return GetD3d12Resource(parameter, pName, pValue);
+                return GetD3D12Resource(parameter, pName, pValue);
             }
         }
 
-        public static NGXResult GetD3d12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
+        public static NGXResult GetD3D12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, out nint value)
         {
             if (!name.IsEmpty && (name[^1] is 0))
             {
@@ -158,7 +158,7 @@ public static unsafe partial class Ngx
                 {
                     fixed (nint* pValue = &value)
                     {
-                        return GetD3d12Resource(parameter, pName, pValue);
+                        return GetD3D12Resource(parameter, pName, pValue);
                     }
                 }
             }
@@ -168,7 +168,7 @@ public static unsafe partial class Ngx
 
             fixed (nint* pValue = &value)
             {
-                return GetD3d12Resource(parameter, pNameTerminated, pValue);
+                return GetD3D12Resource(parameter, pNameTerminated, pValue);
             }
         }
 
@@ -361,52 +361,52 @@ public static unsafe partial class Ngx
             SetD(parameter, pNameTerminated, value);
         }
 
-        public static void SetD3d11Resource(NGXParameter parameter, string name, nint value)
+        public static void SetD3D11Resource(NGXParameter parameter, string name, nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
-            SetD3d11Resource(parameter, pName, value);
+            SetD3D11Resource(parameter, pName, value);
         }
 
-        public static void SetD3d11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
+        public static void SetD3D11Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
         {
             if (!name.IsEmpty && (name[^1] is 0))
             {
                 fixed (byte* pName = name)
                 {
-                    SetD3d11Resource(parameter, pName, value);
+                    SetD3D11Resource(parameter, pName, value);
                 }
             }
 
             using NGXStrings strings = new();
             byte* pNameTerminated = strings.AllocUtf8(name);
 
-            SetD3d11Resource(parameter, pNameTerminated, value);
+            SetD3D11Resource(parameter, pNameTerminated, value);
         }
 
-        public static void SetD3d12Resource(NGXParameter parameter, string name, nint value)
+        public static void SetD3D12Resource(NGXParameter parameter, string name, nint value)
         {
             using NGXStrings strings = new();
             byte* pName = strings.AllocUtf8(name);
 
-            SetD3d12Resource(parameter, pName, value);
+            SetD3D12Resource(parameter, pName, value);
         }
 
-        public static void SetD3d12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
+        public static void SetD3D12Resource(NGXParameter parameter, ReadOnlySpan<byte> name, nint value)
         {
             if (!name.IsEmpty && (name[^1] is 0))
             {
                 fixed (byte* pName = name)
                 {
-                    SetD3d12Resource(parameter, pName, value);
+                    SetD3D12Resource(parameter, pName, value);
                 }
             }
 
             using NGXStrings strings = new();
             byte* pNameTerminated = strings.AllocUtf8(name);
 
-            SetD3d12Resource(parameter, pNameTerminated, value);
+            SetD3D12Resource(parameter, pNameTerminated, value);
         }
 
         public static void SetF(NGXParameter parameter, string name, float value)

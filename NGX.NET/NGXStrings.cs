@@ -81,6 +81,7 @@ public unsafe class NGXStrings : DisposableObject
         {
             NativeMemory.Free((void*)allocations[i]);
         }
+
         allocations.Clear();
     }
 

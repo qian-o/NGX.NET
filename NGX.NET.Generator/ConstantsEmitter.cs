@@ -2,8 +2,18 @@
 
 internal class ConstantsEmitter(AstModel model, Dictionary<string, string> files)
 {
+    private static readonly HashSet<string> CompilerMacros =
+    [
+        "NVSDK_CONV",
+        "NVSDK_NGX_API",
+        "NVSDK_NGX_ARRAY_LEN",
+        "NVSDK_NGX_ENSURE_VK_IMAGEVIEW",
+        "SR_DEPRECATED_SHARPENING"
+    ];
+
     internal void WriteConstants()
     {
+        VerifyMacroCoverage();
         ValidateNames(model.Macros.Values
             .Where(static macro => !macro.IsFunctionLike && macro.Tokens.Length is not 0 && macro.Tokens.All(static token => token.StartsWith('"')))
             .Select(static macro => (macro.Name, GetName(macro.Name))), "constants");
@@ -40,6 +50,29 @@ internal class ConstantsEmitter(AstModel model, Dictionary<string, string> files
         WriteResultMacro(text, "NVSDK_NGX_SUCCEED", "!=");
         text.EndBlock();
         files.Add("API/Constants.g.cs", text.ToString());
+    }
+
+    private void VerifyMacroCoverage()
+    {
+        foreach (AstMacro macro in model.Macros.Values)
+        {
+            if (CompilerMacros.Contains(macro.Name) || (!macro.IsFunctionLike && macro.Tokens.Length is 0))
+            {
+                continue;
+            }
+
+            if (macro.Name is "NVSDK_NGX_VERSION_API_MACRO" or "NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET" or "NVSDK_NGX_FAILED" or "NVSDK_NGX_SUCCEED")
+            {
+                continue;
+            }
+
+            if (!macro.IsFunctionLike && macro.Tokens.All(static token => token.StartsWith('"')))
+            {
+                continue;
+            }
+
+            throw new InvalidOperationException($"Unmapped SDK macro: {macro.Name}. Review its managed API representation before regenerating bindings.");
+        }
     }
 
     private void WriteResultMacro(CodeWriter text, string name, string operation)

@@ -42,7 +42,12 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         {
             ValidateNames(function.Parameters.Select(static parameter => (parameter.Name, GetParameterName(parameter.Name))), $"parameters in {function.Name}");
             string method = GetFunctionName(function.Name).Method;
-            string parameters = string.Join(", ", function.Parameters.Select(parameter => $"{mapper.GetManagedType(parameter.Type)} {GetParameterName(parameter.Name)}"));
+            string parameters = string.Join(", ", function.Parameters.Select(parameter =>
+            {
+                string managed = mapper.GetManagedType(parameter.Type);
+
+                return $"{managed} {GetParameterName(parameter.Name)}{GetDefaultValue(function, parameter, managed, isManagedOverload: false)}";
+            }));
             text.WriteLine($"[LibraryImport(LibraryName, EntryPoint = \"{function.Export}\")]");
             text.WriteLine("[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
             text.WriteLine($"public static partial {mapper.GetManagedType(function.Result)} {method}({parameters});");
@@ -90,21 +95,8 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             string name = GetParameterName(parameter.Name);
             string identifier = name.TrimStart('@');
             string pointer = $"p{char.ToUpperInvariant(identifier[0])}{identifier[1..]}";
-            declarations[i] = $"{native} {name}";
+            declarations[i] = $"{native} {name}{GetDefaultValue(function, parameter, native, isManagedOverload: true)}";
             arguments[i] = name;
-
-            if (isInitMethod && native is "NGXFeatureCommonInfo*")
-            {
-                declarations[i] += " = null";
-            }
-            else if (isInitMethod && native is "NGXVersion")
-            {
-                declarations[i] += " = NGXVersion.Api";
-            }
-            else if (method is "EvaluateDLSSG" && native is "NGXDLSSGOptEvalParams*")
-            {
-                declarations[i] += " = null";
-            }
 
             if (type.Kind is NativeTypeKind.Bool)
             {
@@ -133,7 +125,7 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
             }
             else if (function.Name is "NVSDK_NGX_VULKAN_Init" or "NVSDK_NGX_VULKAN_Init_with_ProjectID" && type.Cpp is "PFN_vkGetInstanceProcAddr" or "PFN_vkGetDeviceProcAddr")
             {
-                declarations[i] = $"nint {name}";
+                declarations[i] = $"nint {name}{GetDefaultValue(function, parameter, native, isManagedOverload: true)}";
                 arguments[i] = $"({native}){name}";
                 hasOverload = true;
             }
@@ -239,5 +231,39 @@ internal class FunctionEmitter(TypeMapper mapper, Dictionary<string, string> fil
         }
 
         return mapper.IsRecord(element) && BorrowedRecords.Contains(element.Name) ? "in" : string.Empty;
+    }
+
+    private static string GetDefaultValue(AstFunction function, AstParameter parameter, string managedType, bool isManagedOverload)
+    {
+        string method = GetFunctionName(function.Name).Method;
+        if (method.StartsWith("Init", StringComparison.Ordinal))
+        {
+            if (function.Name is "NVSDK_NGX_VULKAN_Init" or "NVSDK_NGX_VULKAN_Init_with_ProjectID" && parameter.Type.Cpp is "PFN_vkGetInstanceProcAddr" or "PFN_vkGetDeviceProcAddr")
+            {
+                return isManagedOverload ? " = 0" : " = null";
+            }
+
+            if (managedType is "NGXFeatureCommonInfo*")
+            {
+                return " = null";
+            }
+
+            if (managedType is "NGXVersion")
+            {
+                return " = NGXVersion.Api";
+            }
+        }
+
+        if (method is "EvaluateDLSSG" && managedType is "NGXDLSSGOptEvalParams*")
+        {
+            return " = null";
+        }
+
+        if (method is "EvaluateFeature" or "EvaluateFeatureC" && parameter.Name is "InCallback")
+        {
+            return " = null";
+        }
+
+        return string.Empty;
     }
 }

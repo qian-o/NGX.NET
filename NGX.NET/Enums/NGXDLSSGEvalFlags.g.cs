@@ -3,7 +3,7 @@
 [Flags]
 public enum NGXDLSSGEvalFlags : int
 {
-    UpdateOnlyInsideExtents = 1 << 0,
+    None = 0,
 
-    None = 0
+    UpdateOnlyInsideExtents = 1 << 0,
 }

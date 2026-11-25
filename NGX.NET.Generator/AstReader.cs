@@ -126,7 +126,7 @@ internal static class AstReader
             NativeTypeKind.CharS or NativeTypeKind.CharU => $"char:{type.SizeInBytes}",
             NativeTypeKind.Long or NativeTypeKind.LongLong => $"signed:{type.SizeInBytes}",
             NativeTypeKind.ULong or NativeTypeKind.ULongLong => $"unsigned:{type.SizeInBytes}",
-            NativeTypeKind.FunctionProto or NativeTypeKind.FunctionNoProto => $"function:{GetTypeSignature(type.Result!)}({string.Join(';', type.Arguments.Select(GetTypeSignature))})",
+            NativeTypeKind.FunctionProto or NativeTypeKind.FunctionNoProto => $"function:{type.CallingConvention}:{GetTypeSignature(type.Result!)}({string.Join(';', type.Arguments.Select(GetTypeSignature))})",
             NativeTypeKind.ConstantArray => $"array:{type.Count}:{type.SizeInBytes}:{GetTypeSignature(type.Element!)}",
             _ => $"{type.Kind}:{type.SizeInBytes}:{type.Name}"
         };

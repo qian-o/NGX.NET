@@ -22,7 +22,7 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_ESTIMATE_VRAM_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, ulong* estimatedVRAMInBytes);
+        public static partial NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_EVALUATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -34,7 +34,7 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_EVALUATE_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateDLSSG(nint commandList, NGXHandle handle, NGXParameter parameters, NGXD3D12DLSSGEvalParams* dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters);
+        public static partial NGXResult EvaluateDLSSG(nint commandList, NGXHandle handle, NGXParameter parameters, NGXD3D12DLSSGEvalParams* dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_D3D12_EVALUATE_DLSS_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -54,11 +54,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_EvaluateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeature(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeature(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_EvaluateFeature_C")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeatureC(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeatureC(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_GetCapabilityParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -74,15 +74,15 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_GetScratchBufferSize")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, ulong* sizeInBytes);
+        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, nuint* sizeInBytes);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, nint device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_D3D12_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -145,9 +145,9 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out ulong estimatedVRAMInBytes)
+        public static NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
         {
-            fixed (ulong* pEstimatedVRAMInBytes = &estimatedVRAMInBytes)
+            fixed (nuint* pEstimatedVRAMInBytes = &estimatedVRAMInBytes)
             {
                 return EstimateVRAMDLSSG(parameters, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, pEstimatedVRAMInBytes);
             }
@@ -228,9 +228,9 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out ulong sizeInBytes)
+        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            fixed (ulong* pSizeInBytes = &sizeInBytes)
+            fixed (nuint* pSizeInBytes = &sizeInBytes)
             {
                 return GetScratchBufferSize(featureId, parameters, pSizeInBytes);
             }

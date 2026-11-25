@@ -10,11 +10,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_ESTIMATE_VRAM_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, ulong* estimatedVRAMInBytes);
+        public static partial NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, nuint* estimatedVRAMInBytes);
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VK_EVALUATE_DLSSG")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateDLSSG(nint commandBuffer, NGXHandle handle, NGXParameter parameters, NGXVKDLSSGEvalParams* dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters);
+        public static partial NGXResult EvaluateDLSSG(nint commandBuffer, NGXHandle handle, NGXParameter parameters, NGXVKDLSSGEvalParams* dlssgEvalParameters, NGXDLSSGOptEvalParams* dlssgOptEvalParameters = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NGX_Bridge_NGX_VULKAN_CREATE_DLISP_EXT")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -62,11 +62,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeature(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeature(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_EvaluateFeature_C")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeatureC(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeatureC(nint commandList, NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetCapabilityParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -90,15 +90,15 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_GetScratchBufferSize")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, ulong* sizeInBytes);
+        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, nuint* sizeInBytes);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, nint instance, nint pd, nint device, delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>> gipa, delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>> gdpa, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, nint instance, nint pd, nint device, delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>> gipa = null, delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>> gdpa = null, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, nint instance, nint pd, nint device, delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>> gipa, delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>> gdpa, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, nint instance, nint pd, nint device, delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>> gipa = null, delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>> gdpa = null, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_VULKAN_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -132,9 +132,9 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out ulong estimatedVRAMInBytes)
+        public static NGXResult EstimateVRAMDLSSG(NGXParameter parameters, uint mvecDepthWidth, uint mvecDepthHeight, uint colorWidth, uint colorHeight, uint colorBufferFormat, uint mvecBufferFormat, uint depthBufferFormat, uint hudLessBufferFormat, uint uiBufferFormat, out nuint estimatedVRAMInBytes)
         {
-            fixed (ulong* pEstimatedVRAMInBytes = &estimatedVRAMInBytes)
+            fixed (nuint* pEstimatedVRAMInBytes = &estimatedVRAMInBytes)
             {
                 return EstimateVRAMDLSSG(parameters, mvecDepthWidth, mvecDepthHeight, colorWidth, colorHeight, colorBufferFormat, mvecBufferFormat, depthBufferFormat, hudLessBufferFormat, uiBufferFormat, pEstimatedVRAMInBytes);
             }
@@ -289,30 +289,30 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out ulong sizeInBytes)
+        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            fixed (ulong* pSizeInBytes = &sizeInBytes)
+            fixed (nuint* pSizeInBytes = &sizeInBytes)
             {
                 return GetScratchBufferSize(featureId, parameters, pSizeInBytes);
             }
         }
 
-        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
+        public static NGXResult Init(ulong applicationId, string applicationDataPath, nint instance, nint pd, nint device, nint gipa = 0, nint gdpa = 0, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
 
-            return Init(applicationId, pApplicationDataPath, instance, pd, device, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gipa, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gdpa, featureInfo, sdkVersion);
+            return Init(applicationId, pApplicationDataPath, instance, pd, device, (delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>>)gipa, (delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>>)gdpa, featureInfo, sdkVersion);
         }
 
-        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint instance, nint pd, nint device, nint gipa, nint gdpa, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
+        public static NGXResult InitWithProjectID(string projectId, NGXEngineType engineType, string engineVersion, string applicationDataPath, nint instance, nint pd, nint device, nint gipa = 0, nint gdpa = 0, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api)
         {
             using NGXStrings strings = new();
             byte* pProjectId = strings.AllocUtf8(projectId);
             byte* pEngineVersion = strings.AllocUtf8(engineVersion);
             void* pApplicationDataPath = strings.AllocWide(applicationDataPath);
 
-            return InitWithProjectID(pProjectId, engineType, pEngineVersion, pApplicationDataPath, instance, pd, device, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gipa, (delegate* unmanaged[Cdecl]<nint, byte*, delegate* unmanaged[Cdecl]<void>>)gdpa, featureInfo, sdkVersion);
+            return InitWithProjectID(pProjectId, engineType, pEngineVersion, pApplicationDataPath, instance, pd, device, (delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>>)gipa, (delegate* unmanaged[Stdcall]<nint, byte*, delegate* unmanaged[Stdcall]<void>>)gdpa, featureInfo, sdkVersion);
         }
 
         public static NGXResult RequiredExtensions(out uint instanceExtensionCount, byte*** instanceExtensions, out uint deviceExtensionCount, byte*** deviceExtensions)

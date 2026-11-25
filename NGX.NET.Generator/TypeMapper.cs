@@ -119,7 +119,9 @@ internal class TypeMapper
     {
         name = name.Replace("NVSDK_NGX_", string.Empty, StringComparison.Ordinal);
 
-        return string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part => NativeWords.GetValueOrDefault(part, Acronyms.Contains(part) || part.Any(char.IsLower) ? $"{char.ToUpperInvariant(part[0])}{part[1..]}" : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part.ToLowerInvariant()))));
+        string result = string.Concat(name.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part => NativeWords.GetValueOrDefault(part, Acronyms.Contains(part) || part.Any(char.IsLower) ? $"{char.ToUpperInvariant(part[0])}{part[1..]}" : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part.ToLowerInvariant()))));
+
+        return Regex.Replace(result, @"D3d(11|12)", "D3D$1");
     }
 
     internal static string GetTypeName(string native)
@@ -186,7 +188,7 @@ internal class TypeMapper
 
     internal static string GetEnumMemberName(string value)
     {
-        return string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part =>
+        string name = string.Concat(value.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(static part =>
         {
             if (NativeWords.TryGetValue(part, out string? word))
             {
@@ -200,6 +202,8 @@ internal class TypeMapper
 
             return string.Concat(Regex.Matches(part, @"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+").Select(static match => $"{char.ToUpperInvariant(match.Value[0])}{match.Value[1..].ToLowerInvariant()}"));
         }));
+
+        return char.IsDigit(name[0]) ? $"_{name}" : name;
     }
 
     internal static string GetFieldName(string record, string field)

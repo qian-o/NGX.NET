@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ctypes import c_uint
 import os
 from pathlib import Path
 import re
@@ -23,6 +24,9 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
     windows = rid.startswith("win-")
     compiler = llvm / "bin" / ("clang.exe" if windows else "clang++")
     cx.Config.set_library_file(str(llvm / ("bin/libclang.dll" if windows else "lib/libclang.so")))
+    convention = cx.conf.lib.clang_getFunctionTypeCallingConv
+    convention.argtypes = [cx.Type]
+    convention.restype = c_uint
     resource = subprocess.check_output([str(compiler), "-print-resource-dir"], text=True).strip()
 
     target = ("aarch64" if rid.endswith("arm64") else "x86_64") + ("-pc-windows-msvc" if windows else "-linux-gnu")
@@ -53,20 +57,43 @@ def extract(sdk: Path, scratch: Path, rid: str, llvm: Path, standard: str):
 
     def type_info(t):
         canonical = t.get_canonical()
+        structural = t
+        while structural.kind in (cx.TypeKind.TYPEDEF, cx.TypeKind.ELABORATED):
+            if structural.kind == cx.TypeKind.TYPEDEF:
+                structural = structural.get_declaration().underlying_typedef_type
+            else:
+                structural = structural.get_named_type()
         kind = canonical.kind.name
         info = {"cpp": t.spelling, "kind": kind, "size": canonical.get_size()}
         if kind in ("POINTER", "LVALUEREFERENCE", "RVALUEREFERENCE"):
-            info["element"] = type_info(canonical.get_pointee())
+            info["element"] = type_info(structural.get_pointee())
         elif kind == "CONSTANTARRAY":
-            info.update(element=type_info(canonical.element_type), count=canonical.element_count)
+            info.update(element=type_info(structural.element_type), count=structural.element_count)
         elif kind in ("FUNCTIONPROTO", "FUNCTIONNOPROTO"):
-            info.update(result=type_info(canonical.get_result()), arguments=[type_info(a) for a in canonical.argument_types()])
+            native_convention = convention(canonical)
+            if native_convention not in (1, 2, 10, 11):
+                raise RuntimeError("Unsupported native calling convention: " + str(native_convention))
+            info.update(
+                result=type_info(structural.get_result()),
+                arguments=[type_info(a) for a in structural.argument_types()],
+                callingConvention="Stdcall" if native_convention == 2 else "Cdecl",
+            )
         elif kind in ("RECORD", "ENUM"):
             decl = canonical.get_declaration()
             info["name"] = decl.spelling
             if decl.is_anonymous():
                 info["name"] = "Anonymous_" + str(decl.location.line) + "_" + str(decl.location.column)
             collect(decl, info["name"])
+        declaration = t.get_declaration()
+        if declaration.kind == cx.CursorKind.TYPEDEF_DECL:
+            tokens = {token.spelling for token in declaration.get_tokens()}
+            # Preserve declared VKAPI_PTR/__stdcall conventions across non-Windows parsers too.
+            if tokens.intersection({"VKAPI_PTR", "__stdcall", "WINAPI", "CALLBACK"}):
+                function = info
+                while function.get("element"):
+                    function = function["element"]
+                if function["kind"] in ("FUNCTIONPROTO", "FUNCTIONNOPROTO"):
+                    function["callingConvention"] = "Stdcall"
         return info
 
     def collect(c, forced_name=None):

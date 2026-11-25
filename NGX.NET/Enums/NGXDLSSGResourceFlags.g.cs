@@ -3,6 +3,8 @@
 [Flags]
 public enum NGXDLSSGResourceFlags : int
 {
+    None = 0,
+
     Backbuffer = 1 << 0,
 
     MVecs = 1 << 1,
@@ -24,6 +26,4 @@ public enum NGXDLSSGResourceFlags : int
     OutputReal = 1 << 25,
 
     OutputDisableInterpolation = 1 << 26,
-
-    None = 0
 }

@@ -248,6 +248,85 @@ def build(root: Path, scratch: Path, output: Path, rid: str) -> None:
     print(f"Built {rid}: {bridge.name}", flush=True)
 
 
+def normalize_name(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
+def calling_conventions(native: dict) -> list[str]:
+    if native["kind"] == "POINTER" and native["element"]["kind"] in ("FUNCTIONPROTO", "FUNCTIONNOPROTO"):
+        function = native["element"]
+        result = [function.get("callingConvention", "Cdecl")]
+        for argument in function["arguments"]:
+            result.extend(calling_conventions(argument))
+        result.extend(calling_conventions(function["result"]))
+        return result
+    return calling_conventions(native["element"]) if "element" in native else []
+
+
+def verify_calling_conventions(root: Path, ast: dict) -> None:
+    platform = ast["platforms"]["win-x64"]
+    callbacks_text = (root / PACKAGE / "API/Callbacks.g.cs").read_text(encoding="utf-8-sig")
+    api_text = "\n".join(path.read_text(encoding="utf-8-sig") for path in (root / PACKAGE / "API").glob("*.g.cs") if path.name != "Callbacks.g.cs")
+    struct_text = "\n".join(path.read_text(encoding="utf-8-sig") for path in (root / PACKAGE / "Structs").glob("*.g.cs"))
+    callback_decls = {
+        normalize_name(name): convention
+        for convention, name in re.findall(r"\[UnmanagedFunctionPointer\(CallingConvention\.(Cdecl|StdCall)\)\]\s*public unsafe delegate [^\s]+ (\w+)\(", callbacks_text)
+    }
+    struct_fields = {
+        normalize_name(name): declaration
+        for declaration, name in re.findall(r"^    public ([^\r\n;]+) (\w+);$", struct_text, re.MULTILINE)
+    }
+    entry_lines = {
+        entry: declaration
+        for entry, declaration in re.findall(r'\[LibraryImport\([^,]+, EntryPoint = "([^"]+)"\)\]\s*\[UnmanagedCallConv\([^\r\n]+\)\]\s*public static partial ([^;]+);', api_text)
+    }
+
+    count = 0
+    for name, alias in platform["aliases"].items():
+        expected = calling_conventions(alias)
+        if not expected:
+            continue
+        key = normalize_name(re.sub(r"^PFN_", "", name).replace("NVSDK_NGX_", ""))
+        if not key.startswith("ngx"):
+            key = "ngx" + key
+        actual = callback_decls.get(key)
+        expected_attr = "StdCall" if expected[0] == "Stdcall" else "Cdecl"
+        if actual != expected_attr:
+            raise RuntimeError(f"Callback convention mismatch {name}: {actual} != {expected_attr}")
+        count += 1
+
+    for record in platform["records"]:
+        if record["opaque"]:
+            continue
+        for field in record["fields"]:
+            expected = calling_conventions(field["type"])
+            if not expected:
+                continue
+            fname = re.sub(r"^[pP]+(?=[A-Z_])_?", "", field["name"])
+            fname = re.sub(r"^(?:In|in|Out|out)(?=[A-Z_]|$)_?", "", fname)
+            declaration = struct_fields.get(normalize_name(fname))
+            if declaration is None:
+                raise RuntimeError(f"Missing function pointer field {record['name']}.{field['name']}")
+            actual = re.findall(r"unmanaged\[(Cdecl|Stdcall)\]", declaration)
+            if actual != expected:
+                raise RuntimeError(f"Field function pointer convention mismatch {record['name']}.{field['name']}: {actual} != {expected}")
+            count += len(expected)
+
+    for function in platform["functions"]:
+        expected = [conv for parameter in function["parameters"] for conv in calling_conventions(parameter["type"])]
+        if not expected:
+            continue
+        declaration = entry_lines.get(function["export"])
+        if declaration is None:
+            raise RuntimeError(f"Missing LibraryImport declaration for {function['export']}")
+        actual = re.findall(r"unmanaged\[(Cdecl|Stdcall)\]", declaration)
+        if actual != expected:
+            raise RuntimeError(f"Function pointer parameter convention mismatch {function['name']}: {actual} != {expected}")
+        count += len(expected)
+
+    print(f"Verified {count} function pointer calling conventions across callbacks, fields, and functions.")
+
+
 def merge(root: Path, output: Path) -> None:
     artifacts = {}
     platforms = {}
@@ -420,6 +499,7 @@ def verify(root: Path, package: Path | None = None) -> None:
     subprocess.run(["dotnet", "run", "--project", str(root / f"{PACKAGE}.Generator"), "-c", "Release", "--", str(root), "--verify"], check=True)
     ast = json.loads((root / f"{PACKAGE}.Generator" / "ast.json").read_text(encoding="utf-8"))
     source = ast["source"]
+    verify_calling_conventions(root, ast)
     verify_natives(root, source)
     verify_manifest(root, source)
     verify_package(root, source, package)

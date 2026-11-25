@@ -75,6 +75,11 @@ internal static class NativeLoader
             throw new PlatformNotSupportedException("NGX supports x64 and arm64.");
         }
 
+        if (RuntimeDirectory == AppContext.BaseDirectory)
+        {
+            return Load(assembly, searchPath, Path.Combine(AppContext.BaseDirectory, FileName), FileName);
+        }
+
         return Load(assembly, searchPath, Path.Combine(RuntimeDirectory, FileName), Path.Combine(AppContext.BaseDirectory, FileName), FileName);
     }
 

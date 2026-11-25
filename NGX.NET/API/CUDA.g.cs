@@ -42,11 +42,11 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeature(NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeature(NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_EvaluateFeature_C")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult EvaluateFeatureC(NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback);
+        public static partial NGXResult EvaluateFeatureC(NGXHandle featureHandle, NGXParameter parameters, delegate* unmanaged[Cdecl]<float, byte*, void> callback = null);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetCapabilityParameters")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -62,19 +62,19 @@ public static unsafe partial class Ngx
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_GetScratchBufferSize")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, ulong* sizeInBytes);
+        public static partial NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, nuint* sizeInBytes);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult Init(ulong applicationId, void* applicationDataPath, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init1")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult Init1(ulong applicationId, void* applicationDataPath, NGXCUDADevice* device, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult Init1(ulong applicationId, void* applicationDataPath, NGXCUDADevice* device, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_Init_with_ProjectID")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, NGXFeatureCommonInfo* featureInfo, NGXVersion sdkVersion);
+        public static partial NGXResult InitWithProjectID(byte* projectId, NGXEngineType engineType, byte* engineVersion, void* applicationDataPath, NGXFeatureCommonInfo* featureInfo = null, NGXVersion sdkVersion = NGXVersion.Api);
 
         [LibraryImport(LibraryName, EntryPoint = "NVSDK_NGX_CUDA_ReleaseFeature")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -193,9 +193,9 @@ public static unsafe partial class Ngx
             }
         }
 
-        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out ulong sizeInBytes)
+        public static NGXResult GetScratchBufferSize(NGXFeature featureId, NGXParameter parameters, out nuint sizeInBytes)
         {
-            fixed (ulong* pSizeInBytes = &sizeInBytes)
+            fixed (nuint* pSizeInBytes = &sizeInBytes)
             {
                 return GetScratchBufferSize(featureId, parameters, pSizeInBytes);
             }
