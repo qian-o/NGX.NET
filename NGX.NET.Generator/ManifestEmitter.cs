@@ -25,6 +25,12 @@ internal class ManifestEmitter(AstModel model, Dictionary<string, string> files)
         AppendLine(text, $"        <_NgxDefaultBaseUrl>{Escape(defaultBaseUrl)}</_NgxDefaultBaseUrl>");
         AppendLine(text, "    </PropertyGroup>");
         AppendLine(text);
+        AppendLine(text, "    <ItemDefinitionGroup>");
+        AppendLine(text, "        <NGXRuntime>");
+        AppendLine(text, "            <Path />");
+        AppendLine(text, "        </NGXRuntime>");
+        AppendLine(text, "    </ItemDefinitionGroup>");
+        AppendLine(text);
         AppendLine(text, "    <ItemGroup>");
 
         foreach (AstRuntimeAsset asset in source.Runtimes)

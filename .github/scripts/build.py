@@ -429,13 +429,18 @@ def verify_manifest(root: Path, source: dict) -> None:
     if actual_entries != expected_entries:
         raise RuntimeError(f"buildTransitive/{PACKAGE}.props runtime entries do not match ast.json.")
 
+    runtime_item = f"{PREFIX.upper()}Runtime"
+    if props.find(f"ItemDefinitionGroup/{runtime_item}/Path") is None:
+        raise RuntimeError(f"buildTransitive/{PACKAGE}.props missing ItemDefinitionGroup/{runtime_item}/Path.")
+
     ElementTree.parse(targets_path)
     targets_text = targets_path.read_text(encoding="utf-8-sig")
-    for token in (f"{PREFIX}DownloadRuntime", f"{PREFIX}DownloadAssets", f"{PACKAGE}.props", "System.Net.Http", "ExcludeFromSingleFile"):
+    for token in (runtime_item, f"{PREFIX}ResolveRuntime", f"{PACKAGE}.props", "System.Net.Http", "GetTempPath", "ExcludeFromSingleFile"):
         if token not in targets_text:
             raise RuntimeError(f"buildTransitive/{PACKAGE}.targets missing expected symbol: {token}")
-    if "<Reference" in targets_text:
-        raise RuntimeError(f"buildTransitive/{PACKAGE}.targets must not contain explicit <Reference> elements.")
+    for forbidden in ("<Reference", "LocalApplicationData", "DownloadRuntime"):
+        if forbidden in targets_text:
+            raise RuntimeError(f"buildTransitive/{PACKAGE}.targets contains forbidden token: {forbidden}")
     print(f"Verified buildTransitive runtime manifest ({len(expected_entries)} entries) and targets.")
 
 

@@ -2,7 +2,7 @@
 
     <Import Project="$(MSBuildThisFileDirectory)NGX.NET.props" Condition="'$(_NgxSdkRelease)' == ''" />
 
-    <UsingTask TaskName="NgxDownloadAssets"
+    <UsingTask TaskName="NgxResolveRuntime"
                TaskFactory="RoslynCodeTaskFactory"
                AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <Task>
@@ -19,10 +19,11 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace NGX.NET.Tasks
 {
-    public sealed class NgxDownloadAssets : Microsoft.Build.Utilities.Task, ICancelableTask
+    public sealed class NgxResolveRuntime : Microsoft.Build.Utilities.Task, ICancelableTask
     {
         private const int MaxAttempts = 3;
         private const int ReadTimeoutSeconds = 60;
@@ -30,13 +31,71 @@ namespace NGX.NET.Tasks
         private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
 
         [Required]
-        public ITaskItem[] Assets { get; set; }
+        public ITaskItem[] RuntimeItems { get; set; }
+
+        [Required]
+        public ITaskItem[] ManifestEntries { get; set; }
+
+        [Required]
+        public string ProjectDirectory { get; set; }
 
         [Required]
         public string CacheDirectory { get; set; }
 
         [Required]
+        public string DefaultBaseUrl { get; set; }
+
+        [Required]
         public string SdkRelease { get; set; }
+
+        public string RuntimeIdentifier { get; set; }
+
+        public string RuntimeIdentifiers { get; set; }
+
+        [Output]
+        public ITaskItem[] ResolvedAssets { get; set; }
+
+        private enum RidConfigKind
+        {
+            Download,
+            LocalAllRoot,
+            LocalExplicit
+        }
+
+        private sealed class RidConfig
+        {
+            public RidConfigKind Kind { get; private set; }
+            public string RootDir { get; private set; }
+            public List<string> Paths { get; private set; }
+
+            public static RidConfig CreateDownload()
+            {
+                return new RidConfig { Kind = RidConfigKind.Download };
+            }
+
+            public static RidConfig CreateLocalAllRoot(string rootDir)
+            {
+                return new RidConfig { Kind = RidConfigKind.LocalAllRoot, RootDir = rootDir };
+            }
+
+            public static RidConfig CreateLocalExplicit(string path)
+            {
+                return new RidConfig
+                {
+                    Kind = RidConfigKind.LocalExplicit,
+                    Paths = new List<string> { path }
+                };
+            }
+        }
+
+        private sealed class DownloadEntry
+        {
+            public string Rid { get; set; }
+            public string AssetName { get; set; }
+            public string DownloadUrl { get; set; }
+            public string CachedPath { get; set; }
+            public string Sha256 { get; set; }
+        }
 
         public void Cancel()
         {
@@ -57,7 +116,7 @@ namespace NGX.NET.Tasks
             }
             catch (OperationCanceledException)
             {
-                LogHigh("NGX.NET: Runtime asset download canceled.");
+                LogHigh("NGX.NET: Runtime asset resolution canceled.");
                 return false;
             }
             finally
@@ -68,20 +127,306 @@ namespace NGX.NET.Tasks
 
         private async Task<bool> ExecuteAsync()
         {
+            ResolvedAssets = Array.Empty<ITaskItem>();
+            if ((RuntimeItems == null) || (RuntimeItems.Length == 0))
+            {
+                return true;
+            }
+
+            List<string> supportedRids = new List<string>();
+            HashSet<string> supportedRidSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, List<ITaskItem>> manifestByRid = new Dictionary<string, List<ITaskItem>>(StringComparer.OrdinalIgnoreCase);
+            foreach (ITaskItem entry in ManifestEntries)
+            {
+                string rid = entry.GetMetadata("Rid").Trim().ToLowerInvariant();
+                if (supportedRidSet.Add(rid))
+                {
+                    supportedRids.Add(rid);
+                }
+
+                List<ITaskItem> list;
+                if (!manifestByRid.TryGetValue(rid, out list))
+                {
+                    list = new List<ITaskItem>();
+                    manifestByRid[rid] = list;
+                }
+
+                list.Add(entry);
+            }
+
+            Dictionary<string, RidConfig> configs = new Dictionary<string, RidConfig>(StringComparer.OrdinalIgnoreCase);
+            foreach (ITaskItem item in RuntimeItems)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                string spec = (item.ItemSpec ?? string.Empty).Trim();
+                string rawPath = (item.GetMetadata("Path") ?? string.Empty).Trim();
+
+                if (string.Equals(spec, "None", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (rawPath.Length > 0)
+                    {
+                        Log.LogError("NGX.NET: NGXRuntime 'None' cannot specify a Path ('{0}').", rawPath);
+                        return false;
+                    }
+
+                    configs.Clear();
+                    continue;
+                }
+
+                if (string.Equals(spec, "All", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (rawPath.Length == 0)
+                    {
+                        foreach (string rid in supportedRids)
+                        {
+                            configs[rid] = RidConfig.CreateDownload();
+                        }
+                    }
+                    else
+                    {
+                        string rootDir = ResolveUserPath(rawPath, ProjectDirectory);
+                        foreach (string rid in supportedRids)
+                        {
+                            configs[rid] = RidConfig.CreateLocalAllRoot(rootDir);
+                        }
+                    }
+
+                    continue;
+                }
+
+                string canonicalRid = FindCanonicalRid(supportedRids, spec);
+                if (canonicalRid == null)
+                {
+                    Log.LogError("NGX.NET: Invalid NGXRuntime Include value '{0}'. Expected 'All', 'None', or one of: {1}.", spec, string.Join(", ", supportedRids));
+                    return false;
+                }
+
+                if (rawPath.Length == 0)
+                {
+                    configs[canonicalRid] = RidConfig.CreateDownload();
+                }
+                else
+                {
+                    string fullPath = ResolveUserPath(rawPath, ProjectDirectory);
+                    RidConfig existing;
+                    if (configs.TryGetValue(canonicalRid, out existing) && (existing.Kind == RidConfigKind.LocalExplicit))
+                    {
+                        existing.Paths.Add(fullPath);
+                    }
+                    else
+                    {
+                        configs[canonicalRid] = RidConfig.CreateLocalExplicit(fullPath);
+                    }
+                }
+            }
+
+            HashSet<string> activeRids = ParseActiveRids(RuntimeIdentifier, RuntimeIdentifiers);
+            List<string> selectedRids = new List<string>();
+            foreach (string rid in supportedRids)
+            {
+                if (configs.ContainsKey(rid) && ((activeRids == null) || activeRids.Contains(rid)))
+                {
+                    selectedRids.Add(rid);
+                }
+            }
+
+            if (selectedRids.Count == 0)
+            {
+                return true;
+            }
+
+            Dictionary<string, List<ITaskItem>> resolvedByRid = new Dictionary<string, List<ITaskItem>>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, int> localAllRootHits = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            List<string> localAllRootsSeen = new List<string>();
+            List<DownloadEntry> downloadEntries = new List<DownloadEntry>();
+            bool flattenToRoot = !string.IsNullOrWhiteSpace(RuntimeIdentifier);
+
+            foreach (string rid in selectedRids)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                RidConfig config = configs[rid];
+
+                if (config.Kind == RidConfigKind.LocalAllRoot)
+                {
+                    string rootDir = config.RootDir;
+                    if (!localAllRootHits.ContainsKey(rootDir))
+                    {
+                        if (!Directory.Exists(rootDir))
+                        {
+                            Log.LogError("NGX.NET: Runtime directory '{0}' specified in NGXRuntime does not exist.", rootDir);
+                            return false;
+                        }
+
+                        localAllRootHits[rootDir] = 0;
+                        localAllRootsSeen.Add(rootDir);
+                    }
+
+                    string ridDir = Path.Combine(rootDir, rid);
+                    if (!Directory.Exists(ridDir))
+                    {
+                        if (activeRids != null)
+                        {
+                            Log.LogError("NGX.NET: Runtime directory '{0}' for '{1}' does not exist under '{2}'.", ridDir, rid, rootDir);
+                            return false;
+                        }
+
+                        continue;
+                    }
+
+                    Dictionary<string, string> filesByName = CreateFileMap(rid);
+                    int added;
+                    if (!CollectDirectoryFiles(rid, ridDir, filesByName, out added))
+                    {
+                        return false;
+                    }
+
+                    if (added == 0)
+                    {
+                        if (activeRids != null)
+                        {
+                            Log.LogError("NGX.NET: No runtime shared libraries for '{0}' were found in directory '{1}'.", rid, ridDir);
+                            return false;
+                        }
+
+                        continue;
+                    }
+
+                    localAllRootHits[rootDir] += filesByName.Count;
+                    resolvedByRid[rid] = CreateAssetItems(rid, filesByName, flattenToRoot);
+                }
+                else if (config.Kind == RidConfigKind.LocalExplicit)
+                {
+                    Dictionary<string, string> filesByName = CreateFileMap(rid);
+                    foreach (string localPath in config.Paths)
+                    {
+                        if (File.Exists(localPath))
+                        {
+                            string fileName = Path.GetFileName(localPath);
+                            if (IsCoreNativeBinary(fileName))
+                            {
+                                Log.LogError("NGX.NET: '{0}' is a core bridge bundled with the package; specify only runtime libraries in Path.", localPath);
+                                return false;
+                            }
+
+                            if (!IsValidRuntimeFileName(rid, fileName))
+                            {
+                                Log.LogError("NGX.NET: File '{0}' is not a valid runtime shared library for '{1}'.", localPath, rid);
+                                return false;
+                            }
+
+                            if (!AddFileCheckingDuplicates(filesByName, fileName, localPath, rid))
+                            {
+                                return false;
+                            }
+                        }
+                        else if (Directory.Exists(localPath))
+                        {
+                            int added;
+                            if (!CollectDirectoryFiles(rid, localPath, filesByName, out added))
+                            {
+                                return false;
+                            }
+
+                            if (added == 0)
+                            {
+                                string ridSubdir = Path.Combine(localPath, rid);
+                                if (Directory.Exists(ridSubdir))
+                                {
+                                    if (!CollectDirectoryFiles(rid, ridSubdir, filesByName, out added))
+                                    {
+                                        return false;
+                                    }
+                                }
+
+                                if (added == 0)
+                                {
+                                    Log.LogError("NGX.NET: No runtime shared libraries for '{0}' were found in directory '{1}'.", rid, localPath);
+                                    return false;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Log.LogError("NGX.NET: Runtime path '{0}' specified for '{1}' does not exist.", localPath, rid);
+                            return false;
+                        }
+                    }
+
+                    resolvedByRid[rid] = CreateAssetItems(rid, filesByName, flattenToRoot);
+                }
+                else
+                {
+                    List<ITaskItem> manifestEntries;
+                    if (manifestByRid.TryGetValue(rid, out manifestEntries))
+                    {
+                        List<ITaskItem> ridItems = new List<ITaskItem>(manifestEntries.Count);
+                        foreach (ITaskItem entry in manifestEntries)
+                        {
+                            string assetName = entry.GetMetadata("AssetName");
+                            string relativeUrl = entry.GetMetadata("RelativeUrl");
+                            string expectedSha256 = entry.GetMetadata("Sha256");
+                            string cachedPath = Path.GetFullPath(Path.Combine(CacheDirectory, rid, assetName));
+
+                            downloadEntries.Add(new DownloadEntry
+                            {
+                                Rid = rid,
+                                AssetName = assetName,
+                                DownloadUrl = DefaultBaseUrl.TrimEnd('/') + "/" + relativeUrl.TrimStart('/'),
+                                CachedPath = cachedPath,
+                                Sha256 = expectedSha256
+                            });
+
+                            ridItems.Add(CreateAssetItem(rid, assetName, cachedPath, flattenToRoot));
+                        }
+
+                        resolvedByRid[rid] = ridItems;
+                    }
+                }
+            }
+
+            foreach (string rootDir in localAllRootsSeen)
+            {
+                if (localAllRootHits[rootDir] == 0)
+                {
+                    Log.LogError("NGX.NET: No '<rid>' subdirectories containing runtime libraries were found under '{0}'. When using Include=\"All\" with Path, place libraries under '<Path>/<rid>/' (for example '{1}'), or specify a concrete RID such as Include=\"{1}\".", rootDir, supportedRids[0]);
+                    return false;
+                }
+            }
+
+            if (downloadEntries.Count > 0)
+            {
+                if (!await EnsureDownloadedAsync(downloadEntries).ConfigureAwait(false))
+                {
+                    return false;
+                }
+            }
+
+            List<ITaskItem> output = new List<ITaskItem>();
+            foreach (string rid in selectedRids)
+            {
+                List<ITaskItem> ridItems;
+                if (resolvedByRid.TryGetValue(rid, out ridItems))
+                {
+                    output.AddRange(ridItems);
+                }
+            }
+
+            ResolvedAssets = output.ToArray();
+            return true;
+        }
+
+        private async Task<bool> EnsureDownloadedAsync(List<DownloadEntry> entries)
+        {
+            List<DownloadEntry> precheckPending = GetPendingDownloads(entries);
+            if (precheckPending.Count == 0)
+            {
+                return true;
+            }
+
             Directory.CreateDirectory(CacheDirectory);
             using (FileStream lockStream = AcquireLock(Path.Combine(CacheDirectory, ".lock")))
             {
-                List<ITaskItem> pending = new List<ITaskItem>();
-                foreach (ITaskItem item in Assets)
-                {
-                    cancellation.Token.ThrowIfCancellationRequested();
-                    string cachedPath = item.GetMetadata("CachedPath");
-                    if ((!File.Exists(cachedPath)) || (!string.Equals(ComputeFileSha256(cachedPath), item.GetMetadata("Sha256"), StringComparison.OrdinalIgnoreCase)))
-                    {
-                        pending.Add(item);
-                    }
-                }
-
+                List<DownloadEntry> pending = GetPendingDownloads(entries);
                 if (pending.Count == 0)
                 {
                     return true;
@@ -119,6 +464,34 @@ namespace NGX.NET.Tasks
             }
         }
 
+        private List<DownloadEntry> GetPendingDownloads(List<DownloadEntry> entries)
+        {
+            List<DownloadEntry> pending = new List<DownloadEntry>();
+            foreach (DownloadEntry entry in entries)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                bool valid = false;
+                if (File.Exists(entry.CachedPath))
+                {
+                    try
+                    {
+                        valid = string.Equals(ComputeFileSha256(entry.CachedPath), entry.Sha256, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch (IOException)
+                    {
+                        valid = false;
+                    }
+                }
+
+                if (!valid)
+                {
+                    pending.Add(entry);
+                }
+            }
+
+            return pending;
+        }
+
         private FileStream AcquireLock(string lockPath)
         {
             bool logged = false;
@@ -142,13 +515,13 @@ namespace NGX.NET.Tasks
             }
         }
 
-        private async Task<long> DownloadWithRetryAsync(HttpClient client, ITaskItem item, int index, int totalCount, string tempRoot)
+        private async Task<long> DownloadWithRetryAsync(HttpClient client, DownloadEntry entry, int index, int totalCount, string tempRoot)
         {
-            string rid = item.GetMetadata("Rid");
-            string assetName = item.GetMetadata("AssetName");
-            string url = item.GetMetadata("DownloadUrl");
-            string cachedPath = item.GetMetadata("CachedPath");
-            string expectedSha256 = item.GetMetadata("Sha256");
+            string rid = entry.Rid;
+            string assetName = entry.AssetName;
+            string url = entry.DownloadUrl;
+            string cachedPath = entry.CachedPath;
+            string expectedSha256 = entry.Sha256;
             string tempFile = Path.Combine(tempRoot, rid, assetName);
 
             for (int attempt = 1; ; attempt++)
@@ -271,6 +644,149 @@ namespace NGX.NET.Tasks
             }
         }
 
+        private bool CollectDirectoryFiles(string rid, string directoryPath, Dictionary<string, string> filesByName, out int added)
+        {
+            string[] candidates = Directory.GetFiles(directoryPath);
+            Array.Sort(candidates, StringComparer.Ordinal);
+            added = 0;
+
+            foreach (string candidate in candidates)
+            {
+                string fileName = Path.GetFileName(candidate);
+                if (!IsValidRuntimeFileName(rid, fileName))
+                {
+                    continue;
+                }
+
+                if (!AddFileCheckingDuplicates(filesByName, fileName, candidate, rid))
+                {
+                    return false;
+                }
+
+                added++;
+            }
+
+            return true;
+        }
+
+        private bool AddFileCheckingDuplicates(Dictionary<string, string> filesByName, string fileName, string fullPath, string rid)
+        {
+            string existingPath;
+            if (filesByName.TryGetValue(fileName, out existingPath) && !string.Equals(existingPath, fullPath, StringComparison.OrdinalIgnoreCase))
+            {
+                Log.LogError("NGX.NET: Duplicate runtime file '{0}' for '{1}' specified at both '{2}' and '{3}'.", fileName, rid, existingPath, fullPath);
+                return false;
+            }
+
+            filesByName[fileName] = fullPath;
+            return true;
+        }
+
+        private static List<ITaskItem> CreateAssetItems(string rid, Dictionary<string, string> filesByName, bool flattenToRoot)
+        {
+            List<string> names = new List<string>(filesByName.Keys);
+            names.Sort(StringComparer.Ordinal);
+            List<ITaskItem> items = new List<ITaskItem>(names.Count);
+            foreach (string name in names)
+            {
+                items.Add(CreateAssetItem(rid, name, filesByName[name], flattenToRoot));
+            }
+
+            return items;
+        }
+
+        private static ITaskItem CreateAssetItem(string rid, string assetName, string sourcePath, bool flattenToRoot)
+        {
+            TaskItem item = new TaskItem(sourcePath);
+            item.SetMetadata("Rid", rid);
+            item.SetMetadata("AssetName", assetName);
+            item.SetMetadata("TargetOutputPath", flattenToRoot ? assetName : ("runtimes/" + rid + "/native/" + assetName));
+            return item;
+        }
+
+        private static Dictionary<string, string> CreateFileMap(string rid)
+        {
+            return new Dictionary<string, string>(rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+        }
+
+        private static string FindCanonicalRid(List<string> supportedRids, string candidate)
+        {
+            foreach (string rid in supportedRids)
+            {
+                if (string.Equals(rid, candidate, StringComparison.OrdinalIgnoreCase))
+                {
+                    return rid;
+                }
+            }
+
+            return null;
+        }
+
+        private static HashSet<string> ParseActiveRids(string runtimeIdentifier, string runtimeIdentifiers)
+        {
+            if (!string.IsNullOrWhiteSpace(runtimeIdentifier))
+            {
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { runtimeIdentifier.Trim().ToLowerInvariant() };
+            }
+
+            if (!string.IsNullOrWhiteSpace(runtimeIdentifiers))
+            {
+                HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                string[] parts = runtimeIdentifiers.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts)
+                {
+                    string trimmed = part.Trim().ToLowerInvariant();
+                    if (trimmed.Length > 0)
+                    {
+                        result.Add(trimmed);
+                    }
+                }
+
+                if (result.Count > 0)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        private static string ResolveUserPath(string rawPath, string projectDirectory)
+        {
+            string normalized = rawPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+            string combined = Path.IsPathRooted(normalized) ? normalized : Path.Combine(projectDirectory, normalized);
+            string fullPath = Path.GetFullPath(combined);
+            string root = Path.GetPathRoot(fullPath);
+            if (!string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase))
+            {
+                fullPath = fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+
+            return fullPath;
+        }
+
+        private static bool IsCoreNativeBinary(string fileName)
+        {
+            return string.Equals(fileName, "ngx-bridge.dll", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(fileName, "libngx-bridge.so", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsValidRuntimeFileName(string rid, string fileName)
+        {
+            if (IsCoreNativeBinary(fileName))
+            {
+                return false;
+            }
+
+            if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase))
+            {
+                return fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return fileName.EndsWith(".so", StringComparison.OrdinalIgnoreCase)
+                || (fileName.IndexOf(".so.", StringComparison.Ordinal) > 0);
+        }
+
         private void LogHigh(string format, params object[] args)
         {
             string message = args.Length == 0 ? format : string.Format(CultureInfo.InvariantCulture, format, args);
@@ -344,63 +860,31 @@ namespace NGX.NET.Tasks
             <_NgxNormalizedRids Condition="'$(RuntimeIdentifier)' != ''">;$(RuntimeIdentifier.Trim().ToLowerInvariant());</_NgxNormalizedRids>
             <_NgxNormalizedRids Condition="'$(_NgxNormalizedRids)' == '' and '$(RuntimeIdentifiers)' != ''">;$([System.Text.RegularExpressions.Regex]::Replace('$(RuntimeIdentifiers)', '\s+', '').ToLowerInvariant());</_NgxNormalizedRids>
 
-            <_NgxCacheRoot Condition="'$(_NgxCacheRoot)' == ''">$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))</_NgxCacheRoot>
             <_NgxCacheRoot Condition="'$(_NgxCacheRoot)' == ''">$([System.IO.Path]::GetTempPath())</_NgxCacheRoot>
             <_NgxCacheBaseDir>$([System.IO.Path]::GetFullPath('$([System.IO.Path]::Combine('$(_NgxCacheRoot)', 'NGX.NET', 'cache', '$(_NgxSdkRelease)'))'))</_NgxCacheBaseDir>
         </PropertyGroup>
-
-        <ItemGroup>
-            <_NgxRawCacheFile Include="@(_NgxManifestEntry->'$(_NgxCacheBaseDir)/%(Identity)')" />
-            <_NgxAllCacheFile Include="@(_NgxRawCacheFile->'%(FullPath)')" />
-            <_NgxAllCacheFile Update="@(_NgxAllCacheFile)">
-                <CachedPath>%(_NgxAllCacheFile.Identity)</CachedPath>
-                <DownloadUrl>$(_NgxDefaultBaseUrl)/%(_NgxAllCacheFile.RelativeUrl)</DownloadUrl>
-                <TargetOutputPath Condition="'$(RuntimeIdentifier)' != ''">%(_NgxAllCacheFile.AssetName)</TargetOutputPath>
-                <TargetOutputPath Condition="'$(RuntimeIdentifier)' == ''">runtimes/%(_NgxAllCacheFile.Rid)/native/%(_NgxAllCacheFile.AssetName)</TargetOutputPath>
-            </_NgxAllCacheFile>
-        </ItemGroup>
-
-    </Target>
-
-    <Target Name="_NgxResolveRuntimeAssets"
-            DependsOnTargets="_NgxInitializeRuntimeLayout"
-            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true'">
-
-        <ItemGroup>
-            <_NgxSelectedEntry Include="@(_NgxAllCacheFile)"
-                               Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxAllCacheFile.Rid);'))" />
-            <_NgxExistingCacheFile Include="@(_NgxSelectedEntry)" Condition="Exists('%(Identity)')" />
-        </ItemGroup>
-
-        <GetFileHash Files="@(_NgxExistingCacheFile)" Algorithm="SHA256" HashEncoding="hex" Condition="'@(_NgxExistingCacheFile)' != ''">
-            <Output TaskParameter="Items" ItemName="_NgxHashedCacheFile" />
-        </GetFileHash>
-
-        <ItemGroup Condition="'@(_NgxSelectedEntry)' != ''">
-            <_NgxValidCacheFile Include="@(_NgxHashedCacheFile)" Condition="$([System.String]::Equals('%(_NgxHashedCacheFile.FileHash)', '%(_NgxHashedCacheFile.Sha256)', System.StringComparison.OrdinalIgnoreCase))" />
-            <_NgxMissingEntry Include="@(_NgxSelectedEntry)" Exclude="@(_NgxValidCacheFile)" />
-        </ItemGroup>
-
-    </Target>
-
-    <Target Name="DownloadNgxRuntime"
-            DependsOnTargets="_NgxResolveRuntimeAssets"
-            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true' and '@(_NgxMissingEntry)' != ''">
-
-        <NgxDownloadAssets Assets="@(_NgxMissingEntry)"
-                           CacheDirectory="$(_NgxCacheBaseDir)"
-                           SdkRelease="$(_NgxSdkRelease)" />
 
     </Target>
 
     <Target Name="_NgxStageRuntimeAssets"
             BeforeTargets="AssignTargetPaths"
-            DependsOnTargets="_NgxResolveRuntimeAssets;DownloadNgxRuntime"
-            Condition="$([System.String]::Equals('$(NgxDownloadRuntime)', 'true', System.StringComparison.OrdinalIgnoreCase)) and '$(DesignTimeBuild)' != 'true'">
+            DependsOnTargets="_NgxInitializeRuntimeLayout"
+            Condition="'@(NGXRuntime)' != '' and '$(DesignTimeBuild)' != 'true'">
 
-        <ItemGroup Condition="'@(_NgxSelectedEntry)' != ''">
-            <None Include="@(_NgxSelectedEntry)">
-                <Link>%(_NgxSelectedEntry.TargetOutputPath)</Link>
+        <NgxResolveRuntime RuntimeItems="@(NGXRuntime)"
+                           ManifestEntries="@(_NgxManifestEntry)"
+                           ProjectDirectory="$(MSBuildProjectDirectory)"
+                           CacheDirectory="$(_NgxCacheBaseDir)"
+                           DefaultBaseUrl="$(_NgxDefaultBaseUrl)"
+                           SdkRelease="$(_NgxSdkRelease)"
+                           RuntimeIdentifier="$(RuntimeIdentifier)"
+                           RuntimeIdentifiers="$(RuntimeIdentifiers)">
+            <Output TaskParameter="ResolvedAssets" ItemName="_NgxResolvedAsset" />
+        </NgxResolveRuntime>
+
+        <ItemGroup Condition="'@(_NgxResolvedAsset)' != ''">
+            <None Include="@(_NgxResolvedAsset)">
+                <Link>%(_NgxResolvedAsset.TargetOutputPath)</Link>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -411,24 +895,67 @@ namespace NGX.NET.Tasks
 
     </Target>
 
-    <Target Name="_NgxNormalizeBuildRuntimeAssets"
-            AfterTargets="GetCopyToOutputDirectoryItems"
-            DependsOnTargets="_NgxInitializeRuntimeLayout"
-            Condition="'$(DesignTimeBuild)' != 'true' and '@(_SourceItemsToCopyToOutputDirectory)' != ''">
+    <Target Name="_NgxGetTransitiveRuntimeAssets"
+            DependsOnTargets="_NgxStageRuntimeAssets;_SplitProjectReferencesByFileExistence;_GetProjectReferenceTargetFrameworkProperties"
+            Condition="'$(DesignTimeBuild)' != 'true'"
+            Returns="@(_NgxTransitiveRuntimeAsset)">
+
+        <MSBuild Projects="@(_MSBuildProjectReferenceExistent)"
+                 Targets="_NgxGetTransitiveRuntimeAssets"
+                 BuildInParallel="$(BuildInParallel)"
+                 Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); %(_MSBuildProjectReferenceExistent.SetTargetFramework)"
+                 Condition="'@(_MSBuildProjectReferenceExistent)' != '' and '%(_MSBuildProjectReferenceExistent.Private)' != 'false' and '$(UseCommonOutputDirectory)' != 'true'"
+                 ContinueOnError="$(ContinueOnError)"
+                 SkipNonexistentTargets="true"
+                 RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)">
+            <Output TaskParameter="TargetOutputs" ItemName="_NgxChildRuntimeAsset" />
+        </MSBuild>
 
         <ItemGroup>
-            <_NgxUnstagedBuildAsset Include="@(_NgxAllCacheFile)" Exclude="@(_SourceItemsToCopyToOutputDirectory)" />
-            <_NgxStagedBuildAsset Include="@(_NgxAllCacheFile)" Exclude="@(_NgxUnstagedBuildAsset)" />
+            <_NgxTransitiveRuntimeAsset Include="@(_NgxChildRuntimeAsset)"
+                                        Condition="'@(NGXRuntime)' == ''" />
+            <_NgxTransitiveRuntimeAsset Include="@(_NgxResolvedAsset)"
+                                        Condition="'@(_NgxResolvedAsset)' != ''">
+                <_NgxRid>%(_NgxResolvedAsset.Rid)</_NgxRid>
+                <_NgxAssetName>%(_NgxResolvedAsset.AssetName)</_NgxAssetName>
+            </_NgxTransitiveRuntimeAsset>
         </ItemGroup>
 
-        <ItemGroup Condition="'@(_NgxStagedBuildAsset)' != ''">
-            <_SourceItemsToCopyToOutputDirectory Remove="@(_NgxAllCacheFile)" />
-            <AllItemsFullPathWithTargetPath Remove="@(_NgxAllCacheFile)" />
-            <_NgxNormalizedBuildAsset Include="@(_NgxStagedBuildAsset)"
-                                      Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxStagedBuildAsset.Rid);'))">
+    </Target>
+
+    <Target Name="_NgxNormalizeBuildRuntimeAssets"
+            AfterTargets="GetCopyToOutputDirectoryItems"
+            DependsOnTargets="_NgxInitializeRuntimeLayout;_NgxGetTransitiveRuntimeAssets"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+
+        <ItemGroup>
+            <_NgxBuildRemoveAsset Include="@(_NgxChildRuntimeAsset);@(_NgxResolvedAsset)" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'@(_NgxBuildRemoveAsset)' != ''">
+            <_SourceItemsToCopyToOutputDirectory Remove="@(_NgxBuildRemoveAsset)" />
+            <AllItemsFullPathWithTargetPath Remove="@(_NgxBuildRemoveAsset)" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'@(_NgxTransitiveRuntimeAsset)' != ''">
+            <_NgxBuildCandidate Include="@(_NgxTransitiveRuntimeAsset)"
+                                Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxTransitiveRuntimeAsset._NgxRid);'))">
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <TargetPath>%(_NgxStagedBuildAsset.TargetOutputPath)</TargetPath>
-            </_NgxNormalizedBuildAsset>
+                <TargetPath Condition="'$(RuntimeIdentifier)' != ''">%(_NgxTransitiveRuntimeAsset._NgxAssetName)</TargetPath>
+                <TargetPath Condition="'$(RuntimeIdentifier)' == ''">runtimes/%(_NgxTransitiveRuntimeAsset._NgxRid)/native/%(_NgxTransitiveRuntimeAsset._NgxAssetName)</TargetPath>
+            </_NgxBuildCandidate>
+
+            <_NgxBuildDedupInput Include="@(_NgxBuildCandidate->'%(TargetPath)')">
+                <OriginalIdentity>%(Identity)</OriginalIdentity>
+            </_NgxBuildDedupInput>
+        </ItemGroup>
+
+        <RemoveDuplicates Inputs="@(_NgxBuildDedupInput)" Condition="'@(_NgxBuildDedupInput)' != ''">
+            <Output TaskParameter="Filtered" ItemName="_NgxBuildDedupOutput" />
+        </RemoveDuplicates>
+
+        <ItemGroup Condition="'@(_NgxBuildDedupOutput)' != ''">
+            <_NgxNormalizedBuildAsset Include="@(_NgxBuildDedupOutput->'%(OriginalIdentity)')" />
             <_SourceItemsToCopyToOutputDirectory Include="@(_NgxNormalizedBuildAsset)" />
             <AllItemsFullPathWithTargetPath Include="@(_NgxNormalizedBuildAsset)" />
         </ItemGroup>
@@ -437,23 +964,38 @@ namespace NGX.NET.Tasks
 
     <Target Name="_NgxNormalizePublishRuntimeAssets"
             AfterTargets="GetCopyToPublishDirectoryItems"
-            DependsOnTargets="_NgxInitializeRuntimeLayout"
-            Condition="'$(DesignTimeBuild)' != 'true' and '@(_SourceItemsToCopyToPublishDirectory)' != ''">
+            DependsOnTargets="_NgxInitializeRuntimeLayout;_NgxGetTransitiveRuntimeAssets"
+            Condition="'$(DesignTimeBuild)' != 'true'">
 
         <ItemGroup>
-            <_NgxUnstagedPublishAsset Include="@(_NgxAllCacheFile)" Exclude="@(_SourceItemsToCopyToPublishDirectory)" />
-            <_NgxStagedPublishAsset Include="@(_NgxAllCacheFile)" Exclude="@(_NgxUnstagedPublishAsset)" />
+            <_NgxPublishRemoveAsset Include="@(_NgxChildRuntimeAsset);@(_NgxResolvedAsset)" />
         </ItemGroup>
 
-        <ItemGroup Condition="'@(_NgxStagedPublishAsset)' != ''">
-            <_SourceItemsToCopyToPublishDirectory Remove="@(_NgxAllCacheFile)" />
-            <AllPublishItemsFullPathWithTargetPath Remove="@(_NgxAllCacheFile)" />
-            <_NgxNormalizedPublishAsset Include="@(_NgxStagedPublishAsset)"
-                                        Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxStagedPublishAsset.Rid);'))">
+        <ItemGroup Condition="'@(_NgxPublishRemoveAsset)' != ''">
+            <_SourceItemsToCopyToPublishDirectory Remove="@(_NgxPublishRemoveAsset)" />
+            <AllPublishItemsFullPathWithTargetPath Remove="@(_NgxPublishRemoveAsset)" />
+        </ItemGroup>
+
+        <ItemGroup Condition="'@(_NgxTransitiveRuntimeAsset)' != ''">
+            <_NgxPublishCandidate Include="@(_NgxTransitiveRuntimeAsset)"
+                                  Condition="'$(_NgxNormalizedRids)' == '' or $(_NgxNormalizedRids.Contains(';%(_NgxTransitiveRuntimeAsset._NgxRid);'))">
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-                <TargetPath>%(_NgxStagedPublishAsset.TargetOutputPath)</TargetPath>
-            </_NgxNormalizedPublishAsset>
+                <TargetPath Condition="'$(RuntimeIdentifier)' != ''">%(_NgxTransitiveRuntimeAsset._NgxAssetName)</TargetPath>
+                <TargetPath Condition="'$(RuntimeIdentifier)' == ''">runtimes/%(_NgxTransitiveRuntimeAsset._NgxRid)/native/%(_NgxTransitiveRuntimeAsset._NgxAssetName)</TargetPath>
+            </_NgxPublishCandidate>
+
+            <_NgxPublishDedupInput Include="@(_NgxPublishCandidate->'%(TargetPath)')">
+                <OriginalIdentity>%(Identity)</OriginalIdentity>
+            </_NgxPublishDedupInput>
+        </ItemGroup>
+
+        <RemoveDuplicates Inputs="@(_NgxPublishDedupInput)" Condition="'@(_NgxPublishDedupInput)' != ''">
+            <Output TaskParameter="Filtered" ItemName="_NgxPublishDedupOutput" />
+        </RemoveDuplicates>
+
+        <ItemGroup Condition="'@(_NgxPublishDedupOutput)' != ''">
+            <_NgxNormalizedPublishAsset Include="@(_NgxPublishDedupOutput->'%(OriginalIdentity)')" />
             <_SourceItemsToCopyToPublishDirectory Include="@(_NgxNormalizedPublishAsset)" />
             <AllPublishItemsFullPathWithTargetPath Include="@(_NgxNormalizedPublishAsset)" />
         </ItemGroup>

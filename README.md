@@ -8,7 +8,7 @@ Low-level, zero-overhead C# bindings for **NVIDIA NGX** (**DLSS Super Resolution
 ## Features
 
 - **Multi-Backend & Cross-Platform** — Full coverage of `Ngx.D3D11`, `Ngx.D3D12`, `Ngx.Vulkan`, `Ngx.CUDA`, `Ngx.Parameter`, `Ngx.DLSS`, and `Ngx.DLSSD` across `win-x64`, `win-arm64`, `linux-x64`, and `linux-arm64`.
-- **Lightweight Core + On-Demand Runtime Binaries** — Ships only the minimal `ngx-bridge` native library in the NuGet package; opt into `<NgxDownloadRuntime>true</NgxDownloadRuntime>` to automatically download, SHA-256 verify, cache, and stage official DLSS runtime binaries at build/publish time.
+- **Lightweight Core + Flexible Runtime Staging** — Ships only the minimal `ngx-bridge` native library in the NuGet package; add `<NGXRuntime>` items in your `.csproj` to automatically download, SHA-256 verify, and cache official binaries in the system temporary directory, or copy local SDK/dev/custom runtime binaries directly.
 - **Zero-Overhead Interop** — `LibraryImport` P/Invokes, `readonly struct` handles (`NGXHandle`, `NGXParameter`), `unmanaged` function pointers, zero-allocation `ReadOnlySpan<byte>` parameter keys, and ergonomic `in`/`out`/string overloads.
 - **Native AOT & Trimming Ready** — Built with `IsAotCompatible` enabled and zero external dependencies.
 
@@ -20,17 +20,27 @@ dotnet add package NGX.NET
 
 > **Requirements:** .NET 10+, Windows (`x64`, `arm64`) or Linux (`x64`, `arm64`), and a compatible NVIDIA GPU and driver.
 
-### Automatic Runtime Binary Download
+### Runtime Binaries
 
-To automatically download and stage official DLSS runtime libraries (`nvngx_dlss*` / `libnvidia-ngx-dlss*`) during `build` and `publish`, enable `NgxDownloadRuntime` in your `.csproj`:
+By default, `NGX.NET` only includes `ngx-bridge`. Declare `<NGXRuntime>` items in your `.csproj` to stage official or local DLSS runtime libraries (`nvngx_dlss*` / `libnvidia-ngx-dlss*`) during `build` and `publish`:
 
 ```xml
-<PropertyGroup>
-    <NgxDownloadRuntime>true</NgxDownloadRuntime>
-</PropertyGroup>
+<ItemGroup>
+    <!-- Omit <Path> to download official binaries for a specific RID (or All) into Path.GetTempPath() -->
+    <NGXRuntime Include="win-x64" />
+
+    <!-- Or set <Path> to copy a local SDK/dev/rel folder or specific DLL/SO files without network access -->
+    <!--
+    <NGXRuntime Include="win-x64">
+        <Path>path\to\dlss\lib\Windows_x86_64\rel</Path>
+    </NGXRuntime>
+    -->
+</ItemGroup>
 ```
 
-Downloaded binaries are verified against pinned SHA-256 digests, cached under `LocalApplicationData/NGX.NET/cache`, filtered by `<RuntimeIdentifier>` / `<RuntimeIdentifiers>`, and kept side-by-side during `PublishSingleFile` builds.
+- **Online Download (`<Path>` omitted or empty)** — Supported `Include` values are `All`, `None`, `win-x64`, `win-arm64`, `linux-x64`, and `linux-arm64`. Official binaries are verified against pinned SHA-256 digests and cached under `<SystemTemp>/NGX.NET/cache/<version>`.
+- **Local Directory or Files (`<Path>` specified)** — For a concrete RID (`win-x64`, `linux-x64`, etc.), `<Path>` can point to either a directory of `.dll`/`.so*` binaries or an individual library file (repeat the item for multiple files). For `Include="All"`, `<Path>` expects `<rid>/` subdirectories (such as `win-x64/` and `linux-x64/`).
+- **Overrides, Packaging & Single-File Publish** — Concrete RID entries override matching RIDs from `All`, `Include="None"` disables inherited entries, `ProjectReference` consumers inherit staged runtimes cleanly, `dotnet pack` never bundles downloaded or copied runtime binaries, `<RuntimeIdentifier>` filters staged targets automatically, and runtime binaries stay side-by-side during `PublishSingleFile` builds.
 
 ## Quick Start
 
@@ -74,7 +84,7 @@ if (Ngx.NVSDK_NGX_SUCCEED(Ngx.D3D12.GetCapabilityParameters(out NGXParameter par
 
 ## Usage Notes
 
-- Pass `Ngx.RuntimeDirectory` in `NGXFeatureCommonInfo.PathListInfo` when using `NgxDownloadRuntime`, or supply your own feature search paths.
+- Pass `Ngx.RuntimeDirectory` in `NGXFeatureCommonInfo.PathListInfo` when staging runtime binaries via `<NGXRuntime>`, or supply your own feature search paths.
 - Check return codes with `Ngx.NVSDK_NGX_SUCCEED` / `Ngx.NVSDK_NGX_FAILED` and inspect failures via `Ngx.GetResultString`.
 - Use `new()` when SDK structs define non-zero defaults; `default` zero-initializes all fields.
 - Keep native buffers, GPU resources, callbacks, and `NGXStrings` allocations alive while NGX references them.

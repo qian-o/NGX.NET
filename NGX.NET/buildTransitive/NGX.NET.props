@@ -6,6 +6,12 @@
         <_NgxDefaultBaseUrl>https://raw.githubusercontent.com/NVIDIA/DLSS/9981c6350dc58c0ce21f024fd65e31e851c31689</_NgxDefaultBaseUrl>
     </PropertyGroup>
 
+    <ItemDefinitionGroup>
+        <NGXRuntime>
+            <Path />
+        </NGXRuntime>
+    </ItemDefinitionGroup>
+
     <ItemGroup>
         <_NgxManifestEntry Include="linux-arm64/libnvidia-ngx-dlss.so.310.9.16" Rid="linux-arm64" AssetName="libnvidia-ngx-dlss.so.310.9.16" RelativeUrl="lib/Linux_aarch64/rel/libnvidia-ngx-dlss.so.310.9.16" Sha256="AC59314B13B99F7688C13953052BBDBD5868460ECCC95CB19FC27FA08AE3E64C" />
         <_NgxManifestEntry Include="linux-arm64/libnvidia-ngx-dlssd.so.310.9.16" Rid="linux-arm64" AssetName="libnvidia-ngx-dlssd.so.310.9.16" RelativeUrl="lib/Linux_aarch64/rel/libnvidia-ngx-dlssd.so.310.9.16" Sha256="E63031B4351A591E42EE226744D649303279365E4E3AE0FAC2A2A7F02C51B346" />
