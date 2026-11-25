@@ -2,15 +2,10 @@
 
     <Import Project="$(MSBuildThisFileDirectory)NGX.NET.props" Condition="'$(_NgxSdkRelease)' == ''" />
 
-    <PropertyGroup>
-        <_NgxHttpReference Condition="'$(MSBuildRuntimeType)' == 'Full'"><![CDATA[<Reference Include="System.Net.Http" />]]></_NgxHttpReference>
-    </PropertyGroup>
-
     <UsingTask TaskName="NgxDownloadAssets"
                TaskFactory="RoslynCodeTaskFactory"
                AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <Task>
-            $(_NgxHttpReference)
             <Code Type="Class" Language="cs">
 <![CDATA[
 using System;

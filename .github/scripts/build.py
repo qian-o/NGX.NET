@@ -434,6 +434,8 @@ def verify_manifest(root: Path, source: dict) -> None:
     for token in (f"{PREFIX}DownloadRuntime", f"{PREFIX}DownloadAssets", f"{PACKAGE}.props", "System.Net.Http", "ExcludeFromSingleFile"):
         if token not in targets_text:
             raise RuntimeError(f"buildTransitive/{PACKAGE}.targets missing expected symbol: {token}")
+    if "<Reference" in targets_text:
+        raise RuntimeError(f"buildTransitive/{PACKAGE}.targets must not contain explicit <Reference> elements.")
     print(f"Verified buildTransitive runtime manifest ({len(expected_entries)} entries) and targets.")
 
 
